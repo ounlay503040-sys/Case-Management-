@@ -129,7 +129,6 @@ function renderMasterTableHTML(dataArray) {
                     <th style="padding: 8px 6px; width: 110px;">ប្រភេទវិវាទ</th>
                     <th style="padding: 8px 6px; width: 80px;">ទីតាំង</th>
                     <th style="padding: 8px 6px;">ចំណាត់ការសម្រុះសម្រួល</th>
-                    <th style="padding: 8px 6px; width: 110px;">មន្ត្រីទទួលបន្ទុក</th>
                     <th style="padding: 8px 6px; width: 100px;">លទ្ធផល</th>
                     <th style="padding: 8px 6px; width: 80px;">កំណត់ចំណាំ</th>
                 </tr>
@@ -158,7 +157,6 @@ function renderMasterTableHTML(dataArray) {
                     <div>🔸 ខ៖ ${c.meetingPartyB}</div>
                     <div style="font-weight: 700; color: #2563eb; margin-top: 2px;">⚖️ ${c.mediationMeeting}</div>
                 </td>
-                <td style="padding: 6px; text-align: center; font-size: 9.5pt;">${c.officer}</td>
                 <td style="padding: 6px; text-align: center; font-weight: 700; color: ${c.status.startsWith('Settle') ? '#10b981' : (c.status.startsWith('Active') ? '#2563eb' : '#64748b')};">${c.status}</td>
                 <td style="padding: 6px; text-align: center; font-size: 9.5pt;">${c.remarks}</td>
             </tr>
@@ -317,7 +315,6 @@ function exportReportToExcel() {
         'ប្រជុំភាគី (ខ)': c.meetingPartyB,
         'ប្រជុំសម្រុះសម្រួល': c.mediationMeeting,
 
-        'មន្ត្រីសម្របសម្រួល': c.officer,
         'លទ្ធផលសំណុំរឿង': c.status,
         'កំណត់ចំណាំ': c.remarks
     }));
@@ -346,7 +343,6 @@ function exportReportToExcel() {
         { wch: 25 }, // ប្រជុំ ក
         { wch: 25 }, // ប្រជុំ ខ
         { wch: 28 }, // ប្រជុំសម្រុះសម្រួល
-        { wch: 24 }, // មន្ត្រី
         { wch: 22 }, // លទ្ធផល
         { wch: 16 }  // កំណត់ចំណាំ
     ];

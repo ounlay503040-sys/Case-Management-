@@ -264,7 +264,6 @@ function applyFiltersAndRenderMasterTable() {
                         <div style="font-weight: 600; color: var(--primary-color);">⚖️ ផ្សះផ្សា៖ ${c.mediationMeeting}</div>
                     </div>
                 </td>
-                <td><span style="font-weight: 500; font-size: 12px;">${c.officer}</span></td>
                 <td class="text-center">${getStatusBadgeHTML(c.status)}</td>
                 <td class="text-center">
                     <span class="badge ${c.remarks === 'បានបិទរួចរាល់' ? 'badge-settle' : 'badge-pending'}" style="font-size: 11px;">
@@ -419,7 +418,6 @@ function initModalEvents() {
                 dateReceived: document.getElementById('case-date').value,
                 category: document.getElementById('case-category').value,
                 disputeLocation: document.getElementById('case-dispute-location').value,
-                officer: document.getElementById('case-officer').value.trim(),
                 
                 partyA_name: document.getElementById('case-party-a-name').value.trim(),
                 partyA_gender: document.getElementById('case-party-a-gender').value,
@@ -476,7 +474,6 @@ function openEditModal(id) {
     document.getElementById('case-date').value = c.dateReceived || '';
     document.getElementById('case-category').value = c.category || 'វិវាទកិច្ចសន្យា';
     document.getElementById('case-dispute-location').value = c.disputeLocation || 'ភ្នំពេញ';
-    document.getElementById('case-officer').value = c.officer || '';
 
     document.getElementById('case-party-a-name').value = c.partyA_name || '';
     document.getElementById('case-party-a-gender').value = c.partyA_gender || 'ប្រុស';
@@ -575,11 +572,6 @@ function openViewModal(id) {
                         <strong style="color: var(--primary-color);">${c.mediationMeeting}</strong>
                     </div>
                 </div>
-            </div>
-
-            <div class="dossier-item full-width">
-                <span class="d-label">មន្ត្រីសម្របសម្រួល / ទទួលបន្ទុក (Assigned Officer)</span>
-                <span class="d-val"><i class="fa-solid fa-user-shield text-primary"></i> ${c.officer}</span>
             </div>
         </div>
     `;
@@ -777,11 +769,10 @@ function printSingleDossier(c) {
                 <tr><td style="padding: 10px;"><strong>ប្រជុំប្រមូលព័ត៌មាន ភាគី ក៖</strong></td><td style="padding: 10px;">${c.meetingPartyA}</td></tr>
                 <tr><td style="padding: 10px;"><strong>ប្រជុំប្រមូលព័ត៌មាន ភាគី ខ៖</strong></td><td style="padding: 10px;">${c.meetingPartyB}</td></tr>
                 <tr><td style="padding: 10px;"><strong>ប្រជុំសម្រុះសម្រួល៖</strong></td><td style="padding: 10px;"><strong>${c.mediationMeeting}</strong></td></tr>
-                <tr><td style="padding: 10px;"><strong>មន្ត្រីទទួលបន្ទុក៖</strong></td><td style="padding: 10px;">${c.officer}</td></tr>
                 <tr><td style="padding: 10px;"><strong>លទ្ធផលសំណុំរឿង៖</strong></td><td style="padding: 10px;"><strong>${c.status}</strong> (${c.remarks})</td></tr>
             </table>
             <div style="display: flex; justify-content: space-between; margin-top: 50px; text-align: center;">
-                <div style="width: 200px;"><p>ហត្ថលេខាមន្ត្រីទទួលបន្ទុក</p><br><br><p><strong>${c.officer}</strong></p></div>
+                <div style="width: 200px;"><p>អ្នករៀបចំរបាយការណ៍</p><br><br><p><strong>..................................</strong></p></div>
                 <div style="width: 200px;"><p>រាជធានីភ្នំពេញ, ថ្ងៃទី... ខែ... ឆ្នាំ២០២៦</p><p>ប្រធានការិយាល័យ</p><br><br><p><strong>..................................</strong></p></div>
             </div>
         </div>
