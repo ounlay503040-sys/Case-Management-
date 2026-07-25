@@ -25,9 +25,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // 4. Initialize event listeners
     initNavigation();
     initModalEvents();
+    if (typeof initAIAssistantEvents === 'function') initAIAssistantEvents();
+    if (typeof initDocsEvents === 'function') initDocsEvents();
     initFilterAndSearchEvents();
     initDataManagementEvents();
     initThemeToggle();
+    initLanguageSwitcher();
 
     // 5. Initial render
     renderAllViews();
@@ -209,6 +212,7 @@ function renderRecentCasesTable() {
                 <td class="text-center">
                     <div class="action-btns">
                         <button class="btn-icon" onclick="openViewModal('${c.id}')" title="មើលប័ណ្ណព័ត៌មាន"><i class="fa-solid fa-eye"></i></button>
+                        <button class="btn-icon text-success" onclick="if(typeof openLegalDocModal === 'function') openLegalDocModal('${c.id}')" title="ផលិតលិខិតគតិយុត្ត (5 Docs)"><i class="fa-solid fa-file-signature"></i></button>
                         <button class="btn-icon" onclick="openEditModal('${c.id}')" title="កែសម្រួល"><i class="fa-solid fa-pen"></i></button>
                     </div>
                 </td>
@@ -295,6 +299,7 @@ function applyFiltersAndRenderMasterTable() {
                 <td class="text-center">
                     <div class="action-btns">
                         <button class="btn-icon" onclick="openViewModal('${c.id}')" title="មើលប័ណ្ណ"><i class="fa-solid fa-eye"></i></button>
+                        <button class="btn-icon text-success" onclick="if(typeof openLegalDocModal === 'function') openLegalDocModal('${c.id}')" title="ផលិតលិខិតគតិយុត្ត (5 Docs)"><i class="fa-solid fa-file-signature"></i></button>
                         <button class="btn-icon" onclick="openEditModal('${c.id}')" title="កែសម្រួល"><i class="fa-solid fa-pen"></i></button>
                         <button class="btn-icon delete-btn" onclick="confirmDeleteCase('${c.id}')" title="លុប"><i class="fa-solid fa-trash"></i></button>
                     </div>
@@ -696,6 +701,12 @@ function openViewModal(id) {
     }
 
     // Modal action buttons
+    const btnGenDoc = document.getElementById('btn-generate-doc-from-view');
+    if (btnGenDoc) {
+        btnGenDoc.onclick = () => {
+            if (typeof openLegalDocModal === 'function') openLegalDocModal(c.id);
+        };
+    }
     document.getElementById('btn-edit-from-view').onclick = () => openEditModal(c.id);
     document.getElementById('btn-delete-from-view').onclick = () => confirmDeleteCase(c.id, true);
     document.getElementById('btn-print-single-case').onclick = () => printSingleDossier(c);
@@ -756,6 +767,16 @@ function renderAnalyticsView() {
  * Excel Import Engine (SheetJS) & Backup Events
  */
 function initDataManagementEvents() {
+    const btnDownloadTpl = document.getElementById('btn-download-excel-template');
+    if (btnDownloadTpl) {
+        btnDownloadTpl.addEventListener('click', () => {
+            if (typeof generateExcelTemplate === 'function') {
+                generateExcelTemplate();
+                showToast('កំពុងទាញយកឯកសារគំរូ Excel (CMS_Case_Entry_Template.xlsx)...', 'success');
+            }
+        });
+    }
+
     const excelInput = document.getElementById('import-excel-file');
     if (excelInput) {
         excelInput.addEventListener('change', (e) => {
@@ -968,7 +989,7 @@ function initAuth() {
                     }, 400);
                 }
 
-                showToaster('ចូលប្រព័ន្ធជោគជ័យ! សូមស្វាគមន៍មកកាន់ CMS Pro', 'success');
+                showToast('ចូលប្រព័ន្ធជោគជ័យ! សូមស្វាគមន៍មកកាន់ CMS Pro', 'success');
             } else {
                 if (errorMsg) errorMsg.classList.remove('d-none');
                 pwdInput.value = '';
@@ -978,27 +999,62 @@ function initAuth() {
     }
 
     // 4. Logout click
-    if (btnLogout) {
-        btnLogout.addEventListener('click', () => {
-            if (confirm('តើអ្នកពិតជាចង់ចាកចេញពីប្រព័ន្ធ (Logout) មែនទេ?')) {
-                localStorage.removeItem('nadr_auth_logged_in');
-                sessionStorage.removeItem('nadr_auth_logged_in');
-                
-                if (overlay) overlay.classList.remove('hidden-auth');
-                const pwd = document.getElementById('login-password');
-                if (pwd) pwd.value = '';
-                if (errorMsg) errorMsg.classList.add('d-none');
-                
-                showToaster('បានចាកចេញពីប្រព័ន្ធដោយសុវត្ថិភាព', 'info');
-            }
-        });
-    }
+    const doLogout = () => {
+        if (confirm('តើអ្នកពិតជាចង់ចាកចេញពីប្រព័ន្ធ (Logout) មែនទេ?')) {
+            localStorage.removeItem('nadr_auth_logged_in');
+            sessionStorage.removeItem('nadr_auth_logged_in');
+            
+            if (overlay) overlay.classList.remove('hidden-auth');
+            const pwd = document.getElementById('login-password');
+            if (pwd) pwd.value = '';
+            if (errorMsg) errorMsg.classList.add('d-none');
+            
+            showToast('បានចាកចេញពីប្រព័ន្ធដោយសុវត្ថិភាព', 'info');
+        }
+    };
+
+    if (btnLogout) btnLogout.addEventListener('click', doLogout);
+    const btnLogoutHeader = document.getElementById('btn-logout-header');
+    if (btnLogoutHeader) btnLogoutHeader.addEventListener('click', doLogout);
 }
 
 function updateSidebarUser(name, role) {
     const nameEl = document.getElementById('logged-user-name');
     const roleEl = document.getElementById('logged-user-role');
+    const headerNameEl = document.getElementById('header-user-name');
     if (nameEl) nameEl.textContent = name;
     if (roleEl) roleEl.textContent = role;
+    if (headerNameEl) headerNameEl.textContent = name;
+}
+
+/**
+ * Initialize Language Switcher (Khmer/English)
+ */
+function initLanguageSwitcher() {
+    const btnKm = document.getElementById('btn-lang-km');
+    const btnEn = document.getElementById('btn-lang-en');
+
+    if (btnKm) {
+        btnKm.addEventListener('click', () => {
+            if (currentLang !== 'km') {
+                applyLanguage('km');
+                renderAllViews();
+                showToast('ភាសាត្រូវបានប្តូរទៅជា ខ្មែរ 🇰🇭', 'success');
+            }
+        });
+    }
+
+    if (btnEn) {
+        btnEn.addEventListener('click', () => {
+            if (currentLang !== 'en') {
+                applyLanguage('en');
+                renderAllViews();
+                showToast('Language switched to English 🇺🇸', 'success');
+            }
+        });
+    }
+
+    // Apply the initial language on load
+    applyLanguage(currentLang);
 }
 

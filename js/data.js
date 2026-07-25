@@ -480,3 +480,274 @@ function getTodayDateString() {
     const d = String(today.getDate()).padStart(2, '0');
     return `${y}-${m}-${d}`;
 }
+
+/**
+ * Generate and download Sample Excel Template for Case Entry (.xlsx)
+ */
+function generateExcelTemplate() {
+    if (typeof XLSX === 'undefined') {
+        alert('សូមអភ័យទោស បណ្ណាល័យ SheetJS (XLSX) មិនទាន់បានផ្ទុកទេ! សូមពិនិត្យការភ្ជាប់អ៊ីនធឺណិត។');
+        return;
+    }
+
+    const templateRows = [
+        {
+            "លេខកូដសំណុំរឿង": "NADR-2026-001",
+            "កាលបរិច្ឆេទ": "2026-07-26",
+            "ឈ្មោះភាគី ក (ដើមបណ្តឹង)": "សុខ សុវត្ថិ",
+            "ភេទ ក": "ប្រុស",
+            "អាយុ ក": 45,
+            "ទូរស័ព្ទ ក": "012345678",
+            "ខេត្ត ក": "ភ្នំពេញ",
+            "ឈ្មោះភាគី ខ (ចុងបណ្តឹង)": "ចាន់ សុខា",
+            "ភេទ ខ": "ប្រុស",
+            "អាយុ ខ": 50,
+            "ទូរស័ព្ទ ខ": "098765432",
+            "ខេត្ត ខ": "ភ្នំពេញ",
+            "ប្រភេទវិវាទ": "វិវាទដីធ្លី",
+            "ទីតាំងវិវាទ": "ភ្នំពេញ",
+            "សេចក្តីសង្ខេប": "វិវាទព្រំប្រទល់ដី និងរបងផ្ទះ",
+            "ប្រជុំភាគី ក": "បានប្រមូលព័ត៌មានភាគីម្ខាងទៀតរួចរាល់",
+            "ប្រជុំភាគី ខ": "បានប្រមូលព័ត៌មានភាគីម្ខាងទៀតរួចរាល់",
+            "ប្រជុំសម្រុះសម្រួល": "បានប្រជុំសម្រុះសម្រួល (កំពុងបន្ត)",
+            "លទ្ធផលសំណុំរឿង": "Active (កំពុងសម្រុះសម្រួល)",
+            "កំណត់ចំណាំ": "កំពុងពិនិត្យ និងដោះស្រាយ (មិនទាន់បិទ)"
+        },
+        {
+            "លេខកូដសំណុំរឿង": "NADR-2026-002",
+            "កាលបរិច្ឆេទ": "2026-07-26",
+            "ឈ្មោះភាគី ក (ដើមបណ្តឹង)": "ម៉ែន ស្រីពៅ",
+            "ភេទ ក": "ស្រី",
+            "អាយុ ក": 35,
+            "ទូរស័ព្ទ ក": "016111222",
+            "ខេត្ត ក": "កណ្តាល",
+            "ឈ្មោះភាគី ខ (ចុងបណ្តឹង)": "កែវ វាសនា",
+            "ភេទ ខ": "ប្រុស",
+            "អាយុ ខ": 38,
+            "ទូរស័ព្ទ ខ": "017333444",
+            "ខេត្ត ខ": "កណ្តាល",
+            "ប្រភេទវិវាទ": "វិវាទកិច្ចសន្យា",
+            "ទីតាំងវិវាទ": "កណ្តាល",
+            "សេចក្តីសង្ខេប": "វិវាទកិច្ចសន្យាខ្ចីប្រាក់ និងខុសសន្យា",
+            "ប្រជុំភាគី ក": "បានប្រមូលព័ត៌មានភាគីម្ខាងទៀតរួចរាល់",
+            "ប្រជុំភាគី ខ": "បានប្រមូលព័ត៌មានភាគីម្ខាងទៀតរួចរាល់",
+            "ប្រជុំសម្រុះសម្រួល": "បានប្រជុំសម្រុះសម្រួលរួចរាល់ (ព្រមព្រៀង)",
+            "លទ្ធផលសំណុំរឿង": "Settle (ព្រមព្រៀង)",
+            "កំណត់ចំណាំ": "សម្រុះសម្រួលព្រមព្រៀងជោគជ័យ (បានបិទរួចរាល់)"
+        }
+    ];
+
+    const worksheet = XLSX.utils.json_to_sheet(templateRows);
+    
+    // Set column widths
+    worksheet['!cols'] = [
+        { wch: 18 }, { wch: 14 }, { wch: 24 }, { wch: 8 }, { wch: 8 }, { wch: 14 }, { wch: 14 },
+        { wch: 24 }, { wch: 8 }, { wch: 8 }, { wch: 14 }, { wch: 14 },
+        { wch: 18 }, { wch: 14 }, { wch: 35 },
+        { wch: 30 }, { wch: 30 }, { wch: 35 }, { wch: 25 }, { wch: 30 }
+    ];
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'គំរូតារាងបញ្ជីសំណុំរឿង');
+    XLSX.writeFile(workbook, 'CMS_Case_Entry_Template.xlsx');
+}
+
+// ===========================================================================
+// I18N DICTIONARY — BILINGUAL LANGUAGE SUPPORT (ខ្មែរ / English)
+// ===========================================================================
+
+let currentLang = localStorage.getItem('nadr_app_lang') || 'km';
+
+const I18N = {
+    // ------------ Sidebar Navigation ------------
+    'nav.main': { km: 'មេនុយទូទៅ (MAIN)', en: 'MAIN MENU' },
+    'nav.dashboard': { km: 'ផ្ទាំងស្ថិតិសង្ខេប', en: 'Dashboard' },
+    'nav.cases': { km: 'បញ្ជីសំណុំរឿងគោល ១', en: 'Case Registry #1' },
+    'nav.analytics': { km: 'វិភាគវាយតម្លៃចំណាត់ការ', en: 'Analytics & Assessment' },
+    'nav.admin': { km: 'រដ្ឋបាល & ទិន្នន័យ (ADMIN)', en: 'ADMIN & DATA' },
+    'nav.reports': { km: 'ផលិតរបាយការណ៍', en: 'Report Generator' },
+    'nav.data': { km: 'ទាញទិន្នន័យចូល & បម្រុង', en: 'Import & Backup' },
+    'sidebar.subtitle': { km: 'អាជ្ញាធរជាតិដោះស្រាយវិវាទ', en: 'National Authority for Dispute Resolution' },
+
+    // ------------ Top Header ------------
+    'header.search': { km: 'ស្វែងរកលេខកូដសំណុំរឿង ឬឈ្មោះភាគី ក/ខ...', en: 'Search case code or party name...' },
+    'header.addCase': { km: 'បង្កើតសំណុំរឿងថ្មី', en: 'New Case' },
+    'header.logout': { km: 'ចាកចេញ (Logout)', en: 'Logout' },
+
+    // ------------ Dashboard Section ------------
+    'dashboard.title': { km: 'ផ្ទាំងស្ថិតិសង្ខេបទូទៅ', en: 'General Statistics Dashboard' },
+    'dashboard.subtitle': { km: 'តាមដានស្ថានភាពសំណុំរឿង និងលំហូរដោះស្រាយវិវាទប្រចាំស្ថាប័ន', en: 'Track case statuses and institutional dispute resolution workflows' },
+    'dashboard.refresh': { km: 'ធ្វើបច្ចុប្បន្នភាព', en: 'Refresh' },
+    'dashboard.section1': { km: '១. ស្ថិតិសង្ខេបតាមស្ថានភាពកាត (៥ ស្ថានភាព - ដូចក្នុងរូប)', en: '1. Summary Statistics by Status (5 Statuses)' },
+    'dashboard.section2': { km: '២. លទ្ធផលចំណាត់ការសំណុំរឿងរួម', en: '2. Overall Case Disposition Results' },
+    'dashboard.total': { km: 'សរុបសំណុំរឿង', en: 'Total Cases' },
+    'dashboard.active': { km: 'កំពុងចាត់ការ', en: 'Active' },
+    'dashboard.settle': { km: 'ព្រមព្រៀង', en: 'Settled' },
+    'dashboard.noSettle': { km: 'មិនព្រមព្រៀង', en: 'Not Settled' },
+    'dashboard.pending': { km: 'តម្កល់', en: 'Pending' },
+
+    // ------------ Cases View ------------
+    'cases.title': { km: 'បញ្ជីសំណុំរឿងគោល ១ (Master Case Registry)', en: 'Master Case Registry #1' },
+    'cases.subtitle': { km: 'រក្សាទុក ស្វែងរក និងគ្រប់គ្រងសំណុំរឿងទាំងអស់ ក្នុងស្ថាប័ន NADR', en: 'Store, search, and manage all cases at NADR' },
+    'cases.filter.all': { km: 'ទាំងអស់', en: 'All' },
+    'cases.filter.active': { km: 'Active', en: 'Active' },
+    'cases.filter.settle': { km: 'Settle', en: 'Settled' },
+    'cases.filter.noSettle': { km: 'No Settle', en: 'Not Settled' },
+    'cases.filter.pending': { km: 'Pending', en: 'Pending' },
+    'cases.addNew': { km: 'បន្ថែមសំណុំរឿង', en: 'Add Case' },
+
+    // ------------ Table Headers ------------
+    'table.no': { km: 'ល.រ', en: 'No.' },
+    'table.caseCode': { km: 'លេខកូដ', en: 'Case Code' },
+    'table.partyA': { km: 'ឈ្មោះភាគី ក', en: 'Party A' },
+    'table.partyB': { km: 'ឈ្មោះភាគី ខ', en: 'Party B' },
+    'table.category': { km: 'ប្រភេទសំណុំរឿង', en: 'Category' },
+    'table.location': { km: 'ទីតាំងវិវាទ', en: 'Dispute Location' },
+    'table.date': { km: 'កាលបរិច្ឆេទ', en: 'Date Received' },
+    'table.status': { km: 'លទ្ធផល', en: 'Status' },
+    'table.remarks': { km: 'កំណត់ចំណាំ', en: 'Remarks' },
+    'table.actions': { km: 'សកម្មភាព', en: 'Actions' },
+
+    // ------------ Modal: Case Entry Form ------------
+    'modal.addTitle': { km: 'បញ្ចូលព័ត៌មានសំណុំរឿងគោល', en: 'Enter Case Information' },
+    'modal.editTitle': { km: 'កែសម្រួលសំណុំរឿង', en: 'Edit Case' },
+    'modal.section1': { km: '១. ព័ត៌មានទូទៅនៃសំណុំរឿង', en: '1. General Case Info' },
+    'modal.section2': { km: '២. អត្តសញ្ញាណភាគី ក (ដើមបណ្តឹង)', en: '2. Party A (Complainant)' },
+    'modal.section3': { km: '៣. អត្តសញ្ញាណភាគី ខ (ចុងបណ្តឹង)', en: '3. Party B (Respondent)' },
+    'modal.section4': { km: '៤. សេចក្តីសង្ខេប និងវឌ្ឍនភាពសំណុំរឿង', en: '4. Case Summary & Progress' },
+    'modal.section5': { km: '៥. លទ្ធផល និងចំណាត់ការសំណុំរឿង', en: '5. Case Result & Disposition' },
+    'modal.save': { km: 'រក្សាទុកសំណុំរឿង', en: 'Save Case' },
+    'modal.cancel': { km: 'បោះបង់ (Cancel)', en: 'Cancel' },
+
+    // ------------ Form Labels ------------
+    'form.caseCode': { km: 'លេខកូដសំណុំរឿង (Case Code)', en: 'Case Code' },
+    'form.dateReceived': { km: 'កាលបរិច្ឆេទទទួល (Date Received)', en: 'Date Received' },
+    'form.category': { km: 'ប្រភេទសំណុំរឿង (៨ ប្រភេទ)', en: 'Case Category (8 Types)' },
+    'form.disputeLocation': { km: 'ទីតាំងវិវាទ (២៥ រាជធានី-ខេត្ត ជាមួយលេខកូដ)', en: 'Dispute Location (25 Provinces)' },
+    'form.partyName': { km: 'ឈ្មោះ', en: 'Name' },
+    'form.gender': { km: 'ភេទ', en: 'Gender' },
+    'form.age': { km: 'អាយុ (ឆ្នាំ)', en: 'Age (years)' },
+    'form.phone': { km: 'ទូរស័ព្ទ', en: 'Phone' },
+    'form.address': { km: 'អាសយដ្ឋាន', en: 'Address' },
+    'form.summary': { km: 'សេចក្តីសង្ខេបសំណុំរឿង', en: 'Case Summary' },
+    'form.meetingA': { km: 'ប្រជុំភាគី ក', en: 'Meeting Party A' },
+    'form.meetingB': { km: 'ប្រជុំភាគី ខ', en: 'Meeting Party B' },
+    'form.mediation': { km: 'ប្រជុំសម្រុះសម្រួល (ដោះស្រាយវិវាទ)', en: 'Mediation Meeting' },
+    'form.actionGroup': { km: 'ចំណាត់ការរួម (Action Group)', en: 'Action Group' },
+    'form.status': { km: 'លទ្ធផលសំណុំរឿង (៤ ស្ថានភាព)', en: 'Case Status (4 Types)' },
+    'form.remarks': { km: 'កំណត់ចំណាំ / មូលហេតុ (Remarks / Sub-reason)', en: 'Remarks / Sub-reason' },
+
+    // ------------ View Modal (Dossier) ------------
+    'view.title': { km: 'ប័ណ្ណព័ត៌មាន និងចំណាត់ការសំណុំរឿងគោល', en: 'Case Information Card & Disposition' },
+    'view.quickStatus': { km: 'ប្តូរលទ្ធផលរហ័ស៖', en: 'Quick Status Update:' },
+    'view.print': { km: 'បោះពុម្ពប័ណ្ណ', en: 'Print Card' },
+    'view.edit': { km: 'កែសម្រួល', en: 'Edit' },
+    'view.delete': { km: 'លុប', en: 'Delete' },
+    'view.genDoc': { km: 'ផលិតលិខិតគតិយុត្ត (5 Docs)', en: 'Generate Legal Docs (5)' },
+
+    // ------------ Analytics View ------------
+    'analytics.title': { km: 'វិភាគវាយតម្លៃចំណាត់ការសំណុំរឿង', en: 'Case Disposition Analytics' },
+    'analytics.subtitle': { km: 'ផ្ទាំងវិភាគការអនុវត្តន៍ បង្ហាញដោយតារាង និងក្រាហ្វិក', en: 'Performance analytics with charts and graphs' },
+
+    // ------------ Reports View ------------
+    'reports.title': { km: 'ផលិតរបាយការណ៍ និងការវិភាគ', en: 'Report Generation & Analysis' },
+    'reports.subtitle': { km: 'បង្កើតរបាយការណ៍ និងនាំចេញទិន្នន័យស្ថាប័ន', en: 'Generate reports and export institutional data' },
+
+    // ------------ Data Management View ------------
+    'dataMgmt.title': { km: 'ទាញទិន្នន័យចូល & បម្រុងសុវត្ថិភាព', en: 'Data Import & Security Backup' },
+    'dataMgmt.subtitle': { km: 'នាំចូល នាំចេញ ឬបម្រុងទុកទិន្នន័យក្នុងទម្រង់ JSON/Excel', en: 'Import, export, or backup data in JSON/Excel format' },
+    'dataMgmt.exportJSON': { km: 'នាំចេញ JSON', en: 'Export JSON' },
+    'dataMgmt.importJSON': { km: 'នាំចូល JSON', en: 'Import JSON' },
+    'dataMgmt.exportExcel': { km: 'នាំចេញ Excel', en: 'Export Excel' },
+    'dataMgmt.importExcel': { km: 'នាំចូល Excel', en: 'Import Excel' },
+    'dataMgmt.clearAll': { km: 'លុបទិន្នន័យទាំងអស់', en: 'Clear All Data' },
+    'dataMgmt.downloadTemplate': { km: 'ទាញយកគម្រូបញ្ចូលទិន្នន័យ Excel', en: 'Download Excel Template' },
+
+    // ------------ AI Assistant ------------
+    'ai.title': { km: 'AI ជំនួយការស្វ័យប្រវត្តិ (Smart Case Extraction)', en: 'AI Smart Case Extraction' },
+    'ai.hint': { km: 'ទាញយកអត្តសញ្ញាណភាគី ក/ខ និងសេចក្តីសង្ខេប', en: 'Extract Party A/B identity & case summary' },
+    'ai.placeholder': { km: 'វាយ ឬ Paste អត្ថបទពាក្យបណ្តឹង / កំណត់ហេតុនៅទីនេះ ដើម្បីឱ្យ AI វិភាគទាញយកអត្តសញ្ញាណភាគី និងទីតាំងស្វ័យប្រវត្តិ...', en: 'Type or paste complaint/notes here for AI auto-extraction of party details...' },
+    'ai.upload': { km: 'Upload ឯកសារ (.txt, .doc...)', en: 'Upload File (.txt, .doc...)' },
+    'ai.generate': { km: '✨ AI Generate អត្តសញ្ញាណសំណុំរឿង', en: '✨ AI Generate Case Details' },
+
+    // ------------ Login Screen ------------
+    'login.title': { km: 'សូមចូលគណនី', en: 'Sign In' },
+    'login.subtitle': { km: 'ប្រព័ន្ធគ្រប់គ្រងសំណុំរឿង NADR-CMS Pro', en: 'NADR Case Management System (CMS Pro)' },
+    'login.username': { km: 'ឈ្មោះអ្នកប្រើប្រាស់ (Username)', en: 'Username' },
+    'login.password': { km: 'ពាក្យសម្ងាត់ (Password)', en: 'Password' },
+    'login.btn': { km: 'ចូលប្រព័ន្ធ', en: 'Sign In' },
+
+    // ------------ Legal Docs Modal ------------
+    'docs.title': { km: 'ផលិតលិខិតបទដ្ឋានគតិយុត្តផ្លូវការ (Official Legal Documents)', en: 'Official Legal Document Generator' },
+    'docs.selectType': { km: 'ប្រភេទលិខិតគតិយុត្ត (៥ ទម្រង់ផ្លូវការ)៖', en: 'Document Type (5 Official Formats):' },
+    'docs.date': { km: 'កាលបរិច្ឆេទលិខិត / កិច្ចប្រជុំ៖', en: 'Document / Meeting Date:' },
+    'docs.room': { km: 'ទីតាំង / សាលកិច្ចប្រជុំ៖', en: 'Location / Meeting Room:' },
+    'docs.officer': { km: 'មន្ត្រីសម្របសម្រួល / ជំនាញទទួលបន្ទុក៖', en: 'Mediator / Officer in Charge:' },
+    'docs.notes': { km: 'ខ្លឹមសារកែសម្រួល / លក្ខខណ្ឌព្រមព្រៀង / ចំណាំ៖', en: 'Custom Content / Agreement Terms / Notes:' },
+    'docs.preview': { km: 'ធ្វើបច្ចុប្បន្នភាពគំរូ', en: 'Refresh Preview' },
+    'docs.print': { km: 'បោះពុម្ព (Print / PDF)', en: 'Print / Save PDF' },
+
+    // ------------ Misc / Common ------------
+    'common.male': { km: 'ប្រុស', en: 'Male' },
+    'common.female': { km: 'ស្រី', en: 'Female' },
+    'common.loading': { km: 'កំពុងផ្ទុក...', en: 'Loading...' },
+    'common.noData': { km: 'មិនមានទិន្នន័យ', en: 'No data available' },
+    'common.confirm': { km: 'បញ្ជាក់', en: 'Confirm' },
+    'common.yes': { km: 'បាទ/ចាស', en: 'Yes' },
+    'common.no': { km: 'ទេ', en: 'No' },
+    'sidebar.officer': { km: 'មន្ត្រីសម្របសម្រួល', en: 'Mediation Officer' },
+    'sidebar.office': { km: 'ការិយាល័យរដ្ឋបាល NADR', en: 'NADR Admin Office' },
+};
+
+/**
+ * Get translated text by key for the current language
+ * @param {string} key - I18N dictionary key
+ * @returns {string}
+ */
+function t(key) {
+    const entry = I18N[key];
+    if (!entry) return key;
+    return entry[currentLang] || entry['km'] || key;
+}
+
+/**
+ * Apply translations to all elements with data-i18n attribute
+ */
+function applyLanguage(lang) {
+    currentLang = lang || currentLang;
+    localStorage.setItem('nadr_app_lang', currentLang);
+
+    // Update all elements with data-i18n attribute
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        const val = t(key);
+        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+            el.placeholder = val;
+        } else {
+            el.textContent = val;
+        }
+    });
+
+    // Update all elements with data-i18n-title attribute
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+        const key = el.getAttribute('data-i18n-title');
+        el.title = t(key);
+    });
+
+    // Update language button active state
+    const btnKm = document.getElementById('btn-lang-km');
+    const btnEn = document.getElementById('btn-lang-en');
+    if (btnKm && btnEn) {
+        if (currentLang === 'km') {
+            btnKm.style.background = '#1e3a8a';
+            btnKm.style.color = '#fff';
+            btnEn.style.background = 'transparent';
+            btnEn.style.color = '';
+        } else {
+            btnEn.style.background = '#1e3a8a';
+            btnEn.style.color = '#fff';
+            btnKm.style.background = 'transparent';
+            btnKm.style.color = '';
+        }
+    }
+}
