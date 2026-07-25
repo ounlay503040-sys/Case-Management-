@@ -143,6 +143,25 @@ function renderDashboardStats() {
     if (setEl) setEl.innerText = stats.settle;
     if (cloEl) cloEl.innerText = stats.close;
     if (penEl) penEl.innerText = stats.pending;
+
+    // Section 2 Hierarchical Counters
+    const actGrpEl = document.getElementById('h-stat-active-total');
+    const actSub1El = document.getElementById('h-stat-active-sub1');
+    const actSub2El = document.getElementById('h-stat-active-sub2');
+    const cloGrpEl = document.getElementById('h-stat-closed-total');
+    const cloSub1El = document.getElementById('h-stat-closed-sub1');
+    const cloSub2El = document.getElementById('h-stat-closed-sub2');
+    const noSetR1El = document.getElementById('h-stat-nosettle-r1');
+    const noSetR2El = document.getElementById('h-stat-nosettle-r2');
+
+    if (actGrpEl) actGrpEl.innerText = stats.activeGroupTotal || 0;
+    if (actSub1El) actSub1El.innerText = stats.active || 0;
+    if (actSub2El) actSub2El.innerText = stats.pending || 0;
+    if (cloGrpEl) cloGrpEl.innerText = stats.closedGroupTotal || 0;
+    if (cloSub1El) cloSub1El.innerText = stats.settle || 0;
+    if (cloSub2El) cloSub2El.innerText = stats.close || 0;
+    if (noSetR1El) noSetR1El.innerText = stats.noSettleReason1 || 0;
+    if (noSetR2El) noSetR2El.innerText = stats.noSettleReason2 || 0;
 }
 
 /**
@@ -398,12 +417,56 @@ function initModalEvents() {
     const btnCancel = document.getElementById('btn-cancel-modal');
     const form = document.getElementById('case-form');
 
+    // Status logic helper
+    const statusSelect = document.getElementById('case-status');
+    const actionGroupInput = document.getElementById('case-action-group');
+    const remarksInput = document.getElementById('case-remarks');
+    const remarksSelect = document.getElementById('case-remarks-select');
+
+    const handleStatusChange = () => {
+        if (!statusSelect) return;
+        const val = statusSelect.value;
+        if (val.startsWith('Active')) {
+            if (actionGroupInput) actionGroupInput.value = 'Active - សំណុំរឿងកំពុងចាត់ការ';
+            if (remarksSelect) remarksSelect.classList.add('d-none');
+            if (remarksInput) {
+                remarksInput.classList.remove('d-none');
+                if (remarksInput.value.includes('ដកពាក្យ') || remarksInput.value.includes('មិនចូលរួម') || remarksInput.value.includes('បានបិទ')) {
+                    remarksInput.value = 'កំពុងពិនិត្យ និងដោះស្រាយ (មិនទាន់បិទ)';
+                }
+            }
+        } else if (val.startsWith('Pending')) {
+            if (actionGroupInput) actionGroupInput.value = 'Active - សំណុំរឿងកំពុងចាត់ការ';
+            if (remarksSelect) remarksSelect.classList.add('d-none');
+            if (remarksInput) {
+                remarksInput.classList.remove('d-none');
+                if (remarksInput.value.includes('ដកពាក្យ') || remarksInput.value.includes('មិនចូលរួម') || remarksInput.value.includes('បានបិទ')) {
+                    remarksInput.value = 'តម្កល់រង់ចាំនីតិវិធីបន្ត (មិនទាន់បិទ)';
+                }
+            }
+        } else if (val.startsWith('Settle')) {
+            if (actionGroupInput) actionGroupInput.value = 'Closed - សំណុំរឿងបានចាត់ការរួច';
+            if (remarksSelect) remarksSelect.classList.add('d-none');
+            if (remarksInput) {
+                remarksInput.classList.remove('d-none');
+                remarksInput.value = 'សម្រុះសម្រួលព្រមព្រៀងជោគជ័យ (បានបិទរួចរាល់)';
+            }
+        } else if (val.startsWith('No Settle') || val.startsWith('Close')) {
+            if (actionGroupInput) actionGroupInput.value = 'Closed - សំណុំរឿងបានចាត់ការរួច';
+            if (remarksInput) remarksInput.classList.add('d-none');
+            if (remarksSelect) remarksSelect.classList.remove('d-none');
+        }
+    };
+
+    if (statusSelect) statusSelect.addEventListener('change', handleStatusChange);
+
     const openAdd = () => {
         form.reset();
         document.getElementById('case-id').value = '';
         document.getElementById('modal-title').innerHTML = `<i class="fa-solid fa-folder-plus"></i> បញ្ចូលព័ត៌មានសំណុំរឿងគោលថ្មី`;
         document.getElementById('case-number').value = generateNextCaseNumber();
         document.getElementById('case-date').value = getTodayDateString();
+        handleStatusChange();
         modal.classList.add('open');
     };
 
@@ -416,6 +479,11 @@ function initModalEvents() {
         form.addEventListener('submit', (e) => {
             e.preventDefault();
             const id = document.getElementById('case-id').value;
+            const statusVal = document.getElementById('case-status').value;
+            const remarksVal = (statusVal.startsWith('No Settle') || statusVal.startsWith('Close')) 
+                                ? document.getElementById('case-remarks-select').value 
+                                : document.getElementById('case-remarks').value;
+
             const payload = {
                 caseNumber: document.getElementById('case-number').value.trim(),
                 dateReceived: document.getElementById('case-date').value,
@@ -438,8 +506,8 @@ function initModalEvents() {
                 meetingPartyA: document.getElementById('case-meeting-a').value,
                 meetingPartyB: document.getElementById('case-meeting-b').value,
                 mediationMeeting: document.getElementById('case-mediation-meeting').value,
-                status: document.getElementById('case-status').value,
-                remarks: document.getElementById('case-remarks').value
+                status: statusVal,
+                remarks: remarksVal
             };
 
             if (id) {
@@ -495,7 +563,36 @@ function openEditModal(id) {
     document.getElementById('case-meeting-b').value = c.meetingPartyB || 'មិនទាន់ប្រជុំ';
     document.getElementById('case-mediation-meeting').value = c.mediationMeeting || 'មិនទាន់ប្រជុំ';
     document.getElementById('case-status').value = c.status || 'Active (កំពុងសម្រុះសម្រួល)';
-    document.getElementById('case-remarks').value = c.remarks || 'មិនទាន់បិទ';
+    
+    // Trigger action group and remarks update
+    const statusVal = document.getElementById('case-status').value;
+    const actionGroupInput = document.getElementById('case-action-group');
+    const remarksInput = document.getElementById('case-remarks');
+    const remarksSelect = document.getElementById('case-remarks-select');
+
+    if (statusVal.startsWith('No Settle') || statusVal.startsWith('Close')) {
+        if (actionGroupInput) actionGroupInput.value = 'Closed - សំណុំរឿងបានចាត់ការរួច';
+        if (remarksInput) remarksInput.classList.add('d-none');
+        if (remarksSelect) {
+            remarksSelect.classList.remove('d-none');
+            if (c.remarks && c.remarks.includes('ដកពាក្យ')) {
+                remarksSelect.value = 'ភាគីដកពាក្យបណ្តឹង';
+            } else {
+                remarksSelect.value = 'ភាគីមិនចូលរួម ឬមិនបន្តការសម្រុះសម្រួល';
+            }
+        }
+    } else {
+        if (remarksSelect) remarksSelect.classList.add('d-none');
+        if (remarksInput) {
+            remarksInput.classList.remove('d-none');
+            remarksInput.value = c.remarks || 'មិនទាន់បិទ';
+        }
+        if (statusVal.startsWith('Settle')) {
+            if (actionGroupInput) actionGroupInput.value = 'Closed - សំណុំរឿងបានចាត់ការរួច';
+        } else {
+            if (actionGroupInput) actionGroupInput.value = 'Active - សំណុំរឿងកំពុងចាត់ការ';
+        }
+    }
 
     // Close view modal if open
     document.getElementById('view-modal')?.classList.remove('open');

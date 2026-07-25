@@ -166,6 +166,11 @@
                     </div>
                 </div>
 
+                <!-- SECTION 1: STANDARD CARD SUMMARY -->
+                <div class="section-subtitle mt-2 mb-3">
+                    <h3 style="font-size: 16px; font-weight: 700; color: var(--text-main);"><i class="fa-solid fa-layer-group text-primary"></i> ១. ស្ថិតិសង្ខេបតាមស្ថានភាពកាត (៥ ស្ថានភាព - ដូចក្នុងរូប)</h3>
+                </div>
+
                 <!-- STATS CARDS GRID -->
                 <div class="stats-grid">
                     <div class="stat-card total-card">
@@ -195,10 +200,10 @@
                         </div>
                     </div>
 
-                    <div class="stat-card close-card" onclick="filterByStatusQuick('Close (បិទ)')">
-                        <div class="stat-icon"><i class="fa-solid fa-lock"></i></div>
+                    <div class="stat-card close-card" onclick="filterByStatusQuick('No Settle (មិនព្រមព្រៀង)')">
+                        <div class="stat-icon"><i class="fa-solid fa-circle-xmark"></i></div>
                         <div class="stat-content">
-                            <span>Close (បិទ)</span>
+                            <span>No Settle (មិនព្រមព្រៀង)</span>
                             <h3 id="stat-close">០</h3>
                             <p class="stat-sub">បញ្ចប់នីតិវិធី / មិនព្រមព្រៀង</p>
                         </div>
@@ -210,6 +215,69 @@
                             <span>Pending (តម្កល់)</span>
                             <h3 id="stat-pending">០</h3>
                             <p class="stat-sub">រង់ចាំ ឬផ្អាកបណ្តោះអាសន្ន</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 2: OVERALL CASE ACTION RESULTS BREAKDOWN -->
+                <div class="section-subtitle mt-4 mb-3">
+                    <h3 style="font-size: 16px; font-weight: 700; color: var(--text-main);"><i class="fa-solid fa-chart-pie text-primary"></i> ២. លទ្ធផលចំណាត់ការសំណុំរឿងរួម (Active vs Closed Breakdown)</h3>
+                </div>
+
+                <div class="hierarchical-stats-grid mb-4">
+                    <!-- ACTIVE GROUP CARD -->
+                    <div class="h-stat-box card-panel">
+                        <div class="h-stat-header">
+                            <div class="h-icon" style="background: #eff6ff; color: #2563eb;"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div>
+                            <div>
+                                <h3 class="h-title">Active - សំណុំរឿងកំពុងចាត់ការ (ពិនិត្យ និងដោះស្រាយ)</h3>
+                                <p class="h-sub">សរុបសំណុំរឿងកំពុងស្ថិតក្នុងនីតិវិធីចាត់ការ</p>
+                            </div>
+                            <div class="h-total-badge" style="background: #2563eb; color: #fff;" id="h-stat-active-total">០</div>
+                        </div>
+                        <div class="h-stat-body mt-3">
+                            <div class="h-item" onclick="filterByStatusQuick('Active (កំពុងសម្រុះសម្រួល)')">
+                                <span class="h-label"><i class="fa-solid fa-circle-dot text-primary"></i> ១. Active (កំពុងសម្រុះសម្រួល)</span>
+                                <span class="h-val badge badge-active" id="h-stat-active-sub1">០</span>
+                            </div>
+                            <div class="h-item mt-2" onclick="filterByStatusQuick('Pending (តម្កល់)')">
+                                <span class="h-label"><i class="fa-solid fa-circle-pause text-warning"></i> ២. Pending (តម្កល់រង់ចាំ)</span>
+                                <span class="h-val badge badge-pending" id="h-stat-active-sub2">០</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CLOSED GROUP CARD -->
+                    <div class="h-stat-box card-panel">
+                        <div class="h-stat-header">
+                            <div class="h-icon" style="background: #f0fdf4; color: #10b981;"><i class="fa-solid fa-flag-checkered"></i></div>
+                            <div>
+                                <h3 class="h-title">Closed - សំណុំរឿងបានចាត់ការរួច (បិទបញ្ចប់ការដោះស្រាយ)</h3>
+                                <p class="h-sub">សរុបសំណុំរឿងដែលបានដោះស្រាយ និងបិទបញ្ចប់</p>
+                            </div>
+                            <div class="h-total-badge" style="background: #10b981; color: #fff;" id="h-stat-closed-total">០</div>
+                        </div>
+                        <div class="h-stat-body mt-3">
+                            <div class="h-item" onclick="filterByStatusQuick('Settle (ព្រមព្រៀង)')">
+                                <span class="h-label"><i class="fa-solid fa-circle-check text-success"></i> ១. Settle (ព្រមព្រៀង - ជោគជ័យ)</span>
+                                <span class="h-val badge badge-settle" id="h-stat-closed-sub1">០</span>
+                            </div>
+                            <div class="h-item-group mt-2">
+                                <div class="h-item" onclick="filterByStatusQuick('No Settle (មិនព្រមព្រៀង)')">
+                                    <span class="h-label"><i class="fa-solid fa-circle-xmark text-danger"></i> ២. No Settle (មិនព្រមព្រៀង / បិទ)</span>
+                                    <span class="h-val badge badge-close" id="h-stat-closed-sub2">០</span>
+                                </div>
+                                <div class="h-sub-items mt-2" style="padding-left: 24px; border-left: 2px dashed #cbd5e1; margin-left: 10px;">
+                                    <div class="h-sub-item d-flex justify-content-between align-items-center py-1" style="font-size: 13px; color: var(--text-muted);">
+                                        <span>▫️ ១. ភាគីដកពាក្យបណ្តឹង</span>
+                                        <span class="badge" style="background: #f1f5f9; color: #475569; font-weight: 700;" id="h-stat-nosettle-r1">០</span>
+                                    </div>
+                                    <div class="h-sub-item d-flex justify-content-between align-items-center py-1" style="font-size: 13px; color: var(--text-muted);">
+                                        <span>▫️ ២. ភាគីមិនចូលរួម ឬមិនបន្តការសម្រុះសម្រួល</span>
+                                        <span class="badge" style="background: #f1f5f9; color: #475569; font-weight: 700;" id="h-stat-nosettle-r2">០</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -305,9 +373,9 @@
                             <select id="filter-status">
                                 <option value="ALL">ទាំងអស់ (All Statuses)</option>
                                 <option value="Active (កំពុងសម្រុះសម្រួល)">Active (កំពុងសម្រុះសម្រួល)</option>
-                                <option value="Settle (ព្រមព្រៀង)">Settle (ព្រមព្រៀង)</option>
-                                <option value="Close (បិទ)">Close (បិទ)</option>
                                 <option value="Pending (តម្កល់)">Pending (តម្កល់)</option>
+                                <option value="Settle (ព្រមព្រៀង)">Settle (ព្រមព្រៀង)</option>
+                                <option value="No Settle (មិនព្រមព្រៀង)">No Settle (មិនព្រមព្រៀង)</option>
                             </select>
                         </div>
                         <div class="filter-group">
@@ -485,9 +553,9 @@
                             <select id="report-filter-status" class="form-control">
                                 <option value="ALL">ទាំងអស់ (All Statuses)</option>
                                 <option value="Active (កំពុងសម្រុះសម្រួល)">Active (កំពុងសម្រុះសម្រួល)</option>
-                                <option value="Settle (ព្រមព្រៀង)">Settle (ព្រមព្រៀង)</option>
-                                <option value="Close (បិទ)">Close (បិទ)</option>
                                 <option value="Pending (តម្កល់)">Pending (តម្កល់)</option>
+                                <option value="Settle (ព្រមព្រៀង)">Settle (ព្រមព្រៀង)</option>
+                                <option value="No Settle (មិនព្រមព្រៀង)">No Settle (មិនព្រមព្រៀង)</option>
                             </select>
                         </div>
                     </div>
@@ -766,22 +834,27 @@
                         </div>
                     </div>
 
-                    <div class="form-grid-2 mt-3">
+                    <div class="form-grid-3 mt-3">
+                        <div class="form-group">
+                            <label>ចំណាត់ការរួម (Action Group)</label>
+                            <input type="text" id="case-action-group" class="form-control" readonly style="background: #f8fafc; font-weight: 700; color: #2563eb;" value="Active - សំណុំរឿងកំពុងចាត់ការ">
+                        </div>
                         <div class="form-group">
                             <label>លទ្ធផលសំណុំរឿង (៤ ស្ថានភាព) <span class="text-danger">*</span></label>
                             <select id="case-status" class="form-control" required style="font-weight: 600;">
                                 <option value="Active (កំពុងសម្រុះសម្រួល)" style="color: #3b82f6;">🔵 Active (កំពុងសម្រុះសម្រួល)</option>
-                                <option value="Settle (ព្រមព្រៀង)" style="color: #10b981;">🟢 Settle (ព្រមព្រៀង)</option>
-                                <option value="Close (បិទ)" style="color: #64748b;">🔘 Close (បិទ)</option>
                                 <option value="Pending (តម្កល់)" style="color: #f59e0b;">🟡 Pending (តម្កល់)</option>
+                                <option value="Settle (ព្រមព្រៀង)" style="color: #10b981;">🟢 Settle (ព្រមព្រៀង)</option>
+                                <option value="No Settle (មិនព្រមព្រៀង)" style="color: #dc2626;">🔴 No Settle (មិនព្រមព្រៀង)</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>កំណត់ចំណាំ (Remarks)</label>
-                            <select id="case-remarks" class="form-control">
-                                <option value="បានបិទរួចរាល់">បានបិទរួចរាល់</option>
-                                <option value="មិនទាន់បិទ">មិនទាន់បិទ</option>
+                            <label>កំណត់ចំណាំ / មូលហេតុ (Remarks / Sub-reason)</label>
+                            <select id="case-remarks-select" class="form-control d-none" style="font-weight: 600; color: #dc2626; border-color: #fecaca; background: #fef2f2;">
+                                <option value="ភាគីដកពាក្យបណ្តឹង">១. ភាគីដកពាក្យបណ្តឹង</option>
+                                <option value="ភាគីមិនចូលរួម ឬមិនបន្តការសម្រុះសម្រួល">២. ភាគីមិនចូលរួម ឬមិនបន្តការសម្រុះសម្រួល</option>
                             </select>
+                            <input type="text" id="case-remarks" class="form-control" placeholder="ឧ. កំពុងពិនិត្យ និងដោះស្រាយ" value="កំពុងពិនិត្យ និងដោះស្រាយ (មិនទាន់បិទ)">
                         </div>
                     </div>
                 </div>

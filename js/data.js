@@ -224,7 +224,11 @@ function filterCases(filters = {}) {
         }
         // Status Filter
         if (filters.status && filters.status !== '' && filters.status !== 'ALL') {
-            if (c.status !== filters.status && !c.status.startsWith(filters.status)) return false;
+            if (filters.status.startsWith('No Settle') || filters.status.startsWith('Close')) {
+                if (!c.status.startsWith('No Settle') && !c.status.startsWith('Close') && !c.status.includes('មិនព្រមព្រៀង')) return false;
+            } else if (c.status !== filters.status && !c.status.startsWith(filters.status.split(' ')[0])) {
+                return false;
+            }
         }
         // Location Filter
         if (filters.location && filters.location !== '' && filters.location !== 'ALL') {
@@ -274,6 +278,10 @@ function getCaseStatistics(customData = null) {
         settle: 0,
         close: 0,
         pending: 0,
+        activeGroupTotal: 0,
+        closedGroupTotal: 0,
+        noSettleReason1: 0,
+        noSettleReason2: 0,
         settleRate: 0,
         byCategory: {},
         byLocation: {}
@@ -284,11 +292,25 @@ function getCaseStatistics(customData = null) {
     PROVINCES_LIST.forEach(p => { stats.byLocation[p.name] = 0; });
 
     data.forEach(c => {
-        // Status counts
-        if (c.status.startsWith('Active')) stats.active++;
-        else if (c.status.startsWith('Settle')) stats.settle++;
-        else if (c.status.startsWith('Close')) stats.close++;
-        else if (c.status.startsWith('Pending')) stats.pending++;
+        // Status counts & Hierarchical groups
+        if (c.status.startsWith('Active')) {
+            stats.active++;
+            stats.activeGroupTotal++;
+        } else if (c.status.startsWith('Pending')) {
+            stats.pending++;
+            stats.activeGroupTotal++;
+        } else if (c.status.startsWith('Settle')) {
+            stats.settle++;
+            stats.closedGroupTotal++;
+        } else if (c.status.startsWith('Close') || c.status.startsWith('No Settle') || c.status.includes('មិនព្រមព្រៀង')) {
+            stats.close++;
+            stats.closedGroupTotal++;
+            if (c.remarks && c.remarks.includes('ដកពាក្យបណ្តឹង')) {
+                stats.noSettleReason1++;
+            } else {
+                stats.noSettleReason2++;
+            }
+        }
 
         // Category counts
         if (stats.byCategory[c.category] !== undefined) {
