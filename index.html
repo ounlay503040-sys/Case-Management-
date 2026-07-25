@@ -105,6 +105,10 @@
                     <i class="fa-solid fa-database"></i>
                     <span data-i18n="nav.data">ទាញទិន្នន័យចូល &amp; បម្រុង</span>
                 </a>
+                <a href="#settings-view" class="nav-item" data-view="settings-view">
+                    <i class="fa-solid fa-gears"></i>
+                    <span data-i18n="nav.settings">ការកំណត់ប្រព័ន្ធ (Settings)</span>
+                </a>
             </nav>
 
             <div class="sidebar-footer">
@@ -232,70 +236,174 @@
                     </div>
                 </div>
 
-                <!-- SECTION 2: OVERALL CASE ACTION RESULTS BREAKDOWN -->
+                <!-- TWO-COLUMN COMMAND CENTER LAYOUT -->
+                <div class="dashboard-split-layout mt-4" style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: start;">
+                    <!-- LEFT COLUMN: STATS BREAKDOWN + RECENT CASES TABLE -->
+                    <div class="dashboard-main-pane" style="display: flex; flex-direction: column; gap: 24px;">
+                        
+                        <!-- SECTION 2: OVERALL CASE ACTION RESULTS BREAKDOWN -->
+                        <div class="card-panel">
+                            <div class="panel-header" style="margin-bottom: 15px;">
+                                <h3 style="font-size: 15px; font-weight: 700; color: var(--text-main); margin: 0;"><i class="fa-solid fa-chart-pie text-primary"></i> ២. លទ្ធផលចំណាត់ការសំណុំរឿងរួម (Active vs Closed Breakdown)</h3>
+                            </div>
+                            <div class="hierarchical-stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
+                                <!-- ACTIVE GROUP CARD -->
+                                <div class="h-stat-box" style="border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px; background: var(--bg-main);">
+                                    <div class="h-stat-header" style="display: flex; align-items: center; justify-content: space-between;">
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <div class="h-icon" style="background: #eff6ff; color: #2563eb; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px;"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div>
+                                            <div>
+                                                <h3 class="h-title" style="font-size: 13px; font-weight: 700; margin: 0;">Active (កំពុងចាត់ការ)</h3>
+                                            </div>
+                                        </div>
+                                        <div class="h-total-badge" style="background: #2563eb; color: #fff; padding: 2px 8px; border-radius: 12px; font-weight: 700; font-size: 12px;" id="h-stat-active-total">០</div>
+                                    </div>
+                                    <div class="h-stat-body mt-3">
+                                        <div class="h-item" onclick="filterByStatusQuick('Active (កំពុងសម្រុះសម្រួល)')" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--bg-card); border-radius: 6px; cursor: pointer; border: 1px solid var(--border-color);">
+                                            <span class="h-label" style="font-size: 12px; font-weight: 600;"><i class="fa-solid fa-circle-dot text-primary"></i> ១. Active (សម្រុះសម្រួល)</span>
+                                            <span class="h-val badge badge-active" id="h-stat-active-sub1">០</span>
+                                        </div>
+                                        <div class="h-item mt-2" onclick="filterByStatusQuick('Pending (តម្កល់)')" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--bg-card); border-radius: 6px; cursor: pointer; border: 1px solid var(--border-color);">
+                                            <span class="h-label" style="font-size: 12px; font-weight: 600;"><i class="fa-solid fa-circle-pause text-warning"></i> ២. Pending (តម្កល់)</span>
+                                            <span class="h-val badge badge-pending" id="h-stat-active-sub2">០</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- CLOSED GROUP CARD -->
+                                <div class="h-stat-box" style="border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px; background: var(--bg-main);">
+                                    <div class="h-stat-header" style="display: flex; align-items: center; justify-content: space-between;">
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <div class="h-icon" style="background: #f0fdf4; color: #10b981; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px;"><i class="fa-solid fa-flag-checkered"></i></div>
+                                            <div>
+                                                <h3 class="h-title" style="font-size: 13px; font-weight: 700; margin: 0;">Closed (បិទបញ្ចប់)</h3>
+                                            </div>
+                                        </div>
+                                        <div class="h-total-badge" style="background: #10b981; color: #fff; padding: 2px 8px; border-radius: 12px; font-weight: 700; font-size: 12px;" id="h-stat-closed-total">០</div>
+                                    </div>
+                                    <div class="h-stat-body mt-3">
+                                        <div class="h-item" onclick="filterByStatusQuick('Settle (ព្រមព្រៀង)')" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--bg-card); border-radius: 6px; cursor: pointer; border: 1px solid var(--border-color);">
+                                            <span class="h-label" style="font-size: 12px; font-weight: 600;"><i class="fa-solid fa-circle-check text-success"></i> ១. Settle (ព្រមព្រៀង)</span>
+                                            <span class="h-val badge badge-settle" id="h-stat-closed-sub1">០</span>
+                                        </div>
+                                        <div class="h-item-group mt-2">
+                                            <div class="h-item" onclick="filterByStatusQuick('No Settle (មិនព្រមព្រៀង)')" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--bg-card); border-radius: 6px; cursor: pointer; border: 1px solid var(--border-color);">
+                                                <span class="h-label" style="font-size: 12px; font-weight: 600;"><i class="fa-solid fa-circle-xmark text-danger"></i> ២. No Settle (មិនព្រមព្រៀង)</span>
+                                                <span class="h-val badge badge-close" id="h-stat-closed-sub2">០</span>
+                                            </div>
+                                            <div class="h-sub-items mt-2" style="padding-left: 16px; border-left: 2px dashed var(--border-color); margin-left: 10px;">
+                                                <div class="h-sub-item d-flex justify-content-between align-items-center py-1" style="font-size: 11px; color: var(--text-muted);">
+                                                    <span>▫️ ១. ភាគីដកពាក្យបណ្តឹង</span>
+                                                    <span class="badge" style="background: var(--bg-card); color: var(--text-color); font-weight: 700; padding: 1px 6px; border-radius: 4px; border: 1px solid var(--border-color);" id="h-stat-nosettle-r1">០</span>
+                                                </div>
+                                                <div class="h-sub-item d-flex justify-content-between align-items-center py-1" style="font-size: 11px; color: var(--text-muted);">
+                                                    <span>▫️ ២. ភាគីមិនចូលរួម</span>
+                                                    <span class="badge" style="background: var(--bg-card); color: var(--text-color); font-weight: 700; padding: 1px 6px; border-radius: 4px; border: 1px solid var(--border-color);" id="h-stat-nosettle-r2">០</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- RECENT CASES TABLE (SHORT LIST) -->
+                        <div class="card-panel">
+                            <div class="panel-header" style="margin-bottom: 12px;">
+                                <h3 style="margin: 0; font-size: 15px;"><i class="fa-solid fa-clock-rotate-left"></i> សំណុំរឿងទើបធ្វើបច្ចុប្បន្នភាពចុងក្រោយ (Recent Updates)</h3>
+                                <a href="#cases-view" class="btn-link" onclick="switchView('cases-view')" style="font-size: 13px;">មើលទាំងអស់ <i class="fa-solid fa-arrow-right"></i></a>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="data-table" style="font-size: 13px;">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 120px;">លេខកូដសំណុំរឿង</th>
+                                            <th style="min-width: 160px;">ដើមបណ្ដឹង (ក) vs ចុងបណ្ដឹង (ខ)</th>
+                                            <th style="width: 120px;">ប្រភេទវិវាទ</th>
+                                            <th style="width: 100px;">ទីតាំងវិវាទ</th>
+                                            <th style="width: 100px;">កាលបរិច្ឆេទ</th>
+                                            <th style="width: 120px;">លទ្ធផលសំណុំរឿង</th>
+                                            <th class="text-center" style="width: 80px;">សកម្មភាព</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recent-cases-tbody">
+                                        <!-- Dynamic rows -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- RIGHT COLUMN: QUICK CASE ENTRY FORM CARD WITH AI -->
+                    <div class="dashboard-side-pane">
+                        <div class="card-panel quick-entry-card" style="position: sticky; top: 20px; background: var(--bg-card); border: 2px solid var(--primary-color); padding: 20px;">
+                            <div class="panel-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 16px;">
+                                <h3 style="color: var(--primary-color); font-weight: 700; font-size: 14px; margin: 0; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fa-solid fa-folder-plus text-accent"></i> បញ្ចូលសំណុំរឿងរហ័ស
+                                </h3>
+                            </div>
+                            
+                            <!-- AI Box -->
+                            <div class="quick-ai-box mb-3" style="background: linear-gradient(135deg, #eff6ff, #f0fdf4); padding: 12px; border-radius: var(--radius-sm); border: 1px solid #bfdbfe; font-size: 12px;">
+                                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; font-weight: 700; color: #1e3a8a;">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                    <span>AI Extract (PDF / text)</span>
+                                </div>
+                                <textarea id="dashboard-ai-text" class="form-control mb-2" rows="2" placeholder="បិទភ្ជាប់ពាក្យបណ្តឹងនៅទីនេះ រួចចុច AI Extract..." style="font-size: 11px; border: 1px solid #cbd5e1; padding: 6px; border-radius: 4px; width: 100%; resize: vertical;"></textarea>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <label class="btn btn-sm btn-outline mb-0" style="font-size: 10px; cursor: pointer; padding: 3px 8px; background: #fff; border: 1px solid #cbd5e1; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px;">
+                                        <i class="fa-solid fa-file-pdf text-danger"></i> PDF/Text
+                                        <input type="file" id="dashboard-ai-file" accept=".txt,.doc,.docx,.csv,.pdf" style="display: none;">
+                                    </label>
+                                    <button type="button" class="btn btn-sm btn-primary" id="btn-dashboard-ai-extract" style="font-size: 10px; padding: 4px 10px; font-weight: 600;">
+                                        ✨ AI Extract
+                                    </button>
+                                </div>
+                            </div>
+
+                            <form id="dashboard-quick-form">
+                                <div class="form-group mb-2">
+                                    <label style="font-size: 11px; font-weight: 600; margin-bottom: 3px; display: block;">លេខកូដសំណុំរឿង <span class="text-danger">*</span></label>
+                                    <input type="text" id="quick-case-number" class="form-control" placeholder="NADR-2026-xxx" required style="font-size: 12px; padding: 6px 8px; height: 32px;">
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label style="font-size: 11px; font-weight: 600; margin-bottom: 3px; display: block;">កាលបរិច្ឆេទទទួល <span class="text-danger">*</span></label>
+                                    <input type="date" id="quick-case-date" class="form-control" required style="font-size: 12px; padding: 6px 8px; height: 32px;">
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label style="font-size: 11px; font-weight: 600; margin-bottom: 3px; display: block;">ប្រភេទសំណុំរឿង <span class="text-danger">*</span></label>
+                                    <select id="quick-case-category" class="form-control" required style="font-size: 12px; padding: 2px 8px; height: 32px;">
+                                        <!-- Populated dynamically -->
+                                    </select>
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label style="font-size: 11px; font-weight: 600; margin-bottom: 3px; display: block;">ទីតាំងវិវាទ <span class="text-danger">*</span></label>
+                                    <select id="quick-case-dispute-location" class="form-control" required style="font-size: 12px; padding: 2px 8px; height: 32px;">
+                                        <!-- Populated dynamically -->
+                                    </select>
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label style="font-size: 11px; font-weight: 600; margin-bottom: 3px; display: block;">ឈ្មោះភាគី (ក) ដើមបណ្ដឹង <span class="text-danger">*</span></label>
+                                    <input type="text" id="quick-case-party-a-name" class="form-control" placeholder="ឈ្មោះភាគី ក" required style="font-size: 12px; padding: 6px 8px; height: 32px;">
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label style="font-size: 11px; font-weight: 600; margin-bottom: 3px; display: block;">ឈ្មោះភាគី (ខ) ចុងបណ្ដឹង <span class="text-danger">*</span></label>
+                                    <input type="text" id="quick-case-party-b-name" class="form-control" placeholder="ឈ្មោះភាគី ខ" required style="font-size: 12px; padding: 6px 8px; height: 32px;">
+                                </div>
+
+                                <button type="submit" class="btn btn-primary w-100" style="font-weight: 700; padding: 8px; font-size: 12px; border-radius: var(--radius-sm); box-shadow: 0 4px 8px rgba(30,58,138,0.25);">
+                                    <i class="fa-solid fa-save"></i> ਰក្សាទុកសំណុំរឿង
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CHARTS ROW (Visual Charts Section below split layout) -->
                 <div class="section-subtitle mt-4 mb-3">
-                    <h3 style="font-size: 16px; font-weight: 700; color: var(--text-main);"><i class="fa-solid fa-chart-pie text-primary"></i> ២. លទ្ធផលចំណាត់ការសំណុំរឿងរួម (Active vs Closed Breakdown)</h3>
+                    <h3 style="font-size: 16px; font-weight: 700; color: var(--text-main);"><i class="fa-solid fa-chart-line text-primary"></i> ៣. ក្រាហ្វិកស្ថិតិ និងការវិភាគទិន្នន័យ (Visual Charts)</h3>
                 </div>
-
-                <div class="hierarchical-stats-grid mb-4">
-                    <!-- ACTIVE GROUP CARD -->
-                    <div class="h-stat-box card-panel">
-                        <div class="h-stat-header">
-                            <div class="h-icon" style="background: #eff6ff; color: #2563eb;"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div>
-                            <div>
-                                <h3 class="h-title">Active - សំណុំរឿងកំពុងចាត់ការ (ពិនិត្យ និងដោះស្រាយ)</h3>
-                                <p class="h-sub">សរុបសំណុំរឿងកំពុងស្ថិតក្នុងនីតិវិធីចាត់ការ</p>
-                            </div>
-                            <div class="h-total-badge" style="background: #2563eb; color: #fff;" id="h-stat-active-total">០</div>
-                        </div>
-                        <div class="h-stat-body mt-3">
-                            <div class="h-item" onclick="filterByStatusQuick('Active (កំពុងសម្រុះសម្រួល)')">
-                                <span class="h-label"><i class="fa-solid fa-circle-dot text-primary"></i> ១. Active (កំពុងសម្រុះសម្រួល)</span>
-                                <span class="h-val badge badge-active" id="h-stat-active-sub1">០</span>
-                            </div>
-                            <div class="h-item mt-2" onclick="filterByStatusQuick('Pending (តម្កល់)')">
-                                <span class="h-label"><i class="fa-solid fa-circle-pause text-warning"></i> ២. Pending (តម្កល់រង់ចាំ)</span>
-                                <span class="h-val badge badge-pending" id="h-stat-active-sub2">០</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- CLOSED GROUP CARD -->
-                    <div class="h-stat-box card-panel">
-                        <div class="h-stat-header">
-                            <div class="h-icon" style="background: #f0fdf4; color: #10b981;"><i class="fa-solid fa-flag-checkered"></i></div>
-                            <div>
-                                <h3 class="h-title">Closed - សំណុំរឿងបានចាត់ការរួច (បិទបញ្ចប់ការដោះស្រាយ)</h3>
-                                <p class="h-sub">សរុបសំណុំរឿងដែលបានដោះស្រាយ និងបិទបញ្ចប់</p>
-                            </div>
-                            <div class="h-total-badge" style="background: #10b981; color: #fff;" id="h-stat-closed-total">០</div>
-                        </div>
-                        <div class="h-stat-body mt-3">
-                            <div class="h-item" onclick="filterByStatusQuick('Settle (ព្រមព្រៀង)')">
-                                <span class="h-label"><i class="fa-solid fa-circle-check text-success"></i> ១. Settle (ព្រមព្រៀង - ជោគជ័យ)</span>
-                                <span class="h-val badge badge-settle" id="h-stat-closed-sub1">០</span>
-                            </div>
-                            <div class="h-item-group mt-2">
-                                <div class="h-item" onclick="filterByStatusQuick('No Settle (មិនព្រមព្រៀង)')">
-                                    <span class="h-label"><i class="fa-solid fa-circle-xmark text-danger"></i> ២. No Settle (មិនព្រមព្រៀង / បិទ)</span>
-                                    <span class="h-val badge badge-close" id="h-stat-closed-sub2">០</span>
-                                </div>
-                                <div class="h-sub-items mt-2" style="padding-left: 24px; border-left: 2px dashed #cbd5e1; margin-left: 10px;">
-                                    <div class="h-sub-item d-flex justify-content-between align-items-center py-1" style="font-size: 13px; color: var(--text-muted);">
-                                        <span>▫️ ១. ភាគីដកពាក្យបណ្តឹង</span>
-                                        <span class="badge" style="background: #f1f5f9; color: #475569; font-weight: 700;" id="h-stat-nosettle-r1">០</span>
-                                    </div>
-                                    <div class="h-sub-item d-flex justify-content-between align-items-center py-1" style="font-size: 13px; color: var(--text-muted);">
-                                        <span>▫️ ២. ភាគីមិនចូលរួម ឬមិនបន្តការសម្រុះសម្រួល</span>
-                                        <span class="badge" style="background: #f1f5f9; color: #475569; font-weight: 700;" id="h-stat-nosettle-r2">០</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- CHARTS ROW -->
                 <div class="charts-row">
                     <div class="chart-container card-panel">
                         <div class="panel-header">
@@ -313,32 +421,6 @@
                         <div class="chart-wrapper">
                             <canvas id="categoryChart"></canvas>
                         </div>
-                    </div>
-                </div>
-
-                <!-- RECENT CASES TABLE -->
-                <div class="card-panel mt-4">
-                    <div class="panel-header">
-                        <h3><i class="fa-solid fa-clock-rotate-left"></i> សំណុំរឿងទើបធ្វើបច្ចុប្បន្នភាពចុងក្រោយ (Recent Updates)</h3>
-                        <a href="#cases-view" class="btn-link" onclick="switchView('cases-view')">មើលទាំងអស់ <i class="fa-solid fa-arrow-right"></i></a>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>លេខកូដសំណុំរឿង</th>
-                                    <th>ដើមបណ្ដឹង ភាគី (ក) vs ចុងបណ្ដឹង ភាគី (ខ)</th>
-                                    <th>ប្រភេទវិវាទ</th>
-                                    <th>ទីតាំងវិវាទ</th>
-                                    <th>កាលបរិច្ឆេទ</th>
-                                    <th>លទ្ធផលសំណុំរឿង</th>
-                                    <th class="text-center">សកម្មភាព</th>
-                                </tr>
-                            </thead>
-                            <tbody id="recent-cases-tbody">
-                                <!-- Dynamic rows -->
-                            </tbody>
-                        </table>
                     </div>
                 </div>
             </section>
@@ -698,6 +780,165 @@
                             <span class="action-desc d-block text-center" style="font-size: 12px; color: var(--text-muted);">លុបទិន្នន័យដែលបានកែប្រែ រួចស្ដារមកទិន្នន័យគំរូដើមវិញ</span>
                         </div>
                     </div>
+            <!-- VIEW 6: SYSTEM SETTINGS VIEW -->
+            <section class="view-section" id="settings-view">
+                <div class="section-title-box">
+                    <div>
+                        <h1 data-i18n="nav.settings">ការកំណត់ប្រព័ន្ធ (System Settings)</h1>
+                        <p data-i18n="settings.subtitle">គ្រប់គ្រងខេត្ត ប្រភេទវិវាទ គណនីរដ្ឋបាល និងកូឡោនបន្ថែមនៃសំណុំរឿង</p>
+                    </div>
+                </div>
+
+                <div class="card-panel settings-card" style="padding: 0; overflow: hidden; border-radius: var(--radius-lg); background: var(--bg-card); border: 1px solid var(--border-color); box-shadow: var(--shadow-md);">
+                    <!-- Settings tabs header -->
+                    <div class="settings-tabs-header" style="display: flex; background: var(--bg-main); border-bottom: 1px solid var(--border-color); flex-wrap: wrap;">
+                        <button type="button" class="tab-btn active" data-tab="tab-provinces" style="flex: 1; padding: 14px; border: none; background: none; font-weight: 700; color: var(--primary-color); cursor: pointer; border-bottom: 3px solid var(--primary-color); transition: all 0.2s; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;">
+                            <i class="fa-solid fa-map-location-dot"></i> ១. បញ្ជី ២៥ ខេត្ត/ក្រុង
+                        </button>
+                        <button type="button" class="tab-btn" data-tab="tab-categories" style="flex: 1; padding: 14px; border: none; background: none; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;">
+                            <i class="fa-solid fa-tags"></i> ២. ប្រភេទវិវាទ
+                        </button>
+                        <button type="button" class="tab-btn" data-tab="tab-columns" style="flex: 1; padding: 14px; border: none; background: none; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;">
+                            <i class="fa-solid fa-table-columns"></i> ៣. បន្ថែមកូឡោនសំណុំរឿង
+                        </button>
+                        <button type="button" class="tab-btn" data-tab="tab-admins" style="flex: 1; padding: 14px; border: none; background: none; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;">
+                            <i class="fa-solid fa-user-gear"></i> ៤. បន្ថែម Admin / គណនី
+                        </button>
+                    </div>
+
+                    <!-- Settings tabs content -->
+                    <div class="settings-tabs-content" style="padding: 24px;">
+                        
+                        <!-- TAB 1: PROVINCES CONFIG -->
+                        <div class="settings-tab-pane active" id="tab-provinces">
+                            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2" style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <h4 style="margin: 0; font-size: 14px; font-weight: 700; color: var(--text-color);"><i class="fa-solid fa-city text-primary"></i> គ្រប់គ្រងរាជធានី-ខេត្ត</h4>
+                                    <p style="font-size: 12px; color: var(--text-muted); margin: 0;">បន្ថែម ឬលុបខេត្តសម្រាប់ការជ្រើសរើសទីតាំងសំណុំរឿង</p>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-primary" id="btn-add-province" style="padding: 6px 12px; font-size: 12px;">
+                                    <i class="fa-solid fa-plus"></i> បន្ថែមខេត្តថ្មី
+                                </button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="data-table" style="font-size: 13px; width: 100%;">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 80px;">ល.រ</th>
+                                            <th style="width: 150px;">លេខកូដខេត្ត</th>
+                                            <th>ឈ្មោះខេត្ត</th>
+                                            <th class="text-center" style="width: 100px;">សកម្មភាព</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="settings-provinces-tbody">
+                                        <!-- Rendered dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- TAB 2: CATEGORIES CONFIG -->
+                        <div class="settings-tab-pane" id="tab-categories" style="display: none;">
+                            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2" style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <h4 style="margin: 0; font-size: 14px; font-weight: 700; color: var(--text-color);"><i class="fa-solid fa-tags text-primary"></i> គ្រប់គ្រងប្រភេទវិវាទសំណុំរឿង</h4>
+                                    <p style="font-size: 12px; color: var(--text-muted); margin: 0;">បន្ថែមប្រភេទវិវាទថ្មីៗនៅក្នុងប្រព័ន្ធសម្រុះសម្រួល</p>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-primary" id="btn-add-category" style="padding: 6px 12px; font-size: 12px;">
+                                    <i class="fa-solid fa-plus"></i> បន្ថែមវិវាទថ្មី
+                                </button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="data-table" style="font-size: 13px; width: 100%;">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 80px;">ល.រ</th>
+                                            <th>ប្រភេទវិវាទ</th>
+                                            <th class="text-center" style="width: 100px;">សកម្មភាព</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="settings-categories-tbody">
+                                        <!-- Rendered dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- TAB 3: CUSTOM COLUMNS SCHEMA -->
+                        <div class="settings-tab-pane" id="tab-columns" style="display: none;">
+                            <div class="mb-3">
+                                <h4 style="margin: 0; font-size: 14px; font-weight: 700; color: var(--text-color);"><i class="fa-solid fa-table-columns text-primary"></i> បន្ថែមកូឡោនសំណុំរឿង (Custom Registry Columns)</h4>
+                                <p style="font-size: 12px; color: var(--text-muted); margin: 0;">បន្ថែម Column ផ្ទាល់ខ្លួនទៅក្នុងបញ្ជី និង Form បញ្ចូលសំណុំរឿង</p>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 15px;">
+                                <div class="card-panel" style="background: var(--bg-main); padding: 16px; border: 1px solid var(--border-color); border-radius: var(--radius-md);">
+                                    <h5 style="margin-top: 0; margin-bottom: 12px; font-size: 13px; font-weight: 700; color: var(--text-color);">+ បង្កើតកូឡោនបន្ថែមថ្មី</h5>
+                                    <form id="settings-column-form">
+                                        <div class="form-group mb-2" style="margin-bottom: 10px;">
+                                            <label style="font-size: 11px; font-weight: 600; margin-bottom: 4px; display: block;">ឈ្មោះកូឡោន (ខ្មែរ) <span class="text-danger">*</span></label>
+                                            <input type="text" id="custom-col-label-kh" class="form-control" placeholder="ឧ. លេខលិខិតបញ្ជូន" required style="font-size: 12px; height: 32px; padding: 6px 10px; width: 100%; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-card); color: var(--text-color);">
+                                        </div>
+                                        <div class="form-group mb-2" style="margin-bottom: 12px;">
+                                            <label style="font-size: 11px; font-weight: 600; margin-bottom: 4px; display: block;">Column Label (English) <span class="text-danger">*</span></label>
+                                            <input type="text" id="custom-col-label-en" class="form-control" placeholder="e.g. Referral Code" required style="font-size: 12px; height: 32px; padding: 6px 10px; width: 100%; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-card); color: var(--text-color);">
+                                        </div>
+                                        <button type="submit" class="btn btn-sm btn-primary w-100" style="font-weight: 600; margin-top: 10px; width: 100%; padding: 8px;">
+                                            <i class="fa-solid fa-circle-plus"></i> រក្សាទុកកូឡោនថ្មី
+                                        </button>
+                                    </form>
+                                </div>
+                                <div class="card-panel" style="background: var(--bg-main); padding: 16px; border: 1px solid var(--border-color); border-radius: var(--radius-md);">
+                                    <h5 style="margin-top: 0; margin-bottom: 12px; font-size: 13px; font-weight: 700; color: var(--text-color);">បញ្ជីកូឡោនបន្ថែមបច្ចុប្បន្ន</h5>
+                                    <div class="table-responsive">
+                                        <table class="data-table" style="font-size: 12px; width: 100%;">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 50px;">ល.រ</th>
+                                                    <th>ឈ្មោះ (ខ្មែរ)</th>
+                                                    <th>ឈ្មោះ (EN)</th>
+                                                    <th class="text-center" style="width: 80px;">សកម្មភាព</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="settings-columns-tbody">
+                                                <!-- Dynamic rows -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TAB 4: ADMIN ACCOUNTS CONFIG -->
+                        <div class="settings-tab-pane" id="tab-admins" style="display: none;">
+                            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2" style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <h4 style="margin: 0; font-size: 14px; font-weight: 700; color: var(--text-color);"><i class="fa-solid fa-user-shield text-primary"></i> គ្រប់គ្រងគណនីរដ្ឋបាល & សិទ្ធិដំណើរការ</h4>
+                                    <p style="font-size: 12px; color: var(--text-muted); margin: 0;">បន្ថែមគណនី និងគ្រប់គ្រងពាក្យសម្ងាត់សម្រាប់ចូលប្រើប្រព័ន្ធ</p>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-primary" id="btn-add-admin" style="padding: 6px 12px; font-size: 12px;">
+                                    <i class="fa-solid fa-plus"></i> បន្ថែមគណនីថ្មី
+                                </button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="data-table" style="font-size: 13px; width: 100%;">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 80px;">ល.រ</th>
+                                            <th>ឈ្មោះអ្នកប្រើ (Username)</th>
+                                            <th>ឈ្មោះពិត (Display Name)</th>
+                                            <th>តួនាទី (Role)</th>
+                                            <th>ពាក្យសម្ងាត់</th>
+                                            <th class="text-center" style="width: 100px;">សកម្មភាព</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="settings-admins-tbody">
+                                        <!-- Rendered dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
             </section>
         </main>
@@ -728,8 +969,8 @@
                             <textarea id="ai-complaint-text" class="form-control mb-2" rows="2" placeholder="វាយ ឬ Paste អត្ថបទពាក្យបណ្តឹង / កំណត់ហេតុនៅទីនេះ ដើម្បីឱ្យ AI វិភាគទាញយកអត្តសញ្ញាណភាគី និងទីតាំងស្វ័យប្រវត្តិ..." style="font-size: 13px; border: 1px solid #e2e8f0;"></textarea>
                             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                                 <label class="btn btn-sm btn-outline mb-0" style="font-size: 12px; cursor: pointer; background: #f8fafc; border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px;">
-                                    <i class="fa-solid fa-file-arrow-up text-primary"></i> Upload ឯកសារ (.txt, .doc...)
-                                    <input type="file" id="ai-file-upload" accept=".txt,.doc,.docx,.csv" style="display: none;">
+                                    <i class="fa-solid fa-file-arrow-up text-primary"></i> Upload ឯកសារ (.txt, .doc, .pdf...)
+                                    <input type="file" id="ai-file-upload" accept=".txt,.doc,.docx,.csv,.pdf" style="display: none;">
                                 </label>
                                 <button type="button" class="btn btn-sm btn-primary" id="btn-run-ai-extract" style="background: linear-gradient(135deg, #2563eb, #1d4ed8); border: none; font-weight: 600; padding: 6px 16px; border-radius: 6px; box-shadow: 0 2px 6px rgba(37,99,235,0.3);">
                                     <i class="fa-solid fa-wand-magic-sparkles"></i> ✨ AI Generate អត្តសញ្ញាណសំណុំរឿង
@@ -903,6 +1144,16 @@
                             <input type="text" id="case-remarks" class="form-control" placeholder="ឧ. កំពុងពិនិត្យ និងដោះស្រាយ" value="កំពុងពិនិត្យ និងដោះស្រាយ (មិនទាន់បិទ)">
                         </div>
                     </div>
+
+                    <!-- SECTION 5: CUSTOM COLUMNS (ADDITIONAL DATA) -->
+                    <div id="modal-custom-fields-section" style="display: none; margin-top: 20px;">
+                        <div class="form-section-banner" style="background: #e2e8f0; color: #475569; border-left: 4px solid #64748b; font-weight: 700;">
+                            <i class="fa-solid fa-square-plus"></i> ៥. ព័ត៌មានបន្ថែម (Custom Fields)
+                        </div>
+                        <div id="modal-custom-fields-container" class="form-grid-3 mt-3">
+                            <!-- Rendered dynamically in app.js -->
+                        </div>
+                    </div>
                 </div>
 
                 <div class="modal-footer">
@@ -1018,6 +1269,11 @@
     <div id="toast-container" class="toast-container"></div>
 
     <!-- JAVASCRIPT SCRIPTS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <script>
+        // Set workerSrc for PDF.js
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+    </script>
     <script src="js/data.js"></script>
     <script src="js/ai-assistant.js"></script>
     <script src="js/docs.js"></script>

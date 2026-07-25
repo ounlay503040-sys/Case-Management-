@@ -18,15 +18,48 @@ function initAIAssistantEvents() {
             const file = e.target.files[0];
             if (!file) return;
 
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                const content = evt.target.result;
-                if (aiInputText) {
-                    aiInputText.value = content;
-                    showToast(`បានអានឯកសារ ${file.name} រួចរាល់! សូមចុចប៊ូតុង AI Generate ដើម្បីវិភាគ`, 'info');
-                }
-            };
-            reader.readAsText(file, 'UTF-8');
+            if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                // Read PDF file
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    const typedarray = new Uint8Array(evt.target.result);
+                    pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
+                        let maxPages = pdf.numPages;
+                        let countPromises = [];
+                        for (let j = 1; j <= maxPages; j++) {
+                            let pagePromise = pdf.getPage(j).then(function(page) {
+                                return page.getTextContent().then(function(textContent) {
+                                    return textContent.items.map(function(item) {
+                                        return item.str;
+                                    }).join(' ');
+                                });
+                            });
+                            countPromises.push(pagePromise);
+                        }
+                        return Promise.all(countPromises).then(function(texts) {
+                            if (aiInputText) {
+                                aiInputText.value = texts.join('\n');
+                                showToast(`បានអានឯកសារ PDF ${file.name} រួចរាល់! សូមចុចប៊ូតុង AI Generate ដើម្បីវិភាគ`, 'success');
+                            }
+                        });
+                    }).catch(function(err) {
+                        console.error(err);
+                        showToast('មិនអាចអានឯកសារ PDF នេះបានទេ! សូមព្យាយាមម្តងទៀត', 'error');
+                    });
+                };
+                reader.readAsArrayBuffer(file);
+            } else {
+                // Read Text-based files
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    const content = evt.target.result;
+                    if (aiInputText) {
+                        aiInputText.value = content;
+                        showToast(`បានអានឯកសារ ${file.name} រួចរាល់! សូមចុចប៊ូតុង AI Generate ដើម្បីវិភាគ`, 'info');
+                    }
+                };
+                reader.readAsText(file, 'UTF-8');
+            }
         });
     }
 

@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 2. Populate 25 province dropdowns across the app
     populateProvinceDropdowns();
+    populateCategoryDropdowns();
 
     // 3. Start live clock
     updateClock();
@@ -31,6 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initDataManagementEvents();
     initThemeToggle();
     initLanguageSwitcher();
+    initSettingsEvents();
+    initDashboardQuickForm();
 
     // 5. Initial render
     renderAllViews();
@@ -44,6 +47,7 @@ function populateProvinceDropdowns() {
     const paLoc = document.getElementById('case-party-a-location');
     const pbLoc = document.getElementById('case-party-b-location');
     const filterLoc = document.getElementById('filter-location');
+    const quickLoc = document.getElementById('quick-case-dispute-location');
 
     let optHTML = '';
     PROVINCES_LIST.forEach(p => {
@@ -53,9 +57,30 @@ function populateProvinceDropdowns() {
     if (dispLoc) dispLoc.innerHTML = optHTML;
     if (paLoc) paLoc.innerHTML = optHTML;
     if (pbLoc) pbLoc.innerHTML = optHTML;
+    if (quickLoc) quickLoc.innerHTML = optHTML;
 
     if (filterLoc) {
         filterLoc.innerHTML = `<option value="ALL">គ្រប់ទីតាំងទាំងអស់ (All Locations)</option>` + optHTML;
+    }
+}
+
+/**
+ * Populate all category dropdowns dynamically
+ */
+function populateCategoryDropdowns() {
+    const mainCat = document.getElementById('case-category');
+    const quickCat = document.getElementById('quick-case-category');
+    const filterCat = document.getElementById('filter-category');
+
+    let optHTML = '';
+    CASE_CATEGORIES.forEach((c, index) => {
+        optHTML += `<option value="${c}">${index + 1}. ${c}</option>`;
+    });
+
+    if (mainCat) mainCat.innerHTML = optHTML;
+    if (quickCat) quickCat.innerHTML = optHTML;
+    if (filterCat) {
+        filterCat.innerHTML = `<option value="ALL">ទាំងអស់ (All Categories)</option>` + optHTML;
     }
 }
 
@@ -222,10 +247,8 @@ function renderRecentCasesTable() {
     tbody.innerHTML = html;
 }
 
-/**
- * Apply filters, sort, and render Master Table with pagination
- */
 function applyFiltersAndRenderMasterTable() {
+    renderMasterTableHeader();
     const q = document.getElementById('filter-search')?.value || '';
     const cat = document.getElementById('filter-category')?.value || 'ALL';
     const st = document.getElementById('filter-status')?.value || 'ALL';
@@ -264,6 +287,13 @@ function applyFiltersAndRenderMasterTable() {
     let html = '';
     paginated.forEach((c, idx) => {
         const rowNum = startIndex + idx + 1;
+        
+        let customCells = '';
+        CUSTOM_COLUMNS.forEach(col => {
+            const val = c[col.key] || '';
+            customCells += `<td class="text-center">${val}</td>`;
+        });
+
         html += `
             <tr>
                 <td class="text-center">${rowNum}</td>
@@ -296,6 +326,7 @@ function applyFiltersAndRenderMasterTable() {
                         ${c.remarks}
                     </span>
                 </td>
+                ${customCells}
                 <td class="text-center">
                     <div class="action-btns">
                         <button class="btn-icon" onclick="openViewModal('${c.id}')" title="មើលប័ណ្ណ"><i class="fa-solid fa-eye"></i></button>
@@ -472,6 +503,7 @@ function initModalEvents() {
         document.getElementById('case-number').value = generateNextCaseNumber();
         document.getElementById('case-date').value = getTodayDateString();
         handleStatusChange();
+        renderModalCustomFields();
         modal.classList.add('open');
     };
 
@@ -514,6 +546,13 @@ function initModalEvents() {
                 status: statusVal,
                 remarks: remarksVal
             };
+
+            // Add custom fields values
+            const customInputs = document.querySelectorAll('.custom-field-input');
+            customInputs.forEach(input => {
+                const key = input.getAttribute('data-custom-key');
+                payload[key] = input.value.trim();
+            });
 
             if (id) {
                 updateCase(id, payload);
@@ -601,6 +640,7 @@ function openEditModal(id) {
 
     // Close view modal if open
     document.getElementById('view-modal')?.classList.remove('open');
+    renderModalCustomFields(c);
     modal.classList.add('open');
 }
 
@@ -678,6 +718,26 @@ function openViewModal(id) {
                     </div>
                 </div>
             </div>
+            
+            ${(() => {
+                if (CUSTOM_COLUMNS.length === 0) return '';
+                let customHtml = `
+                <div class="dossier-item full-width" style="grid-column: span 2; background: #f8fafc; border-color: #e2e8f0; margin-top: 10px;">
+                    <span class="d-label" style="color: #475569; font-weight: 700;"><i class="fa-solid fa-square-plus"></i> ៥. ព័ត៌មានបន្ថែម (Custom Fields)</span>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 8px; font-size: 13px;">
+                `;
+                CUSTOM_COLUMNS.forEach(col => {
+                    const val = c[col.key] || 'ពុំមានបញ្ចូល';
+                    customHtml += `
+                        <div style="background: white; padding: 8px; border-radius: 4px; border: 1px solid var(--border-color);">
+                            <span class="text-muted d-block" style="font-size: 11px;">${col.labelKh} (${col.labelEn})៖</span>
+                            <strong>${val}</strong>
+                        </div>
+                    `;
+                });
+                customHtml += `</div></div>`;
+                return customHtml;
+            })()}
         </div>
     `;
 
@@ -952,23 +1012,11 @@ function initAuth() {
             let uName = 'មន្ត្រីសម្របសម្រួល';
             let uRole = 'ការិយាល័យរដ្ឋបាល NADR';
 
-            if (username.toLowerCase() === 'admin' && (password === 'admin123' || password === 'admin' || password === '123456')) {
+            const matchedUser = ADMIN_USERS.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
+            if (matchedUser) {
                 isValid = true;
-                uName = 'គណនីរដ្ឋបាល (Admin)';
-                uRole = 'អគ្គលេខាធិការដ្ឋាន NADR';
-            } else if (username.toLowerCase() === 'nadr' && (password === 'nadr2026' || password === 'nadr' || password === 'admin123')) {
-                isValid = true;
-                uName = 'មន្ត្រីជាន់ខ្ពស់ NADR';
-                uRole = 'ថ្នាក់ដឹកនាំ NADR';
-            } else if (username.toLowerCase() === 'user' && (password === 'user123' || password === 'user' || password === '123456')) {
-                isValid = true;
-                uName = 'មន្ត្រីសម្របសម្រួល';
-                uRole = 'មន្ត្រីទទួលបន្ទុក';
-            } else if (password === 'admin123' || password === '123456' || password === 'nadr2026' || password === username) {
-                // Allow custom usernames with standard valid passwords
-                isValid = true;
-                uName = username;
-                uRole = 'មន្ត្រីជំនាញ NADR';
+                uName = matchedUser.name;
+                uRole = matchedUser.role;
             }
 
             if (isValid) {
@@ -1056,5 +1104,435 @@ function initLanguageSwitcher() {
 
     // Apply the initial language on load
     applyLanguage(currentLang);
+}
+
+/**
+ * Dynamic Admin User accounts loaded from localStorage
+ */
+let ADMIN_USERS = JSON.parse(localStorage.getItem('nadr_admin_users')) || [
+    { username: 'admin', password: '123', name: 'គណនីរដ្ឋបាល (Admin)', role: 'អគ្គលេខាធិការដ្ឋាន NADR' },
+    { username: 'nadr', password: 'nadr', name: 'មន្ត្រីជាន់ខ្ពស់ NADR', role: 'ថ្នាក់ដឹកនាំ NADR' },
+    { username: 'user', password: 'user', name: 'មន្ត្រីសម្របសម្រួល', role: 'មន្ត្រីទទួលបន្ទុក' }
+];
+
+function initSettingsEvents() {
+    const tabs = document.querySelectorAll('#settings-view .tab-btn');
+    if (!tabs.length) return;
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => {
+                t.classList.remove('active');
+                t.style.borderBottomColor = 'transparent';
+                t.style.color = 'var(--text-muted)';
+                t.style.fontWeight = '600';
+            });
+            tab.classList.add('active');
+            tab.style.borderBottomColor = 'var(--primary-color)';
+            tab.style.color = 'var(--primary-color)';
+            tab.style.fontWeight = '700';
+
+            const paneId = tab.getAttribute('data-tab');
+            const panes = document.querySelectorAll('#settings-view .settings-tab-pane');
+            panes.forEach(pane => {
+                pane.style.display = pane.id === paneId ? 'block' : 'none';
+            });
+        });
+    });
+
+    // Add Province
+    const btnAddProv = document.getElementById('btn-add-province');
+    if (btnAddProv) {
+        btnAddProv.onclick = () => {
+            const name = prompt("សូមវាយបញ្ចូលឈ្មោះខេត្តថ្មី (ឧ. កំពង់ចាម)៖");
+            if (!name) return;
+            const code = prompt("សូមវាយបញ្ចូលលេខកូដខេត្ត (៣ អក្សរ ឧ. KPC)៖");
+            if (!code) return;
+            PROVINCES_LIST.push({ code: code.toUpperCase().trim(), name: name.trim() });
+            localStorage.setItem('nadr_provinces', JSON.stringify(PROVINCES_LIST));
+            populateProvinceDropdowns();
+            renderSettingsProvinces();
+            showToast('បានបន្ថែមខេត្តថ្មីដោយជោគជ័យ!', 'success');
+        };
+    }
+
+    // Add Category
+    const btnAddCat = document.getElementById('btn-add-category');
+    if (btnAddCat) {
+        btnAddCat.onclick = () => {
+            const name = prompt("សូមវាយបញ្ចូលប្រភេទវិវាទថ្មី (ឧ. វិវាទកម្មសិទ្ធិបញ្ញា)៖");
+            if (!name) return;
+            CASE_CATEGORIES.push(name.trim());
+            localStorage.setItem('nadr_categories', JSON.stringify(CASE_CATEGORIES));
+            populateCategoryDropdowns();
+            renderSettingsCategories();
+            showToast('បានបន្ថែមប្រភេទវិវាទថ្មីដោយជោគជ័យ!', 'success');
+        };
+    }
+
+    // Custom columns form
+    const colForm = document.getElementById('settings-column-form');
+    if (colForm) {
+        colForm.onsubmit = (e) => {
+            e.preventDefault();
+            const labelKh = document.getElementById('custom-col-label-kh').value.trim();
+            const labelEn = document.getElementById('custom-col-label-en').value.trim();
+            const key = 'custom_' + Date.now();
+            CUSTOM_COLUMNS.push({ key, labelKh, labelEn });
+            localStorage.setItem('nadr_custom_columns', JSON.stringify(CUSTOM_COLUMNS));
+            colForm.reset();
+            renderSettingsColumns();
+            renderAllViews();
+            showToast('បានបន្ថែមកូឡោនថ្មីដោយជោគជ័យ!', 'success');
+        };
+    }
+
+    // Add Admin user
+    const btnAddAdmin = document.getElementById('btn-add-admin');
+    if (btnAddAdmin) {
+        btnAddAdmin.onclick = () => {
+            const username = prompt("សូមបញ្ចូល Username ថ្មី៖");
+            if (!username) return;
+            const password = prompt("សូមបញ្ចូល Password៖");
+            if (!password) return;
+            const dispName = prompt("សូមបញ្ចូលឈ្មោះពិត (Display Name)៖");
+            if (!dispName) return;
+            const role = prompt("សូមបញ្ចូលតួនាទី (Role)៖");
+            if (!role) return;
+
+            ADMIN_USERS.push({ username: username.trim(), password: password.trim(), name: dispName.trim(), role: role.trim() });
+            localStorage.setItem('nadr_admin_users', JSON.stringify(ADMIN_USERS));
+            renderSettingsAdmins();
+            showToast('បានបន្ថែមគណនីថ្មីដោយជោគជ័យ!', 'success');
+        };
+    }
+
+    // Initial renders
+    renderSettingsProvinces();
+    renderSettingsCategories();
+    renderSettingsColumns();
+    renderSettingsAdmins();
+}
+
+function renderSettingsProvinces() {
+    const tbody = document.getElementById('settings-provinces-tbody');
+    if (!tbody) return;
+    let html = '';
+    PROVINCES_LIST.forEach((p, index) => {
+        html += `
+            <tr>
+                <td>${index + 1}</td>
+                <td><strong style="color: var(--primary-color);">${p.code}</strong></td>
+                <td>${p.name}</td>
+                <td class="text-center">
+                    <button class="btn-icon text-danger" onclick="deleteProvinceSetting(${index})" title="លុប"><i class="fa-solid fa-trash"></i></button>
+                </td>
+            </tr>
+        `;
+    });
+    tbody.innerHTML = html;
+}
+
+window.deleteProvinceSetting = function(index) {
+    if (confirm(`តើអ្នកពិតជាចង់លុបខេត្ត ${PROVINCES_LIST[index].name} មែនទេ?`)) {
+        PROVINCES_LIST.splice(index, 1);
+        localStorage.setItem('nadr_provinces', JSON.stringify(PROVINCES_LIST));
+        populateProvinceDropdowns();
+        renderSettingsProvinces();
+        showToast('បានលុបខេត្តដោយជោគជ័យ!', 'success');
+    }
+};
+
+function renderSettingsCategories() {
+    const tbody = document.getElementById('settings-categories-tbody');
+    if (!tbody) return;
+    let html = '';
+    CASE_CATEGORIES.forEach((c, index) => {
+        html += `
+            <tr>
+                <td>${index + 1}</td>
+                <td><strong>${c}</strong></td>
+                <td class="text-center">
+                    <button class="btn-icon text-danger" onclick="deleteCategorySetting(${index})" title="លុប"><i class="fa-solid fa-trash"></i></button>
+                </td>
+            </tr>
+        `;
+    });
+    tbody.innerHTML = html;
+}
+
+window.deleteCategorySetting = function(index) {
+    if (confirm(`តើអ្នកពិតជាចង់លុបប្រភេទវិវាទ "${CASE_CATEGORIES[index]}" មែនទេ?`)) {
+        CASE_CATEGORIES.splice(index, 1);
+        localStorage.setItem('nadr_categories', JSON.stringify(CASE_CATEGORIES));
+        populateCategoryDropdowns();
+        renderSettingsCategories();
+        showToast('បានលុបប្រភេទវិវាទដោយជោគជ័យ!', 'success');
+    }
+};
+
+function renderSettingsColumns() {
+    const tbody = document.getElementById('settings-columns-tbody');
+    if (!tbody) return;
+    let html = '';
+    CUSTOM_COLUMNS.forEach((c, index) => {
+        html += `
+            <tr>
+                <td>${index + 1}</td>
+                <td><strong>${c.labelKh}</strong></td>
+                <td><code>${c.labelEn}</code></td>
+                <td class="text-center">
+                    <button class="btn-icon text-danger" onclick="deleteColumnSetting(${index})" title="លុប"><i class="fa-solid fa-trash"></i></button>
+                </td>
+            </tr>
+        `;
+    });
+    tbody.innerHTML = html;
+}
+
+window.deleteColumnSetting = function(index) {
+    if (confirm(`តើអ្នកពិតជាចង់លុបកូឡោន "${CUSTOM_COLUMNS[index].labelKh}" មែនទេ?`)) {
+        CUSTOM_COLUMNS.splice(index, 1);
+        localStorage.setItem('nadr_custom_columns', JSON.stringify(CUSTOM_COLUMNS));
+        renderSettingsColumns();
+        renderAllViews();
+        showToast('បានលុបកូឡោនដោយជោគជ័យ!', 'success');
+    }
+};
+
+function renderSettingsAdmins() {
+    const tbody = document.getElementById('settings-admins-tbody');
+    if (!tbody) return;
+    let html = '';
+    ADMIN_USERS.forEach((user, index) => {
+        html += `
+            <tr>
+                <td>${index + 1}</td>
+                <td><strong>${user.username}</strong></td>
+                <td>${user.name}</td>
+                <td><span class="badge badge-active" style="font-size: 11px;">${user.role}</span></td>
+                <td><code>${user.password}</code></td>
+                <td class="text-center">
+                    <button class="btn-icon text-danger" onclick="deleteAdminSetting(${index})" title="លុប" ${user.username === 'admin' ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : ''}><i class="fa-solid fa-trash"></i></button>
+                </td>
+            </tr>
+        `;
+    });
+    tbody.innerHTML = html;
+}
+
+window.deleteAdminSetting = function(index) {
+    const user = ADMIN_USERS[index];
+    if (user.username === 'admin') {
+        showToast('មិនអាចលុបគណនីរដ្ឋបាលមេ (admin) បានទេ!', 'error');
+        return;
+    }
+    if (confirm(`តើអ្នកពិតជាចង់លុបគណនី "${user.username}" មែនទេ?`)) {
+        ADMIN_USERS.splice(index, 1);
+        localStorage.setItem('nadr_admin_users', JSON.stringify(ADMIN_USERS));
+        renderSettingsAdmins();
+        showToast('បានលុបគណនីដោយជោគជ័យ!', 'success');
+    }
+};
+
+/**
+ * Render master table headers dynamically
+ */
+function renderMasterTableHeader() {
+    const table = document.querySelector('.master-table');
+    if (!table) return;
+    const thead = table.querySelector('thead tr');
+    if (!thead) return;
+
+    let html = `
+        <th class="text-center" style="width: 50px;" data-i18n="table.no">ល.រ</th>
+        <th style="width: 130px;" data-i18n="table.caseCode">លេខកូដសំណុំរឿង</th>
+        <th style="width: 110px;" data-i18n="table.date">កាលបរិច្ឆេទ</th>
+        <th style="min-width: 180px;" data-i18n="table.partyA">ភាគី (ក) ដើមបណ្ដឹង</th>
+        <th style="min-width: 180px;" data-i18n="table.partyB">ភាគី (ខ) ចុងបណ្ដឹង</th>
+        <th style="width: 140px;" data-i18n="table.category">ប្រភេទវិវាទ</th>
+        <th style="width: 120px;" data-i18n="table.location">ទីតាំងវិវាទ</th>
+        <th style="min-width: 200px;" data-i18n="form.mediation">ចំណាត់ការសម្រុះសម្រួល</th>
+        <th style="width: 140px;" class="text-center" data-i18n="table.status">លទ្ធផលសំណុំរឿង</th>
+        <th style="width: 110px;" class="text-center" data-i18n="table.remarks">កំណត់ចំណាំ</th>
+    `;
+
+    CUSTOM_COLUMNS.forEach(col => {
+        html += `<th style="min-width: 120px;" class="text-center">${currentLang === 'km' ? col.labelKh : col.labelEn}</th>`;
+    });
+
+    html += `<th style="width: 120px;" class="text-center" data-i18n="table.actions">សកម្មភាព</th>`;
+    thead.innerHTML = html;
+}
+
+/**
+ * Render dynamic custom fields inside Add/Edit modal form
+ */
+function renderModalCustomFields(c = {}) {
+    const container = document.getElementById('modal-custom-fields-container');
+    const section = document.getElementById('modal-custom-fields-section');
+    if (!container || !section) return;
+
+    if (CUSTOM_COLUMNS.length === 0) {
+        section.style.display = 'none';
+        container.innerHTML = '';
+        return;
+    }
+
+    section.style.display = 'block';
+    let html = '';
+    CUSTOM_COLUMNS.forEach(col => {
+        const val = c[col.key] || '';
+        html += `
+            <div class="form-group">
+                <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">${col.labelKh} (${col.labelEn})</label>
+                <input type="text" data-custom-key="${col.key}" class="form-control custom-field-input" value="${val}" placeholder="បញ្ចូលព័ត៌មាន..." style="font-size: 13px; height: 36px; padding: 6px 12px;">
+            </div>
+        `;
+    });
+    container.innerHTML = html;
+}
+
+/**
+ * Initialize Dashboard Quick Case Entry Form & AI extractor
+ */
+function initDashboardQuickForm() {
+    const quickForm = document.getElementById('dashboard-quick-form');
+    const aiTextarea = document.getElementById('dashboard-ai-text');
+    const aiFile = document.getElementById('dashboard-ai-file');
+    const aiBtn = document.getElementById('btn-dashboard-ai-extract');
+
+    if (quickForm) {
+        // Set default values on quick form
+        document.getElementById('quick-case-number').value = generateNextCaseNumber();
+        document.getElementById('quick-case-date').value = getTodayDateString();
+
+        quickForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const payload = {
+                caseNumber: document.getElementById('quick-case-number').value.trim(),
+                dateReceived: document.getElementById('quick-case-date').value,
+                category: document.getElementById('quick-case-category').value,
+                disputeLocation: document.getElementById('quick-case-dispute-location').value,
+                
+                partyA_name: document.getElementById('quick-case-party-a-name').value.trim(),
+                partyA_gender: 'ប្រុស',
+                partyA_age: '',
+                partyA_phone: '',
+                partyA_location: document.getElementById('quick-case-dispute-location').value,
+
+                partyB_name: document.getElementById('quick-case-party-b-name').value.trim(),
+                partyB_gender: 'ប្រុស',
+                partyB_age: '',
+                partyB_phone: '',
+                partyB_location: document.getElementById('quick-case-dispute-location').value,
+
+                summary: 'បញ្ចូលរហ័សតាម Dashboard',
+                meetingPartyA: 'មិនទាន់ប្រជុំ',
+                meetingPartyB: 'មិនទាន់ប្រជុំ',
+                mediationMeeting: 'មិនទាន់ប្រជុំ',
+                status: 'Active (កំពុងសម្រុះសម្រួល)',
+                remarks: 'កំពុងពិនិត្យ និងដោះស្រាយ (មិនទាន់បិទ)'
+            };
+
+            // Add empty custom fields since it's a quick entry
+            CUSTOM_COLUMNS.forEach(col => {
+                payload[col.key] = '';
+            });
+
+            addCase(payload);
+            showToast('បានបង្កើតសំណុំរឿងថ្មីរហ័សដោយជោគជ័យ!', 'success');
+            
+            // Reset form
+            quickForm.reset();
+            document.getElementById('quick-case-number').value = generateNextCaseNumber();
+            document.getElementById('quick-case-date').value = getTodayDateString();
+            if (aiTextarea) aiTextarea.value = '';
+
+            renderAllViews();
+        });
+    }
+
+    // Dashboard AI File dropzone / reader
+    if (aiFile && aiTextarea) {
+        aiFile.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    const typedarray = new Uint8Array(evt.target.result);
+                    pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
+                        let maxPages = pdf.numPages;
+                        let countPromises = [];
+                        for (let j = 1; j <= maxPages; j++) {
+                            let pagePromise = pdf.getPage(j).then(function(page) {
+                                return page.getTextContent().then(function(textContent) {
+                                    return textContent.items.map(function(item) {
+                                        return item.str;
+                                    }).join(' ');
+                                });
+                            });
+                            countPromises.push(pagePromise);
+                        }
+                        return Promise.all(countPromises).then(function(texts) {
+                            aiTextarea.value = texts.join('\n');
+                            showToast(`បានអានឯកសារ PDF ${file.name} រួចរាល់!`, 'success');
+                        });
+                    }).catch(function(err) {
+                        console.error(err);
+                        showToast('មិនអាចអាន PDF!', 'error');
+                    });
+                };
+                reader.readAsArrayBuffer(file);
+            } else {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    aiTextarea.value = evt.target.result;
+                    showToast(`បានអានឯកសារ ${file.name} រួចរាល់!`, 'info');
+                };
+                reader.readAsText(file, 'UTF-8');
+            }
+        });
+    }
+
+    // Dashboard AI extractor executor
+    if (aiBtn && aiTextarea) {
+        aiBtn.addEventListener('click', () => {
+            const text = aiTextarea.value.trim();
+            if (!text) {
+                showToast('សូមបញ្ចូលអត្ថបទពាក្យបណ្តឹងជាមុនសិន!', 'warning');
+                return;
+            }
+
+            aiBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
+            aiBtn.disabled = true;
+
+            setTimeout(() => {
+                // Call parsed function from ai-assistant
+                if (typeof parseComplaintTextAI === 'function') {
+                    const data = parseComplaintTextAI(text);
+                    document.getElementById('quick-case-party-a-name').value = data.partyA_name || '';
+                    document.getElementById('quick-case-party-b-name').value = data.partyB_name || '';
+                    
+                    // Match dispute location
+                    const quickLoc = document.getElementById('quick-case-dispute-location');
+                    if (quickLoc) {
+                        for (let opt of quickLoc.options) {
+                            if (opt.value.includes(data.partyA_location) || data.partyA_location.includes(opt.value)) {
+                                quickLoc.value = opt.value;
+                                break;
+                            }
+                        }
+                    }
+                    showToast('✨ AI បានវិភាគ និងបំពេញទិន្នន័យរហ័សជោគជ័យ!', 'success');
+                }
+                aiBtn.innerHTML = `✨ AI Extract`;
+                aiBtn.disabled = false;
+            }, 800);
+        });
+    }
 }
 

@@ -5,7 +5,7 @@
    ========================================================================== */
 
 // 1. បញ្ជី ២៥ រាជធានី-ខេត្ត ជាមួយអក្សរកាត់ (Provinces & Capital List)
-const PROVINCES_LIST = [
+const DEFAULT_PROVINCES = [
     { code: 'PNH', name: 'ភ្នំពេញ' },
     { code: 'BMC', name: 'បន្ទាយមានជ័យ' },
     { code: 'BAT', name: 'បាត់ដំបង' },
@@ -32,9 +32,10 @@ const PROVINCES_LIST = [
     { code: 'PLN', name: 'ប៉ៃលិន' },
     { code: 'KEP', name: 'កែប' }
 ];
+let PROVINCES_LIST = JSON.parse(localStorage.getItem('nadr_provinces')) || [...DEFAULT_PROVINCES];
 
 // 2. ប្រភេទសំណុំរឿង ៨ ប្រភេទ (8 Case Categories)
-const CASE_CATEGORIES = [
+const DEFAULT_CATEGORIES = [
     'វិវាទកិច្ចសន្យា',
     'វិវាទក្នុងគ្រួសារ',
     'វិវាទជំពាក់ប្រាក់',
@@ -44,6 +45,11 @@ const CASE_CATEGORIES = [
     'វិវាទអចលនវត្ថុ',
     'វិវាទការងារ'
 ];
+let CASE_CATEGORIES = JSON.parse(localStorage.getItem('nadr_categories')) || [...DEFAULT_CATEGORIES];
+
+// Custom Columns Schema
+let CUSTOM_COLUMNS = JSON.parse(localStorage.getItem('nadr_custom_columns')) || [];
+
 
 // 3. លទ្ធផលសំណុំរឿង ៤ ស្ថានភាព (4 Case Statuses)
 const CASE_STATUSES = [
@@ -567,6 +573,7 @@ const I18N = {
     'nav.admin': { km: 'រដ្ឋបាល & ទិន្នន័យ (ADMIN)', en: 'ADMIN & DATA' },
     'nav.reports': { km: 'ផលិតរបាយការណ៍', en: 'Report Generator' },
     'nav.data': { km: 'ទាញទិន្នន័យចូល & បម្រុង', en: 'Import & Backup' },
+    'nav.settings': { km: 'ការកំណត់ប្រព័ន្ធ', en: 'System Settings' },
     'sidebar.subtitle': { km: 'អាជ្ញាធរជាតិដោះស្រាយវិវាទ', en: 'National Authority for Dispute Resolution' },
 
     // ------------ Top Header ------------
