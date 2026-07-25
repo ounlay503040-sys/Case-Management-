@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ប្រព័ន្ធគ្រប់គ្រងសំណុំរឿងគោល - NADR Master Case Management</title>
+    <!-- Google Fonts for standard Khmer & English typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Inter:wght@400;500;600;700&family=Kantumruy+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- Font Awesome for sleek modern icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SheetJS (XLSX) for Excel Import and Export -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="light-theme">
+    <!-- APP CONTAINER -->
+    <div class="app-container">
+        
+        <!-- SIDEBAR NAVIGATION -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-box">
+                    <i class="fa-solid fa-balance-scale"></i>
+                </div>
+                <div class="logo-text">
+                    <h2>NADR - CMS Pro</h2>
+                    <p>អាជ្ញាធរជាតិដោះស្រាយវិវាទ</p>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">មេនុយទូទៅ (MAIN)</div>
+                <a href="#dashboard-view" class="nav-item active" data-view="dashboard-view">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>ផ្ទាំងស្ថិតិសង្ខេប</span>
+                </a>
+                <a href="#cases-view" class="nav-item" data-view="cases-view">
+                    <i class="fa-solid fa-table-list"></i>
+                    <span>បញ្ជីសំណុំរឿងគោល ១</span>
+                </a>
+                <a href="#analytics-view" class="nav-item" data-view="analytics-view">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>វិភាគវាយតម្លៃចំណាត់ការ</span>
+                </a>
+
+                <div class="nav-section-title">រដ្ឋបាល & ទិន្នន័យ (ADMIN)</div>
+                <a href="#reports-view" class="nav-item" data-view="reports-view">
+                    <i class="fa-solid fa-file-invoice"></i>
+                    <span>ផលិតរបាយការណ៍</span>
+                </a>
+                <a href="#data-mgmt-view" class="nav-item" data-view="data-mgmt-view">
+                    <i class="fa-solid fa-database"></i>
+                    <span>ទាញទិន្នន័យចូល & បម្រុង</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="avatar"><i class="fa-solid fa-user-shield"></i></div>
+                    <div class="user-info">
+                        <h4>មន្ត្រីសម្របសម្រួល</h4>
+                        <span>ការិយាល័យរដ្ឋបាល NADR</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="main-content">
+            <!-- HEADER BAR -->
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="menu-toggle-btn" id="menu-toggle">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="search-bar">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="header-search-input" placeholder="ស្វែងរកលេខកូដសំណុំរឿង, ឈ្មោះភាគី ក/ខ, ឬមន្ត្រី...">
+                    </div>
+                </div>
+
+                <div class="header-right">
+                    <div class="current-time-badge" id="current-time-display">
+                        <i class="fa-regular fa-clock"></i>
+                        <span>កំពុងផ្ទុក...</span>
+                    </div>
+                    
+                    <button class="theme-toggle-btn" id="theme-toggle" title="ប្តូរពណ៌ Dark/Light Mode">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
+
+                    <button class="btn btn-primary btn-add-case" id="btn-open-add-modal">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>បង្កើតសំណុំរឿងថ្មី</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- VIEW 1: DASHBOARD VIEW -->
+            <section class="view-section active" id="dashboard-view">
+                <div class="section-title-box">
+                    <div>
+                        <h1>ផ្ទាំងស្ថិតិសង្ខេបទូទៅ</h1>
+                        <p>តាមដានស្ថានភាពសំណុំរឿង និងលំហូរដោះស្រាយវិវាទប្រចាំស្ថាប័ន</p>
+                    </div>
+                    <div class="section-actions">
+                        <button class="btn btn-outline" id="btn-refresh-data">
+                            <i class="fa-solid fa-arrows-rotate"></i> ធ្វើបច្ចុប្បន្នភាព
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STATS CARDS GRID -->
+                <div class="stats-grid">
+                    <div class="stat-card total-card">
+                        <div class="stat-icon"><i class="fa-solid fa-folder-open"></i></div>
+                        <div class="stat-content">
+                            <span>សំណុំរឿងសរុប</span>
+                            <h3 id="stat-total">០</h3>
+                            <p class="stat-sub">ក្នុងប្រព័ន្ធទិន្នន័យគោល</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card active-card" onclick="filterByStatusQuick('Active (កំពុងសម្រុះសម្រួល)')">
+                        <div class="stat-icon"><i class="fa-solid fa-handshake-angle"></i></div>
+                        <div class="stat-content">
+                            <span>Active (កំពុងសម្រុះសម្រួល)</span>
+                            <h3 id="stat-active">០</h3>
+                            <p class="stat-sub">កំពុងអនុវត្តនីតិវិធី</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card settle-card" onclick="filterByStatusQuick('Settle (ព្រមព្រៀង)')">
+                        <div class="stat-icon"><i class="fa-solid fa-circle-check"></i></div>
+                        <div class="stat-content">
+                            <span>Settle (ព្រមព្រៀង)</span>
+                            <h3 id="stat-settle">០</h3>
+                            <p class="stat-sub">សម្រុះសម្រួលជោគជ័យ</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card close-card" onclick="filterByStatusQuick('Close (បិទ)')">
+                        <div class="stat-icon"><i class="fa-solid fa-lock"></i></div>
+                        <div class="stat-content">
+                            <span>Close (បិទ)</span>
+                            <h3 id="stat-close">០</h3>
+                            <p class="stat-sub">បញ្ចប់នីតិវិធី / មិនព្រមព្រៀង</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card pending-card" onclick="filterByStatusQuick('Pending (តម្កល់)')">
+                        <div class="stat-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                        <div class="stat-content">
+                            <span>Pending (តម្កល់)</span>
+                            <h3 id="stat-pending">០</h3>
+                            <p class="stat-sub">រង់ចាំ ឬផ្អាកបណ្តោះអាសន្ន</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CHARTS ROW -->
+                <div class="charts-row">
+                    <div class="chart-container card-panel">
+                        <div class="panel-header">
+                            <h3><i class="fa-solid fa-chart-pie"></i> បំណែងចែកតាមលទ្ធផលសំណុំរឿង (Status Breakdown)</h3>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-container card-panel">
+                        <div class="panel-header">
+                            <h3><i class="fa-solid fa-chart-bar"></i> ស្ថិតិតាមប្រភេទសំណុំរឿងទាំង ៨ (Dispute Categories)</h3>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RECENT CASES TABLE -->
+                <div class="card-panel mt-4">
+                    <div class="panel-header">
+                        <h3><i class="fa-solid fa-clock-rotate-left"></i> សំណុំរឿងទើបធ្វើបច្ចុប្បន្នភាពចុងក្រោយ (Recent Updates)</h3>
+                        <a href="#cases-view" class="btn-link" onclick="switchView('cases-view')">មើលទាំងអស់ <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>លេខកូដសំណុំរឿង</th>
+                                    <th>ដើមបណ្ដឹង ភាគី (ក) vs ចុងបណ្ដឹង ភាគី (ខ)</th>
+                                    <th>ប្រភេទវិវាទ</th>
+                                    <th>ទីតាំងវិវាទ</th>
+                                    <th>កាលបរិច្ឆេទ</th>
+                                    <th>លទ្ធផលសំណុំរឿង</th>
+                                    <th class="text-center">សកម្មភាព</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-cases-tbody">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 2: MASTER CASES DIRECTORY VIEW -->
+            <section class="view-section" id="cases-view">
+                <div class="section-title-box">
+                    <div>
+                        <h1>តារាងបញ្ជីសំណុំរឿងគោល ១ (Master Case Directory)</h1>
+                        <p>គ្រប់គ្រង ស្វែងរក និងចម្រោះទិន្នន័យសំណុំរឿងស្របតាមទម្រង់តារាង Excel គោល</p>
+                    </div>
+                    <div class="section-actions">
+                        <button class="btn btn-outline" id="btn-export-current-excel" onclick="exportReportToExcel()">
+                            <i class="fa-solid fa-file-excel text-success"></i> ទាញយកជា Excel
+                        </button>
+                        <button class="btn btn-primary" id="btn-open-add-modal-2">
+                            <i class="fa-solid fa-plus"></i> បង្កើតសំណុំរឿងថ្មី
+                        </button>
+                    </div>
+                </div>
+
+                <!-- FILTER BAR -->
+                <div class="filter-panel card-panel">
+                    <div class="filter-grid">
+                        <div class="filter-group">
+                            <label><i class="fa-solid fa-magnifying-glass"></i> ស្វែងរកទូទៅ៖</label>
+                            <input type="text" id="filter-search" placeholder="លេខកូដ, ឈ្មោះភាគី ក/ខ, មន្ត្រី...">
+                        </div>
+                        <div class="filter-group">
+                            <label><i class="fa-solid fa-tags"></i> ប្រភេទវិវាទ (៨ ប្រភេទ)៖</label>
+                            <select id="filter-category">
+                                <option value="ALL">ទាំងអស់ (All Categories)</option>
+                                <option value="វិវាទកិច្ចសន្យា">វិវាទកិច្ចសន្យា</option>
+                                <option value="វិវាទក្នុងគ្រួសារ">វិវាទក្នុងគ្រួសារ</option>
+                                <option value="វិវាទជំពាក់ប្រាក់">វិវាទជំពាក់ប្រាក់</option>
+                                <option value="វិវាទដីធ្លី">វិវាទដីធ្លី</option>
+                                <option value="វិវាទពាណិជ្ជកម្ម">វិវាទពាណិជ្ជកម្ម</option>
+                                <option value="វិវាទមត៌ក">វិវាទមត៌ក</option>
+                                <option value="វិវាទអចលនវត្ថុ">វិវាទអចលនវត្ថុ</option>
+                                <option value="វិវាទការងារ">វិវាទការងារ</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label><i class="fa-solid fa-flag"></i> លទ្ធផលសំណុំរឿង (៤ ស្ថានភាព)៖</label>
+                            <select id="filter-status">
+                                <option value="ALL">ទាំងអស់ (All Statuses)</option>
+                                <option value="Active (កំពុងសម្រុះសម្រួល)">Active (កំពុងសម្រុះសម្រួល)</option>
+                                <option value="Settle (ព្រមព្រៀង)">Settle (ព្រមព្រៀង)</option>
+                                <option value="Close (បិទ)">Close (បិទ)</option>
+                                <option value="Pending (តម្កល់)">Pending (តម្កល់)</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label><i class="fa-solid fa-location-dot"></i> ទីតាំងវិវាទ (២៥ ខេត្ត/ក្រុង)៖</label>
+                            <select id="filter-location">
+                                <option value="ALL">គ្រប់ទីតាំងទាំងអស់</option>
+                                <!-- Will be populated by JS -->
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label><i class="fa-solid fa-arrow-up-z-a"></i> តម្រៀបតាម៖</label>
+                            <select id="sort-by">
+                                <option value="date-desc">កាលបរិច្ឆេទថ្មី -> ចាស់</option>
+                                <option value="date-asc">កាលបរិច្ឆេទចាស់ -> ថ្មី</option>
+                                <option value="number-asc">លេខកូដសំណុំរឿង A -> Z</option>
+                                <option value="number-desc">លេខកូដសំណុំរឿង Z -> A</option>
+                            </select>
+                        </div>
+                        <div class="filter-group filter-btn-group">
+                            <button class="btn btn-secondary w-100" id="btn-reset-filters">
+                                <i class="fa-solid fa-filter-circle-xmark"></i> កំណត់ឡើងវិញ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ALL CASES MASTER DIRECTORY TABLE -->
+                <div class="card-panel mt-4">
+                    <div class="panel-header">
+                        <div class="table-info">
+                            <span>បង្ហាញទិន្នន័យ៖ <strong id="showing-count">០</strong> នៃ <strong id="total-count">០</strong> សំណុំរឿង</span>
+                        </div>
+                    </div>
+                    <div class="table-responsive master-table-container">
+                        <table class="data-table master-table">
+                            <thead>
+                                <tr>
+                                    <th class="text-center" style="width: 50px;">ល.រ</th>
+                                    <th style="width: 130px;">លេខកូដសំណុំរឿង</th>
+                                    <th style="width: 110px;">កាលបរិច្ឆេទ</th>
+                                    <th style="min-width: 180px;">ភាគី (ក) ដើមបណ្ដឹង</th>
+                                    <th style="min-width: 180px;">ភាគី (ខ) ចុងបណ្ដឹង</th>
+                                    <th style="width: 140px;">ប្រភេទវិវាទ</th>
+                                    <th style="width: 120px;">ទីតាំងវិវាទ</th>
+                                    <th style="min-width: 200px;">ចំណាត់ការសម្រុះសម្រួល</th>
+                                    <th style="width: 150px;">មន្ត្រីទទួលបន្ទុក</th>
+                                    <th style="width: 140px;" class="text-center">លទ្ធផលសំណុំរឿង</th>
+                                    <th style="width: 110px;" class="text-center">កំណត់ចំណាំ</th>
+                                    <th style="width: 120px;" class="text-center">សកម្មភាព</th>
+                                </tr>
+                            </thead>
+                            <tbody id="all-cases-tbody">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="cases-empty-state" class="empty-state" style="display: none;">
+                        <i class="fa-regular fa-folder-open"></i>
+                        <h4>ស្វែងរកមិនឃើញទិន្នន័យសំណុំរឿងឡើយ</h4>
+                        <p>សូមសាកល្បងប្តូរលក្ខខណ្ឌចម្រោះ ឬបង្កើតសំណុំរឿងថ្មី</p>
+                    </div>
+                    <!-- PAGINATION -->
+                    <div class="pagination-wrapper" id="pagination-wrapper"></div>
+                </div>
+            </section>
+
+            <!-- VIEW 3: CASE EVALUATION & ANALYTICS VIEW -->
+            <section class="view-section" id="analytics-view">
+                <div class="section-title-box">
+                    <div>
+                        <h1>វិភាគវាយតម្លៃចំណាត់ការសំណុំរឿង (Action Evaluation & Analytics)</h1>
+                        <p>វាយតម្លៃអត្រាជោគជ័យនៃការផ្សះផ្សា និងប្រសិទ្ធភាពការងារសម្រុះសម្រួល</p>
+                    </div>
+                </div>
+
+                <!-- ANALYTICS STAT CARDS -->
+                <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr);">
+                    <div class="stat-card" style="background: var(--primary-light); border-left: 4px solid var(--primary-color);">
+                        <div class="stat-icon" style="color: var(--primary-color);"><i class="fa-solid fa-trophy"></i></div>
+                        <div class="stat-content">
+                            <span>អត្រាជោគជ័យការផ្សះផ្សា</span>
+                            <h3 id="eval-settle-rate" style="color: var(--primary-color);">០ %</h3>
+                            <p class="stat-sub">Settle vs Total Cases</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card" style="border-left: 4px solid #10b981;">
+                        <div class="stat-icon" style="color: #10b981;"><i class="fa-solid fa-handshake-simple"></i></div>
+                        <div class="stat-content">
+                            <span>ករណីសម្រុះសម្រួលជោគជ័យ</span>
+                            <h3 id="eval-settle-count">០</h3>
+                            <p class="stat-sub">Settle (ព្រមព្រៀង)</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card" style="border-left: 4px solid #3b82f6;">
+                        <div class="stat-icon" style="color: #3b82f6;"><i class="fa-solid fa-scale-balanced"></i></div>
+                        <div class="stat-content">
+                            <span>ករណីកំពុងដំណើរការ</span>
+                            <h3 id="eval-active-count">០</h3>
+                            <p class="stat-sub">Active (កំពុងសម្រុះសម្រួល)</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card" style="border-left: 4px solid #f59e0b;">
+                        <div class="stat-icon" style="color: #f59e0b;"><i class="fa-solid fa-circle-exclamation"></i></div>
+                        <div class="stat-content">
+                            <span>ករណីបិទ ឬតម្កល់</span>
+                            <h3 id="eval-other-count">០</h3>
+                            <p class="stat-sub">Close & Pending Cases</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ANALYTICS CHARTS AND SUMMARY BOX -->
+                <div class="charts-row mt-4">
+                    <div class="chart-container card-panel">
+                        <div class="panel-header">
+                            <h3><i class="fa-solid fa-chart-line"></i> អត្រាដោះស្រាយវិវាទតាមខេត្ត/រាជធានី (Top Locations)</h3>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="locationChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="card-panel" style="flex: 1; padding: 24px;">
+                        <div class="panel-header">
+                            <h3><i class="fa-solid fa-clipboard-check"></i> របាយការណ៍សង្ខេបវាយតម្លៃចំណាត់ការ</h3>
+                        </div>
+                        <div class="eval-summary-box" style="line-height: 1.8; font-size: 15px;">
+                            <div style="background: var(--bg-main); padding: 16px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 16px;">
+                                <h4 style="color: var(--primary-color); margin-bottom: 8px;"><i class="fa-solid fa-star"></i> សេចក្ដីសន្និដ្ឋានប្រសិទ្ធភាពផ្សះផ្សា៖</h4>
+                                <p id="eval-conclusion-text">កំពុងគណនាសន្ទស្សន៍...</p>
+                            </div>
+                            <h4 style="margin-top: 16px; margin-bottom: 10px;">ចំណុចសង្កេតលើកិច្ចប្រជុំប្រមូលព័ត៌មាន៖</h4>
+                            <ul style="padding-left: 20px; color: var(--text-color);">
+                                <li>ការប្រមូលព័ត៌មានពី <strong>ភាគី "ក"</strong> ដើរតួនាទីយ៉ាងសំខាន់ក្នុងការកំណត់អង្គហេតុដើម។</li>
+                                <li>ការចូលរួមពី <strong>ភាគី "ខ"</strong> ក្នុងកិច្ចប្រជុំសម្រុះសម្រួល មានសន្ទុះខ្ពស់ក្នុងករណីវិវាទដីធ្លី និងកិច្ចសន្យា។</li>
+                                <li>ករណីដែលមានលទ្ធផល <strong>Settle (ព្រមព្រៀង)</strong> ភាគច្រើនបានឆ្លងកាត់កិច្ចប្រជុំសម្រុះសម្រួលចាប់ពី ១ ទៅ ២ លើកឡើងទៅ។</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 4: REPORTS VIEW -->
+            <section class="view-section" id="reports-view">
+                <div class="section-title-box">
+                    <div>
+                        <h1>ផលិតរបាយការណ៍ផ្លូវការ (Official Report Generator)</h1>
+                        <p>បង្កើតរបាយការណ៍រដ្ឋបាល បោះពុម្ព (Print/PDF) និងបញ្ចេញឯកសារ Excel (.xlsx)</p>
+                    </div>
+                </div>
+
+                <div class="card-panel report-controls-card">
+                    <div class="report-controls-grid">
+                        <div class="form-group">
+                            <label>ប្រភេទរបាយការណ៍៖</label>
+                            <select id="report-type" class="form-control">
+                                <option value="master-list">របាយការណ៍បញ្ជីសំណុំរឿងគោល ១ (Master Table Report)</option>
+                                <option value="summary">របាយការណ៍សង្ខេបស្ថិតិទូទៅ</option>
+                                <option value="by-status">របាយការណ៍បែងចែកតាមលទ្ធផល (Active/Settle/Close/Pending)</option>
+                                <option value="by-category">របាយការណ៍បែងចែកតាមប្រភេទវិវាទទាំង ៨</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>កាលបរិច្ឆេទចាប់ពី៖</label>
+                            <input type="date" id="report-start-date" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>ដល់កាលបរិច្ឆេទ៖</label>
+                            <input type="date" id="report-end-date" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>ចម្រោះតាមលទ្ធផល៖</label>
+                            <select id="report-filter-status" class="form-control">
+                                <option value="ALL">ទាំងអស់ (All Statuses)</option>
+                                <option value="Active (កំពុងសម្រុះសម្រួល)">Active (កំពុងសម្រុះសម្រួល)</option>
+                                <option value="Settle (ព្រមព្រៀង)">Settle (ព្រមព្រៀង)</option>
+                                <option value="Close (បិទ)">Close (បិទ)</option>
+                                <option value="Pending (តម្កល់)">Pending (តម្កល់)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="report-btn-bar mt-3">
+                        <button class="btn btn-primary" id="btn-generate-report">
+                            <i class="fa-solid fa-gears"></i> បង្កើតរបាយការណ៍ (Generate)
+                        </button>
+                        <button class="btn btn-secondary" id="btn-print-report" disabled>
+                            <i class="fa-solid fa-print"></i> បោះពុម្ព / Save PDF
+                        </button>
+                        <button class="btn btn-success" id="btn-export-excel" disabled style="background: #10b981; color: white;">
+                            <i class="fa-solid fa-file-excel"></i> ទាញយកជា Excel (.xlsx)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- REPORT DISPLAY AREA -->
+                <div class="card-panel mt-4" id="report-display-container">
+                    <div id="report-placeholder" class="report-placeholder text-center py-5">
+                        <i class="fa-solid fa-file-circle-question" style="font-size: 48px; color: var(--text-muted); margin-bottom: 16px;"></i>
+                        <h4>សូមជ្រើសរើសលក្ខខណ្ឌខាងលើ រួចចុចប៊ូតុង "បង្កើតរបាយការណ៍"</h4>
+                    </div>
+
+                    <div id="report-content" class="official-report-paper" style="display: none;">
+                        <div class="official-report-header">
+                            <div class="kingdom-title">
+                                <h3>ព្រះរាជាណាចក្រកម្ពុជា</h3>
+                                <h4>ជាតិ សាសនា ព្រះមហាក្សត្រ</h4>
+                                <div class="title-underline"></div>
+                            </div>
+                            <div class="report-main-title">
+                                <h2 id="report-header-title">របាយការណ៍បញ្ជីសំណុំរឿងគោល ១</h2>
+                                <p id="report-header-subtitle">គិតត្រឹមថ្ងៃទី...</p>
+                            </div>
+                        </div>
+
+                        <div id="report-dynamic-body" class="report-body-content"></div>
+
+                        <div class="official-report-footer">
+                            <div class="signature-box left-sig">
+                                <p id="report-generated-date">កាលបរិច្ឆេទបង្កើត៖ </p>
+                                <h4>អ្នករៀបចំរបាយការណ៍</h4>
+                                <div class="signature-space"></div>
+                                <p class="sig-name">...............................................</p>
+                            </div>
+                            <div class="signature-box right-sig">
+                                <p id="sig-current-date">រាជធានីភ្នំពេញ, ថ្ងៃទី..... ខែ..... ឆ្នាំ២០២៦</p>
+                                <h4>ប្រធានការិយាល័យ / ប្រធានស្ថាប័ន</h4>
+                                <div class="signature-space"></div>
+                                <p class="sig-name">...............................................</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW 5: DATA MANAGEMENT & EXCEL IMPORT VIEW -->
+            <section class="view-section" id="data-mgmt-view">
+                <div class="section-title-box">
+                    <div>
+                        <h1>ទាញទិន្នន័យចូល & បម្រុងទុក (Data Import & Backup)</h1>
+                        <p>ទាញបញ្ចូលទិន្នន័យពីឯកសារ Excel គោលរបស់អ្នក និងគ្រប់គ្រងទិន្នន័យសុវត្ថិភាព</p>
+                    </div>
+                </div>
+
+                <div class="data-mgmt-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
+                    <!-- EXCEL IMPORT BOX -->
+                    <div class="card-panel">
+                        <div class="panel-header">
+                            <h3><i class="fa-solid fa-file-excel text-success"></i> ទាញទិន្នន័យចូលពី Excel / CSV (Import Excel)</h3>
+                        </div>
+                        <p class="text-muted mb-3" style="font-size: 14px;">ជ្រើសរើសឯកសារ Excel (.xlsx, .xls, .csv) ដែលជាតារាងបញ្ជីសំណុំរឿងគោលរបស់អ្នកដើម្បីទាញបញ្ចូលក្នុងកម្មវិធីស្វ័យប្រវត្តិ៖</p>
+                        
+                        <div class="excel-drop-zone text-center" style="border: 2px dashed #10b981; padding: 30px; border-radius: 10px; background: rgba(16, 185, 129, 0.05); margin-bottom: 20px;">
+                            <i class="fa-solid fa-cloud-arrow-up" style="font-size: 40px; color: #10b981; margin-bottom: 12px;"></i>
+                            <h4 style="font-size: 16px; margin-bottom: 8px;">ចុចដើម្បីជ្រើសរើសឯកសារ Excel</h4>
+                            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">គាំទ្រឯកសារទម្រង់ .xlsx, .xls និង .csv</p>
+                            <input type="file" id="import-excel-file" accept=".xlsx, .xls, .csv" style="display: none;">
+                            <button class="btn btn-success" onclick="document.getElementById('import-excel-file').click()" style="background: #10b981; color: white;">
+                                <i class="fa-solid fa-folder-open"></i> ជ្រើសរើស File Excel
+                            </button>
+                        </div>
+                        <div style="font-size: 12px; color: var(--text-muted);">
+                            * ចំណាំ៖ ប្រព័ន្ធនឹងស្វែងរក Column លេខកូដ, ឈ្មោះភាគី ក/ខ, ប្រភេទវិវាទ, និងលទ្ធផលស្វ័យប្រវត្តិ។
+                        </div>
+                    </div>
+
+                    <!-- JSON BACKUP BOX -->
+                    <div class="card-panel">
+                        <div class="panel-header">
+                            <h3><i class="fa-solid fa-shield-halved"></i> គ្រប់គ្រងឯកសារ Backup (.json)</h3>
+                        </div>
+                        <p class="text-muted mb-3" style="font-size: 14px;">រក្សាទុកទិន្នន័យទាំងមូលជាឯកសារ Backup ដើម្បីការពារការបាត់បង់ ឬផ្ទេរទៅកុំព្យូទ័រផ្សេង៖</p>
+                        <div class="mgmt-action-box mb-4">
+                            <button class="btn btn-primary w-100 mb-2" id="btn-export-json">
+                                <i class="fa-solid fa-download"></i> ទាញយក Backup (.json)
+                            </button>
+                            <span class="action-desc d-block text-center" style="font-size: 12px; color: var(--text-muted);">ទាញយកទិន្នន័យទាំងអស់ជាឯកសារបម្រុងសុវត្ថិភាព</span>
+                        </div>
+
+                        <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 20px 0;">
+
+                        <div class="mgmt-action-box mb-4">
+                            <label class="btn btn-outline w-100 mb-2 cursor-pointer text-center" style="display: block;">
+                                <i class="fa-solid fa-upload"></i> ស្ដារទិន្នន័យពី Backup (.json)
+                                <input type="file" id="import-json-file" accept=".json" style="display: none;">
+                            </label>
+                            <span class="action-desc d-block text-center" style="font-size: 12px; color: var(--text-muted);">ជ្រើសរើសឯកសារ .json ដើម្បីស្ដារទិន្នន័យចូលវិញ</span>
+                        </div>
+
+                        <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 20px 0;">
+
+                        <div class="mgmt-action-box">
+                            <button class="btn btn-danger w-100 mb-2" id="btn-reset-mock-data">
+                                <i class="fa-solid fa-rotate-left"></i> ស្ដារទិន្នន័យគំរូដើម (១០ សំណុំរឿង NADR)
+                            </button>
+                            <span class="action-desc d-block text-center" style="font-size: 12px; color: var(--text-muted);">លុបទិន្នន័យដែលបានកែប្រែ រួចស្ដារមកទិន្នន័យគំរូដើមវិញ</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- MODAL 1: ADD / EDIT CASE ENTRY FORM (NADR MASTER SCHEMA) -->
+    <div class="modal-overlay" id="case-modal">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-header">
+                <h3 id="modal-title"><i class="fa-solid fa-folder-plus"></i> បញ្ចូលព័ត៌មានសំណុំរឿងគោល</h3>
+                <button class="btn-close-modal" id="btn-close-modal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <form id="case-form">
+                <div class="modal-body">
+                    <input type="hidden" id="case-id">
+                    
+                    <!-- SECTION 1: GENERAL INFO -->
+                    <div class="form-section-banner">
+                        <i class="fa-solid fa-circle-info"></i> ១. ព័ត៌មានទូទៅនៃសំណុំរឿង
+                    </div>
+                    <div class="form-grid-3">
+                        <div class="form-group">
+                            <label>លេខកូដសំណុំរឿង (Case Code) <span class="text-danger">*</span></label>
+                            <input type="text" id="case-number" class="form-control" placeholder="ឧ. NADR-2026-001" required>
+                        </div>
+                        <div class="form-group">
+                            <label>កាលបរិច្ឆេទទទួល (Date Received) <span class="text-danger">*</span></label>
+                            <input type="date" id="case-date" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>ប្រភេទសំណុំរឿង (៨ ប្រភេទ) <span class="text-danger">*</span></label>
+                            <select id="case-category" class="form-control" required>
+                                <option value="វិវាទកិច្ចសន្យា">១. វិវាទកិច្ចសន្យា</option>
+                                <option value="វិវាទក្នុងគ្រួសារ">២. វិវាទក្នុងគ្រួសារ</option>
+                                <option value="វិវាទជំពាក់ប្រាក់">៣. វិវាទជំពាក់ប្រាក់</option>
+                                <option value="វិវាទដីធ្លី">៤. វិវាទដីធ្លី</option>
+                                <option value="វិវាទពាណិជ្ជកម្ម">៥. វិវាទពាណិជ្ជកម្ម</option>
+                                <option value="វិវាទមត៌ក">៦. វិវាទមត៌ក</option>
+                                <option value="វិវាទអចលនវត្ថុ">៧. វិវាទអចលនវត្ថុ</option>
+                                <option value="វិវាទការងារ">៨. វិវាទការងារ</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-grid-2 mt-2">
+                        <div class="form-group">
+                            <label>ទីតាំងវិវាទ (២៥ រាជធានី-ខេត្ត ជាមួយលេខកូដ) <span class="text-danger">*</span></label>
+                            <select id="case-dispute-location" class="form-control" required>
+                                <!-- Will be populated by JS -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>មន្ត្រីសម្របសម្រួល / ទទួលបន្ទុក (Assigned Officer) <span class="text-danger">*</span></label>
+                            <input type="text" id="case-officer" class="form-control" placeholder="ឧ. ឯកឧត្តម បណ្ឌិត សុខ សុវណ្ណ" required>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 2: PARTY A INFO -->
+                    <div class="form-section-banner mt-4" style="background: #e0f2fe; color: #0369a1; border-color: #bae6fd;">
+                        <i class="fa-solid fa-user-check"></i> ២. ព័ត៌មានភាគី "ក" (ដើមបណ្ដឹង / អ្នកប្ដឹង)
+                    </div>
+                    <div class="form-grid-4">
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label>ឈ្មោះភាគី (ក) <span class="text-danger">*</span></label>
+                            <input type="text" id="case-party-a-name" class="form-control" placeholder="ឈ្មោះដើមបណ្ដឹង" required>
+                        </div>
+                        <div class="form-group">
+                            <label>ភេទ (Gender)</label>
+                            <select id="case-party-a-gender" class="form-control">
+                                <option value="ប្រុស">ប្រុស</option>
+                                <option value="ស្រី">ស្រី</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>អាយុ (Age)</label>
+                            <input type="number" id="case-party-a-age" class="form-control" placeholder="អាយុ">
+                        </div>
+                    </div>
+                    <div class="form-grid-2 mt-2">
+                        <div class="form-group">
+                            <label>លេខទូរស័ព្ទ ភាគី (ក)</label>
+                            <input type="text" id="case-party-a-phone" class="form-control" placeholder="លេខទូរស័ព្ទទំនាក់ទំនង">
+                        </div>
+                        <div class="form-group">
+                            <label>ទីតាំងភាគី (ក) (អាសយដ្ឋានខេត្ត/ក្រុង)</label>
+                            <select id="case-party-a-location" class="form-control">
+                                <!-- Will be populated by JS -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 3: PARTY B INFO -->
+                    <div class="form-section-banner mt-4" style="background: #fee2e2; color: #991b1b; border-color: #fecaca;">
+                        <i class="fa-solid fa-user-xmark"></i> ៣. ព័ត៌មានភាគី "ខ" (ចុងបណ្ដឹង / ភាគីតវ៉ា)
+                    </div>
+                    <div class="form-grid-4">
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label>ឈ្មោះភាគី (ខ) <span class="text-danger">*</span></label>
+                            <input type="text" id="case-party-b-name" class="form-control" placeholder="ឈ្មោះចុងបណ្ដឹង / ក្រុមហ៊ុន" required>
+                        </div>
+                        <div class="form-group">
+                            <label>ភេទ (Gender)</label>
+                            <select id="case-party-b-gender" class="form-control">
+                                <option value="ប្រុស">ប្រុស</option>
+                                <option value="ស្រី">ស្រី</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>អាយុ (Age)</label>
+                            <input type="number" id="case-party-b-age" class="form-control" placeholder="អាយុ">
+                        </div>
+                    </div>
+                    <div class="form-grid-2 mt-2">
+                        <div class="form-group">
+                            <label>លេខទូរស័ព្ទ ភាគី (ខ)</label>
+                            <input type="text" id="case-party-b-phone" class="form-control" placeholder="លេខទូរស័ព្ទទំនាក់ទំនង">
+                        </div>
+                        <div class="form-group">
+                            <label>ទីតាំងភាគី (ខ) (អាសយដ្ឋានខេត្ត/ក្រុង)</label>
+                            <select id="case-party-b-location" class="form-control">
+                                <!-- Will be populated by JS -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 4: ACTIONS AND RESULTS -->
+                    <div class="form-section-banner mt-4" style="background: #fef3c7; color: #92400e; border-color: #fde68a;">
+                        <i class="fa-solid fa-gavel"></i> ៤. អង្គហេតុ ចំណាត់ការនីតិវិធី និងលទ្ធផល
+                    </div>
+                    <div class="form-group">
+                        <label>សេចក្ដីសង្ខេបវិវាទ (Dispute Summary / Facts)</label>
+                        <textarea id="case-summary" class="form-control" rows="3" placeholder="រៀបរាប់សង្ខេបអំពីអង្គហេតុ និងដើមចងនៃវិវាទ..."></textarea>
+                    </div>
+
+                    <div class="form-grid-3 mt-3">
+                        <div class="form-group">
+                            <label>៤.១ កិច្ចប្រជុំប្រមូលព័ត៌មាន ភាគី "ក" (៣ ជម្រើស)</label>
+                            <select id="case-meeting-a" class="form-control">
+                                <option value="មិនទាន់ប្រជុំ">១. មិនទាន់ប្រជុំ</option>
+                                <option value="ភាគីមិនចូលរួម">២. ភាគីមិនចូលរួម</option>
+                                <option value="បានប្រមូលព័ត៌មានភាគីម្ខាងទៀតរួចរាល់">៣. បានប្រមូលព័ត៌មានភាគីម្ខាងទៀតរួចរាល់</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>៤.២ កិច្ចប្រជុំប្រមូលព័ត៌មាន ភាគី "ខ" (៣ ជម្រើស)</label>
+                            <select id="case-meeting-b" class="form-control">
+                                <option value="មិនទាន់ប្រជុំ">១. មិនទាន់ប្រជុំ</option>
+                                <option value="ភាគីមិនចូលរួម">២. ភាគីមិនចូលរួម</option>
+                                <option value="បានប្រមូលព័ត៌មានភាគីម្ខាងទៀតរួចរាល់">៣. បានប្រមូលព័ត៌មានភាគីម្ខាងទៀតរួចរាល់</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>៤.៣ ប្រជុំសម្រុះសម្រួល (៥ ជម្រើស)</label>
+                            <select id="case-mediation-meeting" class="form-control">
+                                <option value="មិនទាន់ប្រជុំ">១. មិនទាន់ប្រជុំ</option>
+                                <option value="ភាគីមិនចូលរួម">២. ភាគីមិនចូលរួម</option>
+                                <option value="បានប្រជុំសម្រុះសម្រួល (កំពុងបន្ត)">៣. បានប្រជុំសម្រុះសម្រួល (កំពុងបន្ត)</option>
+                                <option value="បានប្រជុំសម្រុះសម្រួលរួចរាល់ (ព្រមព្រៀង)">៤. បានប្រជុំសម្រុះសម្រួលរួចរាល់ (ព្រមព្រៀង)</option>
+                                <option value="បានប្រជុំសម្រុះសម្រួលរួចរាល់ (មិនព្រមព្រៀង)">៥. បានប្រជុំសម្រុះសម្រួលរួចរាល់ (មិនព្រមព្រៀង)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-grid-2 mt-3">
+                        <div class="form-group">
+                            <label>លទ្ធផលសំណុំរឿង (៤ ស្ថានភាព) <span class="text-danger">*</span></label>
+                            <select id="case-status" class="form-control" required style="font-weight: 600;">
+                                <option value="Active (កំពុងសម្រុះសម្រួល)" style="color: #3b82f6;">🔵 Active (កំពុងសម្រុះសម្រួល)</option>
+                                <option value="Settle (ព្រមព្រៀង)" style="color: #10b981;">🟢 Settle (ព្រមព្រៀង)</option>
+                                <option value="Close (បិទ)" style="color: #64748b;">🔘 Close (បិទ)</option>
+                                <option value="Pending (តម្កល់)" style="color: #f59e0b;">🟡 Pending (តម្កល់)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>កំណត់ចំណាំ (Remarks)</label>
+                            <select id="case-remarks" class="form-control">
+                                <option value="បានបិទរួចរាល់">បានបិទរួចរាល់</option>
+                                <option value="មិនទាន់បិទ">មិនទាន់បិទ</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="btn-cancel-modal">បោះបង់ (Cancel)</button>
+                    <button type="submit" class="btn btn-primary" id="btn-save-case"><i class="fa-solid fa-floppy-disk"></i> រក្សាទុកសំណុំរឿង</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: DOSSIER DETAIL VIEW MODAL -->
+    <div class="modal-overlay" id="view-modal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-file-contract"></i> ប័ណ្ណព័ត៌មាន និងចំណាត់ការសំណុំរឿងគោល</h3>
+                <button class="btn-close-modal" id="btn-close-view-modal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body" id="view-modal-body">
+                <!-- Dynamic content -->
+            </div>
+            <div class="modal-footer flex-between">
+                <div class="quick-status-update">
+                    <label style="font-size: 13px; font-weight: 600;">ប្តូរលទ្ធផលរហ័ស៖ </label>
+                    <select id="quick-status-select" class="form-control" style="width: auto; display: inline-block; padding: 6px 12px;">
+                        <option value="Active (កំពុងសម្រុះសម្រួល)">Active (កំពុងសម្រុះសម្រួល)</option>
+                        <option value="Settle (ព្រមព្រៀង)">Settle (ព្រមព្រៀង)</option>
+                        <option value="Close (បិទ)">Close (បិទ)</option>
+                        <option value="Pending (តម្កល់)">Pending (តម្កល់)</option>
+                    </select>
+                </div>
+                <div class="action-btn-group">
+                    <button type="button" class="btn btn-outline" id="btn-print-single-case"><i class="fa-solid fa-print"></i> បោះពុម្ពប័ណ្ណ</button>
+                    <button type="button" class="btn btn-primary" id="btn-edit-from-view"><i class="fa-solid fa-pen-to-square"></i> កែសម្រួល</button>
+                    <button type="button" class="btn btn-danger" id="btn-delete-from-view"><i class="fa-solid fa-trash"></i> លុប</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HIDDEN PRINT AREA -->
+    <div id="print-area" class="print-area" style="display: none;"></div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- JAVASCRIPT SCRIPTS -->
+    <script src="js/data.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/reports.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
