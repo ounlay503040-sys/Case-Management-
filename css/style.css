@@ -915,6 +915,14 @@ body.dark-theme .badge-close { color: #cbd5e1; }
     box-shadow: var(--shadow-lg);
     transform: scale(0.95);
     transition: var(--transition);
+    overflow: hidden;
+}
+
+.modal-dialog form {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
 }
 
 .modal-dialog.modal-lg { max-width: 800px; }
