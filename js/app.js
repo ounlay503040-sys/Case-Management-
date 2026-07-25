@@ -9,6 +9,9 @@ const ITEMS_PER_PAGE = 10;
 let filteredCasesCache = [];
 
 document.addEventListener('DOMContentLoaded', () => {
+    // 0. Initialize Authentication Layer
+    initAuth();
+
     // 1. Initialize data
     loadCases();
 
@@ -779,3 +782,126 @@ function printSingleDossier(c) {
     `;
     window.print();
 }
+
+/* ==========================================================================
+   AUTHENTICATION & LOGIN LAYER LOGIC
+   ========================================================================== */
+function initAuth() {
+    const overlay = document.getElementById('login-overlay');
+    const loginForm = document.getElementById('login-form');
+    const btnLogout = document.getElementById('btn-logout');
+    const togglePwd = document.getElementById('toggle-login-pwd');
+    const pwdInput = document.getElementById('login-password');
+    const errorMsg = document.getElementById('login-error-msg');
+
+    // 1. Check existing session
+    const isLogged = localStorage.getItem('nadr_auth_logged_in') || sessionStorage.getItem('nadr_auth_logged_in');
+    const savedName = localStorage.getItem('nadr_auth_user_name') || sessionStorage.getItem('nadr_auth_user_name') || 'មន្ត្រីសម្របសម្រួល';
+    const savedRole = localStorage.getItem('nadr_auth_user_role') || sessionStorage.getItem('nadr_auth_user_role') || 'ការិយាល័យរដ្ឋបាល NADR';
+
+    if (isLogged === 'true') {
+        if (overlay) overlay.classList.add('hidden-auth');
+        updateSidebarUser(savedName, savedRole);
+    } else {
+        if (overlay) overlay.classList.remove('hidden-auth');
+    }
+
+    // 2. Toggle password visibility
+    if (togglePwd && pwdInput) {
+        togglePwd.addEventListener('click', () => {
+            if (pwdInput.type === 'password') {
+                pwdInput.type = 'text';
+                togglePwd.innerHTML = '<i class="fa-regular fa-eye-slash"></i>';
+            } else {
+                pwdInput.type = 'password';
+                togglePwd.innerHTML = '<i class="fa-regular fa-eye"></i>';
+            }
+        });
+    }
+
+    // 3. Login form submit
+    if (loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value.trim();
+            const remember = document.getElementById('login-remember').checked;
+
+            if (errorMsg) errorMsg.classList.add('d-none');
+
+            // Valid accounts checklist
+            let isValid = false;
+            let uName = 'មន្ត្រីសម្របសម្រួល';
+            let uRole = 'ការិយាល័យរដ្ឋបាល NADR';
+
+            if (username.toLowerCase() === 'admin' && (password === 'admin123' || password === 'admin' || password === '123456')) {
+                isValid = true;
+                uName = 'គណនីរដ្ឋបាល (Admin)';
+                uRole = 'អគ្គលេខាធិការដ្ឋាន NADR';
+            } else if (username.toLowerCase() === 'nadr' && (password === 'nadr2026' || password === 'nadr' || password === 'admin123')) {
+                isValid = true;
+                uName = 'មន្ត្រីជាន់ខ្ពស់ NADR';
+                uRole = 'ថ្នាក់ដឹកនាំ NADR';
+            } else if (username.toLowerCase() === 'user' && (password === 'user123' || password === 'user' || password === '123456')) {
+                isValid = true;
+                uName = 'មន្ត្រីសម្របសម្រួល';
+                uRole = 'មន្ត្រីទទួលបន្ទុក';
+            } else if (password === 'admin123' || password === '123456' || password === 'nadr2026' || password === username) {
+                // Allow custom usernames with standard valid passwords
+                isValid = true;
+                uName = username;
+                uRole = 'មន្ត្រីជំនាញ NADR';
+            }
+
+            if (isValid) {
+                // Save state
+                const storage = remember ? localStorage : sessionStorage;
+                storage.setItem('nadr_auth_logged_in', 'true');
+                storage.setItem('nadr_auth_user_name', uName);
+                storage.setItem('nadr_auth_user_role', uRole);
+
+                updateSidebarUser(uName, uRole);
+
+                // Animate out
+                if (overlay) {
+                    overlay.style.opacity = '0';
+                    setTimeout(() => {
+                        overlay.classList.add('hidden-auth');
+                        overlay.style.opacity = '';
+                    }, 400);
+                }
+
+                showToaster('ចូលប្រព័ន្ធជោគជ័យ! សូមស្វាគមន៍មកកាន់ CMS Pro', 'success');
+            } else {
+                if (errorMsg) errorMsg.classList.remove('d-none');
+                pwdInput.value = '';
+                pwdInput.focus();
+            }
+        });
+    }
+
+    // 4. Logout click
+    if (btnLogout) {
+        btnLogout.addEventListener('click', () => {
+            if (confirm('តើអ្នកពិតជាចង់ចាកចេញពីប្រព័ន្ធ (Logout) មែនទេ?')) {
+                localStorage.removeItem('nadr_auth_logged_in');
+                sessionStorage.removeItem('nadr_auth_logged_in');
+                
+                if (overlay) overlay.classList.remove('hidden-auth');
+                const pwd = document.getElementById('login-password');
+                if (pwd) pwd.value = '';
+                if (errorMsg) errorMsg.classList.add('d-none');
+                
+                showToaster('បានចាកចេញពីប្រព័ន្ធដោយសុវត្ថិភាព', 'info');
+            }
+        });
+    }
+}
+
+function updateSidebarUser(name, role) {
+    const nameEl = document.getElementById('logged-user-name');
+    const roleEl = document.getElementById('logged-user-role');
+    if (nameEl) nameEl.textContent = name;
+    if (roleEl) roleEl.textContent = role;
+}
+

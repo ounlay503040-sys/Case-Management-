@@ -18,6 +18,54 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="light-theme">
+    <!-- AUTHENTICATION OVERLAY -->
+    <div id="login-overlay" class="login-overlay">
+        <div class="login-box card-panel">
+            <div class="login-header text-center">
+                <div class="login-logo-circle">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                </div>
+                <h3>អាជ្ញាធរជាតិដោះស្រាយវិវាទក្រៅប្រព័ន្ធតុលាការ</h3>
+                <p>ប្រព័ន្ធគ្រប់គ្រងសំណុំរឿងគោល (CMS Pro)</p>
+            </div>
+            
+            <form id="login-form" class="login-form mt-4">
+                <div class="form-group mb-3">
+                    <label><i class="fa-solid fa-user text-primary"></i> ឈ្មោះគណនី (Username / ID) <span class="text-danger">*</span></label>
+                    <input type="text" id="login-username" class="form-control" placeholder="វាយឈ្មោះគណនី (ឧ. admin)" required autocomplete="username">
+                </div>
+                <div class="form-group mb-3">
+                    <label><i class="fa-solid fa-lock text-primary"></i> ពាក្យសម្ងាត់ (Password) <span class="text-danger">*</span></label>
+                    <div class="password-input-group" style="position: relative; display: flex; align-items: center;">
+                        <input type="password" id="login-password" class="form-control" placeholder="វាយពាក្យសម្ងាត់ (ឧ. admin123)" required autocomplete="current-password" style="padding-right: 40px;">
+                        <button type="button" id="toggle-login-pwd" class="btn-eye" title="បង្ហាញ/លាក់ពាក្យសម្ងាត់" style="position: absolute; right: 10px; background: none; border: none; color: #64748b; cursor: pointer;"><i class="fa-regular fa-eye"></i></button>
+                    </div>
+                </div>
+                
+                <div class="login-options mb-4" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                    <label class="remember-checkbox" style="display: flex; align-items: center; cursor: pointer; font-size: 13px; margin: 0;">
+                        <input type="checkbox" id="login-remember" checked style="margin-right: 8px;">
+                        <span>ចងចាំការចូលប្រើលើកក្រោយ</span>
+                    </label>
+                    <span class="auth-hint text-muted" style="font-size: 12px; background: #f1f5f9; padding: 4px 8px; border-radius: 4px;"><i class="fa-solid fa-key"></i> គណនី៖ <b>admin</b> | <b>admin123</b></span>
+                </div>
+
+                <div id="login-error-msg" class="alert alert-danger d-none mb-3" style="font-size: 13px; padding: 10px; border-radius: 6px; background: #fef2f2; border: 1px solid #fecaca; color: #dc2626;">
+                    <i class="fa-solid fa-triangle-exclamation"></i> ឈ្មោះគណនី ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវទេ! សូមពិនិត្យម្តងទៀត។
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-2 login-btn-submit" style="font-size: 16px; font-weight: 600; justify-content: center;">
+                    <i class="fa-solid fa-right-to-bracket"></i> ចូលប្រព័ន្ធគ្រប់គ្រង (Login)
+                </button>
+            </form>
+
+            <div class="login-footer mt-4 text-center text-muted" style="font-size: 12px; border-top: 1px dashed var(--border-color); padding-top: 15px;">
+                <p class="mb-1"><i class="fa-solid fa-shield-halved text-success"></i> ប្រព័ន្ធសុវត្ថិភាពទិន្នន័យផ្ទៃក្នុង NADR</p>
+                <span>រក្សាសិទ្ធិគ្រប់យ៉ាង © ២០២៦</span>
+            </div>
+        </div>
+    </div>
+
     <!-- APP CONTAINER -->
     <div class="app-container">
         
@@ -63,10 +111,13 @@
                 <div class="user-profile">
                     <div class="avatar"><i class="fa-solid fa-user-shield"></i></div>
                     <div class="user-info">
-                        <h4>មន្ត្រីសម្របសម្រួល</h4>
-                        <span>ការិយាល័យរដ្ឋបាល NADR</span>
+                        <h4 id="logged-user-name">មន្ត្រីសម្របសម្រួល</h4>
+                        <span id="logged-user-role">ការិយាល័យរដ្ឋបាល NADR</span>
                     </div>
                 </div>
+                <button type="button" id="btn-logout" class="btn-logout-sidebar mt-3 w-100" title="ចាកចេញពីប្រព័ន្ធ">
+                    <i class="fa-solid fa-power-off"></i> ចាកចេញពីប្រព័ន្ធ (Logout)
+                </button>
             </div>
         </aside>
 
