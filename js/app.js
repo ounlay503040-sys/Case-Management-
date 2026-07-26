@@ -1803,6 +1803,272 @@ function initDashboardQuickForm() {
 let currentPdfCaseId = null;
 
 /**
+ * Helper: Convert Base64 or DataURL to Blob URL for reliable Chromium/Edge/Mobile PDF Rendering
+ */
+function base64ToBlobUrl(base64Data, defaultType = 'application/pdf') {
+    try {
+        if (!base64Data) return '';
+        if (base64Data.startsWith('blob:') || base64Data.startsWith('http')) return base64Data;
+        
+        let mime = defaultType;
+        let b64 = base64Data;
+        if (base64Data.includes(',')) {
+            const parts = base64Data.split(',');
+            const match = parts[0].match(/:(.*?);/);
+            if (match && match[1]) mime = match[1];
+            b64 = parts[1] || parts[0];
+        }
+        
+        const byteCharacters = window.atob(b64);
+        const byteArrays = [];
+        for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+            const slice = byteCharacters.slice(offset, offset + 512);
+            const byteNumbers = new Array(slice.length);
+            for (let i = 0; i < slice.length; i++) {
+                byteNumbers[i] = slice.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            byteArrays.push(byteArray);
+        }
+        const blob = new Blob(byteArrays, { type: mime });
+        return URL.createObjectURL(blob);
+    } catch (e) {
+        console.error("Error creating blob URL:", e);
+        return base64Data;
+    }
+}
+
+/**
+ * Helper: Convert Base64 or DataURL to ArrayBuffer for Mammoth (Word) & SheetJS (Excel)
+ */
+function base64ToArrayBuffer(base64Data) {
+    let b64 = base64Data;
+    if (base64Data.includes(',')) {
+        b64 = base64Data.split(',')[1];
+    }
+    const binary_string = window.atob(b64);
+    const len = binary_string.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+        bytes[i] = binary_string.charCodeAt(i);
+    }
+    return bytes.buffer;
+}
+
+/**
+ * Fallback display for Word (.doc/.docx) or files when conversion is unavailable
+ */
+function showWordFallbackText(fileObj) {
+    const wordContent = document.getElementById('word-viewer-content');
+    const spinner = document.getElementById('viewer-loading-spinner');
+    if (spinner) spinner.style.display = 'none';
+    if (!wordContent) return;
+
+    try {
+        let b64 = fileObj.base64;
+        if (fileObj.base64.includes(',')) b64 = fileObj.base64.split(',')[1];
+        const decodedText = decodeURIComponent(escape(window.atob(b64)));
+        if (!decodedText.slice(0, 100).includes('\u0000') && !decodedText.slice(0, 100).includes('ÐÏ')) {
+            wordContent.innerHTML = `
+                <div style="border-bottom: 2px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <h4 style="margin: 0; color: #1e293b; font-size: 18px; font-weight: 700;"><i class="fa-solid fa-file-lines text-info"></i> ${fileObj.name}</h4>
+                        <span style="font-size: 12px; color: #64748b;">ខ្លឹមសារអត្ថបទ (Text Document)</span>
+                    </div>
+                    <a href="${fileObj.base64}" download="${fileObj.name}" class="btn btn-sm btn-primary" style="background: #0284c7; color: white; text-decoration: none; font-weight: 600; padding: 6px 14px; border-radius: 6px;"><i class="fa-solid fa-download"></i> ទាញយក</a>
+                </div>
+                <pre style="white-space: pre-wrap; font-family: 'Battambang', 'Inter', monospace; font-size: 14px; line-height: 1.8; color: #1e293b; background: #f8fafc; padding: 20px; border-radius: 6px; border: 1px solid #e2e8f0;">${decodedText}</pre>
+            `;
+            return;
+        }
+    } catch(e) {}
+
+    wordContent.innerHTML = `
+        <div style="text-align: center; padding: 50px 20px;">
+            <div style="width: 80px; height: 80px; background: #eff6ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: #2563eb; font-size: 38px; box-shadow: 0 4px 15px rgba(37,99,235,0.15);">
+                <i class="fa-solid fa-file-word"></i>
+            </div>
+            <h4 style="font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 12px;">ឯកសារ Microsoft Word (${fileObj.name})</h4>
+            <p style="font-size: 15px; color: #64748b; max-width: 550px; margin: 0 auto 28px; line-height: 1.8;">
+                ឯកសារនេះជាទម្រង់ Microsoft Word ដើម។ សូមចុចប៊ូតុងខាងក្រោមដើម្បីទាញយក (Download) ទៅបើកអាន និងកែសម្រួលក្នុងកម្មវិធី Microsoft Word ឬ WPS Office លើកុំព្យូទ័រ/ទូរស័ព្ទរបស់លោកអ្នកបានយ៉ាងរលូន និងរក្សាទម្រង់ដើម ១០០%។
+            </p>
+            <a href="${fileObj.base64}" download="${fileObj.name}" class="btn btn-primary" style="background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; padding: 14px 32px; border-radius: 8px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; font-size: 15px; box-shadow: 0 4px 15px rgba(37,99,235,0.3);">
+                <i class="fa-solid fa-download"></i> ទាញយកឯកសារដើម (Open in MS Word)
+            </a>
+        </div>
+    `;
+}
+
+/**
+ * Universal Document Viewer Engine: Handles PDF (via Blob URL), Word (.docx/.doc via Mammoth), Excel (.xlsx via SheetJS), and Text
+ */
+function displayUniversalDocument(fileObj) {
+    if (!fileObj || !fileObj.base64) return;
+    
+    const modal = document.getElementById('pdf-viewer-modal');
+    const title = document.getElementById('pdf-viewer-title');
+    const icon = document.getElementById('pdf-viewer-icon');
+    const iframe = document.getElementById('pdf-viewer-iframe');
+    const wordContainer = document.getElementById('word-viewer-container');
+    const wordContent = document.getElementById('word-viewer-content');
+    const spinner = document.getElementById('viewer-loading-spinner');
+    const downloadBtn = document.getElementById('pdf-viewer-download-btn');
+    const newTabBtn = document.getElementById('pdf-viewer-newtab-btn');
+    const infoTextElem = document.getElementById('pdf-viewer-info-text');
+    const replaceBtn = document.getElementById('pdf-viewer-replace-btn') || document.querySelector('#pdf-viewer-modal .btn-outline');
+    const deleteBtn = document.getElementById('pdf-viewer-delete-btn') || document.querySelector('#pdf-viewer-modal .btn-danger');
+
+    if (!modal) return;
+
+    if (replaceBtn) replaceBtn.style.display = fileObj.canReplace ? 'inline-flex' : 'none';
+    if (deleteBtn) deleteBtn.style.display = fileObj.canDelete ? 'inline-flex' : 'none';
+    if (downloadBtn) {
+        downloadBtn.href = fileObj.base64;
+        downloadBtn.download = fileObj.name || 'document';
+    }
+    if (infoTextElem) infoTextElem.innerHTML = fileObj.infoText || '';
+
+    const fileNameLower = (fileObj.name || '').toLowerCase();
+    const fileTypeLower = (fileObj.type || '').toLowerCase();
+    const isWord = fileNameLower.endsWith('.docx') || fileNameLower.endsWith('.doc') || fileTypeLower.includes('word') || fileTypeLower.includes('msword') || fileTypeLower.includes('wordprocessingml');
+    const isExcel = fileNameLower.endsWith('.xlsx') || fileNameLower.endsWith('.xls') || fileTypeLower.includes('excel') || fileTypeLower.includes('spreadsheetml');
+    const isText = fileNameLower.endsWith('.txt') || fileNameLower.endsWith('.csv') || fileNameLower.endsWith('.json') || fileTypeLower.includes('text');
+
+    if (isWord) {
+        if (icon) {
+            icon.className = 'fa-solid fa-file-word';
+            icon.style.color = '#2563eb';
+        }
+        if (title) title.innerHTML = `ពិនិត្យឯកសារ Word៖ <strong style="color:#93c5fd;">${fileObj.name}</strong>`;
+        if (iframe) {
+            iframe.style.display = 'none';
+            iframe.src = '';
+        }
+        if (wordContainer) wordContainer.style.display = 'block';
+        if (newTabBtn) {
+            newTabBtn.href = fileObj.base64;
+            newTabBtn.download = fileObj.name;
+            newTabBtn.innerHTML = '<i class="fa-solid fa-download"></i> ទាញយក (Open in MS Word)';
+        }
+        if (spinner) spinner.style.display = 'flex';
+
+        if (fileNameLower.endsWith('.docx') && typeof mammoth !== 'undefined') {
+            try {
+                const buffer = base64ToArrayBuffer(fileObj.base64);
+                mammoth.convertToHtml({ arrayBuffer: buffer })
+                    .then(function(result) {
+                        if (wordContent) {
+                            wordContent.innerHTML = `
+                                <div style="border-bottom: 2px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                                    <div>
+                                        <h4 style="margin: 0; color: #1e293b; font-size: 18px; font-weight: 700;"><i class="fa-solid fa-file-word text-primary"></i> ${fileObj.name}</h4>
+                                        <span style="font-size: 12px; color: #64748b;">បង្កើតដោយ Mammoth Word Viewer (HTML Rendered)</span>
+                                    </div>
+                                    <a href="${fileObj.base64}" download="${fileObj.name}" class="btn btn-sm btn-primary" style="background: #2563eb; color: white; text-decoration: none; font-weight: 600; padding: 6px 14px; border-radius: 6px;"><i class="fa-solid fa-download"></i> ទាញយក Word ដើម</a>
+                                </div>
+                                <div class="word-html-body" style="font-family: 'Battambang', 'Inter', sans-serif; font-size: 15px; line-height: 1.8; color: #1e293b;">
+                                    ${result.value || '<p class="text-muted text-center">ពុំមានខ្លឹមសារអក្សរក្នុងឯកសារនេះឡើយ</p>'}
+                                </div>
+                            `;
+                        }
+                        if (spinner) spinner.style.display = 'none';
+                    })
+                    .catch(function(err) {
+                        console.error("Mammoth conversion error:", err);
+                        showWordFallbackText(fileObj);
+                    });
+            } catch(e) {
+                console.error("Buffer error:", e);
+                showWordFallbackText(fileObj);
+            }
+        } else {
+            showWordFallbackText(fileObj);
+        }
+    } else if (isExcel) {
+        if (icon) {
+            icon.className = 'fa-solid fa-file-excel';
+            icon.style.color = '#16a34a';
+        }
+        if (title) title.innerHTML = `ពិនិត្យឯកសារ Excel៖ <strong style="color:#86efac;">${fileObj.name}</strong>`;
+        if (iframe) {
+            iframe.style.display = 'none';
+            iframe.src = '';
+        }
+        if (wordContainer) wordContainer.style.display = 'block';
+        if (spinner) spinner.style.display = 'flex';
+        if (newTabBtn) {
+            newTabBtn.href = fileObj.base64;
+            newTabBtn.download = fileObj.name;
+            newTabBtn.innerHTML = '<i class="fa-solid fa-download"></i> ទាញយក (Open in Excel)';
+        }
+
+        if (typeof XLSX !== 'undefined') {
+            try {
+                const buffer = base64ToArrayBuffer(fileObj.base64);
+                const workbook = XLSX.read(buffer, { type: 'array' });
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                const htmlTable = XLSX.utils.sheet_to_html(worksheet, { id: 'excel-preview-table' });
+                if (wordContent) {
+                    wordContent.innerHTML = `
+                        <div style="border-bottom: 2px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                            <div>
+                                <h4 style="margin: 0; color: #1e293b; font-size: 18px; font-weight: 700;"><i class="fa-solid fa-file-excel" style="color: #16a34a;"></i> ${fileObj.name}</h4>
+                                <span style="font-size: 12px; color: #64748b;">សន្លឹកកិច្ចការ៖ <strong>${firstSheetName}</strong> (បង្ហាញដោយ SheetJS)</span>
+                            </div>
+                            <a href="${fileObj.base64}" download="${fileObj.name}" class="btn btn-sm" style="background: #16a34a; color: white; text-decoration: none; font-weight: 600; padding: 6px 14px; border-radius: 6px;"><i class="fa-solid fa-download"></i> ទាញយក Excel ដើម</a>
+                        </div>
+                        <div style="overflow-x: auto; font-family: 'Battambang', 'Inter', sans-serif;">
+                            ${htmlTable}
+                        </div>
+                    `;
+                }
+                if (spinner) spinner.style.display = 'none';
+            } catch(err) {
+                console.error("Excel preview error:", err);
+                showWordFallbackText(fileObj);
+            }
+        } else {
+            showWordFallbackText(fileObj);
+        }
+    } else if (isText) {
+        if (icon) {
+            icon.className = 'fa-solid fa-file-lines';
+            icon.style.color = '#38bdf8';
+        }
+        if (title) title.innerHTML = `ពិនិត្យឯកសារអត្ថបទ៖ <strong>${fileObj.name}</strong>`;
+        if (iframe) {
+            iframe.style.display = 'none';
+            iframe.src = '';
+        }
+        if (wordContainer) wordContainer.style.display = 'block';
+        if (spinner) spinner.style.display = 'none';
+        showWordFallbackText(fileObj);
+    } else {
+        if (icon) {
+            icon.className = 'fa-solid fa-file-pdf';
+            icon.style.color = '#ef4444';
+        }
+        if (title) title.innerHTML = `ពិនិត្យឯកសារ PDF៖ <strong style="color:#fca5a5;">${fileObj.name}</strong>`;
+        if (wordContainer) wordContainer.style.display = 'none';
+        if (wordContent) wordContent.innerHTML = '';
+        if (spinner) spinner.style.display = 'none';
+        if (iframe) {
+            iframe.style.display = 'block';
+            const blobUrl = base64ToBlobUrl(fileObj.base64, 'application/pdf');
+            iframe.src = blobUrl;
+            if (newTabBtn) {
+                newTabBtn.href = blobUrl;
+                newTabBtn.target = '_blank';
+                newTabBtn.innerHTML = '<i class="fa-solid fa-up-right-from-square"></i> បើកពេញផ្ទាំង (New Tab)';
+            }
+        }
+    }
+
+    modal.classList.add('open');
+}
+
+/**
  * Open PDF Viewer Modal for a specific case
  */
 function openPdfViewerModal(caseId) {
@@ -1812,22 +2078,16 @@ function openPdfViewerModal(caseId) {
         return;
     }
     currentPdfCaseId = caseId;
-    const modal = document.getElementById('pdf-viewer-modal');
-    const title = document.getElementById('pdf-viewer-title');
-    const iframe = document.getElementById('pdf-viewer-iframe');
-    const downloadBtn = document.getElementById('pdf-viewer-download-btn');
-    const infoText = document.getElementById('pdf-viewer-info-text');
-
-    if (title) title.innerHTML = `ឯកសារ PDF សំណុំរឿង៖ <strong style="color:#fca5a5;">${c.caseNumber}</strong> - ${c.pdfName || 'Case_Document.pdf'}`;
-    if (iframe) iframe.src = c.attachedPdf;
-    if (downloadBtn) {
-        downloadBtn.href = c.attachedPdf;
-        downloadBtn.download = c.pdfName || `${c.caseNumber}_document.pdf`;
-    }
-    if (infoText) {
-        infoText.innerHTML = `ដើមបណ្តឹង៖ <strong>${c.partyA_name}</strong> | ចុងបណ្តឹង៖ <strong>${c.partyB_name}</strong>`;
-    }
-    if (modal) modal.classList.add('open');
+    displayUniversalDocument({
+        name: c.pdfName || `${c.caseNumber}_document.pdf`,
+        base64: c.attachedPdf,
+        type: 'application/pdf',
+        category: 'ឯកសារដើម (Main Case File)',
+        caseId: caseId,
+        infoText: `ដើមបណ្តឹង៖ <strong>${c.partyA_name}</strong> | ចុងបណ្តឹង៖ <strong>${c.partyB_name}</strong>`,
+        canReplace: true,
+        canDelete: true
+    });
 }
 
 /**
@@ -1836,8 +2096,15 @@ function openPdfViewerModal(caseId) {
 function closePdfViewerModal() {
     const modal = document.getElementById('pdf-viewer-modal');
     const iframe = document.getElementById('pdf-viewer-iframe');
+    const wordContainer = document.getElementById('word-viewer-container');
+    const wordContent = document.getElementById('word-viewer-content');
     if (modal) modal.classList.remove('open');
-    if (iframe) iframe.src = '';
+    if (iframe) {
+        iframe.src = '';
+        iframe.style.display = 'block';
+    }
+    if (wordContainer) wordContainer.style.display = 'none';
+    if (wordContent) wordContent.innerHTML = '';
     currentPdfCaseId = null;
 }
 
@@ -1886,24 +2153,20 @@ function previewCurrentFormPdf() {
     const base64 = document.getElementById('case-pdf-base64')?.value;
     const filename = document.getElementById('case-pdf-filename')?.value || 'Document.pdf';
     const caseNum = document.getElementById('case-number')?.value || 'New Case';
+    const type = document.getElementById('case-pdf-type')?.value || '';
     if (!base64) {
         showToast('មិនទាន់មានឯកសារភ្ជាប់ក្នុងទម្រង់នេះទេ!', 'warning');
         return;
     }
-    const modal = document.getElementById('pdf-viewer-modal');
-    const title = document.getElementById('pdf-viewer-title');
-    const iframe = document.getElementById('pdf-viewer-iframe');
-    const downloadBtn = document.getElementById('pdf-viewer-download-btn');
-    const infoText = document.getElementById('pdf-viewer-info-text');
-
-    if (title) title.innerHTML = `ពិនិត្យឯកសារ PDF (ទម្រង់បច្ចុប្បន្ន)៖ <strong style="color:#fca5a5;">${caseNum}</strong> - ${filename}`;
-    if (iframe) iframe.src = base64;
-    if (downloadBtn) {
-        downloadBtn.href = base64;
-        downloadBtn.download = filename;
-    }
-    if (infoText) infoText.innerHTML = `ឯកសារជ្រើសរើសបច្ចុប្បន្ន (ពុំទាន់រក្សាទុកចូលបញ្ជី)`;
-    if (modal) modal.classList.add('open');
+    displayUniversalDocument({
+        name: filename,
+        base64: base64,
+        type: type,
+        category: 'ឯកសារជ្រើសរើស (ទម្រង់បច្ចុប្បន្ន)',
+        infoText: `ឯកសារជ្រើសរើសបច្ចុប្បន្នសម្រាប់សំណុំរឿង <strong>${caseNum}</strong> (ពុំទាន់រក្សាទុកចូលបញ្ជី)`,
+        canReplace: false,
+        canDelete: false
+    });
 }
 
 /**
@@ -2249,20 +2512,16 @@ function previewFolderFile(f) {
         }
         if (imgModal) imgModal.classList.add('open');
     } else {
-        const modal = document.getElementById('pdf-viewer-modal');
-        const iframe = document.getElementById('pdf-viewer-iframe');
-        const title = document.getElementById('pdf-viewer-title');
-        const dlBtn = document.getElementById('pdf-viewer-download-btn');
-        const info = document.getElementById('pdf-viewer-info-text');
-        if (!modal || !iframe) return;
-        iframe.src = f.base64;
-        if (title) title.innerHTML = `<i class="fa-solid fa-file-lines text-danger"></i> <span>ពិនិត្យឯកសារ៖ ${f.name}</span>`;
-        if (dlBtn) {
-            dlBtn.href = f.base64;
-            dlBtn.download = f.name;
-        }
-        if (info) info.innerHTML = `ឈ្មោះ៖ <strong>${f.name}</strong> | ចំណាត់ថ្នាក់៖ <span class="badge" style="background:#e2e8f0;color:#334155;">${f.category || 'ឯកសារ'}</span>`;
-        modal.classList.add('open');
+        displayUniversalDocument({
+            name: f.name || 'document.pdf',
+            base64: f.base64,
+            type: f.type || '',
+            category: f.category || 'ឯកសារក្នុង Folder',
+            size: f.size || '',
+            infoText: `ឈ្មោះ៖ <strong>${f.name}</strong> | ចំណាត់ថ្នាក់៖ <span class="badge" style="background:#e2e8f0;color:#334155;">${f.category || 'ឯកសារ'}</span>`,
+            canReplace: false,
+            canDelete: false
+        });
     }
 }
 
