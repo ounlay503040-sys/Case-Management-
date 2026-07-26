@@ -1261,7 +1261,7 @@ body.dark-theme .badge-close { color: #cbd5e1; }
     .entry-cards-grid { grid-template-columns: minmax(0, 1fr) !important; }
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 768px) {
     .sidebar { transform: translateX(-100%); }
     .sidebar.open { transform: translateX(0); }
     .main-content { margin-left: 0 !important; width: 100% !important; max-width: 100% !important; }

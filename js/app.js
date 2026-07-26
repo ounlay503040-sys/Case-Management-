@@ -125,7 +125,7 @@ function initNavigation() {
             e.preventDefault();
             const targetId = item.getAttribute('data-view');
             switchView(targetId);
-            if (window.innerWidth <= 1024 && sidebar) {
+            if (window.innerWidth <= 768 && sidebar) {
                 sidebar.classList.remove('open');
             }
         });
