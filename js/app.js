@@ -1177,6 +1177,121 @@ function renderAnalyticsTables(stats) {
             `;
         }
     }
+    renderStrategicRecommendations();
+}
+
+function renderStrategicRecommendations() {
+    const container = document.getElementById('analytics-strategy-container');
+    if (!container || typeof CASES === 'undefined') return;
+
+    const thresh = JSON.parse(localStorage.getItem('nadr_eval_thresholds')) || { poor: 20, med: 30, good: 50 };
+    const defStrats = {
+        settleLow: '១. ពង្រឹងសមត្ថភាពមន្ត្រីសម្រុះសម្រួលលើបច្ចេកទេសចរចា និងចិត្តសាស្ត្រវិវាទ។ ២. បង្កើនការប្រជុំត្រួតពិនិត្យមុនពេលសម្រុះសម្រួលដើម្បីវិភាគចំណុចខ្វែងគំនិត។ ៣. ចុះសិក្សាផ្ទាល់ដល់ទីតាំងវិវាទដើម្បីស្វែងយល់ពីមូលហេតុពិតប្រាកដ។',
+        activeHigh: '១. រៀបចំផែនការបែងចែកសំណុំរឿងតាមកម្រិតអាទិភាព និងកំណត់កាលវិភាគប្រជុំឱ្យបានច្បាស់លាស់។ ២. បន្ថែមមន្ត្រីជំនួយការក្នុងសំណុំរឿងស្មុគស្មាញដើម្បីពងឿននីតិវិធី។ ៣. តាមដានជាប្រចាំនូវសំណុំរឿងដែលលើសរយៈពេលស្ដង់ដារកំណត់។',
+        closeHigh: '១. ធ្វើការសិក្សាមូលហេតុដែលនាំឱ្យបរាជ័យក្នុងការសម្រុះសម្រួលដើម្បីដកស្រង់បទពិសោធន៍។ ២. ផ្តល់ការពន្យល់ណែនាំអំពីនីតិវិធីផ្លូវច្បាប់បន្តដល់គូភាគីដើម្បីចៀសវាងអំពើហិង្សា។ ៣. ពិនិត្យលទ្ធភាពសហការជាមួយអាជ្ញាធរមូលដ្ឋាន ឬស្ថាប័នពាក់ព័ន្ធ។',
+        pendingHigh: '១. ពិនិត្យឡើងវិញនូវសំណុំរឿងដែលតម្កល់យូរ និងទំនាក់ទំនងភាគីដើម្បីសួរនាំស្ថានភាពថ្មី។ ២. កំណត់កាលបរិច្ឆេទផុតកំណត់ជាក់លាក់ក្នុងការរក្សាសំណុំរឿងជាស្ថានភាពតម្កល់។ ៣. ប្រសិនបើភាគីបោះបង់ការតវ៉ា ត្រូវអនុវត្តនីតិវិធីបិទសំណុំរឿងតាមរដ្ឋបាល។'
+    };
+    const strats = JSON.parse(localStorage.getItem('nadr_resolution_strategies')) || defStrats;
+
+    const total = CASES.length || 1;
+    const stats = { active: 0, settle: 0, close: 0, pending: 0 };
+    CASES.forEach(c => {
+        if (c.status === 'កំពុងសម្រុះសម្រួល') stats.active++;
+        else if (c.status === 'ព្រមព្រៀង') stats.settle++;
+        else if (c.status === 'មិនព្រមព្រៀង' || c.status === 'បិទ') stats.close++;
+        else if (c.status === 'តម្កល់' || c.status === 'ផ្អាក') stats.pending++;
+    });
+    const settlePct = ((stats.settle / total) * 100).toFixed(0);
+    const activePct = ((stats.active / total) * 100).toFixed(0);
+    const closePct = ((stats.close / total) * 100).toFixed(0);
+    const pendingPct = ((stats.pending / total) * 100).toFixed(0);
+
+    const getEvalLevel = (pct) => {
+        const p = parseFloat(pct);
+        if (p < thresh.poor) return { label: 'មិនល្អ', color: '#dc2626', bg: '#fee2e2' };
+        if (p < thresh.med) return { label: 'មធ្យម', color: '#0369a1', bg: '#e0f2fe' };
+        if (p < thresh.good) return { label: 'ល្អ', color: '#d97706', bg: '#fef3c7' };
+        return { label: 'ល្អណាស់', color: '#15803d', bg: '#dcfce7' };
+    };
+
+    const settleEval = getEvalLevel(settlePct);
+    const activeEval = getEvalLevel(activePct);
+    const closeEval = getEvalLevel(closePct);
+    const pendingEval = getEvalLevel(pendingPct);
+
+    container.innerHTML = `
+        <div style="background: white; padding: 18px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.03); display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                    <span style="font-size: 13.5px; font-weight: 700; color: #d97706; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-hand-holding-hand"></i> យុទ្ធសាស្ត្រអត្រាព្រមព្រៀង (Settle)
+                    </span>
+                    <span style="background: ${settleEval.bg}; color: ${settleEval.color}; font-size: 11.5px; font-weight: 700; padding: 3px 10px; border-radius: 12px; border: 1px solid ${settleEval.color}40;">
+                        ${settlePct}% (${settleEval.label})
+                    </span>
+                </div>
+                <p style="font-size: 13px; color: var(--text-color); line-height: 1.6; margin: 0;">${strats.settleLow || defStrats.settleLow}</p>
+            </div>
+            <div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed #e2e8f0; font-size: 11.5px; color: #64748b; display: flex; justify-content: space-between; align-items: center;">
+                <span>កម្រិតស្ដង់ដារ៖ &lt;${thresh.poor}% (មិនល្អ), &gt;=${thresh.good}% (ល្អណាស់)</span>
+                <a href="javascript:void(0)" onclick="switchView('settings-view'); setTimeout(()=>document.querySelector('[data-tab=tab-strategies]')?.click(), 100);" style="color: #3b82f6; font-weight: 700; text-decoration: none;"><i class="fa-solid fa-pen"></i> កែសម្រួល</a>
+            </div>
+        </div>
+
+        <div style="background: white; padding: 18px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.03); display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                    <span style="font-size: 13.5px; font-weight: 700; color: #2563eb; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-rotate"></i> យុទ្ធសាស្ត្រកំពុងសម្រុះសម្រួល (Active)
+                    </span>
+                    <span style="background: ${activeEval.bg}; color: ${activeEval.color}; font-size: 11.5px; font-weight: 700; padding: 3px 10px; border-radius: 12px; border: 1px solid ${activeEval.color}40;">
+                        ${activePct}% (${activeEval.label})
+                    </span>
+                </div>
+                <p style="font-size: 13px; color: var(--text-color); line-height: 1.6; margin: 0;">${strats.activeHigh || defStrats.activeHigh}</p>
+            </div>
+            <div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed #e2e8f0; font-size: 11.5px; color: #64748b; display: flex; justify-content: space-between; align-items: center;">
+                <span>វិភាគលើសមាមាត្រសំណុំរឿងសរុប</span>
+                <a href="javascript:void(0)" onclick="switchView('settings-view'); setTimeout(()=>document.querySelector('[data-tab=tab-strategies]')?.click(), 100);" style="color: #3b82f6; font-weight: 700; text-decoration: none;"><i class="fa-solid fa-pen"></i> កែសម្រួល</a>
+            </div>
+        </div>
+
+        <div style="background: white; padding: 18px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.03); display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                    <span style="font-size: 13.5px; font-weight: 700; color: #dc2626; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-file-excel"></i> យុទ្ធសាស្ត្របិទ/មិនព្រមព្រៀង (Closed)
+                    </span>
+                    <span style="background: ${closeEval.bg}; color: ${closeEval.color}; font-size: 11.5px; font-weight: 700; padding: 3px 10px; border-radius: 12px; border: 1px solid ${closeEval.color}40;">
+                        ${closePct}% (${closeEval.label})
+                    </span>
+                </div>
+                <p style="font-size: 13px; color: var(--text-color); line-height: 1.6; margin: 0;">${strats.closeHigh || defStrats.closeHigh}</p>
+            </div>
+            <div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed #e2e8f0; font-size: 11.5px; color: #64748b; display: flex; justify-content: space-between; align-items: center;">
+                <span>វិភាគលើសមាមាត្រសំណុំរឿងសរុប</span>
+                <a href="javascript:void(0)" onclick="switchView('settings-view'); setTimeout(()=>document.querySelector('[data-tab=tab-strategies]')?.click(), 100);" style="color: #3b82f6; font-weight: 700; text-decoration: none;"><i class="fa-solid fa-pen"></i> កែសម្រួល</a>
+            </div>
+        </div>
+
+        <div style="background: white; padding: 18px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.03); display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                    <span style="font-size: 13.5px; font-weight: 700; color: #475569; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-folder-closed"></i> យុទ្ធសាស្ត្រតម្កល់/ផ្អាក (Pending)
+                    </span>
+                    <span style="background: ${pendingEval.bg}; color: ${pendingEval.color}; font-size: 11.5px; font-weight: 700; padding: 3px 10px; border-radius: 12px; border: 1px solid ${pendingEval.color}40;">
+                        ${pendingPct}% (${pendingEval.label})
+                    </span>
+                </div>
+                <p style="font-size: 13px; color: var(--text-color); line-height: 1.6; margin: 0;">${strats.pendingHigh || defStrats.pendingHigh}</p>
+            </div>
+            <div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed #e2e8f0; font-size: 11.5px; color: #64748b; display: flex; justify-content: space-between; align-items: center;">
+                <span>វិភាគលើសមាមាត្រសំណុំរឿងសរុប</span>
+                <a href="javascript:void(0)" onclick="switchView('settings-view'); setTimeout(()=>document.querySelector('[data-tab=tab-strategies]')?.click(), 100);" style="color: #3b82f6; font-weight: 700; text-decoration: none;"><i class="fa-solid fa-pen"></i> កែសម្រួល</a>
+            </div>
+        </div>
+    `;
 }
 
 /**
@@ -1479,11 +1594,20 @@ function initUserProfile() {
     const headerAvatarEl = document.getElementById('header-user-avatar');
     const sidebarNameEl = document.getElementById('logged-user-name');
     const sidebarRoleEl = document.getElementById('logged-user-role');
+    const sidebarAvatarEl = document.getElementById('sidebar-user-avatar');
+    const sidebarAvatarIconEl = document.getElementById('sidebar-user-avatar-icon');
     
     if (headerNameEl) headerNameEl.textContent = pName;
     if (headerAvatarEl) headerAvatarEl.src = pAvatar;
     if (sidebarNameEl) sidebarNameEl.textContent = pName;
     if (sidebarRoleEl) sidebarRoleEl.textContent = pRole;
+    if (sidebarAvatarEl) {
+        sidebarAvatarEl.src = pAvatar;
+        sidebarAvatarEl.style.display = 'block';
+    }
+    if (sidebarAvatarIconEl) {
+        sidebarAvatarIconEl.style.display = 'none';
+    }
 
     // Header click to Profile view
     const badgeClick = document.getElementById('header-user-badge-click') || document.querySelector('.header-user-badge');
@@ -1693,6 +1817,9 @@ function initSettingsEvents() {
             });
             if (paneId === 'tab-eval-matrix') {
                 renderSettingsEvalMatrix();
+                if (typeof loadEvalThresholds === 'function') loadEvalThresholds();
+            } else if (paneId === 'tab-strategies') {
+                if (typeof loadResolutionStrategies === 'function') loadResolutionStrategies();
             } else if (paneId === 'tab-admins') {
                 renderSettingsAdmins();
             } else if (paneId === 'tab-categories') {
@@ -2007,9 +2134,82 @@ function renderSettingsEvalMatrix() {
     tbody.innerHTML = html;
 }
 
+// Request 1: Percentage Thresholds Management
+function loadEvalThresholds() {
+    const thresh = JSON.parse(localStorage.getItem('nadr_eval_thresholds')) || { poor: 20, med: 30, good: 50 };
+    const pEl = document.getElementById('thresh-poor');
+    const mEl = document.getElementById('thresh-med');
+    const gEl = document.getElementById('thresh-good');
+    const eEl = document.getElementById('thresh-exc');
+    if (pEl) pEl.value = thresh.poor;
+    if (mEl) mEl.value = thresh.med;
+    if (gEl) gEl.value = thresh.good;
+    if (eEl) eEl.value = thresh.good; // Exc starts where Good ends
+}
+
+function saveEvalThresholds() {
+    const pEl = document.getElementById('thresh-poor');
+    const mEl = document.getElementById('thresh-med');
+    const gEl = document.getElementById('thresh-good');
+    if (!pEl || !mEl || !gEl) return;
+    const poor = parseInt(pEl.value) || 20;
+    const med = parseInt(mEl.value) || 30;
+    const good = parseInt(gEl.value) || 50;
+    const thresh = { poor, med, good };
+    localStorage.setItem('nadr_eval_thresholds', JSON.stringify(thresh));
+    const eEl = document.getElementById('thresh-exc');
+    if (eEl) eEl.value = good;
+}
+
+// Request 2: Resolution Strategies Management
+function loadResolutionStrategies() {
+    const def = {
+        settleLow: '១. ពង្រឹងសមត្ថភាពមន្ត្រីសម្រុះសម្រួលលើបច្ចេកទេសចរចា និងចិត្តសាស្ត្រវិវាទ។ ២. បង្កើនការប្រជុំត្រួតពិនិត្យមុនពេលសម្រុះសម្រួលដើម្បីវិភាគចំណុចខ្វែងគំនិត។ ៣. ចុះសិក្សាផ្ទាល់ដល់ទីតាំងវិវាទដើម្បីស្វែងយល់ពីមូលហេតុពិតប្រាកដ។',
+        activeHigh: '១. រៀបចំផែនការបែងចែកសំណុំរឿងតាមកម្រិតអាទិភាព និងកំណត់កាលវិភាគប្រជុំឱ្យបានច្បាស់លាស់។ ២. បន្ថែមមន្ត្រីជំនួយការក្នុងសំណុំរឿងស្មុគស្មាញដើម្បីពងឿននីតិវិធី។ ៣. តាមដានជាប្រចាំនូវសំណុំរឿងដែលលើសរយៈពេលស្ដង់ដារកំណត់។',
+        closeHigh: '១. ធ្វើការសិក្សាមូលហេតុដែលនាំឱ្យបរាជ័យក្នុងការសម្រុះសម្រួលដើម្បីដកស្រង់បទពិសោធន៍។ ២. ផ្តល់ការពន្យល់ណែនាំអំពីនីតិវិធីផ្លូវច្បាប់បន្តដល់គូភាគីដើម្បីចៀសវាងអំពើហិង្សា។ ៣. ពិនិត្យលទ្ធភាពសហការជាមួយអាជ្ញាធរមូលដ្ឋាន ឬស្ថាប័នពាក់ព័ន្ធ។',
+        pendingHigh: '១. ពិនិត្យឡើងវិញនូវសំណុំរឿងដែលតម្កល់យូរ និងទំនាក់ទំនងភាគីដើម្បីសួរនាំស្ថានភាពថ្មី។ ២. កំណត់កាលបរិច្ឆេទផុតកំណត់ជាក់លាក់ក្នុងការរក្សាសំណុំរឿងជាស្ថានភាពតម្កល់។ ៣. ប្រសិនបើភាគីបោះបង់ការតវ៉ា ត្រូវអនុវត្តនីតិវិធីបិទសំណុំរឿងតាមរដ្ឋបាល។'
+    };
+    const strats = JSON.parse(localStorage.getItem('nadr_resolution_strategies')) || def;
+    const elSettle = document.getElementById('strat-settle-low');
+    const elActive = document.getElementById('strat-active-high');
+    const elClose = document.getElementById('strat-close-high');
+    const elPending = document.getElementById('strat-pending-high');
+    if (elSettle) elSettle.value = strats.settleLow || def.settleLow;
+    if (elActive) elActive.value = strats.activeHigh || def.activeHigh;
+    if (elClose) elClose.value = strats.closeHigh || def.closeHigh;
+    if (elPending) elPending.value = strats.pendingHigh || def.pendingHigh;
+}
+
+window.saveResolutionStrategies = function() {
+    const elSettle = document.getElementById('strat-settle-low');
+    const elActive = document.getElementById('strat-active-high');
+    const elClose = document.getElementById('strat-close-high');
+    const elPending = document.getElementById('strat-pending-high');
+    if (!elSettle) return;
+    const strats = {
+        settleLow: elSettle.value.trim(),
+        activeHigh: elActive.value.trim(),
+        closeHigh: elClose.value.trim(),
+        pendingHigh: elPending.value.trim()
+    };
+    localStorage.setItem('nadr_resolution_strategies', JSON.stringify(strats));
+    renderAllViews();
+    showToast('បានរក្សាទុកយុទ្ធសាស្ត្រដោះស្រាយវិវាទដោយជោគជ័យ!', 'success');
+};
+
+window.resetResolutionStrategies = function() {
+    customConfirm('កំណត់ទៅលក្ខខណ្ឌដើម', 'តើលោកអ្នកពិតជាចង់កំណត់យុទ្ធសាស្ត្រដោះស្រាយវិវាទទាំងអស់ទៅជាស្ដង់ដារដើមវិញមែនទេ?', () => {
+        localStorage.removeItem('nadr_resolution_strategies');
+        loadResolutionStrategies();
+        renderAllViews();
+        showToast('បានកំណត់យុទ្ធសាស្ត្រទៅជាស្ដង់ដារដើមវិញរួចរាល់!', 'info');
+    });
+};
+
 window.saveEvalMatrixSetting = function() {
     const tbody = document.getElementById('settings-eval-matrix-tbody');
     if (!tbody) return;
+    saveEvalThresholds();
     const rows = tbody.querySelectorAll('tr[data-cat]');
     const newMap = {};
     rows.forEach(r => {
@@ -2029,6 +2229,8 @@ window.saveEvalMatrixSetting = function() {
 
 window.resetEvalMatrixSetting = function() {
     customConfirm('កំណត់ទៅលក្ខខណ្ឌដើម', 'តើលោកអ្នកពិតជាចង់កំណត់លក្ខណៈវិនិច្ឆ័យវាយតម្លៃវិវាទទាំងអស់ទៅជាលក្ខខណ្ឌស្ដង់ដារដើមវិញមែនទេ?', () => {
+        localStorage.removeItem('nadr_eval_thresholds');
+        loadEvalThresholds();
         EVAL_BASELINE_MAP = {
             'វិវាទក្នុងគ្រួសារ': { resp: '-', nego: 'ល្អណាស់', emp: '-', spirit: '-', time: 'យឺត (> ៣០ ថ្ងៃ)' },
             'វិវាទជំពាក់ប្រាក់': { resp: 'ល្អ', nego: 'ល្អណាស់', emp: 'ល្អ', spirit: 'មធ្យម', time: 'យឺត (> ៣០ ថ្ងៃ)' },

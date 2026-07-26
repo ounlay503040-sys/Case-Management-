@@ -39,9 +39,19 @@ function initReportEvents() {
  */
 function generateReport(silent = false) {
     const type = document.getElementById('report-type')?.value || 'master-list';
-    const startDate = document.getElementById('report-start-date')?.value || '';
-    const endDate = document.getElementById('report-end-date')?.value || '';
+    const monthYearVal = document.getElementById('report-month-year')?.value || '';
+    let startDate = document.getElementById('report-start-date')?.value || '';
+    let endDate = document.getElementById('report-end-date')?.value || '';
     const statusFilter = document.getElementById('report-filter-status')?.value || 'ALL';
+
+    if (monthYearVal) {
+        const [yyyy, mm] = monthYearVal.split('-');
+        if (yyyy && mm) {
+            const lastDay = new Date(parseInt(yyyy), parseInt(mm), 0).getDate();
+            startDate = `${yyyy}-${mm}-01`;
+            endDate = `${yyyy}-${mm}-${lastDay.toString().padStart(2, '0')}`;
+        }
+    }
 
     currentReportType = type;
 
@@ -78,20 +88,24 @@ function generateReport(silent = false) {
     if (genDateEl) genDateEl.innerText = `កាលបរិច្ឆេទបង្កើត៖ ${todayStr}`;
     if (sigDateEl) sigDateEl.innerText = `រាជធានីភ្នំពេញ, ${todayStr}`;
 
-    let titleText = 'របាយការណ៍បញ្ជីសំណុំរឿង (Master Case Directory)';
+    let titleText = 'របាយការណ៍បញ្ជីសំណុំរឿង';
     if (type === 'monthly-progress') titleText = 'របាយការណ៍វឌ្ឍនភាពចំណាត់ការសំណុំរឿងប្រចាំខែ (Monthly Progress Report - ទម្រង់គំរូ PDF)';
-    else if (type === 'official-tracking') titleText = 'តារាងតាមដានលទ្ធផលនៃការដោះស្រាយវិវាទ (Official Case Tracking & Outcome Report - ទម្រង់គំរូរូបទី១)';
-    else if (type === 'summary') titleText = 'របាយការណ៍សង្ខេបស្ថិតិ និងលទ្ធផលដោះស្រាយវិវាទ';
-    else if (type === 'by-status') titleText = 'របាយការណ៍បែងចែកតាមលទ្ធផលសំណុំរឿង';
-    else if (type === 'by-category') titleText = 'របាយការណ៍បែងចែកតាមប្រភេទវិវាទទាំង ៨';
+    else if (type === 'official-tracking') titleText = 'របាយការណ៍បញ្ជីតាមដានលទ្ធផលដោះស្រាយវិវាទ (Official Tracking)';
+    else if (type === 'summary') titleText = 'របាយការណ៍សង្ខេបស្ថិតិទូទៅ';
+    else if (type === 'by-status') titleText = 'របាយការណ៍បែងចែកតាមលទ្ធផល';
+    else if (type === 'by-category') titleText = 'របាយការណ៍បែងចែកតាមប្រភេទវិវាទ';
 
     if (titleEl) titleEl.innerText = titleText;
-    
-    let subText = `ចំនួនសំណុំរឿងសរុប៖ ${filtered.length} ករណី`;
-    if (startDate || endDate) {
-        subText += ` | គិតចាប់ពី ${startDate || 'ដើម'} ដល់ ${endDate || 'បច្ចុប្បន្ន'}`;
+    if (subEl) {
+        if (monthYearVal) {
+            const [y, m] = monthYearVal.split('-');
+            subEl.innerText = `ប្រចាំខែទី ${m} ឆ្នាំ ${y}`;
+        } else if (startDate && endDate) {
+            subEl.innerText = `ចាប់ពីថ្ងៃទី ${startDate} ដល់ ${endDate}`;
+        } else {
+            subEl.innerText = `គិតត្រឹមថ្ងៃទី ${todayStr}`;
+        }
     }
-    if (subEl) subEl.innerText = subText;
 
     // Render body based on type
     const bodyEl = document.getElementById('report-dynamic-body');
@@ -126,7 +140,8 @@ function generateReport(silent = false) {
  */
 function renderMonthlyProgressReportHTML(dataArray) {
     const officerName = localStorage.getItem('nadr_user_profile_name') || document.getElementById('header-user-name')?.innerText || 'ឡាយ អូន';
-    const now = new Date();
+    const monthYearVal = document.getElementById('report-month-year')?.value || '';
+    const now = monthYearVal ? new Date(monthYearVal + '-01') : new Date();
     const monthsKm = ['មករា', 'កុមភៈ', 'មីនា', 'មេសា', 'ឧសភា', 'មិថុនា', 'កក្កដា', 'សីហា', 'កញ្ញា', 'តុលា', 'វិច្ឆិកា', 'ធ្នូ'];
     const monthStr = `${monthsKm[now.getMonth()]} (${now.toLocaleDateString('en-US', { month: 'long' })})`;
     const todayStr = `${now.getDate().toString().padStart(2, '0')}-${(now.getMonth()+1).toString().padStart(2, '0')}-${now.getFullYear().toString().slice(2)}`;

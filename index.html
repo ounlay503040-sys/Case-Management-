@@ -137,7 +137,10 @@
 
             <div class="sidebar-footer">
                 <div class="user-profile-card">
-                    <div class="avatar"><i class="fa-solid fa-user-shield"></i></div>
+                    <div class="avatar" style="overflow: hidden; padding: 0; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); width: 38px; height: 38px; border-radius: 50%;">
+                        <img id="sidebar-user-avatar" src="https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: none;" alt="User">
+                        <i id="sidebar-user-avatar-icon" class="fa-solid fa-user-shield"></i>
+                    </div>
                     <div class="user-info">
                         <h4 id="logged-user-name" data-i18n="sidebar.officer">មន្ត្រីសម្របសម្រួល</h4>
                         <span id="logged-user-role" data-i18n="sidebar.office">ការិយាល័យរដ្ឋបាល NADR</span>
@@ -178,8 +181,8 @@
                         <i class="fa-solid fa-moon"></i>
                     </button>
 
-                    <div class="header-user-badge" style="display: flex; align-items: center; gap: 8px; background: var(--bg-main); padding: 5px 12px; border-radius: 25px; border: 1px solid var(--border-color);">
-                        <i class="fa-solid fa-circle-user text-primary" style="font-size: 20px;"></i>
+                    <div class="header-user-badge" id="header-user-badge-click" style="display: flex; align-items: center; gap: 8px; background: var(--bg-main); padding: 4px 12px; border-radius: 25px; border: 1px solid var(--border-color); cursor: pointer;">
+                        <img id="header-user-avatar" src="https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--primary-color);" alt="User">
                         <span id="header-user-name" style="font-size: 13px; font-weight: 700; color: var(--text-main);">Admin</span>
                         <button type="button" id="btn-logout-header" class="btn-logout-header" title="ចាកចេញ (Logout)" style="background: #fee2e2; color: #dc2626; border: none; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;">
                             <i class="fa-solid fa-power-off" style="font-size: 12px;"></i>
@@ -846,6 +849,19 @@
                     </div>
                 </div>
 
+                <!-- STRATEGIC RECOMMENDATIONS (Request 2) -->
+                <div class="card-panel mt-4 mb-4" style="background: linear-gradient(135deg, #f0fdf4, #ecfdf5); border: 1.5px solid #10b981; padding: 24px; border-radius: 16px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.1);">
+                    <div class="panel-header mb-3" style="border-bottom: 1px solid rgba(16, 185, 129, 0.2); padding-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                        <h3 style="color: #065f46; font-size: 16px; margin: 0; display: flex; align-items: center; gap: 10px;">
+                            <i class="fa-solid fa-chess-knight" style="color: #10b981; font-size: 20px;"></i> យុទ្ធសាស្ត្រ និងអនុសាសន៍ដោះស្រាយវិវាទ (Strategic Resolution Guidance)
+                        </h3>
+                        <span class="badge" style="background: #10b981; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px;">ប្រព័ន្ធវិភាគស្វ័យប្រវត្តិ</span>
+                    </div>
+                    <div id="analytics-strategy-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+                        <!-- Rendered dynamically -->
+                    </div>
+                </div>
+
                 <!-- ANALYTICS CHARTS AND SUMMARY BOX -->
                 <div class="charts-row mt-4">
                     <div class="chart-container card-panel">
@@ -887,29 +903,25 @@
                 </div>
 
                 <div class="card-panel report-controls-card">
-                    <div class="report-controls-grid">
-                        <div class="form-group">
-                            <label>ប្រភេទរបាយការណ៍៖</label>
-                            <select id="report-type" class="form-control">
-                                <option value="monthly-progress">របាយការណ៍វឌ្ឍនភាពចំណាត់ការសំណុំរឿងប្រចាំខែ (Monthly Progress Report - ទម្រង់គំរូ PDF)</option>
-                                <option value="official-tracking">របាយការណ៍បញ្ជីតាមដានលទ្ធផលដោះស្រាយវិវាទ (Official Tracking - ទម្រង់គំរូរូបទី១)</option>
+                    <div class="report-controls-grid" style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-end; justify-content: flex-start;">
+                        <div class="form-group" style="flex: 0 1 340px; min-width: 250px;">
+                            <label style="font-weight: 700; color: var(--primary-color);">ប្រភេទរបាយការណ៍៖</label>
+                            <select id="report-type" class="form-control" style="border: 1.5px solid #cbd5e1; font-weight: 600;">
+                                <option value="monthly-progress">របាយការណ៍វឌ្ឍនភាពចំណាត់ការសំណុំរឿងប្រចាំខែ (Monthly Progress - ទម្រង់គំរូ PDF)</option>
+                                <option value="official-tracking">របាយការណ៍បញ្ជីតាមដានលទ្ធផលដោះស្រាយវិវាទ (Official Tracking)</option>
                                 <option value="master-list">របាយការណ៍បញ្ជីសំណុំរឿង (Master Table Report)</option>
                                 <option value="summary">របាយការណ៍សង្ខេបស្ថិតិទូទៅ</option>
                                 <option value="by-status">របាយការណ៍បែងចែកតាមលទ្ធផល (Active/Settle/Close/Pending)</option>
                                 <option value="by-category">របាយការណ៍បែងចែកតាមប្រភេទវិវាទទាំង ៨</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label>កាលបរិច្ឆេទចាប់ពី៖</label>
-                            <input type="date" id="report-start-date" class="form-control">
+                        <div class="form-group" style="flex: 0 1 240px; min-width: 180px;">
+                            <label style="font-weight: 700; color: var(--primary-color);">ជ្រើសរើសខែ/ឆ្នាំ៖</label>
+                            <input type="text" id="report-month-year" class="form-control" style="border: 1.5px solid #cbd5e1; font-weight: 600;" placeholder="ជ្រើសរើសខែ/ឆ្នាំ..." onfocus="(this.type='month')" onblur="(this.value ? this.type='month' : this.type='text')">
                         </div>
-                        <div class="form-group">
-                            <label>ដល់កាលបរិច្ឆេទ៖</label>
-                            <input type="date" id="report-end-date" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label>ចម្រោះតាមលទ្ធផល៖</label>
-                            <select id="report-filter-status" class="form-control">
+                        <div class="form-group" style="flex: 0 1 240px; min-width: 180px;">
+                            <label style="font-weight: 700; color: var(--primary-color);">ចម្រោះតាមលទ្ធផល៖</label>
+                            <select id="report-filter-status" class="form-control" style="border: 1.5px solid #cbd5e1; font-weight: 600;">
                                 <option value="ALL">ទាំងអស់ (All Statuses)</option>
                                 <option value="Active (កំពុងសម្រុះសម្រួល)">Active (កំពុងសម្រុះសម្រួល)</option>
                                 <option value="Pending (តម្កល់)">Pending (តម្កល់)</option>
@@ -917,6 +929,9 @@
                                 <option value="No Settle (មិនព្រមព្រៀង)">No Settle (មិនព្រមព្រៀង)</option>
                             </select>
                         </div>
+                        <!-- Hidden start/end date inputs for backward compatibility -->
+                        <input type="hidden" id="report-start-date" value="">
+                        <input type="hidden" id="report-end-date" value="">
                     </div>
                     <div class="report-btn-bar mt-3">
                         <button class="btn btn-primary" id="btn-generate-report">
@@ -1202,6 +1217,15 @@
                                 </div>
                                 <i class="fa-solid fa-chevron-right arrow-icon"></i>
                             </button>
+
+                            <button type="button" class="settings-vert-btn tab-btn" data-tab="tab-strategies">
+                                <div class="icon-box" style="background: rgba(16, 185, 129, 0.15); color: #10b981;"><i class="fa-solid fa-chess-knight"></i></div>
+                                <div class="text-info">
+                                    <span class="title">៧. យុទ្ធសាស្ត្រដោះស្រាយវិវាទ</span>
+                                    <span class="desc">កំណត់យុទ្ធសាស្ត្រតាមកម្រិតលទ្ធផល</span>
+                                </div>
+                                <i class="fa-solid fa-chevron-right arrow-icon"></i>
+                            </button>
                         </div>
 
                         <!-- Right Column: Settings Content Panes -->
@@ -1428,6 +1452,49 @@
                                         </button>
                                     </div>
                                 </div>
+
+                                <!-- System-Wide Percentage Thresholds (Request 1) -->
+                                <div class="card-panel mb-4" style="background: rgba(14, 165, 233, 0.05); border: 1px solid rgba(14, 165, 233, 0.25); padding: 20px; border-radius: 12px;">
+                                    <h5 style="margin: 0 0 12px 0; font-size: 14.5px; font-weight: 700; color: #0369a1; display: flex; align-items: center; gap: 8px;">
+                                        <i class="fa-solid fa-sliders text-primary"></i> ការកំណត់ភាគរយលក្ខណៈវិនិច្ឆ័យស្ដង់ដារប្រព័ន្ធ (System-Wide Percentage Thresholds)
+                                    </h5>
+                                    <p style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 16px;">កំណត់កម្រិតភាគរយលក្ខខណ្ឌវិនិច្ឆ័យ ៤ កម្រិត លើទិន្នន័យសំណុំរឿងសរុប (អនុញ្ញាតឱ្យមន្ត្រីកែសម្រួលតាមការជាក់ស្ដែង)៖</p>
+                                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+                                        <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                            <span style="font-size: 12.5px; font-weight: 700; color: #b91c1c; display: block; margin-bottom: 6px;">១. កម្រិត "មិនល្អ" (Poor)</span>
+                                            <div style="display: flex; align-items: center; gap: 6px; font-size: 13px;">
+                                                <span>០% ដល់ក្រោម</span>
+                                                <input type="number" id="thresh-poor" class="form-control text-center" value="20" style="width: 60px; padding: 4px; font-weight: 700;">
+                                                <span>%</span>
+                                            </div>
+                                        </div>
+                                        <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                            <span style="font-size: 12.5px; font-weight: 700; color: #0369a1; display: block; margin-bottom: 6px;">២. កម្រិត "មធ្យម" (Fair)</span>
+                                            <div style="display: flex; align-items: center; gap: 6px; font-size: 13px;">
+                                                <span>២០% ដល់ក្រោម</span>
+                                                <input type="number" id="thresh-med" class="form-control text-center" value="30" style="width: 60px; padding: 4px; font-weight: 700;">
+                                                <span>%</span>
+                                            </div>
+                                        </div>
+                                        <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                            <span style="font-size: 12.5px; font-weight: 700; color: #d97706; display: block; margin-bottom: 6px;">៣. កម្រិត "ល្អ" (Good)</span>
+                                            <div style="display: flex; align-items: center; gap: 6px; font-size: 13px;">
+                                                <span>៣០% ដល់ក្រោម</span>
+                                                <input type="number" id="thresh-good" class="form-control text-center" value="50" style="width: 60px; padding: 4px; font-weight: 700;">
+                                                <span>%</span>
+                                            </div>
+                                        </div>
+                                        <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                            <span style="font-size: 12.5px; font-weight: 700; color: #15803d; display: block; margin-bottom: 6px;">៤. កម្រិត "ល្អណាស់" (Excellent)</span>
+                                            <div style="display: flex; align-items: center; gap: 6px; font-size: 13px;">
+                                                <span>ចាប់ពី</span>
+                                                <input type="number" id="thresh-exc" class="form-control text-center" value="50" style="width: 60px; padding: 4px; font-weight: 700;" disabled>
+                                                <span>% ឡើងទៅ</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="table-responsive">
                                     <table class="data-table text-center" style="font-size: 13.5px; width: 100%;">
                                         <thead>
@@ -1444,6 +1511,54 @@
                                         <tbody id="settings-eval-matrix-tbody">
                                         </tbody>
                                     </table>
+                                </div>
+                            </div>
+
+                            <!-- TAB 7: RESOLUTION STRATEGIES (Request 2) -->
+                            <div class="settings-tab-pane" id="tab-strategies" style="display: none;">
+                                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">
+                                    <div>
+                                        <h4 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-color); display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-chess-knight text-success"></i> កំណត់យុទ្ធសាស្ត្រដោះស្រាយវិវាទផ្អែកលើលទ្ធផលវាយតម្លៃ (Resolution Strategies)</h4>
+                                        <p style="font-size: 13px; color: var(--text-muted); margin: 6px 0 0 0;">កំណត់ និងកែសម្រួលយុទ្ធសាស្ត្រណែនាំសម្រាប់មន្ត្រីអនុវត្ត ពេលប្រព័ន្ធវិភាគឃើញលទ្ធផលវាយតម្លៃកម្រិតវិវាទផ្សេងៗ</p>
+                                    </div>
+                                    <div style="display: flex; gap: 10px;">
+                                        <button type="button" class="btn btn-secondary" onclick="resetResolutionStrategies()" style="padding: 10px 18px; font-size: 13px; font-weight: 600; border-radius: 8px;">
+                                            <i class="fa-solid fa-rotate-left"></i> កំណត់ទៅលក្ខខណ្ឌដើម
+                                        </button>
+                                        <button type="button" class="btn btn-primary" onclick="saveResolutionStrategies()" style="padding: 10px 18px; font-size: 13px; font-weight: 700; border-radius: 8px;">
+                                            <i class="fa-solid fa-save"></i> រក្សាទុកយុទ្ធសាស្ត្រ (Save Strategies)
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div style="display: flex; flex-direction: column; gap: 20px;">
+                                    <div class="card-panel" style="padding: 18px; border-radius: 12px; background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.2);">
+                                        <h5 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 700; color: #d97706;">
+                                            <i class="fa-solid fa-hand-holding-hand"></i> ១. យុទ្ធសាស្ត្រពេលអត្រាព្រមព្រៀង (Settle Rate) ស្ថិតក្នុងកម្រិត "មធ្យម ឬមិនល្អ"
+                                        </h5>
+                                        <textarea id="strat-settle-low" class="form-control" rows="3" style="width: 100%; font-size: 13.5px; padding: 10px; line-height: 1.6;">១. ពង្រឹងសមត្ថភាពមន្ត្រីសម្រុះសម្រួលលើបច្ចេកទេសចរចា និងចិត្តសាស្ត្រវិវាទ។ ២. បង្កើនការប្រជុំត្រួតពិនិត្យមុនពេលសម្រុះសម្រួលដើម្បីវិភាគចំណុចខ្វែងគំនិត។ ៣. ចុះសិក្សាផ្ទាល់ដល់ទីតាំងវិវាទដើម្បីស្វែងយល់ពីមូលហេតុពិតប្រាកដ។</textarea>
+                                    </div>
+
+                                    <div class="card-panel" style="padding: 18px; border-radius: 12px; background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2);">
+                                        <h5 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 700; color: #2563eb;">
+                                            <i class="fa-solid fa-rotate text-primary"></i> ២. យុទ្ធសាស្ត្រពេលសំណុំរឿង "កំពុងសម្រុះសម្រួល (Active)" មានចំនួនច្រើន
+                                        </h5>
+                                        <textarea id="strat-active-high" class="form-control" rows="3" style="width: 100%; font-size: 13.5px; padding: 10px; line-height: 1.6;">១. រៀបចំផែនការបែងចែកសំណុំរឿងតាមកម្រិតអាទិភាព និងកំណត់កាលវិភាគប្រជុំឱ្យបានច្បាស់លាស់។ ២. បន្ថែមមន្ត្រីជំនួយការក្នុងសំណុំរឿងស្មុគស្មាញដើម្បីពងឿននីតិវិធី។ ៣. តាមដានជាប្រចាំនូវសំណុំរឿងដែលលើសរយៈពេលស្ដង់ដារកំណត់។</textarea>
+                                    </div>
+
+                                    <div class="card-panel" style="padding: 18px; border-radius: 12px; background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2);">
+                                        <h5 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 700; color: #dc2626;">
+                                            <i class="fa-solid fa-file-excel text-danger"></i> ៣. យុទ្ធសាស្ត្រពេលសំណុំរឿង "បិទ/មិនព្រមព្រៀង (Closed)" មានចំនួនច្រើន
+                                        </h5>
+                                        <textarea id="strat-close-high" class="form-control" rows="3" style="width: 100%; font-size: 13.5px; padding: 10px; line-height: 1.6;">១. ធ្វើការសិក្សាមូលហេតុដែលនាំឱ្យបរាជ័យក្នុងការសម្រុះសម្រួលដើម្បីដកស្រង់បទពិសោធន៍។ ២. ផ្តល់ការពន្យល់ណែនាំអំពីនីតិវិធីផ្លូវច្បាប់បន្តដល់គូភាគីដើម្បីចៀសវាងអំពើហិង្សា។ ៣. ពិនិត្យលទ្ធភាពសហការជាមួយអាជ្ញាធរមូលដ្ឋាន ឬស្ថាប័នពាក់ព័ន្ធ។</textarea>
+                                    </div>
+
+                                    <div class="card-panel" style="padding: 18px; border-radius: 12px; background: rgba(100, 116, 139, 0.05); border: 1px solid rgba(100, 116, 139, 0.2);">
+                                        <h5 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 700; color: #475569;">
+                                            <i class="fa-solid fa-folder-closed text-secondary"></i> ៤. យុទ្ធសាស្ត្រពេលសំណុំរឿង "តម្កល់/ផ្អាក (Pending)" មានចំនួនច្រើន
+                                        </h5>
+                                        <textarea id="strat-pending-high" class="form-control" rows="3" style="width: 100%; font-size: 13.5px; padding: 10px; line-height: 1.6;">១. ពិនិត្យឡើងវិញនូវសំណុំរឿងដែលតម្កល់យូរ និងទំនាក់ទំនងភាគីដើម្បីសួរនាំស្ថានភាពថ្មី។ ២. កំណត់កាលបរិច្ឆេទផុតកំណត់ជាក់លាក់ក្នុងការរក្សាសំណុំរឿងជាស្ថានភាពតម្កល់។ ៣. ប្រសិនបើភាគីបោះបង់ការតវ៉ា ត្រូវអនុវត្តនីតិវិធីបិទសំណុំរឿងតាមរដ្ឋបាល។</textarea>
+                                    </div>
                                 </div>
                             </div>
 
@@ -1512,16 +1627,16 @@
                             </div>
                         </div>
 
-                        <div class="form-group mb-4">
-                            <label style="font-size: 13px; font-weight: 700; display: block; margin-bottom: 6px; color: var(--text-color);">ប្តូរពាក្យសម្ងាត់ថ្មី (New Password):</label>
-                            <input type="password" id="profile-view-password" class="form-control" placeholder="ទុកទំនេរប្រសិនបើមិនចង់ប្តូរពាក្យសម្ងាត់">
+                        <div class="form-group mb-4" style="margin-top: 24px; padding-top: 18px; border-top: 1px dashed var(--border-color);">
+                            <label style="font-size: 13px; font-weight: 700; display: block; margin-bottom: 8px; color: var(--text-color);">ប្តូរពាក្យសម្ងាត់ថ្មី (New Password):</label>
+                            <input type="password" id="profile-view-password" class="form-control" placeholder="ទុកទំនេរប្រសិនបើមិនចង់ប្តូរពាក្យសម្ងាត់" style="padding: 12px;">
                         </div>
 
-                        <div style="display: flex; gap: 12px;">
-                            <button type="button" class="btn btn-primary" onclick="saveUserProfileView()" style="flex: 1; padding: 12px; font-size: 14px; font-weight: 700; border-radius: 10px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);">
+                        <div style="display: flex; gap: 20px; margin-top: 28px;">
+                            <button type="button" class="btn btn-primary" onclick="saveUserProfileView()" style="flex: 1; padding: 14px; font-size: 14.5px; font-weight: 700; border-radius: 10px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);">
                                 <i class="fa-solid fa-check-circle"></i> រក្សាទុកការផ្លាស់ប្តូរ (Save Profile)
                             </button>
-                            <button type="button" class="btn btn-outline text-danger" onclick="resetProfileAvatarView()" style="padding: 12px 16px; font-weight: 600; border-radius: 10px; border: 1px solid #ef4444;" title="លុបរូបភាពត្រឡប់ទៅដើម">
+                            <button type="button" class="btn btn-outline text-danger" onclick="resetProfileAvatarView()" style="padding: 14px 22px; font-weight: 700; border-radius: 10px; border: 1.5px solid #ef4444;" title="លុបរូបភាពត្រឡប់ទៅដើម">
                                 <i class="fa-solid fa-trash-can"></i> លុបរូប
                             </button>
                         </div>
