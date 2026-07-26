@@ -15,7 +15,7 @@
     <!-- SheetJS (XLSX) for Excel Import and Export -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/style.css?v=5.0">
+    <link rel="stylesheet" href="css/style.css?v=6.0">
 </head>
 <body class="light-theme">
     <!-- AUTHENTICATION OVERLAY -->
@@ -67,10 +67,10 @@
     </div>
 
     <!-- APP CONTAINER -->
-    <div class="app-container">
+    <div class="app-container" style="display:flex; height:100vh; width:100vw; overflow:hidden;">
         
         <!-- SIDEBAR NAVIGATION -->
-        <aside class="sidebar" id="sidebar">
+        <aside class="sidebar" id="sidebar" style="width:270px; min-width:270px; flex-shrink:0; height:100vh; overflow-y:auto; overflow-x:hidden;">
             <div class="sidebar-header">
                 <div class="logo-box">
                     <i class="fa-solid fa-balance-scale"></i>
@@ -130,9 +130,9 @@
         </aside>
 
         <!-- MAIN CONTENT AREA -->
-        <main class="main-content">
+        <main class="main-content" style="flex:1; min-width:0; height:100vh; display:flex; flex-direction:column; overflow:hidden; background:var(--bg-main);">
             <!-- HEADER BAR -->
-            <header class="top-header">
+            <header class="top-header" style="height:72px; min-height:72px; flex-shrink:0; display:flex; align-items:center; justify-content:space-between; padding:0 28px; background:var(--bg-card); border-bottom:1px solid var(--border-color); box-shadow:0 1px 3px rgba(0,0,0,0.08); z-index:95;">
                 <div class="header-left">
                     <button class="menu-toggle-btn" id="menu-toggle">
                         <i class="fa-solid fa-bars"></i>
@@ -169,7 +169,7 @@
             </header>
 
             <!-- SCROLLABLE CONTENT AREA -->
-            <div class="content-scroll-area" id="main-scroll-area">
+            <div class="content-scroll-area" id="main-scroll-area" style="flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; padding:0;">
 
             <!-- VIEW 1: DASHBOARD VIEW -->
             <section class="view-section" id="dashboard-view">
