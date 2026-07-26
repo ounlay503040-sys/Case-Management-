@@ -64,32 +64,37 @@ body {
     line-height: 1.6;
     font-size: 14px;
     transition: var(--transition);
+    height: 100vh;
     overflow: hidden;
 }
 
-/* APP LAYOUT */
+/* =====================================================================
+   APP LAYOUT: Pure Flex — sidebar + main-content side by side
+   Sidebar = fixed width flex child (no overlap possible)
+   Main content = flex:1 column (header pinned + scroll area)
+   ===================================================================== */
 .app-container {
     display: flex;
     height: 100vh;
     width: 100vw;
     overflow: hidden;
-    position: relative;
 }
 
-/* SIDEBAR */
+/* SIDEBAR — flex child, fixed width, full height */
 .sidebar {
     width: 270px;
+    min-width: 270px;
+    flex-shrink: 0;
     background-color: var(--bg-sidebar);
     color: #ffffff;
     display: flex;
     flex-direction: column;
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
     z-index: 100;
-    transition: var(--transition);
-    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+    transition: width var(--transition), margin var(--transition);
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.15);
 }
 
 .sidebar-header {
@@ -263,22 +268,18 @@ body {
     box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
 }
 
-/* MAIN CONTENT */
+/* MAIN CONTENT — flex:1 column next to sidebar, NO position:fixed */
 .main-content {
-    position: fixed;
-    top: 0;
-    left: 270px;
-    right: 0;
-    bottom: 0;
+    flex: 1;
+    min-width: 0;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     background-color: var(--bg-main);
-    transition: left 0.3s ease;
-    box-shadow: -2px 0 8px rgba(0,0,0,0.06);
 }
 
-/* HEADER */
+/* HEADER — pinned at top of main-content via flex-shrink:0 */
 .top-header {
     height: 72px;
     min-height: 72px;
@@ -292,6 +293,7 @@ body {
     width: 100%;
     z-index: 95;
     box-shadow: var(--shadow-sm);
+    position: relative;
 }
 
 .header-left {
@@ -493,28 +495,29 @@ body {
     cursor: pointer;
 }
 
-/* CONTENT SCROLL WRAPPER */
+/* CONTENT SCROLL WRAPPER — the ONLY element that scrolls vertically */
 .content-scroll-area {
     flex: 1;
-    min-height: 0;          /* critical: allows flex child to shrink and scroll */
+    min-height: 0;      /* CRITICAL: allows flex child to scroll */
     overflow-y: auto;
     overflow-x: hidden;
     scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* VIEW SECTIONS */
 .view-section {
     display: none;
-    padding: 28px 32px 48px 32px;
+    padding: 28px 32px 60px 32px;
     min-width: 0;
     width: 100%;
     animation: fadeIn 0.3s ease;
 }
 
-/* Allow horizontal scroll for wide tables inside view sections */
+/* Allow horizontal scroll only for tables inside view sections */
 .view-section .table-responsive,
 .view-section .master-table-container {
-    overflow-x: auto !important;
+    overflow-x: auto;
 }
 
 .view-section.active {
@@ -1273,9 +1276,16 @@ body.dark-theme .badge-close { color: #cbd5e1; }
 }
 
 @media (max-width: 768px) {
-    .sidebar { transform: translateX(-100%); }
+    /* On mobile: sidebar slides left, main takes full width */
+    .app-container { position: relative; }
+    .sidebar {
+        position: fixed !important;
+        top: 0; left: 0; bottom: 0;
+        transform: translateX(-100%);
+        z-index: 200;
+    }
     .sidebar.open { transform: translateX(0); }
-    .main-content { left: 0 !important; }
+    .main-content { min-width: 100vw !important; }
     .menu-toggle-btn { display: block; }
     .search-bar { width: 180px; }
     .form-grid-2, .form-grid-3, .form-grid-4 { grid-template-columns: 1fr; }
