@@ -1939,16 +1939,29 @@ function displayUniversalDocument(fileObj) {
             icon.className = 'fa-solid fa-file-word';
             icon.style.color = '#2563eb';
         }
-        if (title) title.innerHTML = `ពិនិត្យឯកសារ Word៖ <strong style="color:#93c5fd;">${fileObj.name}</strong>`;
+        if (title) title.innerHTML = `<i class="fa-solid fa-file-word" style="color:#2563eb;"></i> ពិនិត្យឯកសារ Word៖ <strong style="color:#93c5fd;">${fileObj.name}</strong>`;
         if (iframe) {
             iframe.style.display = 'none';
             iframe.src = '';
         }
-        if (wordContainer) wordContainer.style.display = 'block';
+        // Show word container (flex column)
+        if (wordContainer) {
+            wordContainer.style.display = 'flex';
+            wordContainer.style.flexDirection = 'column';
+            wordContainer.style.overflowY = 'auto';
+        }
+        // Update download/newtab buttons
         if (newTabBtn) {
-            newTabBtn.href = fileObj.base64;
-            newTabBtn.download = fileObj.name;
-            newTabBtn.innerHTML = '<i class="fa-solid fa-download"></i> ទាញយក (Open in MS Word)';
+            // For Word, download the file directly from base64
+            const wordBlob = base64ToBlobUrl(fileObj.base64, fileObj.type || 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+            newTabBtn.href = wordBlob || fileObj.base64;
+            newTabBtn.removeAttribute('target');
+            newTabBtn.setAttribute('download', fileObj.name);
+            newTabBtn.innerHTML = '<i class="fa-solid fa-download"></i> ទាញយក Word ដើម';
+        }
+        if (downloadBtn) {
+            downloadBtn.href = fileObj.base64;
+            downloadBtn.download = fileObj.name;
         }
         if (spinner) spinner.style.display = 'flex';
 
@@ -1957,34 +1970,37 @@ function displayUniversalDocument(fileObj) {
                 const buffer = base64ToArrayBuffer(fileObj.base64);
                 mammoth.convertToHtml({ arrayBuffer: buffer })
                     .then(function(result) {
+                        if (spinner) spinner.style.display = 'none';
                         if (wordContent) {
+                            const htmlBody = result.value || '<p style="color:#64748b;text-align:center;">ពុំមានខ្លឹមសារអក្សរក្នុងឯកសារនេះឡើយ</p>';
                             wordContent.innerHTML = `
                                 <div style="border-bottom: 2px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                                     <div>
-                                        <h4 style="margin: 0; color: #1e293b; font-size: 18px; font-weight: 700;"><i class="fa-solid fa-file-word text-primary"></i> ${fileObj.name}</h4>
-                                        <span style="font-size: 12px; color: #64748b;">បង្កើតដោយ Mammoth Word Viewer (HTML Rendered)</span>
+                                        <h4 style="margin: 0; color: #1e293b; font-size: 18px; font-weight: 700;"><i class="fa-solid fa-file-word" style="color:#2563eb;"></i> ${fileObj.name}</h4>
+                                        <span style="font-size: 12px; color: #64748b;">Word Document — HTML Rendered by Mammoth.js ✔</span>
                                     </div>
-                                    <a href="${fileObj.base64}" download="${fileObj.name}" class="btn btn-sm btn-primary" style="background: #2563eb; color: white; text-decoration: none; font-weight: 600; padding: 6px 14px; border-radius: 6px;"><i class="fa-solid fa-download"></i> ទាញយក Word ដើម</a>
+                                    <a href="${fileObj.base64}" download="${fileObj.name}" class="btn btn-sm" style="background: #2563eb; color: white; text-decoration: none; font-weight: 600; padding: 8px 16px; border-radius: 6px; display:inline-flex;align-items:center;gap:6px;"><i class="fa-solid fa-download"></i> ទាញយក Word ដើម</a>
                                 </div>
                                 <div class="word-html-body" style="font-family: 'Battambang', 'Inter', sans-serif; font-size: 15px; line-height: 1.8; color: #1e293b;">
-                                    ${result.value || '<p class="text-muted text-center">ពុំមានខ្លឹមសារអក្សរក្នុងឯកសារនេះឡើយ</p>'}
+                                    ${htmlBody}
                                 </div>
                             `;
                         }
-                        if (spinner) spinner.style.display = 'none';
                     })
                     .catch(function(err) {
-                        console.error("Mammoth conversion error:", err);
+                        console.error('Mammoth conversion error:', err);
                         showWordFallbackText(fileObj);
                     });
             } catch(e) {
-                console.error("Buffer error:", e);
+                console.error('Buffer error:', e);
                 showWordFallbackText(fileObj);
             }
         } else {
+            // .doc or mammoth not available — show fallback download UI
             showWordFallbackText(fileObj);
         }
     } else if (isExcel) {
+
         if (icon) {
             icon.className = 'fa-solid fa-file-excel';
             icon.style.color = '#16a34a';
@@ -2095,16 +2111,30 @@ function openPdfViewerModal(caseId) {
  */
 function closePdfViewerModal() {
     const modal = document.getElementById('pdf-viewer-modal');
+    const dialog = document.getElementById('pdf-viewer-dialog');
     const iframe = document.getElementById('pdf-viewer-iframe');
     const wordContainer = document.getElementById('word-viewer-container');
     const wordContent = document.getElementById('word-viewer-content');
-    if (modal) modal.classList.remove('open');
+    const spinner = document.getElementById('viewer-loading-spinner');
+    if (modal) {
+        modal.classList.remove('open');
+        modal.classList.remove('viewer-minimized');
+    }
+    if (dialog) {
+        dialog.classList.remove('viewer-minimized-dialog');
+        dialog.classList.remove('viewer-maximized-dialog');
+        dialog.style.position = '';
+        dialog.style.left = '';
+        dialog.style.top = '';
+        dialog.style.margin = '';
+    }
     if (iframe) {
         iframe.src = '';
         iframe.style.display = 'block';
     }
     if (wordContainer) wordContainer.style.display = 'none';
     if (wordContent) wordContent.innerHTML = '';
+    if (spinner) spinner.style.display = 'none';
     currentPdfCaseId = null;
 }
 
@@ -2527,8 +2557,20 @@ function previewFolderFile(f) {
 
 function closeImageViewerModal() {
     const imgModal = document.getElementById('image-viewer-modal');
-    if (imgModal) imgModal.classList.remove('open');
+    const imgDialog = document.getElementById('image-viewer-dialog');
     const imgElem = document.getElementById('image-viewer-img');
+    if (imgModal) {
+        imgModal.classList.remove('open');
+        imgModal.classList.remove('viewer-minimized');
+    }
+    if (imgDialog) {
+        imgDialog.classList.remove('viewer-minimized-dialog');
+        imgDialog.classList.remove('viewer-maximized-dialog');
+        imgDialog.style.position = '';
+        imgDialog.style.left = '';
+        imgDialog.style.top = '';
+        imgDialog.style.margin = '';
+    }
     if (imgElem) imgElem.src = '';
 }
 
@@ -2676,3 +2718,141 @@ function renderDossierFilesSection(c) {
     return html;
 }
 
+// ============================================================
+// DRAGGABLE, MINIMIZE & MAXIMIZE MODAL FUNCTIONS
+// ============================================================
+
+/**
+ * Initialize drag for a handle element and dialog element
+ */
+function initDraggableByElement(handle, dialog) {
+    let isDragging = false;
+    let startX, startY, origLeft, origTop;
+
+    handle.addEventListener('mousedown', function(e) {
+        if (e.target.closest('button, a')) return;
+        if (dialog.classList.contains('viewer-minimized-dialog')) return;
+        if (dialog.classList.contains('viewer-maximized-dialog')) return;
+
+        isDragging = true;
+        const rect = dialog.getBoundingClientRect();
+        startX = e.clientX;
+        startY = e.clientY;
+        origLeft = rect.left;
+        origTop = rect.top;
+
+        dialog.style.position = 'fixed';
+        dialog.style.margin = '0';
+        dialog.style.left = rect.left + 'px';
+        dialog.style.top = rect.top + 'px';
+        dialog.style.transition = 'none';
+        document.body.style.userSelect = 'none';
+        e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', function(e) {
+        if (!isDragging) return;
+        const newLeft = origLeft + (e.clientX - startX);
+        const newTop = origTop + (e.clientY - startY);
+        const maxLeft = window.innerWidth - dialog.offsetWidth;
+        const maxTop = window.innerHeight - dialog.offsetHeight;
+        dialog.style.left = Math.max(0, Math.min(newLeft, maxLeft)) + 'px';
+        dialog.style.top = Math.max(0, Math.min(newTop, maxTop)) + 'px';
+    });
+
+    document.addEventListener('mouseup', function() {
+        if (isDragging) {
+            isDragging = false;
+            document.body.style.userSelect = '';
+            dialog.style.transition = '';
+        }
+    });
+}
+
+/**
+ * Toggle Minimize state for a viewer modal
+ */
+function toggleMinimizeViewer(modalId, dialogId) {
+    const modal = document.getElementById(modalId);
+    const dialog = document.getElementById(dialogId);
+    if (!modal || !dialog) return;
+
+    const isMinimized = dialog.classList.contains('viewer-minimized-dialog');
+    if (isMinimized) {
+        // Restore
+        dialog.classList.remove('viewer-minimized-dialog');
+        modal.classList.remove('viewer-minimized');
+        dialog.style.position = '';
+        dialog.style.left = '';
+        dialog.style.top = '';
+        dialog.style.margin = '';
+    } else {
+        // Minimize: collapse to floating title bar at bottom-right
+        dialog.classList.remove('viewer-maximized-dialog');
+        dialog.classList.add('viewer-minimized-dialog');
+        modal.classList.add('viewer-minimized');
+        dialog.style.position = '';
+        dialog.style.left = '';
+        dialog.style.top = '';
+        dialog.style.margin = '';
+    }
+}
+
+/**
+ * Toggle Maximize state for a viewer dialog
+ */
+function toggleMaximizeViewer(dialogId) {
+    const dialog = document.getElementById(dialogId);
+    if (!dialog) return;
+
+    // Restore from minimized first
+    const pdfModal = document.getElementById('pdf-viewer-modal');
+    const imgModal = document.getElementById('image-viewer-modal');
+    if (pdfModal) pdfModal.classList.remove('viewer-minimized');
+    if (imgModal) imgModal.classList.remove('viewer-minimized');
+    dialog.classList.remove('viewer-minimized-dialog');
+
+    const isMaximized = dialog.classList.contains('viewer-maximized-dialog');
+    if (isMaximized) {
+        // Restore to normal
+        dialog.classList.remove('viewer-maximized-dialog');
+        dialog.style.position = '';
+        dialog.style.left = '';
+        dialog.style.top = '';
+        dialog.style.margin = '';
+    } else {
+        // Maximize
+        dialog.classList.add('viewer-maximized-dialog');
+        dialog.style.position = '';
+        dialog.style.left = '';
+        dialog.style.top = '';
+        dialog.style.margin = '';
+    }
+}
+
+/**
+ * Initialize all draggable modals on page load
+ */
+function initAllDraggableModals() {
+    const configs = [
+        { dialogId: 'pdf-viewer-dialog' },
+        { dialogId: 'image-viewer-dialog' }
+    ];
+    configs.forEach(function(cfg) {
+        const dialog = document.getElementById(cfg.dialogId);
+        if (!dialog) return;
+        const handle = dialog.querySelector('.modal-drag-handle');
+        if (handle && !handle._dragInitialized) {
+            handle._dragInitialized = true;
+            initDraggableByElement(handle, dialog);
+        }
+    });
+}
+
+// Auto-initialize on DOM ready and load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() { setTimeout(initAllDraggableModals, 600); });
+} else {
+    setTimeout(initAllDraggableModals, 600);
+}
+window.addEventListener('load', function() { setTimeout(initAllDraggableModals, 300); });

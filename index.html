@@ -1516,27 +1516,46 @@
         </div>
     </div>
 
-    <!-- MODAL: PDF VIEWER MODAL -->
-    <div class="modal-overlay" id="pdf-viewer-modal" style="z-index: 100000;">
-        <div class="modal-dialog modal-xl" style="max-width: 950px; height: 90vh; display: flex; flex-direction: column;">
-            <div class="modal-header" style="background: #1e293b; color: #fff; border-bottom: 1px solid #334155; padding: 16px 24px;">
-                <h3 style="color: #fff; margin: 0; display: flex; align-items: center; gap: 10px; font-size: 16px;">
-                    <i class="fa-solid fa-file-pdf text-danger" style="font-size: 20px;"></i>
-                    <span id="pdf-viewer-title">ពិនិត្យមើលឯកសារ PDF សំណុំរឿង</span>
+    <!-- MODAL: UNIVERSAL DOCUMENT & PDF VIEWER MODAL (DRAGGABLE & MINIMIZABLE) -->
+    <div class="modal-overlay" id="pdf-viewer-modal" style="z-index: 100000; transition: background-color 0.3s ease;">
+        <div class="modal-dialog modal-xl draggable-modal" id="pdf-viewer-dialog" style="max-width: 980px; height: 90vh; display: flex; flex-direction: column; position: relative; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);">
+            <div class="modal-header modal-drag-handle" style="background: linear-gradient(135deg, #1e293b, #0f172a); color: #fff; border-bottom: 1px solid #334155; padding: 14px 20px; cursor: move; user-select: none; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="color: #fff; margin: 0; display: flex; align-items: center; gap: 10px; font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    <i id="pdf-viewer-icon" class="fa-solid fa-file-pdf text-danger" style="font-size: 20px;"></i>
+                    <span id="pdf-viewer-title">ពិនិត្យមើលឯកសារសំណុំរឿង</span>
                 </h3>
-                <button class="btn-close-modal" style="color: #fff; opacity: 0.8;" onclick="closePdfViewerModal()"><i class="fa-solid fa-xmark"></i></button>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <button type="button" class="btn-modal-action" title="បង្រួមតូច (Minimize)" onclick="toggleMinimizeViewer('pdf-viewer-modal', 'pdf-viewer-dialog')" style="background: rgba(255,255,255,0.15); border: none; color: white; width: 32px; height: 32px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;"><i class="fa-solid fa-minus"></i></button>
+                    <button type="button" class="btn-modal-action" title="ពង្រីក/ស្តារ (Maximize/Restore)" onclick="toggleMaximizeViewer('pdf-viewer-dialog')" style="background: rgba(255,255,255,0.15); border: none; color: white; width: 32px; height: 32px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;"><i class="fa-regular fa-window-maximize"></i></button>
+                    <button type="button" class="btn-modal-action" title="បិទ (Close)" onclick="closePdfViewerModal()" style="background: rgba(239,68,68,0.8); border: none; color: white; width: 32px; height: 32px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;"><i class="fa-solid fa-xmark"></i></button>
+                </div>
             </div>
-            <div class="modal-body" style="flex: 1; padding: 0; background: #525659; overflow: hidden; display: flex; flex-direction: column; position: relative;">
-                <iframe id="pdf-viewer-iframe" style="width: 100%; height: 100%; border: none;"></iframe>
+            <div class="modal-body" id="pdf-viewer-body" style="flex: 1; padding: 0; background: #525659; overflow: hidden; display: flex; flex-direction: column; position: relative;">
+                <!-- 1. Native / Blob URL iframe for PDF -->
+                <iframe id="pdf-viewer-iframe" style="width: 100%; height: 100%; border: none; display: block; background: #525659;"></iframe>
+                
+                <!-- 2. Word (.docx/.doc) / Text / HTML / Excel Viewer Container -->
+                <div id="word-viewer-container" style="display: none; flex: 1; padding: 30px; background: #f8fafc; overflow-y: auto; font-family: 'Battambang', 'Inter', sans-serif; line-height: 1.8; color: #1e293b;">
+                    <div id="word-viewer-content" class="word-document-view" style="max-width: 850px; margin: 0 auto; background: white; padding: 40px 50px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid #cbd5e1; min-height: 100%; text-align: left;">
+                        <!-- Converted HTML or Extracted Text injected here -->
+                    </div>
+                </div>
+
+                <!-- 3. Loading Spinner -->
+                <div id="viewer-loading-spinner" style="display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(30, 41, 59, 0.85); z-index: 10; flex-direction: column; justify-content: center; align-items: center; color: white;">
+                    <i class="fa-solid fa-spinner fa-spin" style="font-size: 38px; color: #38bdf8; margin-bottom: 16px;"></i>
+                    <span id="viewer-loading-text" style="font-size: 15px; font-weight: 600;">កំពុងរៀបចំបង្ហាញឯកសារ...</span>
+                </div>
             </div>
-            <div class="modal-footer" style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div class="modal-footer" id="pdf-viewer-footer" style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                 <div style="font-size: 13px; color: #64748b;" id="pdf-viewer-info-text">
                     <!-- dynamic info -->
                 </div>
                 <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                    <a id="pdf-viewer-download-btn" href="#" download="case.pdf" class="btn btn-primary" style="background: #2563eb; color: white; padding: 8px 18px; border-radius: 6px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;"><i class="fa-solid fa-download"></i> ទាញយក PDF (Download)</a>
-                    <button type="button" class="btn btn-outline" style="border-color: #cbd5e1; background: #fff; font-weight: 600;" onclick="replaceCurrentViewerPdf()"><i class="fa-solid fa-arrows-rotate"></i> ផ្លាស់ប្តូរឯកសារថ្មី</button>
-                    <button type="button" class="btn btn-danger" style="background: #dc2626; color: #fff; font-weight: 600;" onclick="deleteCurrentViewerPdf()"><i class="fa-solid fa-trash"></i> លុប PDF ចេញ</button>
+                    <a id="pdf-viewer-newtab-btn" href="#" target="_blank" class="btn btn-info" style="background: #0284c7; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;"><i class="fa-solid fa-up-right-from-square"></i> បើកពេញផ្ទាំង (New Tab)</a>
+                    <a id="pdf-viewer-download-btn" href="#" download="document.pdf" class="btn btn-primary" style="background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; padding: 8px 18px; border-radius: 6px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(37,99,235,0.2);"><i class="fa-solid fa-download"></i> ទាញយកឯកសារ (Download)</a>
+                    <button type="button" class="btn btn-outline" id="pdf-viewer-replace-btn" style="border-color: #cbd5e1; background: #fff; font-weight: 600;" onclick="replaceCurrentViewerPdf()"><i class="fa-solid fa-arrows-rotate"></i> ផ្លាស់ប្តូរឯកសារថ្មី</button>
+                    <button type="button" class="btn btn-danger" id="pdf-viewer-delete-btn" style="background: #dc2626; color: #fff; font-weight: 600;" onclick="deleteCurrentViewerPdf()"><i class="fa-solid fa-trash"></i> លុបចេញ</button>
                     <button type="button" class="btn btn-secondary" onclick="closePdfViewerModal()">បិទ (Close)</button>
                 </div>
             </div>
@@ -1588,17 +1607,21 @@
         </div>
     </div>
 
-    <!-- MODAL: IMAGE / DOC PREVIEWER MODAL -->
-    <div class="modal-overlay" id="image-viewer-modal">
-        <div class="modal-dialog modal-lg" style="max-width: 850px; text-align: center;">
-            <div class="modal-header" style="background: #1e293b; color: white; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center;">
-                <h3 id="image-viewer-title" style="font-size: 16px; margin: 0; color: white;">ពិនិត្យរូបភាពភស្តុតាង</h3>
-                <button class="btn-close" onclick="closeImageViewerModal()" style="color: white; opacity: 0.8;"><i class="fa-solid fa-xmark"></i></button>
+    <!-- MODAL: IMAGE / DOC PREVIEWER MODAL (DRAGGABLE & MINIMIZABLE) -->
+    <div class="modal-overlay" id="image-viewer-modal" style="transition: background-color 0.3s ease;">
+        <div class="modal-dialog modal-lg draggable-modal" id="image-viewer-dialog" style="max-width: 850px; text-align: center; position: relative; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);">
+            <div class="modal-header modal-drag-handle" style="background: linear-gradient(135deg, #1e293b, #0f172a); color: white; padding: 14px 20px; cursor: move; user-select: none; display: flex; justify-content: space-between; align-items: center;">
+                <h3 id="image-viewer-title" style="font-size: 16px; margin: 0; color: white; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">ពិនិត្យរូបភាពភស្តុតាង</h3>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <button type="button" class="btn-modal-action" title="បង្រួមតូច (Minimize)" onclick="toggleMinimizeViewer('image-viewer-modal', 'image-viewer-dialog')" style="background: rgba(255,255,255,0.15); border: none; color: white; width: 32px; height: 32px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;"><i class="fa-solid fa-minus"></i></button>
+                    <button type="button" class="btn-modal-action" title="ពង្រីក/ស្តារ (Maximize/Restore)" onclick="toggleMaximizeViewer('image-viewer-dialog')" style="background: rgba(255,255,255,0.15); border: none; color: white; width: 32px; height: 32px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;"><i class="fa-regular fa-window-maximize"></i></button>
+                    <button type="button" class="btn-modal-action" title="បិទ (Close)" onclick="closeImageViewerModal()" style="background: rgba(239,68,68,0.8); border: none; color: white; width: 32px; height: 32px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;"><i class="fa-solid fa-xmark"></i></button>
+                </div>
             </div>
-            <div class="modal-body" style="padding: 20px; background: #0f172a; display: flex; justify-content: center; align-items: center; min-height: 300px; max-height: 75vh; overflow: auto;">
+            <div class="modal-body" id="image-viewer-body" style="padding: 20px; background: #0f172a; display: flex; justify-content: center; align-items: center; min-height: 300px; max-height: 75vh; overflow: auto;">
                 <img id="image-viewer-img" src="" style="max-width: 100%; max-height: 70vh; border-radius: 6px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); object-fit: contain;">
             </div>
-            <div class="modal-footer" style="background: #1e293b; border-top: 1px solid #334155; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center;">
+            <div class="modal-footer" id="image-viewer-footer" style="background: #1e293b; border-top: 1px solid #334155; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center;">
                 <span id="image-viewer-info" style="color: #94a3b8; font-size: 13px;"></span>
                 <div style="display: flex; gap: 10px;">
                     <a id="image-viewer-download-btn" href="#" download="evidence.jpg" class="btn btn-primary" style="background: #2563eb; color: white; padding: 6px 16px; border-radius: 6px; text-decoration: none; font-weight: 600;"><i class="fa-solid fa-download"></i> ទាញយក (Download)</a>
@@ -1615,18 +1638,23 @@
     <div id="toast-container" class="toast-container"></div>
 
     <!-- JAVASCRIPT SCRIPTS -->
-    <!-- Mammoth.js for rendering Microsoft Word (.docx) documents in browser -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <!-- Mammoth.js for Word (.docx) rendering - MUST load before app.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js" crossorigin="anonymous"></script>
+    <!-- SheetJS for Excel (.xlsx/.xls) rendering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" crossorigin="anonymous"></script>
+    <!-- PDF.js for PDF rendering -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     <script>
         // Set workerSrc for PDF.js
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+        if (typeof pdfjsLib !== 'undefined') {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+        }
     </script>
-    <script src="js/data.js?v=5.0"></script>
-    <script src="js/ai-assistant.js?v=5.0"></script>
-    <script src="js/docs.js?v=5.0"></script>
-    <script src="js/charts.js?v=5.0"></script>
-    <script src="js/reports.js?v=5.0"></script>
-    <script src="js/app.js?v=5.0"></script>
+    <script src="js/data.js?v=9.2"></script>
+    <script src="js/ai-assistant.js?v=9.2"></script>
+    <script src="js/docs.js?v=9.2"></script>
+    <script src="js/charts.js?v=9.2"></script>
+    <script src="js/reports.js?v=9.2"></script>
+    <script src="js/app.js?v=9.2"></script>
 </body>
 </html>
