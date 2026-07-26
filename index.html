@@ -15,71 +15,61 @@
     <!-- SheetJS (XLSX) for Excel Import and Export -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/style.css?v=9.5">
+    <link rel="stylesheet" href="css/style.css?v=9.6">
 </head>
 <body class="light-theme">
     <!-- AUTHENTICATION OVERLAY -->
     <div id="login-overlay" class="login-overlay">
-        <div class="login-box card-panel" style="max-width: 460px;">
-            <div class="login-header text-center">
-                <div class="login-logo-circle">
+        <div class="login-box card-panel" style="max-width: 480px; padding: 40px 35px; border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.15);">
+            <div class="login-header text-center" style="margin-bottom: 24px;">
+                <div class="login-logo-circle" style="width: 70px; height: 70px; margin: 0 auto; font-size: 32px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); color: #1d4ed8; border-radius: 50%; box-shadow: 0 8px 16px -4px rgba(37, 99, 235, 0.2); border: 2px solid #ffffff;">
                     <i class="fa-solid fa-scale-balanced"></i>
                 </div>
-                <h3 style="font-size: 17px; margin-top: 10px; color: #1e3a8a;">អាជ្ញាធរជាតិដោះស្រាយវិវាទក្រៅប្រព័ន្ធតុលាការ</h3>
-                <p style="font-size: 13px; color: #475569; margin: 4px 0 0;">ប្រព័ន្ធគ្រប់គ្រងសំណុំរឿងគោល (CMS Pro)</p>
+                <h3 style="font-size: 18px; font-weight: 700; margin-top: 16px; color: #1e3a8a; letter-spacing: 0.2px; line-height: 1.5;">អាជ្ញាធរជាតិដោះស្រាយវិវាទក្រៅប្រព័ន្ធតុលាការ</h3>
+                <p style="font-size: 13.5px; font-weight: 500; color: #475569; margin: 4px 0 0;">ប្រព័ន្ធគ្រប់គ្រងសំណុំរឿងគោល (CMS Pro)</p>
             </div>
             
-            <!-- Welcome characters and text -->
-            <div class="login-welcome-section text-center" style="margin: 18px 0; padding: 15px; border-radius: 14px; background: rgba(248, 250, 252, 0.95); border: 1px solid rgba(226, 232, 240, 0.9); box-shadow: inset 0 2px 4px rgba(0,0,0,0.01); display: flex; flex-direction: column; align-items: center; gap: 12px; overflow: hidden; position: relative;">
-                
-                <!-- Beautiful Welcoming Text -->
-                <div style="text-align: center; width: 100%;">
-                    <h4 class="login-welcome-title" style="font-size: 15.5px; margin: 0; line-height: 1.6; font-family: 'Kantumruy Pro', 'Battambang', sans-serif; font-weight: 700; letter-spacing: 0.2px; text-shadow: 0 2px 4px rgba(37, 99, 235, 0.08);">
-                        សូមស្វាគមន៍ មកកាន់កម្មវិធីគ្រប់គ្រងសំណុំរឿង
-                    </h4>
-                    <div style="width: 50px; height: 3px; background: linear-gradient(90deg, #1e3a8a, #3b82f6); margin: 6px auto; border-radius: 2px;"></div>
-                    <span style="font-size: 10px; color: #64748b; font-weight: 600; letter-spacing: 0.4px;">(Master Case Management System)</span>
-                </div>
-                
-                <!-- Boy and Girl characters side-by-side standing underneath -->
-                <div style="display: flex; justify-content: center; align-items: flex-end; gap: 20px; width: 100%; margin-top: 2px;">
-                    <img id="welcome-avatar-boy" src="images/welcome_boy.png" alt="Welcome Boy" class="welcome-avatar" style="height: 100px; width: auto; object-fit: contain; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.12));">
-                    <img id="welcome-avatar-girl" src="images/welcome_girl.png" alt="Welcome Girl" class="welcome-avatar" style="height: 100px; width: auto; object-fit: contain; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.12));">
-                </div>
+            <!-- Welcome Text Section (No Images) -->
+            <div class="login-welcome-section text-center" style="margin: 0 0 28px 0; padding: 16px 20px; border-radius: 14px; background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%); border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                <h4 class="login-welcome-title" style="font-size: 16px; margin: 0; line-height: 1.6; font-family: 'Kantumruy Pro', 'Battambang', sans-serif; font-weight: 700; color: #1e3a8a; letter-spacing: 0.3px;">
+                    សូមស្វាគមន៍ មកកាន់កម្មវិធីគ្រប់គ្រងសំណុំរឿង
+                </h4>
+                <div style="width: 50px; height: 3px; background: linear-gradient(90deg, #1e3a8a, #3b82f6); margin: 8px auto 6px auto; border-radius: 2px;"></div>
+                <span style="font-size: 11px; color: #64748b; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">(Master Case Management System)</span>
             </div>
 
             <form id="login-form" class="login-form">
-                <div class="form-group mb-3">
-                    <label><i class="fa-solid fa-user text-primary"></i> ឈ្មោះគណនី (Username / ID) <span class="text-danger">*</span></label>
-                    <input type="text" id="login-username" class="form-control" placeholder="វាយឈ្មោះគណនីរបស់អ្នក..." required autocomplete="username">
+                <div class="form-group" style="margin-bottom: 22px;">
+                    <label style="font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 8px; display: block;"><i class="fa-solid fa-user text-primary" style="margin-right: 6px;"></i> ឈ្មោះគណនី (Username / ID) <span class="text-danger">*</span></label>
+                    <input type="text" id="login-username" class="form-control" placeholder="វាយឈ្មោះគណនីរបស់អ្នក..." required autocomplete="username" style="height: 50px; font-size: 15px; padding: 10px 16px; border-radius: 10px; border: 1.5px solid #cbd5e1; background: #f8fafc; transition: all 0.2s ease;">
                 </div>
-                <div class="form-group mb-3">
-                    <label><i class="fa-solid fa-lock text-primary"></i> ពាក្យសម្ងាត់ (Password) <span class="text-danger">*</span></label>
+                <div class="form-group" style="margin-bottom: 24px;">
+                    <label style="font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 8px; display: block;"><i class="fa-solid fa-lock text-primary" style="margin-right: 6px;"></i> ពាក្យសម្ងាត់ (Password) <span class="text-danger">*</span></label>
                     <div class="password-input-group" style="position: relative; display: flex; align-items: center;">
-                        <input type="password" id="login-password" class="form-control" placeholder="វាយពាក្យសម្ងាត់របស់អ្នក..." required autocomplete="current-password" style="padding-right: 40px;">
-                        <button type="button" id="toggle-login-pwd" class="btn-eye" title="បង្ហាញ/លាក់ពាក្យសម្ងាត់" style="position: absolute; right: 10px; background: none; border: none; color: #64748b; cursor: pointer;"><i class="fa-regular fa-eye"></i></button>
+                        <input type="password" id="login-password" class="form-control" placeholder="វាយពាក្យសម្ងាត់របស់អ្នក..." required autocomplete="current-password" style="height: 50px; font-size: 15px; padding: 10px 45px 10px 16px; border-radius: 10px; border: 1.5px solid #cbd5e1; background: #f8fafc; width: 100%; transition: all 0.2s ease;">
+                        <button type="button" id="toggle-login-pwd" class="btn-eye" title="បង្ហាញ/លាក់ពាក្យសម្ងាត់" style="position: absolute; right: 14px; background: none; border: none; color: #64748b; cursor: pointer; padding: 4px; font-size: 16px;"><i class="fa-regular fa-eye"></i></button>
                     </div>
                 </div>
                 
-                <div class="login-options mb-4" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-                    <label class="remember-checkbox" style="display: flex; align-items: center; cursor: pointer; font-size: 13px; margin: 0; user-select: none;">
-                        <input type="checkbox" id="login-remember" checked style="margin-right: 8px;">
+                <div class="login-options" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 26px;">
+                    <label class="remember-checkbox" style="display: flex; align-items: center; cursor: pointer; font-size: 13.5px; color: #475569; font-weight: 500; margin: 0; user-select: none;">
+                        <input type="checkbox" id="login-remember" checked style="width: 17px; height: 17px; margin-right: 9px; cursor: pointer; accent-color: #2563eb;">
                         <span>ចងចាំការចូលប្រើលើកក្រោយ</span>
                     </label>
                 </div>
 
-                <div id="login-error-msg" class="alert alert-danger d-none mb-3" style="font-size: 13px; padding: 10px; border-radius: 6px; background: #fef2f2; border: 1px solid #fecaca; color: #dc2626;">
-                    <i class="fa-solid fa-triangle-exclamation"></i> ឈ្មោះគណនី ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវទេ! សូមពិនិត្យម្តងទៀត។
+                <div id="login-error-msg" class="alert alert-danger d-none" style="margin-bottom: 22px; font-size: 13.5px; padding: 12px 16px; border-radius: 8px; background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-triangle-exclamation" style="font-size: 16px;"></i> <span>ឈ្មោះគណនី ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវទេ! សូមពិនិត្យម្តងទៀត។</span>
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100 py-2 login-btn-submit" style="font-size: 16px; font-weight: 600; justify-content: center;">
+                <button type="submit" class="btn btn-primary w-100 login-btn-submit" style="height: 52px; font-size: 16.5px; font-weight: 700; justify-content: center; border-radius: 10px; background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); border: none; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3); transition: all 0.2s ease; cursor: pointer; display: flex; align-items: center; gap: 8px;">
                     <i class="fa-solid fa-right-to-bracket"></i> ចូលប្រព័ន្ធគ្រប់គ្រង (Login)
                 </button>
             </form>
 
-            <div class="login-footer mt-4 text-center text-muted" style="font-size: 12.5px; border-top: 1px dashed var(--border-color); padding-top: 15px;">
-                <p class="mb-1" style="font-weight: 600; color: #1e3a8a;"><i class="fa-solid fa-shield-halved text-success"></i> កម្មវិធីគ្រប់គ្រងសំណុំរឿងវិវាទការងារ NADR</p>
-                <p class="mb-0" style="margin-top: 4px; font-weight: 600; color: #3b82f6;"><i class="fa-solid fa-building-columns text-primary"></i> ក្រសួងការងារ និង បណ្តុះបណ្តាលវិជ្ជាជីវៈ</p>
+            <div class="login-footer text-center" style="margin-top: 30px; font-size: 13px; border-top: 1px dashed #cbd5e1; padding-top: 18px; color: #64748b;">
+                <p class="mb-1" style="font-weight: 600; color: #1e3a8a; font-size: 13.5px;"><i class="fa-solid fa-code text-primary" style="margin-right: 5px;"></i> អភិវឌ្ឍន៍កម្មវិធីដោយ លោក ឡាយ អូន</p>
+                <p class="mb-0" style="margin-top: 5px; font-weight: 500; color: #64748b; font-size: 12.5px;"><i class="fa-regular fa-copyright" style="margin-right: 4px;"></i> រក្សាសិទ្ធិគ្រប់យ៉ាង @ ២០២៦</p>
             </div>
         </div>
     </div>
@@ -1668,11 +1658,11 @@
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
         }
     </script>
-    <script src="js/data.js?v=9.5"></script>
-    <script src="js/ai-assistant.js?v=9.5"></script>
-    <script src="js/docs.js?v=9.5"></script>
-    <script src="js/charts.js?v=9.5"></script>
-    <script src="js/reports.js?v=9.5"></script>
-    <script src="js/app.js?v=9.5"></script>
+    <script src="js/data.js?v=9.6"></script>
+    <script src="js/ai-assistant.js?v=9.6"></script>
+    <script src="js/docs.js?v=9.6"></script>
+    <script src="js/charts.js?v=9.6"></script>
+    <script src="js/reports.js?v=9.6"></script>
+    <script src="js/app.js?v=9.6"></script>
 </body>
 </html>
