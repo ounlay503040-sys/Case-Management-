@@ -102,6 +102,7 @@ function updateClock() {
 function renderAllViews() {
     renderDashboardStats();
     renderRecentCasesTable();
+    renderMasterTableHeader();
     applyFiltersAndRenderMasterTable();
     if (typeof initOrUpdateCharts === 'function') {
         initOrUpdateCharts();
@@ -248,7 +249,6 @@ function renderRecentCasesTable() {
 }
 
 function applyFiltersAndRenderMasterTable() {
-    renderMasterTableHeader();
     const q = document.getElementById('filter-search')?.value || '';
     const cat = document.getElementById('filter-category')?.value || 'ALL';
     const st = document.getElementById('filter-status')?.value || 'ALL';
@@ -402,17 +402,30 @@ function initFilterAndSearchEvents() {
     const resetBtn = document.getElementById('btn-reset-filters');
     const refreshBtn = document.getElementById('btn-refresh-data');
 
+    let searchDebounceTimer;
     const triggerFilter = () => {
         currentPage = 1;
         applyFiltersAndRenderMasterTable();
     };
 
-    if (searchEl) searchEl.addEventListener('input', triggerFilter);
+    const debouncedTriggerFilter = () => {
+        clearTimeout(searchDebounceTimer);
+        searchDebounceTimer = setTimeout(() => {
+            triggerFilter();
+        }, 250);
+    };
+
+    if (searchEl) searchEl.addEventListener('input', debouncedTriggerFilter);
     if (headerSearchEl) {
         headerSearchEl.addEventListener('input', (e) => {
             if (searchEl) searchEl.value = e.target.value;
-            switchView('cases-view');
-            triggerFilter();
+            const currentActive = document.querySelector('.view-section.active');
+            if (!currentActive || currentActive.id !== 'cases-view') {
+                if (e.target.value.trim() !== '') {
+                    switchView('cases-view');
+                }
+            }
+            debouncedTriggerFilter();
         });
     }
     if (catEl) catEl.addEventListener('change', triggerFilter);
