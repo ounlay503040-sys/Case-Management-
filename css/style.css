@@ -274,7 +274,8 @@ body {
     flex-direction: column;
     overflow: hidden;
     background-color: var(--bg-main);
-    transition: left var(--transition);
+    transition: left 0.3s ease;
+    box-shadow: -2px 0 8px rgba(0,0,0,0.06);
 }
 
 /* HEADER */
@@ -495,18 +496,25 @@ body {
 /* CONTENT SCROLL WRAPPER */
 .content-scroll-area {
     flex: 1;
+    min-height: 0;          /* critical: allows flex child to shrink and scroll */
     overflow-y: auto;
     overflow-x: hidden;
-    height: 100%;
+    scroll-behavior: smooth;
 }
 
 /* VIEW SECTIONS */
 .view-section {
     display: none;
-    padding: 28px;
+    padding: 28px 32px 48px 32px;
     min-width: 0;
     width: 100%;
     animation: fadeIn 0.3s ease;
+}
+
+/* Allow horizontal scroll for wide tables inside view sections */
+.view-section .table-responsive,
+.view-section .master-table-container {
+    overflow-x: auto !important;
 }
 
 .view-section.active {
