@@ -15,7 +15,7 @@
     <!-- SheetJS (XLSX) for Excel Import and Export -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/style.css?v=8.0">
+    <link rel="stylesheet" href="css/style.css?v=8.1">
 </head>
 <body class="light-theme">
     <!-- AUTHENTICATION OVERLAY -->
@@ -438,6 +438,21 @@
                                 <label style="font-size: 12px; font-weight: 600; margin-bottom: 4px; display: block;">សង្ខេបកម្មវត្ថុវិវាទ <span class="text-danger">*</span></label>
                                 <textarea id="quick-case-summary" class="form-control" rows="2" placeholder="វាយខ្លឹមសារសង្ខេបពីវិវាទ..." required style="font-size: 13px; padding: 8px 10px;"></textarea>
                             </div>
+                            <div class="form-group mb-3" style="background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px dashed #cbd5e1;">
+                                <label style="font-size: 12px; font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
+                                    <span><i class="fa-solid fa-file-pdf text-danger"></i> ឯកសារ PDF សំណុំរឿង (ជម្រើស)៖</span>
+                                    <span id="quick-pdf-badge" class="badge" style="background: #e2e8f0; color: #64748b; font-size: 11px;">គ្មាន</span>
+                                </label>
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <label class="btn btn-sm btn-outline mb-0" style="cursor: pointer; font-size: 12px; background: #fff; padding: 4px 10px; border-radius: 4px; display: inline-flex; align-items: center; gap: 6px; font-weight: 600;">
+                                        <i class="fa-solid fa-paperclip"></i> ភ្ជាប់ .PDF
+                                        <input type="file" id="quick-case-pdf-input" accept=".pdf" style="display: none;">
+                                    </label>
+                                    <input type="hidden" id="quick-case-pdf-base64">
+                                    <input type="hidden" id="quick-case-pdf-filename">
+                                    <span id="quick-case-pdf-name" style="font-size: 12px; color: #64748b; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">ពុំទាន់ជ្រើសរើស</span>
+                                </div>
+                            </div>
                             <button type="submit" class="btn btn-primary w-100" style="padding: 12px; font-size: 14px; font-weight: 700; background: var(--primary-color); border: none; box-shadow: var(--shadow-sm); display: flex; align-items: center; justify-content: center; gap: 8px;">
                                 <i class="fa-solid fa-circle-check"></i> បញ្ចូល និងរក្សាទុកក្នុងប្រព័ន្ធ
                             </button>
@@ -484,6 +499,7 @@
                                     <th>ភាគី ក (ដើមបណ្តឹង)</th>
                                     <th>ភាគី ខ (ចុងបណ្តឹង)</th>
                                     <th>ស្ថានភាព</th>
+                                    <th class="text-center">ឯកសារ PDF</th>
                                     <th class="text-center" style="width: 100px;">សកម្មភាព</th>
                                 </tr>
                             </thead>
@@ -585,6 +601,7 @@
                                     <th style="min-width: 200px;" data-i18n="form.mediation">ចំណាត់ការសម្រុះសម្រួល</th>
                                     <th style="width: 140px;" class="text-center" data-i18n="table.status">លទ្ធផលសំណុំរឿង</th>
                                     <th style="width: 110px;" class="text-center" data-i18n="table.remarks">កំណត់ចំណាំ</th>
+                                    <th style="width: 120px;" class="text-center">ឯកសារ ដើម (PDF)</th>
                                     <th style="width: 120px;" class="text-center" data-i18n="table.actions">សកម្មភាព</th>
                                 </tr>
                             </thead>
@@ -1303,10 +1320,36 @@
                         </div>
                     </div>
 
-                    <!-- SECTION 5: CUSTOM COLUMNS (ADDITIONAL DATA) -->
+                    <!-- SECTION 5: ATTACH PDF CASE FILE -->
+                    <div class="form-section-banner mt-4" style="background: #fef2f2; color: #991b1b; border-color: #fecaca;">
+                        <i class="fa-solid fa-file-pdf"></i> ៥. ឯកសារសំណុំរឿង (PDF File Attachment)
+                    </div>
+                    <div class="form-group mt-3" style="background: #fff; padding: 16px; border-radius: 8px; border: 1px dashed #cbd5e1;">
+                        <label style="font-weight: 700; color: #334155; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+                            <span><i class="fa-solid fa-paperclip text-danger"></i> ភ្ជាប់ឯកសារ PDF ពាក្យបណ្តឹង ឬកំណត់ហេតុ (Attach Case PDF File)៖</span>
+                            <span id="form-pdf-status-badge" class="badge" style="background: #f1f5f9; color: #64748b;">មិនទាន់មានឯកសារ</span>
+                        </label>
+                        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                            <label class="btn btn-sm btn-outline mb-0" style="cursor: pointer; background: #f8fafc; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 6px; display: inline-flex; align-items: center; gap: 8px; font-weight: 600;">
+                                <i class="fa-solid fa-folder-open text-primary"></i> ជ្រើសរើសឯកសារ .PDF
+                                <input type="file" id="case-pdf-input" accept=".pdf" style="display: none;">
+                            </label>
+                            <input type="hidden" id="case-pdf-base64">
+                            <input type="hidden" id="case-pdf-filename">
+                            <div id="case-pdf-display-box" style="flex: 1; display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 6px 12px; border-radius: 6px; border: 1px solid #e2e8f0; min-height: 36px;">
+                                <span id="case-pdf-name-text" style="font-size: 13px; color: #64748b;">ពុំទាន់មានឯកសារភ្ជាប់ឡើយ</span>
+                                <div id="case-pdf-action-btns" style="display: none; gap: 8px;">
+                                    <button type="button" class="btn btn-sm" style="background: #fee2e2; color: #dc2626; border: none; padding: 3px 10px; border-radius: 4px; font-size: 12px;" onclick="previewCurrentFormPdf()"><i class="fa-solid fa-eye"></i> មើល</button>
+                                    <button type="button" class="btn btn-sm" style="background: #f1f5f9; color: #64748b; border: none; padding: 3px 10px; border-radius: 4px; font-size: 12px;" onclick="removeCurrentFormPdf()"><i class="fa-solid fa-xmark"></i> លុប</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 6: CUSTOM COLUMNS (ADDITIONAL DATA) -->
                     <div id="modal-custom-fields-section" style="display: none; margin-top: 20px;">
                         <div class="form-section-banner" style="background: #e2e8f0; color: #475569; border-left: 4px solid #64748b; font-weight: 700;">
-                            <i class="fa-solid fa-square-plus"></i> ៥. ព័ត៌មានបន្ថែម (Custom Fields)
+                            <i class="fa-solid fa-square-plus"></i> ៦. ព័ត៌មានបន្ថែម (Custom Fields)
                         </div>
                         <div id="modal-custom-fields-container" class="form-grid-3 mt-3">
                             <!-- Rendered dynamically in app.js -->
@@ -1442,6 +1485,35 @@
         </div>
     </div>
 
+    <!-- MODAL: PDF VIEWER MODAL -->
+    <div class="modal-overlay" id="pdf-viewer-modal" style="z-index: 100000;">
+        <div class="modal-dialog modal-xl" style="max-width: 950px; height: 90vh; display: flex; flex-direction: column;">
+            <div class="modal-header" style="background: #1e293b; color: #fff; border-bottom: 1px solid #334155; padding: 16px 24px;">
+                <h3 style="color: #fff; margin: 0; display: flex; align-items: center; gap: 10px; font-size: 16px;">
+                    <i class="fa-solid fa-file-pdf text-danger" style="font-size: 20px;"></i>
+                    <span id="pdf-viewer-title">ពិនិត្យមើលឯកសារ PDF សំណុំរឿង</span>
+                </h3>
+                <button class="btn-close-modal" style="color: #fff; opacity: 0.8;" onclick="closePdfViewerModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body" style="flex: 1; padding: 0; background: #525659; overflow: hidden; display: flex; flex-direction: column; position: relative;">
+                <iframe id="pdf-viewer-iframe" style="width: 100%; height: 100%; border: none;"></iframe>
+            </div>
+            <div class="modal-footer" style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div style="font-size: 13px; color: #64748b;" id="pdf-viewer-info-text">
+                    <!-- dynamic info -->
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <a id="pdf-viewer-download-btn" href="#" download="case.pdf" class="btn btn-primary" style="background: #2563eb; color: white; padding: 8px 18px; border-radius: 6px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;"><i class="fa-solid fa-download"></i> ទាញយក PDF (Download)</a>
+                    <button type="button" class="btn btn-outline" style="border-color: #cbd5e1; background: #fff; font-weight: 600;" onclick="replaceCurrentViewerPdf()"><i class="fa-solid fa-arrows-rotate"></i> ផ្លាស់ប្តូរឯកសារថ្មី</button>
+                    <button type="button" class="btn btn-danger" style="background: #dc2626; color: #fff; font-weight: 600;" onclick="deleteCurrentViewerPdf()"><i class="fa-solid fa-trash"></i> លុប PDF ចេញ</button>
+                    <button type="button" class="btn btn-secondary" onclick="closePdfViewerModal()">បិទ (Close)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- HIDDEN GLOBAL PDF UPLOADER INPUT -->
+    <input type="file" id="global-pdf-uploader" accept=".pdf" style="display: none;">
+
     <!-- TOAST NOTIFICATION CONTAINER -->
     <div id="toast-container" class="toast-container"></div>
 
@@ -1451,11 +1523,11 @@
         // Set workerSrc for PDF.js
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
     </script>
-    <script src="js/data.js?v=3.0"></script>
-    <script src="js/ai-assistant.js?v=3.0"></script>
-    <script src="js/docs.js?v=3.0"></script>
-    <script src="js/charts.js?v=3.0"></script>
-    <script src="js/reports.js?v=3.0"></script>
-    <script src="js/app.js?v=3.0"></script>
+    <script src="js/data.js?v=4.0"></script>
+    <script src="js/ai-assistant.js?v=4.0"></script>
+    <script src="js/docs.js?v=4.0"></script>
+    <script src="js/charts.js?v=4.0"></script>
+    <script src="js/reports.js?v=4.0"></script>
+    <script src="js/app.js?v=4.0"></script>
 </body>
 </html>

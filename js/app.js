@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initLanguageSwitcher();
     initSettingsEvents();
     initDashboardQuickForm();
+    initPdfUploaders();
 
     // 5. Initial render
     renderAllViews();
@@ -277,6 +278,13 @@ function renderEntryCasesTable() {
                 <td><strong>${c.partyA_name}</strong> <small class="text-muted">(${c.partyA_phone || 'គ្មានលេខ'})</small></td>
                 <td><strong>${c.partyB_name}</strong> <small class="text-muted">(${c.partyB_phone || 'គ្មានលេខ'})</small></td>
                 <td>${getStatusBadgeHTML(c.status)}</td>
+                <td class="text-center">${(() => {
+                    if (c.attachedPdf) {
+                        return `<button class="btn btn-sm" style="background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; font-weight: 700; padding: 3px 10px; border-radius: 20px; display: inline-flex; align-items: center; gap: 5px; font-size: 11px; white-space: nowrap; box-shadow: 0 2px 4px rgba(220,38,38,0.15);" onclick="openPdfViewerModal('${c.id}')" title="បើកមើលឯកសារ PDF៖ ${c.pdfName || 'Case PDF'}"><i class="fa-solid fa-file-pdf"></i> បើកមើល</button>`;
+                    } else {
+                        return `<button class="btn btn-sm" style="background: #f1f5f9; color: #64748b; border: 1px dashed #cbd5e1; font-weight: 600; padding: 3px 10px; border-radius: 20px; display: inline-flex; align-items: center; gap: 5px; font-size: 11px; white-space: nowrap;" onclick="triggerQuickPdfUpload('${c.id}')" title="ភ្ជាប់ឯកសារ PDF"><i class="fa-solid fa-cloud-arrow-up text-primary"></i> ភ្ជាប់ PDF</button>`;
+                    }
+                })()}</td>
                 <td class="text-center">
                     <div class="action-btns" style="justify-content: center;">
                         <button class="btn-icon" onclick="openViewModal('${c.id}')" title="មើលប័ណ្ណព័ត៌មាន"><i class="fa-solid fa-eye"></i></button>
@@ -370,6 +378,13 @@ function applyFiltersAndRenderMasterTable() {
                     </span>
                 </td>
                 ${customCells}
+                <td class="text-center">${(() => {
+                    if (c.attachedPdf) {
+                        return `<button class="btn btn-sm" style="background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; font-weight: 700; padding: 4px 10px; border-radius: 20px; display: inline-flex; align-items: center; gap: 5px; font-size: 11px; white-space: nowrap; box-shadow: 0 2px 4px rgba(220,38,38,0.15);" onclick="openPdfViewerModal('${c.id}')" title="បើកមើលឯកសារ PDF៖ ${c.pdfName || 'Case PDF'}"><i class="fa-solid fa-file-pdf"></i> បើកមើល</button>`;
+                    } else {
+                        return `<button class="btn btn-sm" style="background: #f1f5f9; color: #64748b; border: 1px dashed #cbd5e1; font-weight: 600; padding: 4px 10px; border-radius: 20px; display: inline-flex; align-items: center; gap: 5px; font-size: 11px; white-space: nowrap; transition: all 0.2s;" onclick="triggerQuickPdfUpload('${c.id}')" title="ភ្ជាប់ឯកសារ PDF សំណុំរឿង"><i class="fa-solid fa-cloud-arrow-up text-primary"></i> ភ្ជាប់ PDF</button>`;
+                    }
+                })()}</td>
                 <td class="text-center">
                     <div class="action-btns">
                         <button class="btn-icon" onclick="openViewModal('${c.id}')" title="មើលប័ណ្ណ"><i class="fa-solid fa-eye"></i></button>
@@ -561,6 +576,15 @@ function initModalEvents() {
         document.getElementById('case-date').value = getTodayDateString();
         handleStatusChange();
         renderModalCustomFields();
+        if (document.getElementById('case-pdf-base64')) document.getElementById('case-pdf-base64').value = '';
+        if (document.getElementById('case-pdf-filename')) document.getElementById('case-pdf-filename').value = '';
+        if (document.getElementById('case-pdf-name-text')) document.getElementById('case-pdf-name-text').innerText = 'ពុំទាន់មានឯកសារភ្ជាប់ឡើយ';
+        if (document.getElementById('case-pdf-status-badge')) {
+            document.getElementById('case-pdf-status-badge').style.background = '#f1f5f9';
+            document.getElementById('case-pdf-status-badge').style.color = '#64748b';
+            document.getElementById('case-pdf-status-badge').innerText = 'មិនទាន់មានឯកសារ';
+        }
+        if (document.getElementById('case-pdf-action-btns')) document.getElementById('case-pdf-action-btns').style.display = 'none';
         modal.classList.add('open');
     };
 
@@ -616,7 +640,9 @@ function initModalEvents() {
                 meetingPartyB: document.getElementById('case-meeting-b').value,
                 mediationMeeting: document.getElementById('case-mediation-meeting').value,
                 status: statusVal,
-                remarks: remarksVal
+                remarks: remarksVal,
+                attachedPdf: document.getElementById('case-pdf-base64')?.value || '',
+                pdfName: document.getElementById('case-pdf-filename')?.value || ''
             };
 
             // Add custom fields values
@@ -715,6 +741,17 @@ function openEditModal(id) {
     // Close view modal if open
     document.getElementById('view-modal')?.classList.remove('open');
     renderModalCustomFields(c);
+    if (document.getElementById('case-pdf-base64')) document.getElementById('case-pdf-base64').value = c.attachedPdf || '';
+    if (document.getElementById('case-pdf-filename')) document.getElementById('case-pdf-filename').value = c.pdfName || '';
+    if (document.getElementById('case-pdf-name-text')) {
+        document.getElementById('case-pdf-name-text').innerHTML = c.attachedPdf ? `<i class="fa-solid fa-file-pdf text-danger"></i> <strong>${c.pdfName || 'Case_Document.pdf'}</strong>` : 'ពុំទាន់មានឯកសារភ្ជាប់ឡើយ';
+    }
+    if (document.getElementById('case-pdf-status-badge')) {
+        document.getElementById('case-pdf-status-badge').style.background = c.attachedPdf ? '#dcfce7' : '#f1f5f9';
+        document.getElementById('case-pdf-status-badge').style.color = c.attachedPdf ? '#166534' : '#64748b';
+        document.getElementById('case-pdf-status-badge').innerText = c.attachedPdf ? 'មានឯកសារភ្ជាប់' : 'មិនទាន់មានឯកសារ';
+    }
+    if (document.getElementById('case-pdf-action-btns')) document.getElementById('case-pdf-action-btns').style.display = c.attachedPdf ? 'flex' : 'none';
     modal.classList.add('open');
 }
 
@@ -797,7 +834,7 @@ function openViewModal(id) {
                 if (CUSTOM_COLUMNS.length === 0) return '';
                 let customHtml = `
                 <div class="dossier-item full-width" style="grid-column: span 2; background: #f8fafc; border-color: #e2e8f0; margin-top: 10px;">
-                    <span class="d-label" style="color: #475569; font-weight: 700;"><i class="fa-solid fa-square-plus"></i> ៥. ព័ត៌មានបន្ថែម (Custom Fields)</span>
+                    <span class="d-label" style="color: #475569; font-weight: 700;"><i class="fa-solid fa-square-plus"></i> ៦. ព័ត៌មានបន្ថែម (Custom Fields)</span>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 8px; font-size: 13px;">
                 `;
                 CUSTOM_COLUMNS.forEach(col => {
@@ -811,6 +848,38 @@ function openViewModal(id) {
                 });
                 customHtml += `</div></div>`;
                 return customHtml;
+            })()}
+            ${(() => {
+                if (c.attachedPdf) {
+                    return `
+                    <div class="dossier-item full-width" style="grid-column: 1 / -1; background: #fef2f2; border-color: #fecaca; margin-top: 10px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 24px; color: #dc2626;"><i class="fa-solid fa-file-pdf"></i></span>
+                            <div>
+                                <span class="d-label" style="color: #991b1b; font-weight: 700; margin: 0;">ឯកសារ PDF សំណុំរឿងភ្ជាប់ (Attached Case Document)</span>
+                                <div style="font-size: 13px; font-weight: 600; color: #334155;">${c.pdfName || 'Case_Document.pdf'}</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn btn-sm" style="background: #dc2626; color: #fff; border: none; font-weight: 600; padding: 6px 14px; border-radius: 6px; box-shadow: 0 2px 4px rgba(220,38,38,0.2);" onclick="openPdfViewerModal('${c.id}')"><i class="fa-solid fa-eye"></i> បើកមើល PDF</button>
+                            <a href="${c.attachedPdf}" download="${c.pdfName || 'Case_Document.pdf'}" class="btn btn-sm btn-outline" style="background: #fff; border-color: #cbd5e1; color: #334155; padding: 6px 14px; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;"><i class="fa-solid fa-download"></i> ទាញយក</a>
+                        </div>
+                    </div>
+                    `;
+                } else {
+                    return `
+                    <div class="dossier-item full-width" style="grid-column: 1 / -1; background: #f8fafc; border-color: #cbd5e1; border-style: dashed; margin-top: 10px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 20px; color: #94a3b8;"><i class="fa-solid fa-file-pdf"></i></span>
+                            <div>
+                                <span class="d-label" style="color: #64748b; font-weight: 600; margin: 0;">ឯកសារ PDF សំណុំរឿង (Case PDF Document)</span>
+                                <div style="font-size: 12px; color: #94a3b8;">ពុំទាន់មានឯកសារភ្ជាប់ក្នុងសំណុំរឿងនេះឡើយ</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-sm btn-outline" style="background: #fff; border-color: #3b82f6; color: #2563eb; font-weight: 600; padding: 6px 14px; border-radius: 6px;" onclick="triggerQuickPdfUpload('${c.id}')"><i class="fa-solid fa-cloud-arrow-up"></i> ភ្ជាប់ឯកសារ PDF ឥឡូវនេះ</button>
+                    </div>
+                    `;
+                }
             })()}
         </div>
     `;
@@ -1652,7 +1721,9 @@ function initDashboardQuickForm() {
                 meetingPartyB: 'មិនទាន់ប្រជុំ',
                 mediationMeeting: 'មិនទាន់ប្រជុំ',
                 status: 'Active (កំពុងសម្រុះសម្រួល)',
-                remarks: 'កំពុងពិនិត្យ និងដោះស្រាយ (មិនទាន់បិទ)'
+                remarks: 'កំពុងពិនិត្យ និងដោះស្រាយ (មិនទាន់បិទ)',
+                attachedPdf: document.getElementById('quick-case-pdf-base64')?.value || '',
+                pdfName: document.getElementById('quick-case-pdf-filename')?.value || ''
             };
 
             // Add empty custom fields since it's a quick entry
@@ -1669,6 +1740,14 @@ function initDashboardQuickForm() {
             document.getElementById('quick-case-number').value = generateNextCaseNumber();
             document.getElementById('quick-case-date').value = getTodayDateString();
             if (aiTextarea) aiTextarea.value = '';
+            if (document.getElementById('quick-case-pdf-base64')) document.getElementById('quick-case-pdf-base64').value = '';
+            if (document.getElementById('quick-case-pdf-filename')) document.getElementById('quick-case-pdf-filename').value = '';
+            if (document.getElementById('quick-case-pdf-name')) document.getElementById('quick-case-pdf-name').innerText = 'ពុំទាន់ជ្រើសរើស';
+            if (document.getElementById('quick-pdf-badge')) {
+                document.getElementById('quick-pdf-badge').style.background = '#e2e8f0';
+                document.getElementById('quick-pdf-badge').style.color = '#64748b';
+                document.getElementById('quick-pdf-badge').innerText = 'គ្មាន';
+            }
 
             renderAllViews();
         });
@@ -1752,6 +1831,234 @@ function initDashboardQuickForm() {
                 aiBtn.innerHTML = `✨ AI Extract`;
                 aiBtn.disabled = false;
             }, 800);
+        });
+    }
+}
+
+/* ==========================================================================
+   PDF ATTACHMENT AND VIEWER MODAL SYSTEM
+   ========================================================================== */
+let currentPdfCaseId = null;
+
+/**
+ * Open PDF Viewer Modal for a specific case
+ */
+function openPdfViewerModal(caseId) {
+    const c = getCaseById(caseId);
+    if (!c || !c.attachedPdf) {
+        showToast('ពុំមានឯកសារ PDF ភ្ជាប់ក្នុងសំណុំរឿងនេះឡើយ!', 'warning');
+        return;
+    }
+    currentPdfCaseId = caseId;
+    const modal = document.getElementById('pdf-viewer-modal');
+    const title = document.getElementById('pdf-viewer-title');
+    const iframe = document.getElementById('pdf-viewer-iframe');
+    const downloadBtn = document.getElementById('pdf-viewer-download-btn');
+    const infoText = document.getElementById('pdf-viewer-info-text');
+
+    if (title) title.innerHTML = `ឯកសារ PDF សំណុំរឿង៖ <strong style="color:#fca5a5;">${c.caseNumber}</strong> - ${c.pdfName || 'Case_Document.pdf'}`;
+    if (iframe) iframe.src = c.attachedPdf;
+    if (downloadBtn) {
+        downloadBtn.href = c.attachedPdf;
+        downloadBtn.download = c.pdfName || `${c.caseNumber}_document.pdf`;
+    }
+    if (infoText) {
+        infoText.innerHTML = `ដើមបណ្តឹង៖ <strong>${c.partyA_name}</strong> | ចុងបណ្តឹង៖ <strong>${c.partyB_name}</strong>`;
+    }
+    if (modal) modal.classList.add('open');
+}
+
+/**
+ * Close PDF Viewer Modal
+ */
+function closePdfViewerModal() {
+    const modal = document.getElementById('pdf-viewer-modal');
+    const iframe = document.getElementById('pdf-viewer-iframe');
+    if (modal) modal.classList.remove('open');
+    if (iframe) iframe.src = '';
+    currentPdfCaseId = null;
+}
+
+/**
+ * Trigger Global PDF Uploader from Case List / Viewer
+ */
+function triggerQuickPdfUpload(caseId) {
+    currentPdfCaseId = caseId;
+    const uploader = document.getElementById('global-pdf-uploader');
+    if (uploader) {
+        uploader.value = '';
+        uploader.click();
+    }
+}
+
+/**
+ * Replace Current PDF in Viewer Modal
+ */
+function replaceCurrentViewerPdf() {
+    if (!currentPdfCaseId) return;
+    triggerQuickPdfUpload(currentPdfCaseId);
+}
+
+/**
+ * Delete Current PDF from Viewer Modal
+ */
+function deleteCurrentViewerPdf() {
+    if (!currentPdfCaseId) return;
+    const c = getCaseById(currentPdfCaseId);
+    if (!c) return;
+    showConfirmModal(`តើលោកអ្នកពិតជាចង់លុបឯកសារ PDF "${c.pdfName || 'Case PDF'}" ចេញពីសំណុំរឿង ${c.caseNumber} មែនទេ?`, () => {
+        delete c.attachedPdf;
+        delete c.pdfName;
+        updateCase(c.id, c);
+        if (typeof logAuditAction === 'function') logAuditAction('លុបឯកសារ PDF', `បានលុបឯកសារ PDF ចេញពីសំណុំរឿង "${c.caseNumber}"`);
+        showToast('បានលុបឯកសារ PDF ចេញពីសំណុំរឿងដោយជោគជ័យ!', 'success');
+        closePdfViewerModal();
+        renderAllViews();
+    });
+}
+
+/**
+ * Preview current PDF inside case modal form
+ */
+function previewCurrentFormPdf() {
+    const base64 = document.getElementById('case-pdf-base64')?.value;
+    const filename = document.getElementById('case-pdf-filename')?.value || 'Document.pdf';
+    const caseNum = document.getElementById('case-number')?.value || 'New Case';
+    if (!base64) {
+        showToast('មិនទាន់មានឯកសារភ្ជាប់ក្នុងទម្រង់នេះទេ!', 'warning');
+        return;
+    }
+    const modal = document.getElementById('pdf-viewer-modal');
+    const title = document.getElementById('pdf-viewer-title');
+    const iframe = document.getElementById('pdf-viewer-iframe');
+    const downloadBtn = document.getElementById('pdf-viewer-download-btn');
+    const infoText = document.getElementById('pdf-viewer-info-text');
+
+    if (title) title.innerHTML = `ពិនិត្យឯកសារ PDF (ទម្រង់បច្ចុប្បន្ន)៖ <strong style="color:#fca5a5;">${caseNum}</strong> - ${filename}`;
+    if (iframe) iframe.src = base64;
+    if (downloadBtn) {
+        downloadBtn.href = base64;
+        downloadBtn.download = filename;
+    }
+    if (infoText) infoText.innerHTML = `ឯកសារជ្រើសរើសបច្ចុប្បន្ន (ពុំទាន់រក្សាទុកចូលបញ្ជី)`;
+    if (modal) modal.classList.add('open');
+}
+
+/**
+ * Remove current PDF inside case modal form
+ */
+function removeCurrentFormPdf() {
+    if (document.getElementById('case-pdf-base64')) document.getElementById('case-pdf-base64').value = '';
+    if (document.getElementById('case-pdf-filename')) document.getElementById('case-pdf-filename').value = '';
+    if (document.getElementById('case-pdf-name-text')) document.getElementById('case-pdf-name-text').innerText = 'ពុំទាន់មានឯកសារភ្ជាប់ឡើយ';
+    if (document.getElementById('case-pdf-status-badge')) {
+        document.getElementById('case-pdf-status-badge').style.background = '#f1f5f9';
+        document.getElementById('case-pdf-status-badge').style.color = '#64748b';
+        document.getElementById('case-pdf-status-badge').innerText = 'មិនទាន់មានឯកសារ';
+    }
+    if (document.getElementById('case-pdf-action-btns')) document.getElementById('case-pdf-action-btns').style.display = 'none';
+    showToast('បានដកឯកសារ PDF ចេញពីទម្រង់បែបបទ!', 'info');
+}
+
+/**
+ * Bind PDF Uploader Events
+ */
+function initPdfUploaders() {
+    // Global uploader for Case List table / Viewer
+    const globalUploader = document.getElementById('global-pdf-uploader');
+    if (globalUploader) {
+        globalUploader.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file || !currentPdfCaseId) return;
+            if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+                showToast('សូមជ្រើសរើសឯកសារជាទម្រង់ PDF ប៉ុណ្ណោះ!', 'error');
+                return;
+            }
+            if (file.size > 15 * 1024 * 1024) {
+                showToast('ទំហំឯកសារធំពេក (អតិបរមា 15MB)!', 'error');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const c = getCaseById(currentPdfCaseId);
+                if (c) {
+                    c.attachedPdf = evt.target.result;
+                    c.pdfName = file.name;
+                    updateCase(c.id, c);
+                    if (typeof logAuditAction === 'function') logAuditAction('ភ្ជាប់ឯកសារ PDF', `បានភ្ជាប់ឯកសារ "${file.name}" ចូលសំណុំរឿង "${c.caseNumber}"`);
+                    showToast(`បានភ្ជាប់ឯកសារ PDF "${file.name}" ចូលក្នុងសំណុំរឿង ${c.caseNumber} រួចរាល់!`, 'success');
+                    renderAllViews();
+                    // If viewer modal is open, reload it
+                    const modal = document.getElementById('pdf-viewer-modal');
+                    if (modal && modal.classList.contains('open')) {
+                        openPdfViewerModal(c.id);
+                    }
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // Modal Form PDF uploader
+    const modalUploader = document.getElementById('case-pdf-input');
+    if (modalUploader) {
+        modalUploader.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+                showToast('សូមជ្រើសរើសឯកសារជាទម្រង់ PDF ប៉ុណ្ណោះ!', 'error');
+                return;
+            }
+            if (file.size > 15 * 1024 * 1024) {
+                showToast('ទំហំឯកសារធំពេក (អតិបរមា 15MB)!', 'error');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                if (document.getElementById('case-pdf-base64')) document.getElementById('case-pdf-base64').value = evt.target.result;
+                if (document.getElementById('case-pdf-filename')) document.getElementById('case-pdf-filename').value = file.name;
+                if (document.getElementById('case-pdf-name-text')) document.getElementById('case-pdf-name-text').innerHTML = `<i class="fa-solid fa-file-pdf text-danger"></i> <strong>${file.name}</strong>`;
+                if (document.getElementById('case-pdf-status-badge')) {
+                    document.getElementById('case-pdf-status-badge').style.background = '#dcfce7';
+                    document.getElementById('case-pdf-status-badge').style.color = '#166534';
+                    document.getElementById('case-pdf-status-badge').innerText = 'មានឯកសារភ្ជាប់';
+                }
+                if (document.getElementById('case-pdf-action-btns')) document.getElementById('case-pdf-action-btns').style.display = 'flex';
+                showToast('បានផ្ទុកឯកសារ PDF ចូលក្នុងទម្រង់រៀបចំរួចរាល់!', 'success');
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // Quick Case Form PDF uploader
+    const quickUploader = document.getElementById('quick-case-pdf-input');
+    if (quickUploader) {
+        quickUploader.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+                showToast('សូមជ្រើសរើសឯកសារជាទម្រង់ PDF ប៉ុណ្ណោះ!', 'error');
+                return;
+            }
+            if (file.size > 15 * 1024 * 1024) {
+                showToast('ទំហំឯកសារធំពេក (អតិបរមា 15MB)!', 'error');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                if (document.getElementById('quick-case-pdf-base64')) document.getElementById('quick-case-pdf-base64').value = evt.target.result;
+                if (document.getElementById('quick-case-pdf-filename')) document.getElementById('quick-case-pdf-filename').value = file.name;
+                if (document.getElementById('quick-case-pdf-name')) {
+                    document.getElementById('quick-case-pdf-name').innerHTML = `<i class="fa-solid fa-file-pdf text-danger"></i> <strong style="color:#166534;">${file.name}</strong>`;
+                }
+                if (document.getElementById('quick-pdf-badge')) {
+                    document.getElementById('quick-pdf-badge').style.background = '#dcfce7';
+                    document.getElementById('quick-pdf-badge').style.color = '#166534';
+                    document.getElementById('quick-pdf-badge').innerText = 'មាន PDF';
+                }
+                showToast('បានភ្ជាប់ PDF សម្រាប់ទម្រង់រហ័សរួចរាល់!', 'success');
+            };
+            reader.readAsDataURL(file);
         });
     }
 }
