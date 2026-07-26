@@ -95,6 +95,13 @@
             </div>
 
             <nav class="sidebar-nav">
+                <a href="#profile-view" class="nav-item" data-view="profile-view" style="margin-bottom: 12px; background: linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(29, 78, 216, 0.28)); border: 1px solid rgba(59, 130, 246, 0.45); border-radius: 12px; padding: 12px 16px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);">
+                    <i class="fa-solid fa-user-shield" style="color: #60a5fa; font-size: 18px;"></i>
+                    <div style="line-height: 1.3;">
+                        <span style="font-weight: 800; color: #ffffff; display: block; font-size: 13.5px;">ប្រវត្តិរូបមន្ត្រី (My Profile)</span>
+                        <small style="color: #93c5fd; font-size: 11px;">គ្រប់គ្រងគណនី &amp; រូបភាព</small>
+                    </div>
+                </a>
                 <div class="nav-section-title" data-i18n="nav.main">មេនុយទូទៅ (MAIN)</div>
                 <a href="#entry-view" class="nav-item active" data-view="entry-view">
                     <i class="fa-solid fa-folder-plus"></i>
@@ -125,10 +132,6 @@
                 <a href="#settings-view" class="nav-item" data-view="settings-view">
                     <i class="fa-solid fa-gears"></i>
                     <span data-i18n="nav.settings">ការកំណត់ប្រព័ន្ធ (Settings)</span>
-                </a>
-                <a href="#settings-view" class="nav-item" onclick="setTimeout(() => { const btn = document.querySelector('.tab-btn[data-tab=\'tab-profile\']'); if (btn) btn.click(); }, 50);" style="border-left: 3px solid #3b82f6; background: rgba(59, 130, 246, 0.08);">
-                    <i class="fa-solid fa-id-card-clip" style="color: #3b82f6;"></i>
-                    <span style="font-weight: 700; color: #3b82f6;">ប្រវត្តិរូបមន្ត្រី (My Profile)</span>
                 </a>
             </nav>
 
@@ -1061,370 +1064,500 @@
                 </div>
 
                 <div class="card-panel settings-card" style="padding: 0; overflow: hidden; border-radius: var(--radius-lg); background: var(--bg-card); border: 1px solid var(--border-color); box-shadow: var(--shadow-md);">
-                    <!-- Settings tabs header -->
-                    <div class="settings-tabs-header" style="display: flex; background: var(--bg-main); border-bottom: 1px solid var(--border-color); flex-wrap: wrap;">
-                        <button type="button" class="tab-btn active" data-tab="tab-provinces" style="flex: 1; padding: 14px; border: none; background: none; font-weight: 700; color: var(--primary-color); cursor: pointer; border-bottom: 3px solid var(--primary-color); transition: all 0.2s; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;">
-                            <i class="fa-solid fa-map-location-dot"></i> ១. បញ្ជី ២៥ ខេត្ត/ក្រុង
-                        </button>
-                        <button type="button" class="tab-btn" data-tab="tab-categories" style="flex: 1; padding: 14px; border: none; background: none; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;">
-                            <i class="fa-solid fa-tags"></i> ២. ប្រភេទវិវាទ
-                        </button>
-                        <button type="button" class="tab-btn" data-tab="tab-columns" style="flex: 1; padding: 14px; border: none; background: none; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;">
-                            <i class="fa-solid fa-table-columns"></i> ៣. បន្ថែមកូឡោនសំណុំរឿង
-                        </button>
-                        <button type="button" class="tab-btn" data-tab="tab-admins" style="flex: 1; padding: 14px; border: none; background: none; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;">
-                            <i class="fa-solid fa-user-shield"></i> ៤. គ្រប់គ្រងគណនី & សិទ្ធិចូលប្រព័ន្ធ
-                        </button>
-                        <button type="button" class="tab-btn" data-tab="tab-org" style="flex: 1; padding: 14px; border: none; background: none; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;">
-                            <i class="fa-solid fa-building"></i> ៥. កំណត់ស្ថាប័ន & លេខកូដ
-                        </button>
-                        <button type="button" class="tab-btn" data-tab="tab-audit" style="flex: 1; padding: 14px; border: none; background: none; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;">
-                            <i class="fa-solid fa-history"></i> ៦. កំណត់ហេតុសកម្មភាព
-                        </button>
-                        <button type="button" class="tab-btn" data-tab="tab-eval-matrix" style="flex: 1; padding: 14px; border: none; background: none; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;">
-                            <i class="fa-solid fa-scale-balanced"></i> ៧. កំណត់លក្ខណៈវិនិច្ឆ័យ & តារាងវាយតម្លៃ
-                        </button>
-                        <button type="button" class="tab-btn" data-tab="tab-profile" style="flex: 1; padding: 14px; border: none; background: none; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;">
-                            <i class="fa-solid fa-id-card-clip"></i> ៨. ប្រវត្តិរូបរបស់ខ្ញុំ (My Profile)
-                        </button>
-                    </div>
+                    <!-- Settings Vertical Layout Container (Phone settings style) -->
+                    <style>
+                    .settings-vert-btn {
+                        display: flex;
+                        align-items: center;
+                        gap: 14px;
+                        width: 100%;
+                        padding: 14px 16px;
+                        border: 1px solid transparent;
+                        background: transparent;
+                        border-radius: 12px;
+                        cursor: pointer;
+                        text-align: left;
+                        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+                        font-family: inherit;
+                        color: var(--text-color);
+                    }
+                    .settings-vert-btn:hover {
+                        background: var(--bg-main);
+                        transform: translateX(4px);
+                    }
+                    .settings-vert-btn.active {
+                        background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(29, 78, 216, 0.18));
+                        border-color: rgba(59, 130, 246, 0.4);
+                        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.08);
+                    }
+                    .settings-vert-btn .icon-box {
+                        width: 42px;
+                        height: 42px;
+                        border-radius: 10px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 18px;
+                        flex-shrink: 0;
+                        transition: transform 0.2s;
+                    }
+                    .settings-vert-btn:hover .icon-box {
+                        transform: scale(1.1);
+                    }
+                    .settings-vert-btn .text-info {
+                        display: flex;
+                        flex-direction: column;
+                        flex: 1;
+                        overflow: hidden;
+                    }
+                    .settings-vert-btn .text-info .title {
+                        font-size: 14px;
+                        font-weight: 700;
+                        color: var(--text-color);
+                        margin-bottom: 2px;
+                    }
+                    .settings-vert-btn.active .text-info .title {
+                        color: var(--primary-color);
+                    }
+                    .settings-vert-btn .text-info .desc {
+                        font-size: 11.5px;
+                        color: var(--text-muted);
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
+                    .settings-vert-btn .arrow-icon {
+                        font-size: 12px;
+                        color: var(--text-muted);
+                        opacity: 0.5;
+                        transition: transform 0.2s;
+                    }
+                    .settings-vert-btn.active .arrow-icon {
+                        color: var(--primary-color);
+                        opacity: 1;
+                        transform: translateX(3px);
+                    }
+                    @media (max-width: 850px) {
+                        .settings-vertical-container {
+                            grid-template-columns: 1fr !important;
+                        }
+                    }
+                    </style>
 
-                    <!-- Settings tabs content -->
-                    <div class="settings-tabs-content" style="padding: 24px;">
-                        
-                        <!-- TAB 1: PROVINCES CONFIG -->
-                        <div class="settings-tab-pane active" id="tab-provinces">
-                            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2" style="display: flex; justify-content: space-between; align-items: center;">
-                                <div>
-                                    <h4 style="margin: 0; font-size: 14px; font-weight: 700; color: var(--text-color);"><i class="fa-solid fa-city text-primary"></i> គ្រប់គ្រងរាជធានី-ខេត្ត</h4>
-                                    <p style="font-size: 12px; color: var(--text-muted); margin: 0;">បន្ថែម ឬលុបខេត្តសម្រាប់ការជ្រើសរើសទីតាំងសំណុំរឿង</p>
+                    <div class="settings-vertical-container" style="display: grid; grid-template-columns: 310px 1fr; gap: 24px; align-items: start; padding: 24px; background: var(--bg-main);">
+                        <!-- Left Column: Vertical Menu Card (Mobile settings style) -->
+                        <div class="card-panel settings-sidebar-menu" style="padding: 16px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 6px;">
+                            <div style="font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 12px 6px 12px;">បញ្ជីការកំណត់ (Preferences)</div>
+                            
+                            <button type="button" class="settings-vert-btn tab-btn active" data-tab="tab-org">
+                                <div class="icon-box" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6;"><i class="fa-solid fa-building-flag"></i></div>
+                                <div class="text-info">
+                                    <span class="title">១. កំណត់ស្ថាប័ន &amp; លេខកូដ</span>
+                                    <span class="desc">ឈ្មោះស្ថាប័ន &amp; ក្បាលសំណុំរឿង</span>
                                 </div>
-                                <button type="button" class="btn btn-sm btn-primary" id="btn-add-province" style="padding: 6px 12px; font-size: 12px;">
-                                    <i class="fa-solid fa-plus"></i> បន្ថែមខេត្តថ្មី
-                                </button>
-                            </div>
-                            <div class="table-responsive">
-                                <table class="data-table" style="font-size: 13px; width: 100%;">
-                                    <thead>
-                                        <tr>
-                                            <th style="width: 80px;">ល.រ</th>
-                                            <th style="width: 150px;">លេខកូដខេត្ត</th>
-                                            <th>ឈ្មោះខេត្ត</th>
-                                            <th class="text-center" style="width: 100px;">សកម្មភាព</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="settings-provinces-tbody">
-                                        <!-- Rendered dynamically -->
-                                    </tbody>
-                                </table>
-                            </div>
+                                <i class="fa-solid fa-chevron-right arrow-icon"></i>
+                            </button>
+
+                            <button type="button" class="settings-vert-btn tab-btn" data-tab="tab-categories">
+                                <div class="icon-box" style="background: rgba(16, 185, 129, 0.15); color: #10b981;"><i class="fa-solid fa-tags"></i></div>
+                                <div class="text-info">
+                                    <span class="title">២. ប្រភេទវិវាទទាំង ៨</span>
+                                    <span class="desc">បន្ថែម ឬកែសម្រួលប្រភេទវិវាទ</span>
+                                </div>
+                                <i class="fa-solid fa-chevron-right arrow-icon"></i>
+                            </button>
+
+                            <button type="button" class="settings-vert-btn tab-btn" data-tab="tab-columns">
+                                <div class="icon-box" style="background: rgba(139, 92, 246, 0.15); color: #8b5cf6;"><i class="fa-solid fa-table-columns"></i></div>
+                                <div class="text-info">
+                                    <span class="title">៣. បន្ថែមកូឡោនសំណុំរឿង</span>
+                                    <span class="desc">កំណត់បង្ហាញ/លាក់ជួរឈរតារាង</span>
+                                </div>
+                                <i class="fa-solid fa-chevron-right arrow-icon"></i>
+                            </button>
+
+                            <button type="button" class="settings-vert-btn tab-btn" data-tab="tab-admins">
+                                <div class="icon-box" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;"><i class="fa-solid fa-user-shield"></i></div>
+                                <div class="text-info">
+                                    <span class="title">៤. គ្រប់គ្រងគណនីរដ្ឋបាល</span>
+                                    <span class="desc">សិទ្ធិចូលប្រព័ន្ធ &amp; គណនីមន្ត្រី</span>
+                                </div>
+                                <i class="fa-solid fa-chevron-right arrow-icon"></i>
+                            </button>
+
+                            <button type="button" class="settings-vert-btn tab-btn" data-tab="tab-audit">
+                                <div class="icon-box" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;"><i class="fa-solid fa-clipboard-list"></i></div>
+                                <div class="text-info">
+                                    <span class="title">៥. កំណត់ហេតុសកម្មភាព</span>
+                                    <span class="desc">ប្រវត្តិសកម្មភាពក្នុងប្រព័ន្ធ</span>
+                                </div>
+                                <i class="fa-solid fa-chevron-right arrow-icon"></i>
+                            </button>
+
+                            <button type="button" class="settings-vert-btn tab-btn" data-tab="tab-eval-matrix">
+                                <div class="icon-box" style="background: rgba(14, 165, 233, 0.15); color: #0ea5e9;"><i class="fa-solid fa-scale-balanced"></i></div>
+                                <div class="text-info">
+                                    <span class="title">៦. លក្ខណៈវិនិច្ឆ័យវាយតម្លៃ</span>
+                                    <span class="desc">តារាងស្ដង់ដារកម្រិតវិវាទ</span>
+                                </div>
+                                <i class="fa-solid fa-chevron-right arrow-icon"></i>
+                            </button>
                         </div>
 
-                        <!-- TAB 2: CATEGORIES CONFIG -->
-                        <div class="settings-tab-pane" id="tab-categories" style="display: none;">
-                            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2" style="display: flex; justify-content: space-between; align-items: center;">
-                                <div>
-                                    <h4 style="margin: 0; font-size: 14px; font-weight: 700; color: var(--text-color);"><i class="fa-solid fa-tags text-primary"></i> គ្រប់គ្រងប្រភេទវិវាទសំណុំរឿង</h4>
-                                    <p style="font-size: 12px; color: var(--text-muted); margin: 0;">បន្ថែមប្រភេទវិវាទថ្មីៗនៅក្នុងប្រព័ន្ធសម្រុះសម្រួល</p>
+                        <!-- Right Column: Settings Content Panes -->
+                        <div class="card-panel settings-content-area" style="padding: 28px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); min-height: 520px;">
+                            
+                            <!-- TAB 1: ORG & CASE PREFIX CONFIG -->
+                            <div class="settings-tab-pane active" id="tab-org">
+                                <div class="mb-4" style="border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">
+                                    <h4 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-color); display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-building-flag text-primary"></i> កំណត់ព័ត៌មានស្ថាប័ន និងទម្រង់លេខកូដសំណុំរឿង (Organization & Prefix Settings)</h4>
+                                    <p style="font-size: 13px; color: var(--text-muted); margin: 6px 0 0 0;">កំណត់ឈ្មោះស្ថាប័នសម្រាប់បោះពុម្ពរបាយការណ៍ និងក្បាលលេខកូដសំណុំរឿងស្វ័យប្រវត្តិ</p>
                                 </div>
-                                <button type="button" class="btn btn-sm btn-primary" id="btn-add-category" style="padding: 6px 12px; font-size: 12px;">
-                                    <i class="fa-solid fa-plus"></i> បន្ថែមវិវាទថ្មី
-                                </button>
+                                <div style="background: var(--bg-main); padding: 24px; border-radius: 14px; border: 1px solid var(--border-color); max-width: 650px;">
+                                    <div class="form-group mb-3">
+                                        <label style="font-size: 13.5px; font-weight: 700; display: block; margin-bottom: 8px; color: var(--text-color);">ឈ្មោះស្ថាប័នជាភាសាខ្មែរ៖</label>
+                                        <input type="text" id="setting-org-km" class="form-control" value="អាជ្ញាធរជាតិដោះស្រាយវិវាទ (អ.ដ.វ.)" style="font-size: 13.5px; font-weight: 600;">
+                                    </div>
+                                    <div class="form-group mb-3">
+                                        <label style="font-size: 13.5px; font-weight: 700; display: block; margin-bottom: 8px; color: var(--text-color);">ឈ្មោះស្ថាប័នជាភាសាអង់គ្លេស៖</label>
+                                        <input type="text" id="setting-org-en" class="form-control" value="National Authority for Dispute Resolution (NADR)" style="font-size: 13.5px; font-weight: 600;">
+                                    </div>
+                                    <div class="form-group mb-4">
+                                        <label style="font-size: 13.5px; font-weight: 700; display: block; margin-bottom: 8px; color: var(--text-color);">ទម្រង់ក្បាលលេខកូដសំណុំរឿង (Case Prefix Format)៖</label>
+                                        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                                            <input type="text" id="setting-case-prefix" class="form-control" value="NADR-2026-" style="font-size: 14px; width: 220px; font-family: monospace; font-weight: 800; color: #3b82f6;">
+                                            <span style="font-size: 12.5px; color: var(--text-muted); background: var(--bg-card); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color);">ឧទាហរណ៍លេខដែលបង្កើត៖ <code style="color: #10b981; font-weight: 800;">NADR-2026-001</code></span>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-primary" onclick="saveOrgSettings()" style="padding: 12px 24px; font-weight: 700; font-size: 14px; border-radius: 10px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);">
+                                        <i class="fa-solid fa-save"></i> រក្សាទុកការកំណត់ស្ថាប័ន
+                                    </button>
+                                </div>
                             </div>
-                            <div class="table-responsive">
-                                <table class="data-table" style="font-size: 13px; width: 100%;">
-                                    <thead>
-                                        <tr>
-                                            <th style="width: 80px;">ល.រ</th>
-                                            <th>ប្រភេទវិវាទ</th>
-                                            <th class="text-center" style="width: 100px;">សកម្មភាព</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="settings-categories-tbody">
-                                        <!-- Rendered dynamically -->
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
 
-                        <!-- TAB 3: CUSTOM COLUMNS SCHEMA -->
-                        <div class="settings-tab-pane" id="tab-columns" style="display: none;">
-                            <div class="mb-3">
-                                <h4 style="margin: 0; font-size: 14px; font-weight: 700; color: var(--text-color);"><i class="fa-solid fa-table-columns text-primary"></i> បន្ថែមកូឡោនសំណុំរឿង (Custom Registry Columns)</h4>
-                                <p style="font-size: 12px; color: var(--text-muted); margin: 0;">បន្ថែម Column ផ្ទាល់ខ្លួនទៅក្នុងបញ្ជី និង Form បញ្ចូលសំណុំរឿង</p>
+                            <!-- TAB 2: CATEGORIES CONFIG -->
+                            <div class="settings-tab-pane" id="tab-categories" style="display: none;">
+                                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">
+                                    <div>
+                                        <h4 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-color); display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-tags text-primary"></i> គ្រប់គ្រងប្រភេទវិវាទសំណុំរឿង (Dispute Categories)</h4>
+                                        <p style="font-size: 13px; color: var(--text-muted); margin: 6px 0 0 0;">បន្ថែម ឬកែសម្រួលប្រភេទវិវាទទាំង ៨ នៅក្នុងប្រព័ន្ធសម្រុះសម្រួល</p>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-primary" id="btn-add-category" style="padding: 10px 18px; font-size: 13px; font-weight: 700; border-radius: 8px;">
+                                        <i class="fa-solid fa-plus"></i> បន្ថែមវិវាទថ្មី
+                                    </button>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="data-table" style="font-size: 13.5px; width: 100%;">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 80px;">ល.រ</th>
+                                                <th>ប្រភេទវិវាទ (Dispute Category Name)</th>
+                                                <th class="text-center" style="width: 120px;">សកម្មភាព</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="settings-categories-tbody">
+                                            <!-- Rendered dynamically -->
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 15px;">
-                                <div class="card-panel" style="background: var(--bg-main); padding: 16px; border: 1px solid var(--border-color); border-radius: var(--radius-md);">
-                                    <h5 style="margin-top: 0; margin-bottom: 12px; font-size: 13px; font-weight: 700; color: var(--text-color);">+ បង្កើតកូឡោនបន្ថែមថ្មី</h5>
-                                    <form id="settings-column-form">
-                                        <div class="form-group mb-2" style="margin-bottom: 10px;">
-                                            <label style="font-size: 11px; font-weight: 600; margin-bottom: 4px; display: block;">ឈ្មោះកូឡោន (ខ្មែរ) <span class="text-danger">*</span></label>
-                                            <input type="text" id="custom-col-label-kh" class="form-control" placeholder="ឧ. លេខលិខិតបញ្ជូន" required style="font-size: 12px; height: 32px; padding: 6px 10px; width: 100%; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-card); color: var(--text-color);">
+
+                            <!-- TAB 3: CUSTOM COLUMNS SCHEMA -->
+                            <div class="settings-tab-pane" id="tab-columns" style="display: none;">
+                                <div class="mb-4" style="border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">
+                                    <h4 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-color); display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-table-columns text-primary"></i> បន្ថែមកូឡោនសំណុំរឿង (Custom Registry Columns)</h4>
+                                    <p style="font-size: 13px; color: var(--text-muted); margin: 6px 0 0 0;">បន្ថែម Column ផ្ទាល់ខ្លួនទៅក្នុងបញ្ជី និង Form បញ្ចូលសំណុំរឿង</p>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 15px;">
+                                    <div class="card-panel" style="background: var(--bg-main); padding: 20px; border: 1px solid var(--border-color); border-radius: var(--radius-md);">
+                                        <h5 style="margin-top: 0; margin-bottom: 14px; font-size: 14px; font-weight: 700; color: var(--text-color);"><i class="fa-solid fa-circle-plus text-primary"></i> បង្កើតកូឡោនបន្ថែមថ្មី</h5>
+                                        <form id="settings-column-form">
+                                            <div class="form-group mb-3">
+                                                <label style="font-size: 12.5px; font-weight: 700; margin-bottom: 6px; display: block; color: var(--text-color);">ឈ្មោះកូឡោន (ខ្មែរ) <span class="text-danger">*</span></label>
+                                                <input type="text" id="custom-col-label-kh" class="form-control" placeholder="ឧ. លេខលិខិតបញ្ជូន" required style="font-size: 13px;">
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <label style="font-size: 12.5px; font-weight: 700; margin-bottom: 6px; display: block; color: var(--text-color);">Column Label (English) <span class="text-danger">*</span></label>
+                                                <input type="text" id="custom-col-label-en" class="form-control" placeholder="e.g. Referral Code" required style="font-size: 13px;">
+                                            </div>
+                                            <button type="submit" class="btn btn-primary w-100" style="font-weight: 700; margin-top: 10px; width: 100%; padding: 10px;">
+                                                <i class="fa-solid fa-circle-plus"></i> រក្សាទុកកូឡោនថ្មី
+                                            </button>
+                                        </form>
+                                    </div>
+                                    <div class="card-panel" style="background: var(--bg-main); padding: 20px; border: 1px solid var(--border-color); border-radius: var(--radius-md);">
+                                        <h5 style="margin-top: 0; margin-bottom: 14px; font-size: 14px; font-weight: 700; color: var(--text-color);"><i class="fa-solid fa-list text-success"></i> បញ្ជីកូឡោនបន្ថែមបច្ចុប្បន្ន</h5>
+                                        <div class="table-responsive">
+                                            <table class="data-table" style="font-size: 13px; width: 100%;">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="width: 50px;">ល.រ</th>
+                                                        <th>ឈ្មោះ (ខ្មែរ)</th>
+                                                        <th>ឈ្មោះ (EN)</th>
+                                                        <th class="text-center" style="width: 80px;">សកម្មភាព</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="settings-columns-tbody">
+                                                    <!-- Dynamic rows -->
+                                                </tbody>
+                                            </table>
                                         </div>
-                                        <div class="form-group mb-2" style="margin-bottom: 12px;">
-                                            <label style="font-size: 11px; font-weight: 600; margin-bottom: 4px; display: block;">Column Label (English) <span class="text-danger">*</span></label>
-                                            <input type="text" id="custom-col-label-en" class="form-control" placeholder="e.g. Referral Code" required style="font-size: 12px; height: 32px; padding: 6px 10px; width: 100%; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-card); color: var(--text-color);">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- TAB 4: ADMIN ACCOUNTS CONFIG -->
+                            <div class="settings-tab-pane" id="tab-admins" style="display: none;">
+                                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">
+                                    <div>
+                                        <h4 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-color); display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-user-shield text-primary"></i> គ្រប់គ្រងគណនី និងសិទ្ធិអ្នកប្រើប្រាស់ប្រព័ន្ធ (User Accounts & Role Management)</h4>
+                                        <p style="font-size: 13px; color: var(--text-muted); margin: 6px 0 0 0;">បង្កើត កែសម្រួល បិទ/បើកសិទ្ធិ និងគ្រប់គ្រងគណនីមន្ត្រីសម្រុះសម្រួលក្នុងប្រព័ន្ធ</p>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-primary" id="btn-toggle-user-form" style="padding: 10px 18px; font-size: 13px; font-weight: 700; border-radius: 8px;">
+                                        <i class="fa-solid fa-user-plus"></i> + បង្កើតគណនីថ្មី (Create Account)
+                                    </button>
+                                </div>
+
+                                <!-- INLINE USER CREATION / EDITING FORM -->
+                                <div id="user-account-form-card" style="display: none; background: var(--bg-main); padding: 20px; border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 20px; box-shadow: var(--shadow-sm);">
+                                    <h5 style="margin-top: 0; margin-bottom: 15px; font-size: 14px; font-weight: 700; color: var(--text-color);"><i class="fa-solid fa-user-pen text-primary"></i> <span id="user-form-title">បញ្ចូលព័ត៌មានគណនីថ្មី (New User Account)</span></h5>
+                                    <form id="settings-user-form">
+                                        <input type="hidden" id="edit-user-index" value="-1">
+                                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
+                                            <div class="form-group">
+                                                <label style="font-size: 12.5px; font-weight: 700; margin-bottom: 6px; display: block; color: var(--text-color);">Username (ឈ្មោះគណនី) <span class="text-danger">*</span></label>
+                                                <input type="text" id="admin-username" class="form-control" placeholder="ឧ. lay.oun" required style="font-size: 13px;">
+                                            </div>
+                                            <div class="form-group">
+                                                <label style="font-size: 12.5px; font-weight: 700; margin-bottom: 6px; display: block; color: var(--text-color);">ឈ្មោះពិត (Full Display Name) <span class="text-danger">*</span></label>
+                                                <input type="text" id="admin-dispname" class="form-control" placeholder="ឧ. លោក ឡាយ អូន" required style="font-size: 13px;">
+                                            </div>
+                                            <div class="form-group">
+                                                <label style="font-size: 12.5px; font-weight: 700; margin-bottom: 6px; display: block; color: var(--text-color);">ពាក្យសម្ងាត់ (Password) <span class="text-danger">*</span></label>
+                                                <input type="text" id="admin-password" class="form-control" placeholder="ឧ. nadr@2026" required style="font-size: 13px;">
+                                            </div>
+                                            <div class="form-group">
+                                                <label style="font-size: 12.5px; font-weight: 700; margin-bottom: 6px; display: block; color: var(--text-color);">តួនាទី / កម្រិតសិទ្ធិ (Role & Permission) <span class="text-danger">*</span></label>
+                                                <select id="admin-role" class="form-control" style="font-size: 13px;">
+                                                    <option value="Super Admin (រដ្ឋបាលមេ)">Super Admin (រដ្ឋបាលមេ)</option>
+                                                    <option value="Case Officer (មន្ត្រីសម្រុះសម្រួល)">Case Officer (មន្ត្រីសម្រុះសម្រួល)</option>
+                                                    <option value="Data Entry (មន្ត្រីបញ្ចូលទិន្នន័យ)">Data Entry (មន្ត្រីបញ្ចូលទិន្នន័យ)</option>
+                                                    <option value="Viewer (អ្នកពិនិត្យរបាយការណ៍)">Viewer (អ្នកពិនិត្យរបាយការណ៍)</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label style="font-size: 12.5px; font-weight: 700; margin-bottom: 6px; display: block; color: var(--text-color);">សិទ្ធិចូលប្រព័ន្ធ (Login Access Control)</label>
+                                                <select id="admin-status" class="form-control" style="font-size: 13px;">
+                                                    <option value="Active">Active (អនុញ្ញាតឱ្យចូលប្រព័ន្ធ)</option>
+                                                    <option value="Locked">Locked (មិនអនុញ្ញាតឱ្យចូលប្រព័ន្ធ - ផ្អាក)</option>
+                                                </select>
+                                            </div>
                                         </div>
-                                        <button type="submit" class="btn btn-sm btn-primary w-100" style="font-weight: 600; margin-top: 10px; width: 100%; padding: 8px;">
-                                            <i class="fa-solid fa-circle-plus"></i> រក្សាទុកកូឡោនថ្មី
-                                        </button>
+                                        <div style="display: flex; gap: 10px;">
+                                            <button type="submit" class="btn btn-primary" style="padding: 8px 18px; font-weight: 700; font-size: 13px;">
+                                                <i class="fa-solid fa-save"></i> រក្សាទុកគណនី (Save Account)
+                                            </button>
+                                            <button type="button" class="btn btn-secondary" id="btn-cancel-user-form" style="padding: 8px 18px; font-size: 13px;">
+                                                បោះបង់ (Cancel)
+                                            </button>
+                                        </div>
                                     </form>
                                 </div>
-                                <div class="card-panel" style="background: var(--bg-main); padding: 16px; border: 1px solid var(--border-color); border-radius: var(--radius-md);">
-                                    <h5 style="margin-top: 0; margin-bottom: 12px; font-size: 13px; font-weight: 700; color: var(--text-color);">បញ្ជីកូឡោនបន្ថែមបច្ចុប្បន្ន</h5>
-                                    <div class="table-responsive">
-                                        <table class="data-table" style="font-size: 12px; width: 100%;">
-                                            <thead>
-                                                <tr>
-                                                    <th style="width: 50px;">ល.រ</th>
-                                                    <th>ឈ្មោះ (ខ្មែរ)</th>
-                                                    <th>ឈ្មោះ (EN)</th>
-                                                    <th class="text-center" style="width: 80px;">សកម្មភាព</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="settings-columns-tbody">
-                                                <!-- Dynamic rows -->
-                                            </tbody>
-                                        </table>
+
+                                <div class="table-responsive">
+                                    <table class="data-table text-center" style="font-size: 13.5px; width: 100%;">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 50px;">ល.រ</th>
+                                                <th>ឈ្មោះគណនី (Username)</th>
+                                                <th>ឈ្មោះពិត (Display Name)</th>
+                                                <th>តួនាទី / កម្រិតសិទ្ធិ (Role)</th>
+                                                <th>ពាក្យសម្ងាត់</th>
+                                                <th>ស្ថានភាព (Status)</th>
+                                                <th class="text-center" style="width: 150px;">សកម្មភាព (Actions)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="settings-admins-tbody">
+                                            <!-- Rendered dynamically -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- TAB 5: AUDIT LOGS -->
+                            <div class="settings-tab-pane" id="tab-audit" style="display: none;">
+                                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">
+                                    <div>
+                                        <h4 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-color); display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-clipboard-list text-primary"></i> កំណត់ហេតុសកម្មភាពប្រព័ន្ធ (System Audit Logs & Security History)</h4>
+                                        <p style="font-size: 13px; color: var(--text-muted); margin: 6px 0 0 0;">កត់ត្រាប្រវត្តិសកម្មភាពរបស់អ្នកប្រើប្រាស់ក្នុងប្រព័ន្ធ (ការបញ្ចូល កែសម្រួល លុប និងចាកចេញ)</p>
                                     </div>
+                                    <button type="button" class="btn btn-sm btn-outline text-danger" onclick="clearAuditLogs()" style="padding: 8px 16px; font-size: 12.5px; font-weight: 600; border: 1px solid #ef4444;">
+                                        <i class="fa-solid fa-trash-can"></i> សម្អាតកំណត់ហេតុ
+                                    </button>
+                                </div>
+                                <div class="table-responsive" style="max-height: 480px; overflow-y: auto;">
+                                    <table class="data-table" style="font-size: 13px; width: 100%;">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 160px;">កាលបរិច្ឆេទ & ម៉ោង</th>
+                                                <th style="width: 140px;">គណនី (User)</th>
+                                                <th style="width: 160px;">សកម្មភាព (Action)</th>
+                                                <th>ខ្លឹមសារលម្អិត (Details)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="settings-audit-tbody">
+                                            <!-- Rendered dynamically -->
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- TAB 4: ADMIN ACCOUNTS CONFIG -->
-                        <div class="settings-tab-pane" id="tab-admins" style="display: none;">
-                            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2" style="display: flex; justify-content: space-between; align-items: center;">
-                                <div>
-                                    <h4 style="margin: 0; font-size: 15px; font-weight: 700; color: var(--text-color);"><i class="fa-solid fa-user-shield text-primary"></i> គ្រប់គ្រងគណនី និងសិទ្ធិអ្នកប្រើប្រាស់ប្រព័ន្ធ (User Accounts & Role Management)</h4>
-                                    <p style="font-size: 12px; color: var(--text-muted); margin: 0;">បង្កើត កែសម្រួល បិទ/បើកសិទ្ធិ និងគ្រប់គ្រងគណនីមន្ត្រីសម្រុះសម្រួលក្នុងប្រព័ន្ធ</p>
-                                </div>
-                                <button type="button" class="btn btn-sm btn-primary" id="btn-toggle-user-form" style="padding: 8px 14px; font-size: 13px; font-weight: 700;">
-                                    <i class="fa-solid fa-user-plus"></i> + បង្កើតគណនីថ្មី (Create Account)
-                                </button>
-                            </div>
-
-                            <!-- INLINE USER CREATION / EDITING FORM -->
-                            <div id="user-account-form-card" style="display: none; background: var(--bg-main); padding: 20px; border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 20px; box-shadow: var(--shadow-sm);">
-                                <h5 style="margin-top: 0; margin-bottom: 15px; font-size: 14px; font-weight: 700; color: var(--text-color);"><i class="fa-solid fa-user-pen text-primary"></i> <span id="user-form-title">បញ្ចូលព័ត៌មានគណនីថ្មី (New User Account)</span></h5>
-                                <form id="settings-user-form">
-                                    <input type="hidden" id="edit-user-index" value="-1">
-                                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
-                                        <div class="form-group">
-                                            <label style="font-size: 12px; font-weight: 700; margin-bottom: 6px; display: block;">Username (ឈ្មោះគណនី) <span class="text-danger">*</span></label>
-                                            <input type="text" id="admin-username" class="form-control" placeholder="ឧ. lay.oun" required style="font-size: 13px;">
-                                        </div>
-                                        <div class="form-group">
-                                            <label style="font-size: 12px; font-weight: 700; margin-bottom: 6px; display: block;">ឈ្មោះពិត (Full Display Name) <span class="text-danger">*</span></label>
-                                            <input type="text" id="admin-dispname" class="form-control" placeholder="ឧ. លោក ឡាយ អូន" required style="font-size: 13px;">
-                                        </div>
-                                        <div class="form-group">
-                                            <label style="font-size: 12px; font-weight: 700; margin-bottom: 6px; display: block;">ពាក្យសម្ងាត់ (Password) <span class="text-danger">*</span></label>
-                                            <input type="text" id="admin-password" class="form-control" placeholder="ឧ. nadr@2026" required style="font-size: 13px;">
-                                        </div>
-                                        <div class="form-group">
-                                            <label style="font-size: 12px; font-weight: 700; margin-bottom: 6px; display: block;">តួនាទី / កម្រិតសិទ្ធិ (Role & Permission) <span class="text-danger">*</span></label>
-                                            <select id="admin-role" class="form-control" style="font-size: 13px;">
-                                                <option value="Super Admin (រដ្ឋបាលមេ)">Super Admin (រដ្ឋបាលមេ)</option>
-                                                <option value="Case Officer (មន្ត្រីសម្រុះសម្រួល)">Case Officer (មន្ត្រីសម្រុះសម្រួល)</option>
-                                                <option value="Data Entry (មន្ត្រីបញ្ចូលទិន្នន័យ)">Data Entry (មន្ត្រីបញ្ចូលទិន្នន័យ)</option>
-                                                <option value="Viewer (អ្នកពិនិត្យរបាយការណ៍)">Viewer (អ្នកពិនិត្យរបាយការណ៍)</option>
-                                            </select>
-                                        <div class="form-group">
-                                            <label style="font-size: 12px; font-weight: 700; margin-bottom: 6px; display: block;">សិទ្ធិចូលប្រព័ន្ធ (Login Access Control)</label>
-                                            <select id="admin-status" class="form-control" style="font-size: 13px;">
-                                                <option value="Active">Active (អនុញ្ញាតឱ្យចូលប្រព័ន្ធ)</option>
-                                                <option value="Locked">Locked (មិនអនុញ្ញាតឱ្យចូលប្រព័ន្ធ - ផ្អាក)</option>
-                                            </select>
-                                        </div>
+                            <!-- TAB 6: EVALUATION & RESOLUTION MATRIX CRITERIA -->
+                            <div class="settings-tab-pane" id="tab-eval-matrix" style="display: none;">
+                                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">
+                                    <div>
+                                        <h4 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-color); display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-scale-balanced text-success"></i> កំណត់លក្ខណៈវិនិច្ឆ័យ ក្នុងតារាងវាយតម្លៃកម្រិតវិវាទ និងរយៈពេលដោះស្រាយ (Evaluation Matrix Settings)</h4>
+                                        <p style="font-size: 13px; color: var(--text-muted); margin: 6px 0 0 0;">កំណត់លក្ខណៈវិនិច្ឆ័យស្ដង់ដារសម្រាប់ប្រភេទវិវាទទាំង ៨ នៅក្នុងមីនុយស្ថិតិ (Analytics Evaluation Matrix)</p>
                                     </div>
                                     <div style="display: flex; gap: 10px;">
-                                        <button type="submit" class="btn btn-primary" style="padding: 8px 18px; font-weight: 700; font-size: 13px;">
-                                            <i class="fa-solid fa-save"></i> រក្សាទុកគណនី (Save Account)
+                                        <button type="button" class="btn btn-secondary" onclick="resetEvalMatrixSetting()" style="padding: 10px 18px; font-size: 13px; font-weight: 600; border-radius: 8px;">
+                                            <i class="fa-solid fa-rotate-left"></i> កំណត់ទៅលក្ខខណ្ឌដើម
                                         </button>
-                                        <button type="button" class="btn btn-secondary" id="btn-cancel-user-form" style="padding: 8px 18px; font-size: 13px;">
-                                            បោះបង់ (Cancel)
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-
-                            <div class="table-responsive">
-                                <table class="data-table text-center" style="font-size: 13px; width: 100%;">
-                                    <thead>
-                                        <tr style="background: #f1f5f9; color: #1e293b;">
-                                            <th style="width: 50px;">ល.រ</th>
-                                            <th>ឈ្មោះគណនី (Username)</th>
-                                            <th>ឈ្មោះពិត (Display Name)</th>
-                                            <th>តួនាទី / កម្រិតសិទ្ធិ (Role)</th>
-                                            <th>ពាក្យសម្ងាត់</th>
-                                            <th>ស្ថានភាព (Status)</th>
-                                            <th class="text-center" style="width: 150px;">សកម្មភាព (Actions)</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="settings-admins-tbody">
-                                        <!-- Rendered dynamically -->
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <!-- TAB 5: ORG & CASE PREFIX CONFIG -->
-                        <div class="settings-tab-pane" id="tab-org" style="display: none;">
-                            <div class="mb-3">
-                                <h4 style="margin: 0; font-size: 14px; font-weight: 700; color: var(--text-color);"><i class="fa-solid fa-building-flag text-primary"></i> កំណត់ព័ត៌មានស្ថាប័ន និងទម្រង់លេខកូដសំណុំរឿង (Organization & Prefix Settings)</h4>
-                                <p style="font-size: 12px; color: var(--text-muted); margin: 4px 0 0 0;">កំណត់ឈ្មោះស្ថាប័នសម្រាប់បោះពុម្ពរបាយការណ៍ និងក្បាលលេខកូដសំណុំរឿងស្វ័យប្រវត្តិ</p>
-                            </div>
-                            <div style="background: var(--bg-main); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); max-width: 600px;">
-                                <div class="form-group mb-3">
-                                    <label style="font-size: 13px; font-weight: 700; display: block; margin-bottom: 6px;">ឈ្មោះស្ថាប័នជាភាសាខ្មែរ៖</label>
-                                    <input type="text" id="setting-org-km" class="form-control" value="អាជ្ញាធរជាតិដោះស្រាយវិវាទ (អ.ដ.វ.)" style="font-size: 13px;">
-                                </div>
-                                <div class="form-group mb-3">
-                                    <label style="font-size: 13px; font-weight: 700; display: block; margin-bottom: 6px;">ឈ្មោះស្ថាប័នជាភាសាអង់គ្លេស៖</label>
-                                    <input type="text" id="setting-org-en" class="form-control" value="National Authority for Dispute Resolution (NADR)" style="font-size: 13px;">
-                                </div>
-                                <div class="form-group mb-4">
-                                    <label style="font-size: 13px; font-weight: 700; display: block; margin-bottom: 6px;">ទម្រង់ក្បាលលេខកូដសំណុំរឿង (Case Prefix Format)៖</label>
-                                    <div style="display: flex; gap: 10px; align-items: center;">
-                                        <input type="text" id="setting-case-prefix" class="form-control" value="NADR-2026-" style="font-size: 13px; width: 200px; font-family: monospace; font-weight: 700;">
-                                        <span style="font-size: 12px; color: var(--text-muted);">ឧទាហរណ៍លេខដែលបង្កើត៖ <code>NADR-2026-001</code></span>
-                                    </div>
-                                </div>
-                                <button type="button" class="btn btn-primary" onclick="saveOrgSettings()" style="padding: 10px 20px; font-weight: 700;">
-                                    <i class="fa-solid fa-save"></i> រក្សាទុកការកំណត់ស្ថាប័ន
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- TAB 6: AUDIT LOGS -->
-                        <div class="settings-tab-pane" id="tab-audit" style="display: none;">
-                            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2" style="display: flex; justify-content: space-between; align-items: center;">
-                                <div>
-                                    <h4 style="margin: 0; font-size: 14px; font-weight: 700; color: var(--text-color);"><i class="fa-solid fa-clipboard-list text-primary"></i> កំណត់ហេតុសកម្មភាពប្រព័ន្ធ (System Audit Logs & Security History)</h4>
-                                    <p style="font-size: 12px; color: var(--text-muted); margin: 0;">កត់ត្រាប្រវត្តិសកម្មភាពរបស់អ្នកប្រើប្រាស់ក្នុងប្រព័ន្ធ (ការបញ្ចូល កែសម្រួល លុប និងចាកចេញ)</p>
-                                </div>
-                                <button type="button" class="btn btn-sm btn-outline text-danger" onclick="clearAuditLogs()" style="padding: 6px 12px; font-size: 12px;">
-                                    <i class="fa-solid fa-trash-can"></i> សម្អាតកំណត់ហេតុ
-                                </button>
-                            </div>
-                            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-                                <table class="data-table" style="font-size: 12px; width: 100%;">
-                                    <thead>
-                                        <tr>
-                                            <th style="width: 150px;">កាលបរិច្ឆេទ & ម៉ោង</th>
-                                            <th style="width: 120px;">គណនី (User)</th>
-                                            <th style="width: 150px;">សកម្មភាព (Action)</th>
-                                            <th>ខ្លឹមសារលម្អិត (Details)</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="settings-audit-tbody">
-                                        <!-- Rendered dynamically -->
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <!-- TAB 7: EVALUATION & RESOLUTION MATRIX CRITERIA -->
-                        <div class="settings-tab-pane" id="tab-eval-matrix" style="display: none;">
-                            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2" style="display: flex; justify-content: space-between; align-items: center;">
-                                <div>
-                                    <h4 style="margin: 0; font-size: 15px; font-weight: 700; color: var(--text-color);"><i class="fa-solid fa-scale-balanced text-success"></i> កំណត់លក្ខណៈវិនិច្ឆ័យ ក្នុងតារាងវាយតម្លៃកម្រិតវិវាទ និងរយៈពេលដោះស្រាយ (Evaluation Matrix Settings)</h4>
-                                    <p style="font-size: 12px; color: var(--text-muted); margin: 0;">កំណត់លក្ខណៈវិនិច្ឆ័យស្ដង់ដារសម្រាប់ប្រភេទវិវាទទាំង ៨ នៅក្នុងមីនុយស្ថិតិ (Analytics Evaluation Matrix)</p>
-                                </div>
-                                <div style="display: flex; gap: 8px;">
-                                    <button type="button" class="btn btn-sm btn-secondary" onclick="resetEvalMatrixSetting()" style="padding: 8px 16px; font-size: 13px; font-weight: 600;">
-                                        <i class="fa-solid fa-rotate-left"></i> កំណត់ទៅលក្ខខណ្ឌដើម
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-primary" onclick="saveEvalMatrixSetting()" style="padding: 8px 16px; font-size: 13px; font-weight: 700;">
-                                        <i class="fa-solid fa-save"></i> រក្សាទុកការកំណត់ (Save Matrix)
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="table-responsive">
-                                <table class="data-table text-center" style="font-size: 13px; width: 100%;">
-                                    <thead>
-                                        <tr style="background: linear-gradient(135deg, #065f46, #059669); color: white;">
-                                            <th style="width: 50px;">ល.រ</th>
-                                            <th style="text-align: left; padding-left: 15px;">ប្រភេទវិវាទ (Dispute Category)</th>
-                                            <th>ទំនួលខុសត្រូវ (Responsibility)</th>
-                                            <th>ការចរចា (Negotiation)</th>
-                                            <th>ការយោគយល់ (Empathy)</th>
-                                            <th>ស្មារតី (Spirit)</th>
-                                            <th>រយៈពេលដោះស្រាយស្ដង់ដារ (Standard Timeframe)</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="settings-eval-matrix-tbody">
-                                </table>
-                            </div>
-                        </div>
-
-                        <!-- TAB 8: MY PROFILE CONFIG -->
-                        <div class="settings-tab-pane" id="tab-profile" style="display: none;">
-                            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
-                                <div>
-                                    <h4 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-color); display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-id-card-clip text-primary"></i> គ្រប់គ្រង និងកែសម្រួលព័ត៌មានអ្នកប្រើប្រាស់ (User Profile Management)</h4>
-                                    <p style="font-size: 13px; color: var(--text-muted); margin: 4px 0 0 0;">កែសម្រួលព័ត៌មានទូទៅ អាប់ឡូតរូបថតប្រវត្តិរូប និងកំណត់ឈ្មោះមន្រ្តីសម្រាប់បង្ហាញលើរបាយការណ៍</p>
-                                </div>
-                                <div>
-                                    <button type="button" class="btn btn-primary" onclick="saveUserProfile()" style="padding: 10px 20px; font-size: 14px; font-weight: 700; border-radius: 8px; box-shadow: var(--shadow-sm);">
-                                        <i class="fa-solid fa-check-circle"></i> រក្សាទុកព័ត៌មានប្រវត្តិរូប (Save Profile)
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; align-items: start;">
-                                <!-- Left Card: Avatar Upload -->
-                                <div class="card-panel" style="padding: 24px; text-align: center; border-radius: 12px; background: var(--bg-main); border: 1px solid var(--border-color);">
-                                    <h5 style="font-size: 14px; font-weight: 700; margin: 0 0 16px 0; color: var(--text-color);">រូបថតប្រវត្តិរូប (Profile Avatar)</h5>
-                                    <div style="position: relative; display: inline-block; margin-bottom: 16px;">
-                                        <img id="profile-preview-img" src="https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff" style="width: 130px; height: 130px; border-radius: 50%; object-fit: cover; border: 4px solid var(--primary-color); box-shadow: 0 8px 16px rgba(0,0,0,0.15); background: white;" alt="Avatar">
-                                    </div>
-                                    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">អនុញ្ញាតឱ្យ Upload ឯកសាររូបភាព (JPG, PNG, WEBP) ដើម្បីបង្ហាញនៅផ្នែកខាងលើ និងលើរបាយការណ៍</p>
-                                    <input type="file" id="profile-upload-input" accept="image/*" style="display: none;" onchange="handleProfilePhotoUpload(event)">
-                                    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-                                        <button type="button" class="btn btn-outline" onclick="document.getElementById('profile-upload-input').click()" style="padding: 8px 14px; font-size: 12.5px; font-weight: 600; border: 1px solid var(--primary-color); color: var(--primary-color);">
-                                            <i class="fa-solid fa-camera"></i> ជ្រើសរើសរូបថតថ្មី
-                                        </button>
-                                        <button type="button" class="btn btn-outline" onclick="resetProfileAvatar()" style="padding: 8px 14px; font-size: 12.5px; font-weight: 600; border: 1px solid #ef4444; color: #ef4444;">
-                                            <i class="fa-solid fa-trash-can"></i> លុបរូបថត
+                                        <button type="button" class="btn btn-primary" onclick="saveEvalMatrixSetting()" style="padding: 10px 18px; font-size: 13px; font-weight: 700; border-radius: 8px;">
+                                            <i class="fa-solid fa-save"></i> រក្សាទុកការកំណត់ (Save Matrix)
                                         </button>
                                     </div>
                                 </div>
+                                <div class="table-responsive">
+                                    <table class="data-table text-center" style="font-size: 13.5px; width: 100%;">
+                                        <thead>
+                                            <tr style="background: linear-gradient(135deg, #065f46, #059669); color: white;">
+                                                <th style="width: 60px;">ល.រ</th>
+                                                <th style="text-align: left; padding-left: 15px;">ប្រភេទវិវាទ (Dispute Category)</th>
+                                                <th>ទំនួលខុសត្រូវ (Responsibility)</th>
+                                                <th>ការចរចា (Negotiation)</th>
+                                                <th>ការយោគយល់ (Empathy)</th>
+                                                <th>ស្មារតី (Spirit)</th>
+                                                <th>រយៈពេលដោះស្រាយស្ដង់ដារ (Standard Timeframe)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="settings-eval-matrix-tbody">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
 
-                                <!-- Right Card: General Information -->
-                                <div class="card-panel" style="padding: 24px; border-radius: 12px; background: var(--bg-main); border: 1px solid var(--border-color); grid-column: span 2;">
-                                    <h5 style="font-size: 14px; font-weight: 700; margin: 0 0 18px 0; color: var(--text-color); border-bottom: 1px solid var(--border-color); padding-bottom: 10px;"><i class="fa-solid fa-user-pen text-primary"></i> ព័ត៌មានទូទៅរបស់អ្នកប្រើប្រាស់ (General User Information)</h5>
-                                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px;">
-                                        <div class="form-group">
-                                            <label style="font-size: 13px; font-weight: 600; margin-bottom: 6px; display: block;">ឈ្មោះគណនី (Username / ID):</label>
-                                            <input type="text" id="profile-username" class="form-control" value="Admin" readonly style="background: var(--bg-card); font-weight: 700; cursor: not-allowed; color: var(--text-muted);">
-                                        </div>
-                                        <div class="form-group">
-                                            <label style="font-size: 13px; font-weight: 600; margin-bottom: 6px; display: block;">ឈ្មោះពេញ / ឈ្មោះមន្រ្តី (Full Name): <span class="text-danger">*</span></label>
-                                            <input type="text" id="profile-fullname" class="form-control" placeholder="ឧទាហរណ៍៖ ឡាយ អូន">
-                                            <small style="font-size: 11.5px; color: var(--text-muted);">ឈ្មោះនេះនឹងត្រូវបានយកទៅបង្ហាញលើចំណងជើងរបាយការណ៍ប្រចាំខែ</small>
-                                        </div>
-                                        <div class="form-group">
-                                            <label style="font-size: 13px; font-weight: 600; margin-bottom: 6px; display: block;">តួនាទីក្នុងស្ថាប័ន (Role / Position):</label>
-                                            <input type="text" id="profile-role" class="form-control" placeholder="ឧទាហរណ៍៖ មន្រ្តីសម្រុះសម្រួលវិវាទ NADR">
-                                        </div>
-                                        <div class="form-group">
-                                            <label style="font-size: 13px; font-weight: 600; margin-bottom: 6px; display: block;">លេខទូរស័ព្ទទំនាក់ទំនង (Phone Number):</label>
-                                            <input type="text" id="profile-phone" class="form-control" placeholder="ឧទាហរណ៍៖ 012 345 678">
-                                        </div>
-                                        <div class="form-group">
-                                            <label style="font-size: 13px; font-weight: 600; margin-bottom: 6px; display: block;">អ៊ីមែល ឬអង្គភាព (Email / Department):</label>
-                                            <input type="text" id="profile-email" class="form-control" placeholder="ឧទាហរណ៍៖ oun.lay@nadr.gov.kh">
-                                        </div>
-                                        <div class="form-group">
-                                            <label style="font-size: 13px; font-weight: 600; margin-bottom: 6px; display: block;">ប្តូរពាក្យសម្ងាត់ថ្មី (New Password):</label>
-                                            <input type="password" id="profile-password" class="form-control" placeholder="ទុកទំនេរប្រសិនបើមិនចង់ប្តូរពាក្យសម្ងាត់">
-                                        </div>
-                                    </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION: DEDICATED PROFILE VIEW (ROOT MENU) -->
+            <section class="view-section" id="profile-view">
+                <div class="section-title-box mb-4" style="background: linear-gradient(135deg, #1e3a8a, #2563eb); color: white; padding: 28px; border-radius: 16px; box-shadow: 0 10px 25px rgba(37, 99, 235, 0.2); position: relative; overflow: hidden;">
+                    <div style="position: absolute; right: -20px; bottom: -20px; font-size: 160px; color: rgba(255, 255, 255, 0.08); pointer-events: none;"><i class="fa-solid fa-user-shield"></i></div>
+                    <div style="display: flex; align-items: center; gap: 24px; flex-wrap: wrap; position: relative; z-index: 2;">
+                        <div style="position: relative;">
+                            <img id="profile-view-avatar" src="https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff" style="width: 110px; height: 110px; border-radius: 50%; object-fit: cover; border: 4px solid rgba(255, 255, 255, 0.9); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); background: white;" alt="Profile Avatar">
+                            <button type="button" onclick="document.getElementById('profile-view-upload-input').click()" style="position: absolute; bottom: 0; right: 0; background: #3b82f6; color: white; border: 2px solid white; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; transition: transform 0.2s;" title="ប្តូររូបថត">
+                                <i class="fa-solid fa-camera" style="font-size: 14px;"></i>
+                            </button>
+                            <input type="file" id="profile-view-upload-input" accept="image/*" style="display: none;" onchange="handleProfilePhotoUploadView(event)">
+                        </div>
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                                <h2 id="profile-view-title-name" style="margin: 0; font-size: 26px; font-weight: 800; color: white;">ឡាយ អូន</h2>
+                                <span class="badge" style="background: rgba(16, 185, 129, 0.25); color: #6ee7b7; border: 1px solid #10b981; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;"><i class="fa-solid fa-circle-check"></i> គណនីសកម្ម (Active)</span>
+                            </div>
+                            <p id="profile-view-title-role" style="margin: 0 0 8px 0; font-size: 15px; color: #bfdbfe; font-weight: 500;"><i class="fa-solid fa-briefcase"></i> មន្ត្រីសម្រុះសម្រួលវិវាទ NADR</p>
+                            <div style="display: flex; gap: 16px; font-size: 13px; color: #e2e8f0; flex-wrap: wrap;">
+                                <span><i class="fa-solid fa-envelope" style="color: #93c5fd;"></i> <span id="profile-view-title-email">oun.lay@nadr.gov.kh</span></span>
+                                <span><i class="fa-solid fa-phone" style="color: #93c5fd;"></i> <span id="profile-view-title-phone">012 345 678</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; align-items: start;">
+                    <!-- Left Card: Personal & Account Form -->
+                    <div class="card-panel" style="padding: 28px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+                        <h4 style="font-size: 16px; font-weight: 700; margin: 0 0 20px 0; color: var(--text-color); border-bottom: 1px solid var(--border-color); padding-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                            <i class="fa-solid fa-user-pen text-primary"></i> កែសម្រួលព័ត៌មានគណនី (Edit Account Info)
+                        </h4>
+                        
+                        <div class="form-group mb-3">
+                            <label style="font-size: 13px; font-weight: 700; display: block; margin-bottom: 6px; color: var(--text-color);">ឈ្មោះគណនី (Username / ID):</label>
+                            <input type="text" class="form-control" value="Admin / NADR-001" readonly style="background: var(--bg-main); font-weight: 700; color: var(--text-muted); cursor: not-allowed;">
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label style="font-size: 13px; font-weight: 700; display: block; margin-bottom: 6px; color: var(--text-color);">ឈ្មោះពេញ / ឈ្មោះមន្រ្តី (Full Name): <span class="text-danger">*</span></label>
+                            <input type="text" id="profile-view-fullname" class="form-control" placeholder="ឧទាហរណ៍៖ ឡាយ អូន" style="font-weight: 600;">
+                            <small style="font-size: 11.5px; color: var(--text-muted);">ឈ្មោះនេះនឹងត្រូវបានយកទៅបង្ហាញលើចំណងជើង និងហត្ថលេខារបាយការណ៍ប្រចាំខែ</small>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label style="font-size: 13px; font-weight: 700; display: block; margin-bottom: 6px; color: var(--text-color);">តួនាទីក្នុងស្ថាប័ន (Role / Position):</label>
+                            <input type="text" id="profile-view-role" class="form-control" placeholder="ឧទាហរណ៍៖ មន្ត្រីសម្រុះសម្រួលវិវាទ NADR">
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                            <div class="form-group">
+                                <label style="font-size: 13px; font-weight: 700; display: block; margin-bottom: 6px; color: var(--text-color);">លេខទូរស័ព្ទ (Phone):</label>
+                                <input type="text" id="profile-view-phone" class="form-control" placeholder="012 345 678">
+                            </div>
+                            <div class="form-group">
+                                <label style="font-size: 13px; font-weight: 700; display: block; margin-bottom: 6px; color: var(--text-color);">អ៊ីមែល (Email):</label>
+                                <input type="text" id="profile-view-email" class="form-control" placeholder="oun.lay@nadr.gov.kh">
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label style="font-size: 13px; font-weight: 700; display: block; margin-bottom: 6px; color: var(--text-color);">ប្តូរពាក្យសម្ងាត់ថ្មី (New Password):</label>
+                            <input type="password" id="profile-view-password" class="form-control" placeholder="ទុកទំនេរប្រសិនបើមិនចង់ប្តូរពាក្យសម្ងាត់">
+                        </div>
+
+                        <div style="display: flex; gap: 12px;">
+                            <button type="button" class="btn btn-primary" onclick="saveUserProfileView()" style="flex: 1; padding: 12px; font-size: 14px; font-weight: 700; border-radius: 10px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);">
+                                <i class="fa-solid fa-check-circle"></i> រក្សាទុកការផ្លាស់ប្តូរ (Save Profile)
+                            </button>
+                            <button type="button" class="btn btn-outline text-danger" onclick="resetProfileAvatarView()" style="padding: 12px 16px; font-weight: 600; border-radius: 10px; border: 1px solid #ef4444;" title="លុបរូបភាពត្រឡប់ទៅដើម">
+                                <i class="fa-solid fa-trash-can"></i> លុបរូប
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Right Card: Account Permissions & Quick Stats -->
+                    <div style="display: flex; flex-direction: column; gap: 24px;">
+                        <!-- Stats card -->
+                        <div class="card-panel" style="padding: 24px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+                            <h4 style="font-size: 15px; font-weight: 700; margin: 0 0 16px 0; color: var(--text-color); display: flex; align-items: center; gap: 8px;">
+                                <i class="fa-solid fa-chart-pie text-success"></i> ស្ថិតិការងាររបស់គណនី (Account Workload)
+                            </h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                                <div style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); padding: 16px; border-radius: 12px; text-align: center;">
+                                    <span style="font-size: 28px; font-weight: 800; color: #3b82f6; display: block;" id="profile-stat-cases">0</span>
+                                    <span style="font-size: 12px; font-weight: 600; color: var(--text-muted);">សំណុំរឿងគ្រប់គ្រង</span>
+                                </div>
+                                <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); padding: 16px; border-radius: 12px; text-align: center;">
+                                    <span style="font-size: 28px; font-weight: 800; color: #10b981; display: block;" id="profile-stat-reports">12</span>
+                                    <span style="font-size: 12px; font-weight: 600; color: var(--text-muted);">របាយការណ៍បានផលិត</span>
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Permissions info card -->
+                        <div class="card-panel" style="padding: 24px; border-radius: 16px; background: linear-gradient(135deg, rgba(30, 41, 59, 0.03), rgba(15, 23, 42, 0.06)); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+                            <h4 style="font-size: 15px; font-weight: 700; margin: 0 0 14px 0; color: var(--text-color); display: flex; align-items: center; gap: 8px;">
+                                <i class="fa-solid fa-shield-halved text-primary"></i> សិទ្ធិ និងសុវត្ថិភាព (Security & Access Level)
+                            </h4>
+                            <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: var(--text-color); line-height: 2;">
+                                <li><strong>កម្រិតសិទ្ធិ៖</strong> អគ្គនាយករដ្ឋបាល (Super Administrator)</li>
+                                <li><strong>ការអនុញ្ញាត៖</strong> បញ្ចូល កែសម្រួល លុប និងបោះពុម្ពទិន្នន័យទាំងអស់</li>
+                                <li><strong>ស្ថានភាពសុវត្ថិភាព៖</strong> ការពារដោយលេខកូដសម្ងាត់ ២ ជាន់ (Active)</li>
+                                <li><strong>ការចូលប្រើចុងក្រោយ៖</strong> <span id="profile-view-last-login">ថ្ងៃនេះ, ម៉ោង 08:30 ព្រឹក</span></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </section>

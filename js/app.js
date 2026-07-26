@@ -110,6 +110,9 @@ function renderAllViews() {
         initOrUpdateCharts();
     }
     renderAnalyticsView();
+    if (typeof renderProfileView === 'function') {
+        renderProfileView();
+    }
 }
 
 /**
@@ -165,6 +168,11 @@ function switchView(viewId) {
     } else if (viewId === 'reports-view') {
         if (typeof renderMasterTableHeader === 'function') renderMasterTableHeader();
         if (typeof generateReport === 'function') setTimeout(() => generateReport(true), 50);
+    } else if (viewId === 'profile-view') {
+        if (typeof renderProfileView === 'function') renderProfileView();
+    } else if (viewId === 'settings-view') {
+        const activeTabBtn = document.querySelector('#settings-view .tab-btn.active');
+        if (activeTabBtn) activeTabBtn.click();
     }
 }
 
@@ -1457,7 +1465,7 @@ function updateSidebarUser(name, role) {
 }
 
 /**
- * User Profile Management (Request 3)
+ * User Profile Management (Root Menu & Header Integration)
  */
 function initUserProfile() {
     const pName = localStorage.getItem('nadr_user_profile_name') || 'ឡាយ អូន';
@@ -1477,56 +1485,74 @@ function initUserProfile() {
     if (sidebarNameEl) sidebarNameEl.textContent = pName;
     if (sidebarRoleEl) sidebarRoleEl.textContent = pRole;
 
-    // Populate profile inputs if element exists
-    const inputName = document.getElementById('profile-fullname');
-    const inputRole = document.getElementById('profile-role');
-    const inputPhone = document.getElementById('profile-phone');
-    const inputEmail = document.getElementById('profile-email');
-    const previewImg = document.getElementById('profile-preview-img');
-
-    if (inputName && !inputName.value) inputName.value = pName;
-    if (inputRole && !inputRole.value) inputRole.value = pRole;
-    if (inputPhone && !inputPhone.value) inputPhone.value = pPhone;
-    if (inputEmail && !inputEmail.value) inputEmail.value = pEmail;
-    if (previewImg) previewImg.src = pAvatar;
-
-    // Header click to Profile tab
+    // Header click to Profile view
     const badgeClick = document.getElementById('header-user-badge-click') || document.querySelector('.header-user-badge');
     if (badgeClick && !badgeClick.dataset.profileBound) {
         badgeClick.dataset.profileBound = 'true';
         badgeClick.style.cursor = 'pointer';
         badgeClick.addEventListener('click', (e) => {
             if (e.target && e.target.closest('#btn-logout-header')) return;
-            switchView('settings-view');
-            setTimeout(() => {
-                const profTabBtn = document.querySelector('.tab-btn[data-tab="tab-profile"]');
-                if (profTabBtn) profTabBtn.click();
-            }, 50);
+            switchView('profile-view');
         });
     }
 
-    // Sidebar footer card click to Profile tab
+    // Sidebar footer card click to Profile view
     const sidebarProfileCard = document.querySelector('.user-profile-card');
     if (sidebarProfileCard && !sidebarProfileCard.dataset.profileBound) {
         sidebarProfileCard.dataset.profileBound = 'true';
         sidebarProfileCard.style.cursor = 'pointer';
         sidebarProfileCard.addEventListener('click', (e) => {
             if (e.target && (e.target.closest('#btn-logout') || e.target.closest('button'))) return;
-            switchView('settings-view');
-            setTimeout(() => {
-                const profTabBtn = document.querySelector('.tab-btn[data-tab="tab-profile"]');
-                if (profTabBtn) profTabBtn.click();
-            }, 50);
+            switchView('profile-view');
         });
     }
 }
 
-function saveUserProfile() {
-    const inputName = document.getElementById('profile-fullname');
-    const inputRole = document.getElementById('profile-role');
-    const inputPhone = document.getElementById('profile-phone');
-    const inputEmail = document.getElementById('profile-email');
-    const inputPass = document.getElementById('profile-password');
+function renderProfileView() {
+    const pName = localStorage.getItem('nadr_user_profile_name') || 'ឡាយ អូន';
+    const pRole = localStorage.getItem('nadr_user_profile_role') || 'មន្ត្រីសម្រុះសម្រួលវិវាទ NADR';
+    const pPhone = localStorage.getItem('nadr_user_profile_phone') || '012 345 678';
+    const pEmail = localStorage.getItem('nadr_user_profile_email') || 'oun.lay@nadr.gov.kh';
+    const pAvatar = localStorage.getItem('nadr_user_profile_avatar') || `https://ui-avatars.com/api/?name=${encodeURIComponent(pName)}&background=0D8ABC&color=fff`;
+
+    // Title banner
+    const avatarImg = document.getElementById('profile-view-avatar');
+    const titleName = document.getElementById('profile-view-title-name');
+    const titleRole = document.getElementById('profile-view-title-role');
+    const titleEmail = document.getElementById('profile-view-title-email');
+    const titlePhone = document.getElementById('profile-view-title-phone');
+
+    if (avatarImg) avatarImg.src = pAvatar;
+    if (titleName) titleName.textContent = pName;
+    if (titleRole) titleRole.innerHTML = `<i class="fa-solid fa-briefcase"></i> ${pRole}`;
+    if (titleEmail) titleEmail.textContent = pEmail;
+    if (titlePhone) titlePhone.textContent = pPhone;
+
+    // Form inputs
+    const inName = document.getElementById('profile-view-fullname');
+    const inRole = document.getElementById('profile-view-role');
+    const inPhone = document.getElementById('profile-view-phone');
+    const inEmail = document.getElementById('profile-view-email');
+
+    if (inName) inName.value = pName;
+    if (inRole) inRole.value = pRole;
+    if (inPhone) inPhone.value = pPhone;
+    if (inEmail) inEmail.value = pEmail;
+
+    // Quick Stats
+    const cases = typeof getCasesData === 'function' ? getCasesData() : [];
+    const statCases = document.getElementById('profile-stat-cases');
+    const statReports = document.getElementById('profile-stat-reports');
+    if (statCases) statCases.textContent = cases.length || '0';
+    if (statReports) statReports.textContent = cases.length > 0 ? '12' : '0';
+}
+
+function saveUserProfileView() {
+    const inputName = document.getElementById('profile-view-fullname');
+    const inputRole = document.getElementById('profile-view-role');
+    const inputPhone = document.getElementById('profile-view-phone');
+    const inputEmail = document.getElementById('profile-view-email');
+    const inputPass = document.getElementById('profile-view-password');
 
     if (inputName && inputName.value.trim()) {
         localStorage.setItem('nadr_user_profile_name', inputName.value.trim());
@@ -1542,45 +1568,40 @@ function saveUserProfile() {
     }
 
     if (inputPass && inputPass.value.trim()) {
-        let admins = JSON.parse(localStorage.getItem('nadr_admins_list_v2')) || [];
+        let admins = JSON.parse(localStorage.getItem('nadr_admin_users')) || [];
         if (admins.length > 0) {
             admins[0].password = inputPass.value.trim();
-            localStorage.setItem('nadr_admins_list_v2', JSON.stringify(admins));
+            localStorage.setItem('nadr_admin_users', JSON.stringify(admins));
         }
         inputPass.value = '';
     }
 
     initUserProfile();
+    renderProfileView();
     if (typeof logAuditAction === 'function') {
         logAuditAction('កែសម្រួលប្រវត្តិរូប', `បានកែសម្រួលព័ត៌មានគណនីមន្រ្តី៖ ${inputName?.value || ''}`);
     }
     showToast('ព័ត៌មានប្រវត្តិរូបត្រូវបានរក្សាទុកជោគជ័យ! (Profile Updated)', 'success');
 }
 
-function handleProfilePhotoUpload(event) {
+function handleProfilePhotoUploadView(event) {
     const file = event.target.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = function(e) {
         const base64 = e.target.result;
         localStorage.setItem('nadr_user_profile_avatar', base64);
-        const previewImg = document.getElementById('profile-preview-img');
-        const headerAvatarEl = document.getElementById('header-user-avatar');
-        if (previewImg) previewImg.src = base64;
-        if (headerAvatarEl) headerAvatarEl.src = base64;
+        initUserProfile();
+        renderProfileView();
         showToast('បានអាប់ឡូតរូបថតប្រវត្តិរូបថ្មីរួចរាល់!', 'success');
     };
     reader.readAsDataURL(file);
 }
 
-function resetProfileAvatar() {
+function resetProfileAvatarView() {
     localStorage.removeItem('nadr_user_profile_avatar');
-    const pName = localStorage.getItem('nadr_user_profile_name') || 'ឡាយ អូន';
-    const defaultUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(pName)}&background=0D8ABC&color=fff`;
-    const previewImg = document.getElementById('profile-preview-img');
-    const headerAvatarEl = document.getElementById('header-user-avatar');
-    if (previewImg) previewImg.src = defaultUrl;
-    if (headerAvatarEl) headerAvatarEl.src = defaultUrl;
+    initUserProfile();
+    renderProfileView();
     showToast('រូបថតប្រវត្តិរូបត្រូវបានកំណត់ទៅលក្ខខណ្ឌដើម!', 'info');
 }
 
@@ -1674,10 +1695,14 @@ function initSettingsEvents() {
                 renderSettingsEvalMatrix();
             } else if (paneId === 'tab-admins') {
                 renderSettingsAdmins();
-            } else if (paneId === 'tab-provinces') {
-                renderSettingsProvinces();
+            } else if (paneId === 'tab-categories') {
+                renderSettingsCategories();
             } else if (paneId === 'tab-columns') {
                 renderSettingsColumns();
+            } else if (paneId === 'tab-audit') {
+                if (typeof renderAuditLogs === 'function') renderAuditLogs();
+            } else if (paneId === 'tab-org') {
+                if (typeof initOrgSettings === 'function') initOrgSettings();
             }
         });
     });
