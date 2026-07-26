@@ -15,7 +15,7 @@
     <!-- SheetJS (XLSX) for Excel Import and Export -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/style.css?v=9.3">
+    <link rel="stylesheet" href="css/style.css?v=9.5">
 </head>
 <body class="light-theme">
     <!-- AUTHENTICATION OVERLAY -->
@@ -51,12 +51,12 @@
             <form id="login-form" class="login-form">
                 <div class="form-group mb-3">
                     <label><i class="fa-solid fa-user text-primary"></i> ឈ្មោះគណនី (Username / ID) <span class="text-danger">*</span></label>
-                    <input type="text" id="login-username" class="form-control" placeholder="វាយឈ្មោះគណនី (ឧ. admin)" required autocomplete="username">
+                    <input type="text" id="login-username" class="form-control" placeholder="វាយឈ្មោះគណនីរបស់អ្នក..." required autocomplete="username">
                 </div>
                 <div class="form-group mb-3">
                     <label><i class="fa-solid fa-lock text-primary"></i> ពាក្យសម្ងាត់ (Password) <span class="text-danger">*</span></label>
                     <div class="password-input-group" style="position: relative; display: flex; align-items: center;">
-                        <input type="password" id="login-password" class="form-control" placeholder="វាយពាក្យសម្ងាត់ (ឧ. admin123)" required autocomplete="current-password" style="padding-right: 40px;">
+                        <input type="password" id="login-password" class="form-control" placeholder="វាយពាក្យសម្ងាត់របស់អ្នក..." required autocomplete="current-password" style="padding-right: 40px;">
                         <button type="button" id="toggle-login-pwd" class="btn-eye" title="បង្ហាញ/លាក់ពាក្យសម្ងាត់" style="position: absolute; right: 10px; background: none; border: none; color: #64748b; cursor: pointer;"><i class="fa-regular fa-eye"></i></button>
                     </div>
                 </div>
@@ -77,9 +77,9 @@
                 </button>
             </form>
 
-            <div class="login-footer mt-4 text-center text-muted" style="font-size: 12px; border-top: 1px dashed var(--border-color); padding-top: 15px;">
-                <p class="mb-1" style="font-weight: 500;"><i class="fa-solid fa-shield-halved text-success"></i> ប្រព័ន្ធសុវត្ថិភាពទិន្នន័យផ្ទៃក្នុង NADR</p>
-                <p class="mb-0" style="margin-top: 4px; font-weight: 500;"><i class="fa-solid fa-code text-primary"></i> អភិវឌ្ឍន៍ដោយ លោក ឡាយ អូន</p>
+            <div class="login-footer mt-4 text-center text-muted" style="font-size: 12.5px; border-top: 1px dashed var(--border-color); padding-top: 15px;">
+                <p class="mb-1" style="font-weight: 600; color: #1e3a8a;"><i class="fa-solid fa-shield-halved text-success"></i> កម្មវិធីគ្រប់គ្រងសំណុំរឿងវិវាទការងារ NADR</p>
+                <p class="mb-0" style="margin-top: 4px; font-weight: 600; color: #3b82f6;"><i class="fa-solid fa-building-columns text-primary"></i> ក្រសួងការងារ និង បណ្តុះបណ្តាលវិជ្ជាជីវៈ</p>
             </div>
         </div>
     </div>
@@ -1668,11 +1668,11 @@
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
         }
     </script>
-    <script src="js/data.js?v=9.2"></script>
-    <script src="js/ai-assistant.js?v=9.2"></script>
-    <script src="js/docs.js?v=9.2"></script>
-    <script src="js/charts.js?v=9.2"></script>
-    <script src="js/reports.js?v=9.2"></script>
-    <script src="js/app.js?v=9.2"></script>
+    <script src="js/data.js?v=9.5"></script>
+    <script src="js/ai-assistant.js?v=9.5"></script>
+    <script src="js/docs.js?v=9.5"></script>
+    <script src="js/charts.js?v=9.5"></script>
+    <script src="js/reports.js?v=9.5"></script>
+    <script src="js/app.js?v=9.5"></script>
 </body>
 </html>
