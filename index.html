@@ -902,12 +902,12 @@
                     </div>
                 </div>
 
-                <div class="card-panel report-controls-card">
+                <div class="card-panel report-controls-card" style="background: linear-gradient(135deg, #f8fafc, #eff6ff); border: 1.5px solid #bfdbfe; padding: 24px; border-radius: 16px; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.06);">
                     <div class="report-controls-grid" style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-end; justify-content: flex-start;">
-                        <div class="form-group" style="flex: 0 1 340px; min-width: 250px;">
-                            <label style="font-weight: 700; color: var(--primary-color);">ប្រភេទរបាយការណ៍៖</label>
-                            <select id="report-type" class="form-control" style="border: 1.5px solid #cbd5e1; font-weight: 600;">
-                                <option value="monthly-progress">របាយការណ៍វឌ្ឍនភាពចំណាត់ការសំណុំរឿងប្រចាំខែ (Monthly Progress - ទម្រង់គំរូ PDF)</option>
+                        <div class="form-group" style="flex: 1 1 320px; min-width: 260px;">
+                            <label style="font-weight: 700; color: #1e3a8a; font-size: 13.5px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-file-contract text-primary"></i> ជ្រើសរើសប្រភេទរបាយការណ៍៖</label>
+                            <select id="report-type" class="form-control" style="border: 1.5px solid #93c5fd; font-weight: 700; color: #0f172a; height: 42px; border-radius: 8px; font-size: 13.5px; background: white;">
+                                <option value="monthly-progress">តារាងរបាយការណ៍ប្រចាំខែ អ.ដ.ក.</option>
                                 <option value="official-tracking">របាយការណ៍បញ្ជីតាមដានលទ្ធផលដោះស្រាយវិវាទ (Official Tracking)</option>
                                 <option value="master-list">របាយការណ៍បញ្ជីសំណុំរឿង (Master Table Report)</option>
                                 <option value="summary">របាយការណ៍សង្ខេបស្ថិតិទូទៅ</option>
@@ -915,13 +915,13 @@
                                 <option value="by-category">របាយការណ៍បែងចែកតាមប្រភេទវិវាទទាំង ៨</option>
                             </select>
                         </div>
-                        <div class="form-group" style="flex: 0 1 240px; min-width: 180px;">
-                            <label style="font-weight: 700; color: var(--primary-color);">ជ្រើសរើសខែ/ឆ្នាំ៖</label>
-                            <input type="text" id="report-month-year" class="form-control" style="border: 1.5px solid #cbd5e1; font-weight: 600;" placeholder="ជ្រើសរើសខែ/ឆ្នាំ..." onfocus="(this.type='month')" onblur="(this.value ? this.type='month' : this.type='text')">
+                        <div class="form-group" style="flex: 0 1 230px; min-width: 180px;">
+                            <label style="font-weight: 700; color: #1e3a8a; font-size: 13.5px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-calendar-days text-primary"></i> ជ្រើសរើសខែ/ឆ្នាំ៖</label>
+                            <input type="text" id="report-month-year" class="form-control" style="border: 1.5px solid #93c5fd; font-weight: 700; color: #0f172a; height: 42px; border-radius: 8px; font-size: 13.5px; background: white;" placeholder="ជ្រើសរើសខែ/ឆ្នាំ..." onfocus="(this.type='month')" onblur="(this.value ? this.type='month' : this.type='text')">
                         </div>
-                        <div class="form-group" style="flex: 0 1 240px; min-width: 180px;">
-                            <label style="font-weight: 700; color: var(--primary-color);">ចម្រោះតាមលទ្ធផល៖</label>
-                            <select id="report-filter-status" class="form-control" style="border: 1.5px solid #cbd5e1; font-weight: 600;">
+                        <div class="form-group" style="flex: 0 1 230px; min-width: 180px;">
+                            <label style="font-weight: 700; color: #1e3a8a; font-size: 13.5px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-filter text-primary"></i> ចម្រោះតាមលទ្ធផល៖</label>
+                            <select id="report-filter-status" class="form-control" style="border: 1.5px solid #93c5fd; font-weight: 700; color: #0f172a; height: 42px; border-radius: 8px; font-size: 13.5px; background: white;">
                                 <option value="ALL">ទាំងអស់ (All Statuses)</option>
                                 <option value="Active (កំពុងសម្រុះសម្រួល)">Active (កំពុងសម្រុះសម្រួល)</option>
                                 <option value="Pending (តម្កល់)">Pending (តម្កល់)</option>
@@ -933,14 +933,17 @@
                         <input type="hidden" id="report-start-date" value="">
                         <input type="hidden" id="report-end-date" value="">
                     </div>
-                    <div class="report-btn-bar mt-3">
-                        <button class="btn btn-primary" id="btn-generate-report">
+                    <div class="report-btn-bar mt-4 d-flex flex-wrap gap-2" style="display: flex; gap: 12px; padding-top: 16px; border-top: 1px dashed #cbd5e1;">
+                        <button class="btn btn-primary" id="btn-generate-report" style="padding: 10px 24px; font-weight: 700; border-radius: 8px; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25); display: flex; align-items: center; gap: 8px;">
                             <i class="fa-solid fa-gears"></i> បង្កើតរបាយការណ៍ (Generate)
                         </button>
-                        <button class="btn btn-secondary" id="btn-print-report" disabled>
+                        <button class="btn btn-secondary" id="btn-print-report" disabled style="padding: 10px 20px; font-weight: 600; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
                             <i class="fa-solid fa-print"></i> បោះពុម្ព / Save PDF
                         </button>
-                        <button class="btn btn-success" id="btn-export-excel" disabled style="background: #10b981; color: white;">
+                        <button class="btn btn-info" id="btn-export-word" disabled style="background: #2563eb; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-file-word"></i> ទាញយកជា Word (.doc)
+                        </button>
+                        <button class="btn btn-success" id="btn-export-excel" disabled style="background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
                             <i class="fa-solid fa-file-excel"></i> ទាញយកជា Excel (.xlsx)
                         </button>
                     </div>
@@ -1453,46 +1456,70 @@
                                     </div>
                                 </div>
 
-                                <!-- System-Wide Percentage Thresholds (Request 1) -->
-                                <div class="card-panel mb-4" style="background: rgba(14, 165, 233, 0.05); border: 1px solid rgba(14, 165, 233, 0.25); padding: 20px; border-radius: 12px;">
-                                    <h5 style="margin: 0 0 12px 0; font-size: 14.5px; font-weight: 700; color: #0369a1; display: flex; align-items: center; gap: 8px;">
-                                        <i class="fa-solid fa-sliders text-primary"></i> ការកំណត់ភាគរយលក្ខណៈវិនិច្ឆ័យស្ដង់ដារប្រព័ន្ធ (System-Wide Percentage Thresholds)
+                                <!-- System-Wide Percentage Thresholds across 5 Categories (Request 1) -->
+                                <div class="card-panel mb-4" style="background: rgba(14, 165, 233, 0.04); border: 1px solid rgba(14, 165, 233, 0.25); padding: 22px; border-radius: 14px;">
+                                    <h5 style="margin: 0 0 12px 0; font-size: 15px; font-weight: 700; color: #0369a1; display: flex; align-items: center; gap: 10px;">
+                                        <i class="fa-solid fa-sliders text-primary"></i> ការកំណត់លក្ខខណ្ឌវិនិច្ឆ័យ ៤ កម្រិតលើគ្រប់ស្ថានភាពសំណុំរឿង (5-Category Evaluation Thresholds)
                                     </h5>
-                                    <p style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 16px;">កំណត់កម្រិតភាគរយលក្ខខណ្ឌវិនិច្ឆ័យ ៤ កម្រិត លើទិន្នន័យសំណុំរឿងសរុប (អនុញ្ញាតឱ្យមន្ត្រីកែសម្រួលតាមការជាក់ស្ដែង)៖</p>
-                                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
-                                        <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
-                                            <span style="font-size: 12.5px; font-weight: 700; color: #b91c1c; display: block; margin-bottom: 6px;">១. កម្រិត "មិនល្អ" (Poor)</span>
-                                            <div style="display: flex; align-items: center; gap: 6px; font-size: 13px;">
-                                                <span>០% ដល់ក្រោម</span>
-                                                <input type="number" id="thresh-poor" class="form-control text-center" value="20" style="width: 60px; padding: 4px; font-weight: 700;">
-                                                <span>%</span>
-                                            </div>
-                                        </div>
-                                        <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
-                                            <span style="font-size: 12.5px; font-weight: 700; color: #0369a1; display: block; margin-bottom: 6px;">២. កម្រិត "មធ្យម" (Fair)</span>
-                                            <div style="display: flex; align-items: center; gap: 6px; font-size: 13px;">
-                                                <span>២០% ដល់ក្រោម</span>
-                                                <input type="number" id="thresh-med" class="form-control text-center" value="30" style="width: 60px; padding: 4px; font-weight: 700;">
-                                                <span>%</span>
-                                            </div>
-                                        </div>
-                                        <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
-                                            <span style="font-size: 12.5px; font-weight: 700; color: #d97706; display: block; margin-bottom: 6px;">៣. កម្រិត "ល្អ" (Good)</span>
-                                            <div style="display: flex; align-items: center; gap: 6px; font-size: 13px;">
-                                                <span>៣០% ដល់ក្រោម</span>
-                                                <input type="number" id="thresh-good" class="form-control text-center" value="50" style="width: 60px; padding: 4px; font-weight: 700;">
-                                                <span>%</span>
-                                            </div>
-                                        </div>
-                                        <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
-                                            <span style="font-size: 12.5px; font-weight: 700; color: #15803d; display: block; margin-bottom: 6px;">៤. កម្រិត "ល្អណាស់" (Excellent)</span>
-                                            <div style="display: flex; align-items: center; gap: 6px; font-size: 13px;">
-                                                <span>ចាប់ពី</span>
-                                                <input type="number" id="thresh-exc" class="form-control text-center" value="50" style="width: 60px; padding: 4px; font-weight: 700;" disabled>
-                                                <span>% ឡើងទៅ</span>
-                                            </div>
-                                        </div>
+                                    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 18px; line-height: 1.6;">កំណត់កម្រិតលក្ខខណ្ឌវិនិច្ឆ័យ (មិនល្អ, មធ្យម, ល្អ, ល្អណាស់) សម្រាប់គ្រប់ប្រភេទស្ថានភាពវិវាទទាំង ៥ (សរុប, ព្រមព្រៀង, កំពុងសម្រុះសម្រួល, តម្កល់, បិទ) អនុញ្ញាតឱ្យមន្ត្រីកែសម្រួលតាមតម្រូវការ៖</p>
+                                    
+                                    <div class="table-responsive" style="background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
+                                        <table class="data-table text-center mb-0" style="font-size: 13px; width: 100%; margin: 0;">
+                                            <thead>
+                                                <tr style="background: linear-gradient(135deg, #0284c7, #0369a1); color: white;">
+                                                    <th style="text-align: left; padding: 12px 16px; font-weight: 700;">ប្រភេទស្ថានភាពសំណុំរឿង</th>
+                                                    <th style="padding: 12px; font-weight: 700; color: #fca5a5;">១. មិនល្អ (Poor)</th>
+                                                    <th style="padding: 12px; font-weight: 700; color: #93c5fd;">២. មធ្យម (Fair)</th>
+                                                    <th style="padding: 12px; font-weight: 700; color: #fde047;">៣. ល្អ (Good)</th>
+                                                    <th style="padding: 12px; font-weight: 700; color: #86efac;">៤. ល្អណាស់ (Excellent)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <!-- Settle Rate -->
+                                                <tr style="border-bottom: 1px solid #f1f5f9;">
+                                                    <td style="text-align: left; font-weight: 700; color: #15803d; padding: 12px 16px;"><i class="fa-solid fa-hand-holding-hand text-success"></i> ១. បញ្ចប់ព្រមព្រៀង (Settle Rate)</td>
+                                                    <td>&lt; <input type="number" id="th-settle-poor" value="20" class="form-control text-center d-inline-block" style="width: 55px; padding: 4px; font-weight: 700; display: inline-block;"> %</td>
+                                                    <td>២០% - <input type="number" id="th-settle-med" value="30" class="form-control text-center d-inline-block" style="width: 55px; padding: 4px; font-weight: 700; display: inline-block;"> %</td>
+                                                    <td>៣០% - <input type="number" id="th-settle-good" value="50" class="form-control text-center d-inline-block" style="width: 55px; padding: 4px; font-weight: 700; display: inline-block;"> %</td>
+                                                    <td style="font-weight: 700; color: #15803d;">&gt;= ៥០%</td>
+                                                </tr>
+                                                <!-- Total Volume -->
+                                                <tr style="border-bottom: 1px solid #f1f5f9;">
+                                                    <td style="text-align: left; font-weight: 700; color: #2563eb; padding: 12px 16px;"><i class="fa-solid fa-folder-tree text-primary"></i> ២. សំណុំរឿងសរុប (Total Cases/Month)</td>
+                                                    <td>&lt; <input type="number" id="th-total-poor" value="10" class="form-control text-center d-inline-block" style="width: 55px; padding: 4px; font-weight: 700; display: inline-block;"> ករណី</td>
+                                                    <td>១០ - <input type="number" id="th-total-med" value="25" class="form-control text-center d-inline-block" style="width: 55px; padding: 4px; font-weight: 700; display: inline-block;"> ករណី</td>
+                                                    <td>២៥ - <input type="number" id="th-total-good" value="50" class="form-control text-center d-inline-block" style="width: 55px; padding: 4px; font-weight: 700; display: inline-block;"> ករណី</td>
+                                                    <td style="font-weight: 700; color: #2563eb;">&gt;= ៥០ ករណី</td>
+                                                </tr>
+                                                <!-- Active Rate -->
+                                                <tr style="border-bottom: 1px solid #f1f5f9;">
+                                                    <td style="text-align: left; font-weight: 700; color: #0284c7; padding: 12px 16px;"><i class="fa-solid fa-rotate text-info"></i> ៣. កំពុងសម្រុះសម្រួល (Active Rate)</td>
+                                                    <td>&gt; <input type="number" id="th-active-poor" value="50" class="form-control text-center d-inline-block" style="width: 55px; padding: 4px; font-weight: 700; display: inline-block;"> %</td>
+                                                    <td>៣៥% - ៥០%</td>
+                                                    <td>២០% - <input type="number" id="th-active-good" value="35" class="form-control text-center d-inline-block" style="width: 55px; padding: 4px; font-weight: 700; display: inline-block;"> %</td>
+                                                    <td style="font-weight: 700; color: #0284c7;">&lt;= <input type="number" id="th-active-exc" value="20" class="form-control text-center d-inline-block" style="width: 55px; padding: 4px; font-weight: 700; display: inline-block;"> %</td>
+                                                </tr>
+                                                <!-- Closed Rate -->
+                                                <tr style="border-bottom: 1px solid #f1f5f9;">
+                                                    <td style="text-align: left; font-weight: 700; color: #dc2626; padding: 12px 16px;"><i class="fa-solid fa-file-excel text-danger"></i> ៤. បិទ/មិនព្រមព្រៀង (Closed Rate)</td>
+                                                    <td>&gt; <input type="number" id="th-close-poor" value="40" class="form-control text-center d-inline-block" style="width: 55px; padding: 4px; font-weight: 700; display: inline-block;"> %</td>
+                                                    <td>២៥% - ៤០%</td>
+                                                    <td>១៥% - <input type="number" id="th-close-good" value="25" class="form-control text-center d-inline-block" style="width: 55px; padding: 4px; font-weight: 700; display: inline-block;"> %</td>
+                                                    <td style="font-weight: 700; color: #15803d;">&lt;= <input type="number" id="th-close-exc" value="15" class="form-control text-center d-inline-block" style="width: 55px; padding: 4px; font-weight: 700; display: inline-block;"> %</td>
+                                                </tr>
+                                                <!-- Pending Rate -->
+                                                <tr>
+                                                    <td style="text-align: left; font-weight: 700; color: #64748b; padding: 12px 16px;"><i class="fa-solid fa-folder-closed text-secondary"></i> ៥. តម្កល់/ផ្អាក (Pending Rate)</td>
+                                                    <td>&gt; <input type="number" id="th-pending-poor" value="30" class="form-control text-center d-inline-block" style="width: 55px; padding: 4px; font-weight: 700; display: inline-block;"> %</td>
+                                                    <td>២០% - ៣0%</td>
+                                                    <td>១០% - <input type="number" id="th-pending-good" value="20" class="form-control text-center d-inline-block" style="width: 55px; padding: 4px; font-weight: 700; display: inline-block;"> %</td>
+                                                    <td style="font-weight: 700; color: #15803d;">&lt;= <input type="number" id="th-pending-exc" value="10" class="form-control text-center d-inline-block" style="width: 55px; padding: 4px; font-weight: 700; display: inline-block;"> %</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
+                                    <!-- Legacy hidden ids for backward fallback -->
+                                    <input type="hidden" id="thresh-poor" value="20"><input type="hidden" id="thresh-med" value="30"><input type="hidden" id="thresh-good" value="50"><input type="hidden" id="thresh-exc" value="50">
                                 </div>
 
                                 <div class="table-responsive">
@@ -1514,12 +1541,12 @@
                                 </div>
                             </div>
 
-                            <!-- TAB 7: RESOLUTION STRATEGIES (Request 2) -->
+                            <!-- TAB 7: RESOLUTION STRATEGIES across 5 Categories (Request 2) -->
                             <div class="settings-tab-pane" id="tab-strategies" style="display: none;">
                                 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">
                                     <div>
-                                        <h4 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-color); display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-chess-knight text-success"></i> កំណត់យុទ្ធសាស្ត្រដោះស្រាយវិវាទផ្អែកលើលទ្ធផលវាយតម្លៃ (Resolution Strategies)</h4>
-                                        <p style="font-size: 13px; color: var(--text-muted); margin: 6px 0 0 0;">កំណត់ និងកែសម្រួលយុទ្ធសាស្ត្រណែនាំសម្រាប់មន្ត្រីអនុវត្ត ពេលប្រព័ន្ធវិភាគឃើញលទ្ធផលវាយតម្លៃកម្រិតវិវាទផ្សេងៗ</p>
+                                        <h4 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-color); display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-chess-knight text-success"></i> កំណត់យុទ្ធសាស្ត្រដោះស្រាយវិវាទលើគ្រប់ស្ថានភាពទាំង ៥ (Resolution Strategies)</h4>
+                                        <p style="font-size: 13px; color: var(--text-muted); margin: 6px 0 0 0;">កំណត់ និងកែសម្រួលយុទ្ធសាស្ត្រណែនាំសម្រាប់មន្ត្រីអនុវត្ត លើស្ថានភាព៖ សរុប, ព្រមព្រៀង, កំពុងសម្រុះសម្រួល, តម្កល់, និងបិទ</p>
                                     </div>
                                     <div style="display: flex; gap: 10px;">
                                         <button type="button" class="btn btn-secondary" onclick="resetResolutionStrategies()" style="padding: 10px 18px; font-size: 13px; font-weight: 600; border-radius: 8px;">
@@ -1532,30 +1559,37 @@
                                 </div>
 
                                 <div style="display: flex; flex-direction: column; gap: 20px;">
+                                    <div class="card-panel" style="padding: 18px; border-radius: 12px; background: rgba(37, 99, 235, 0.04); border: 1px solid rgba(37, 99, 235, 0.2);">
+                                        <h5 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 700; color: #1e3a8a;">
+                                            <i class="fa-solid fa-folder-tree text-primary"></i> ១. យុទ្ធសាស្ត្រសម្រាប់ "សំណុំរឿងសរុប (Total Cases)"
+                                        </h5>
+                                        <textarea id="strat-total-guidance" class="form-control" rows="3" style="width: 100%; font-size: 13.5px; padding: 10px; line-height: 1.6;">១. បន្តជំរុញការផ្សព្វផ្សាយ និងលើកកម្ពស់ការយល់ដឹងអំពីយន្តការដោះស្រាយវិវាទក្រៅប្រព័ន្ធតុលាការដល់ប្រជាពលរដ្ឋក្នុងមូលដ្ឋាន។ ២. រៀបចំប្រព័ន្ធគ្រប់គ្រង និងបែងចែកសំណុំរឿងចូលថ្មីឱ្យបានឆាប់រហ័សដល់មន្ត្រីជំនាញ។ ៣. ពង្រឹងកិច្ចសហការជាមួយអាជ្ញាធរមូលដ្ឋានក្នុងការទទួលពាក្យបណ្ដឹង។</textarea>
+                                    </div>
+
                                     <div class="card-panel" style="padding: 18px; border-radius: 12px; background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.2);">
                                         <h5 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 700; color: #d97706;">
-                                            <i class="fa-solid fa-hand-holding-hand"></i> ១. យុទ្ធសាស្ត្រពេលអត្រាព្រមព្រៀង (Settle Rate) ស្ថិតក្នុងកម្រិត "មធ្យម ឬមិនល្អ"
+                                            <i class="fa-solid fa-hand-holding-hand"></i> ២. យុទ្ធសាស្ត្រសម្រាប់ "បញ្ចប់ព្រមព្រៀង (Settle Rate)"
                                         </h5>
                                         <textarea id="strat-settle-low" class="form-control" rows="3" style="width: 100%; font-size: 13.5px; padding: 10px; line-height: 1.6;">១. ពង្រឹងសមត្ថភាពមន្ត្រីសម្រុះសម្រួលលើបច្ចេកទេសចរចា និងចិត្តសាស្ត្រវិវាទ។ ២. បង្កើនការប្រជុំត្រួតពិនិត្យមុនពេលសម្រុះសម្រួលដើម្បីវិភាគចំណុចខ្វែងគំនិត។ ៣. ចុះសិក្សាផ្ទាល់ដល់ទីតាំងវិវាទដើម្បីស្វែងយល់ពីមូលហេតុពិតប្រាកដ។</textarea>
                                     </div>
 
                                     <div class="card-panel" style="padding: 18px; border-radius: 12px; background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2);">
                                         <h5 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 700; color: #2563eb;">
-                                            <i class="fa-solid fa-rotate text-primary"></i> ២. យុទ្ធសាស្ត្រពេលសំណុំរឿង "កំពុងសម្រុះសម្រួល (Active)" មានចំនួនច្រើន
+                                            <i class="fa-solid fa-rotate text-primary"></i> ៣. យុទ្ធសាស្ត្រសម្រាប់ "កំពុងសម្រុះសម្រួល (Active Rate)"
                                         </h5>
                                         <textarea id="strat-active-high" class="form-control" rows="3" style="width: 100%; font-size: 13.5px; padding: 10px; line-height: 1.6;">១. រៀបចំផែនការបែងចែកសំណុំរឿងតាមកម្រិតអាទិភាព និងកំណត់កាលវិភាគប្រជុំឱ្យបានច្បាស់លាស់។ ២. បន្ថែមមន្ត្រីជំនួយការក្នុងសំណុំរឿងស្មុគស្មាញដើម្បីពងឿននីតិវិធី។ ៣. តាមដានជាប្រចាំនូវសំណុំរឿងដែលលើសរយៈពេលស្ដង់ដារកំណត់។</textarea>
                                     </div>
 
                                     <div class="card-panel" style="padding: 18px; border-radius: 12px; background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2);">
                                         <h5 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 700; color: #dc2626;">
-                                            <i class="fa-solid fa-file-excel text-danger"></i> ៣. យុទ្ធសាស្ត្រពេលសំណុំរឿង "បិទ/មិនព្រមព្រៀង (Closed)" មានចំនួនច្រើន
+                                            <i class="fa-solid fa-file-excel text-danger"></i> ៤. យុទ្ធសាស្ត្រសម្រាប់ "បិទ/មិនព្រមព្រៀង (Closed Rate)"
                                         </h5>
                                         <textarea id="strat-close-high" class="form-control" rows="3" style="width: 100%; font-size: 13.5px; padding: 10px; line-height: 1.6;">១. ធ្វើការសិក្សាមូលហេតុដែលនាំឱ្យបរាជ័យក្នុងការសម្រុះសម្រួលដើម្បីដកស្រង់បទពិសោធន៍។ ២. ផ្តល់ការពន្យល់ណែនាំអំពីនីតិវិធីផ្លូវច្បាប់បន្តដល់គូភាគីដើម្បីចៀសវាងអំពើហិង្សា។ ៣. ពិនិត្យលទ្ធភាពសហការជាមួយអាជ្ញាធរមូលដ្ឋាន ឬស្ថាប័នពាក់ព័ន្ធ។</textarea>
                                     </div>
 
                                     <div class="card-panel" style="padding: 18px; border-radius: 12px; background: rgba(100, 116, 139, 0.05); border: 1px solid rgba(100, 116, 139, 0.2);">
                                         <h5 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 700; color: #475569;">
-                                            <i class="fa-solid fa-folder-closed text-secondary"></i> ៤. យុទ្ធសាស្ត្រពេលសំណុំរឿង "តម្កល់/ផ្អាក (Pending)" មានចំនួនច្រើន
+                                            <i class="fa-solid fa-folder-closed text-secondary"></i> ៥. យុទ្ធសាស្ត្រសម្រាប់ "តម្កល់/ផ្អាក (Pending Rate)"
                                         </h5>
                                         <textarea id="strat-pending-high" class="form-control" rows="3" style="width: 100%; font-size: 13.5px; padding: 10px; line-height: 1.6;">១. ពិនិត្យឡើងវិញនូវសំណុំរឿងដែលតម្កល់យូរ និងទំនាក់ទំនងភាគីដើម្បីសួរនាំស្ថានភាពថ្មី។ ២. កំណត់កាលបរិច្ឆេទផុតកំណត់ជាក់លាក់ក្នុងការរក្សាសំណុំរឿងជាស្ថានភាពតម្កល់។ ៣. ប្រសិនបើភាគីបោះបង់ការតវ៉ា ត្រូវអនុវត្តនីតិវិធីបិទសំណុំរឿងតាមរដ្ឋបាល។</textarea>
                                     </div>

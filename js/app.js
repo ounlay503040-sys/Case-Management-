@@ -1184,8 +1184,18 @@ function renderStrategicRecommendations() {
     const container = document.getElementById('analytics-strategy-container');
     if (!container || typeof CASES === 'undefined') return;
 
-    const thresh = JSON.parse(localStorage.getItem('nadr_eval_thresholds')) || { poor: 20, med: 30, good: 50 };
+    const defThreshAll = {
+        settle: { poor: 20, med: 30, good: 50 },
+        total: { poor: 10, med: 25, good: 50 },
+        active: { poor: 50, good: 35, exc: 20 },
+        close: { poor: 40, good: 25, exc: 15 },
+        pending: { poor: 30, good: 20, exc: 10 }
+    };
+    const threshAll = JSON.parse(localStorage.getItem('nadr_eval_thresholds_all')) || defThreshAll;
+    const thresh = JSON.parse(localStorage.getItem('nadr_eval_thresholds')) || threshAll.settle || { poor: 20, med: 30, good: 50 };
+
     const defStrats = {
+        totalGuidance: '១. បន្តជំរុញការផ្សព្វផ្សាយ និងលើកកម្ពស់ការយល់ដឹងអំពីយន្តការដោះស្រាយវិវាទក្រៅប្រព័ន្ធតុលាការដល់ប្រជាពលរដ្ឋក្នុងមូលដ្ឋាន។ ២. រៀបចំប្រព័ន្ធគ្រប់គ្រង និងបែងចែកសំណុំរឿងចូលថ្មីឱ្យបានឆាប់រហ័សដល់មន្ត្រីជំនាញ។ ៣. ពង្រឹងកិច្ចសហការជាមួយអាជ្ញាធរមូលដ្ឋានក្នុងការទទួលពាក្យបណ្ដឹង។',
         settleLow: '១. ពង្រឹងសមត្ថភាពមន្ត្រីសម្រុះសម្រួលលើបច្ចេកទេសចរចា និងចិត្តសាស្ត្រវិវាទ។ ២. បង្កើនការប្រជុំត្រួតពិនិត្យមុនពេលសម្រុះសម្រួលដើម្បីវិភាគចំណុចខ្វែងគំនិត។ ៣. ចុះសិក្សាផ្ទាល់ដល់ទីតាំងវិវាទដើម្បីស្វែងយល់ពីមូលហេតុពិតប្រាកដ។',
         activeHigh: '១. រៀបចំផែនការបែងចែកសំណុំរឿងតាមកម្រិតអាទិភាព និងកំណត់កាលវិភាគប្រជុំឱ្យបានច្បាស់លាស់។ ២. បន្ថែមមន្ត្រីជំនួយការក្នុងសំណុំរឿងស្មុគស្មាញដើម្បីពងឿននីតិវិធី។ ៣. តាមដានជាប្រចាំនូវសំណុំរឿងដែលលើសរយៈពេលស្ដង់ដារកំណត់។',
         closeHigh: '១. ធ្វើការសិក្សាមូលហេតុដែលនាំឱ្យបរាជ័យក្នុងការសម្រុះសម្រួលដើម្បីដកស្រង់បទពិសោធន៍។ ២. ផ្តល់ការពន្យល់ណែនាំអំពីនីតិវិធីផ្លូវច្បាប់បន្តដល់គូភាគីដើម្បីចៀសវាងអំពើហិង្សា។ ៣. ពិនិត្យលទ្ធភាពសហការជាមួយអាជ្ញាធរមូលដ្ឋាន ឬស្ថាប័នពាក់ព័ន្ធ។',
@@ -1196,35 +1206,62 @@ function renderStrategicRecommendations() {
     const total = CASES.length || 1;
     const stats = { active: 0, settle: 0, close: 0, pending: 0 };
     CASES.forEach(c => {
-        if (c.status === 'កំពុងសម្រុះសម្រួល') stats.active++;
-        else if (c.status === 'ព្រមព្រៀង') stats.settle++;
-        else if (c.status === 'មិនព្រមព្រៀង' || c.status === 'បិទ') stats.close++;
-        else if (c.status === 'តម្កល់' || c.status === 'ផ្អាក') stats.pending++;
+        if (c.status === 'កំពុងសម្រុះសម្រួល' || c.status?.startsWith('Active')) stats.active++;
+        else if (c.status === 'ព្រមព្រៀង' || c.status?.startsWith('Settle')) stats.settle++;
+        else if (c.status === 'មិនព្រមព្រៀង' || c.status === 'បិទ' || c.status?.startsWith('No')) stats.close++;
+        else if (c.status === 'តម្កល់' || c.status === 'ផ្អាក' || c.status?.startsWith('Pending')) stats.pending++;
     });
     const settlePct = ((stats.settle / total) * 100).toFixed(0);
     const activePct = ((stats.active / total) * 100).toFixed(0);
     const closePct = ((stats.close / total) * 100).toFixed(0);
     const pendingPct = ((stats.pending / total) * 100).toFixed(0);
 
-    const getEvalLevel = (pct) => {
-        const p = parseFloat(pct);
-        if (p < thresh.poor) return { label: 'មិនល្អ', color: '#dc2626', bg: '#fee2e2' };
-        if (p < thresh.med) return { label: 'មធ្យម', color: '#0369a1', bg: '#e0f2fe' };
-        if (p < thresh.good) return { label: 'ល្អ', color: '#d97706', bg: '#fef3c7' };
+    const getEvalHigherBetter = (val, t) => {
+        const v = parseFloat(val);
+        if (v < (t?.poor || 20)) return { label: 'មិនល្អ', color: '#dc2626', bg: '#fee2e2' };
+        if (v < (t?.med || 30)) return { label: 'មធ្យម', color: '#0369a1', bg: '#e0f2fe' };
+        if (v < (t?.good || 50)) return { label: 'ល្អ', color: '#d97706', bg: '#fef3c7' };
         return { label: 'ល្អណាស់', color: '#15803d', bg: '#dcfce7' };
     };
 
-    const settleEval = getEvalLevel(settlePct);
-    const activeEval = getEvalLevel(activePct);
-    const closeEval = getEvalLevel(closePct);
-    const pendingEval = getEvalLevel(pendingPct);
+    const getEvalLowerBetter = (val, t) => {
+        const v = parseFloat(val);
+        if (v > (t?.poor || 50)) return { label: 'មិនល្អ', color: '#dc2626', bg: '#fee2e2' };
+        if (v > (t?.good || 35)) return { label: 'មធ្យម', color: '#0369a1', bg: '#e0f2fe' };
+        if (v > (t?.exc || 20)) return { label: 'ល្អ', color: '#d97706', bg: '#fef3c7' };
+        return { label: 'ល្អណាស់', color: '#15803d', bg: '#dcfce7' };
+    };
+
+    const totalEval = getEvalHigherBetter(total, threshAll.total || { poor: 10, med: 25, good: 50 });
+    const settleEval = getEvalHigherBetter(settlePct, threshAll.settle || thresh);
+    const activeEval = getEvalLowerBetter(activePct, threshAll.active || { poor: 50, good: 35, exc: 20 });
+    const closeEval = getEvalLowerBetter(closePct, threshAll.close || { poor: 40, good: 25, exc: 15 });
+    const pendingEval = getEvalLowerBetter(pendingPct, threshAll.pending || { poor: 30, good: 20, exc: 10 });
 
     container.innerHTML = `
         <div style="background: white; padding: 18px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.03); display: flex; flex-direction: column; justify-content: space-between;">
             <div>
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                    <span style="font-size: 13.5px; font-weight: 700; color: #1e3a8a; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-folder-tree"></i> ១. យុទ្ធសាស្ត្រសំណុំរឿងសរុប (Total Volume)
+                    </span>
+                    <span style="background: ${totalEval.bg}; color: ${totalEval.color}; font-size: 11.5px; font-weight: 700; padding: 3px 10px; border-radius: 12px; border: 1px solid ${totalEval.color}40;">
+                        ${total} ករណី (${totalEval.label})
+                    </span>
+                </div>
+                <p style="font-size: 13px; color: var(--text-color); line-height: 1.6; margin: 0;">${strats.totalGuidance || strats.totalHigh || defStrats.totalGuidance}</p>
+            </div>
+            <div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed #e2e8f0; font-size: 11.5px; color: #64748b; display: flex; justify-content: space-between; align-items: center;">
+                <span>កម្រិតស្ដង់ដារ៖ &lt;${threshAll.total?.poor||10} (មិនល្អ), &gt;=${threshAll.total?.good||50} (ល្អណាស់)</span>
+                <a href="javascript:void(0)" onclick="switchView('settings-view'); setTimeout(()=>document.querySelector('[data-tab=tab-strategies]')?.click(), 100);" style="color: #3b82f6; font-weight: 700; text-decoration: none;"><i class="fa-solid fa-pen"></i> កែសម្រួល</a>
+            </div>
+        </div>
+
+        <div style="background: white; padding: 18px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.03); display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
                     <span style="font-size: 13.5px; font-weight: 700; color: #d97706; display: flex; align-items: center; gap: 8px;">
-                        <i class="fa-solid fa-hand-holding-hand"></i> យុទ្ធសាស្ត្រអត្រាព្រមព្រៀង (Settle)
+                        <i class="fa-solid fa-hand-holding-hand"></i> ២. យុទ្ធសាស្ត្រអត្រាព្រមព្រៀង (Settle Rate)
                     </span>
                     <span style="background: ${settleEval.bg}; color: ${settleEval.color}; font-size: 11.5px; font-weight: 700; padding: 3px 10px; border-radius: 12px; border: 1px solid ${settleEval.color}40;">
                         ${settlePct}% (${settleEval.label})
@@ -1233,7 +1270,7 @@ function renderStrategicRecommendations() {
                 <p style="font-size: 13px; color: var(--text-color); line-height: 1.6; margin: 0;">${strats.settleLow || defStrats.settleLow}</p>
             </div>
             <div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed #e2e8f0; font-size: 11.5px; color: #64748b; display: flex; justify-content: space-between; align-items: center;">
-                <span>កម្រិតស្ដង់ដារ៖ &lt;${thresh.poor}% (មិនល្អ), &gt;=${thresh.good}% (ល្អណាស់)</span>
+                <span>កម្រិតស្ដង់ដារ៖ &lt;${threshAll.settle?.poor||20}% (មិនល្អ), &gt;=${threshAll.settle?.good||50}% (ល្អណាស់)</span>
                 <a href="javascript:void(0)" onclick="switchView('settings-view'); setTimeout(()=>document.querySelector('[data-tab=tab-strategies]')?.click(), 100);" style="color: #3b82f6; font-weight: 700; text-decoration: none;"><i class="fa-solid fa-pen"></i> កែសម្រួល</a>
             </div>
         </div>
@@ -1242,7 +1279,7 @@ function renderStrategicRecommendations() {
             <div>
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
                     <span style="font-size: 13.5px; font-weight: 700; color: #2563eb; display: flex; align-items: center; gap: 8px;">
-                        <i class="fa-solid fa-rotate"></i> យុទ្ធសាស្ត្រកំពុងសម្រុះសម្រួល (Active)
+                        <i class="fa-solid fa-rotate"></i> ៣. យុទ្ធសាស្ត្រកំពុងសម្រុះសម្រួល (Active Rate)
                     </span>
                     <span style="background: ${activeEval.bg}; color: ${activeEval.color}; font-size: 11.5px; font-weight: 700; padding: 3px 10px; border-radius: 12px; border: 1px solid ${activeEval.color}40;">
                         ${activePct}% (${activeEval.label})
@@ -1251,7 +1288,7 @@ function renderStrategicRecommendations() {
                 <p style="font-size: 13px; color: var(--text-color); line-height: 1.6; margin: 0;">${strats.activeHigh || defStrats.activeHigh}</p>
             </div>
             <div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed #e2e8f0; font-size: 11.5px; color: #64748b; display: flex; justify-content: space-between; align-items: center;">
-                <span>វិភាគលើសមាមាត្រសំណុំរឿងសរុប</span>
+                <span>កម្រិតស្ដង់ដារ៖ &gt;${threshAll.active?.poor||50}% (មិនល្អ), &lt;=${threshAll.active?.exc||20}% (ល្អណាស់)</span>
                 <a href="javascript:void(0)" onclick="switchView('settings-view'); setTimeout(()=>document.querySelector('[data-tab=tab-strategies]')?.click(), 100);" style="color: #3b82f6; font-weight: 700; text-decoration: none;"><i class="fa-solid fa-pen"></i> កែសម្រួល</a>
             </div>
         </div>
@@ -1260,7 +1297,7 @@ function renderStrategicRecommendations() {
             <div>
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
                     <span style="font-size: 13.5px; font-weight: 700; color: #dc2626; display: flex; align-items: center; gap: 8px;">
-                        <i class="fa-solid fa-file-excel"></i> យុទ្ធសាស្ត្របិទ/មិនព្រមព្រៀង (Closed)
+                        <i class="fa-solid fa-file-excel"></i> ៤. យុទ្ធសាស្ត្របិទ/មិនព្រមព្រៀង (Closed Rate)
                     </span>
                     <span style="background: ${closeEval.bg}; color: ${closeEval.color}; font-size: 11.5px; font-weight: 700; padding: 3px 10px; border-radius: 12px; border: 1px solid ${closeEval.color}40;">
                         ${closePct}% (${closeEval.label})
@@ -1269,7 +1306,7 @@ function renderStrategicRecommendations() {
                 <p style="font-size: 13px; color: var(--text-color); line-height: 1.6; margin: 0;">${strats.closeHigh || defStrats.closeHigh}</p>
             </div>
             <div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed #e2e8f0; font-size: 11.5px; color: #64748b; display: flex; justify-content: space-between; align-items: center;">
-                <span>វិភាគលើសមាមាត្រសំណុំរឿងសរុប</span>
+                <span>កម្រិតស្ដង់ដារ៖ &gt;${threshAll.close?.poor||40}% (មិនល្អ), &lt;=${threshAll.close?.exc||15}% (ល្អណាស់)</span>
                 <a href="javascript:void(0)" onclick="switchView('settings-view'); setTimeout(()=>document.querySelector('[data-tab=tab-strategies]')?.click(), 100);" style="color: #3b82f6; font-weight: 700; text-decoration: none;"><i class="fa-solid fa-pen"></i> កែសម្រួល</a>
             </div>
         </div>
@@ -1278,7 +1315,7 @@ function renderStrategicRecommendations() {
             <div>
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
                     <span style="font-size: 13.5px; font-weight: 700; color: #475569; display: flex; align-items: center; gap: 8px;">
-                        <i class="fa-solid fa-folder-closed"></i> យុទ្ធសាស្ត្រតម្កល់/ផ្អាក (Pending)
+                        <i class="fa-solid fa-folder-closed"></i> ៥. យុទ្ធសាស្ត្រតម្កល់/ផ្អាក (Pending Rate)
                     </span>
                     <span style="background: ${pendingEval.bg}; color: ${pendingEval.color}; font-size: 11.5px; font-weight: 700; padding: 3px 10px; border-radius: 12px; border: 1px solid ${pendingEval.color}40;">
                         ${pendingPct}% (${pendingEval.label})
@@ -1287,7 +1324,7 @@ function renderStrategicRecommendations() {
                 <p style="font-size: 13px; color: var(--text-color); line-height: 1.6; margin: 0;">${strats.pendingHigh || defStrats.pendingHigh}</p>
             </div>
             <div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed #e2e8f0; font-size: 11.5px; color: #64748b; display: flex; justify-content: space-between; align-items: center;">
-                <span>វិភាគលើសមាមាត្រសំណុំរឿងសរុប</span>
+                <span>កម្រិតស្ដង់ដារ៖ &gt;${threshAll.pending?.poor||30}% (មិនល្អ), &lt;=${threshAll.pending?.exc||10}% (ល្អណាស់)</span>
                 <a href="javascript:void(0)" onclick="switchView('settings-view'); setTimeout(()=>document.querySelector('[data-tab=tab-strategies]')?.click(), 100);" style="color: #3b82f6; font-weight: 700; text-decoration: none;"><i class="fa-solid fa-pen"></i> កែសម្រួល</a>
             </div>
         </div>
@@ -2134,46 +2171,127 @@ function renderSettingsEvalMatrix() {
     tbody.innerHTML = html;
 }
 
-// Request 1: Percentage Thresholds Management
+// Request 1: Percentage Thresholds Management across 5 Categories
 function loadEvalThresholds() {
-    const thresh = JSON.parse(localStorage.getItem('nadr_eval_thresholds')) || { poor: 20, med: 30, good: 50 };
+    const defAll = {
+        settle: { poor: 20, med: 30, good: 50 },
+        total: { poor: 10, med: 25, good: 50 },
+        active: { poor: 50, good: 35, exc: 20 },
+        close: { poor: 40, good: 25, exc: 15 },
+        pending: { poor: 30, good: 20, exc: 10 }
+    };
+    const threshAll = JSON.parse(localStorage.getItem('nadr_eval_thresholds_all')) || defAll;
+    const thresh = JSON.parse(localStorage.getItem('nadr_eval_thresholds')) || threshAll.settle || { poor: 20, med: 30, good: 50 };
+
+    // Settle
+    const sp = document.getElementById('th-settle-poor');
+    const sm = document.getElementById('th-settle-med');
+    const sg = document.getElementById('th-settle-good');
+    if (sp) sp.value = threshAll.settle?.poor || thresh.poor || 20;
+    if (sm) sm.value = threshAll.settle?.med || thresh.med || 30;
+    if (sg) sg.value = threshAll.settle?.good || thresh.good || 50;
+
+    // Total
+    const tp = document.getElementById('th-total-poor');
+    const tm = document.getElementById('th-total-med');
+    const tg = document.getElementById('th-total-good');
+    if (tp) tp.value = threshAll.total?.poor || 10;
+    if (tm) tm.value = threshAll.total?.med || 25;
+    if (tg) tg.value = threshAll.total?.good || 50;
+
+    // Active
+    const ap = document.getElementById('th-active-poor');
+    const ag = document.getElementById('th-active-good');
+    const ae = document.getElementById('th-active-exc');
+    if (ap) ap.value = threshAll.active?.poor || 50;
+    if (ag) ag.value = threshAll.active?.good || 35;
+    if (ae) ae.value = threshAll.active?.exc || 20;
+
+    // Close
+    const cp = document.getElementById('th-close-poor');
+    const cg = document.getElementById('th-close-good');
+    const ce = document.getElementById('th-close-exc');
+    if (cp) cp.value = threshAll.close?.poor || 40;
+    if (cg) cg.value = threshAll.close?.good || 25;
+    if (ce) ce.value = threshAll.close?.exc || 15;
+
+    // Pending
+    const pp = document.getElementById('th-pending-poor');
+    const pg = document.getElementById('th-pending-good');
+    const pe = document.getElementById('th-pending-exc');
+    if (pp) pp.value = threshAll.pending?.poor || 30;
+    if (pg) pg.value = threshAll.pending?.good || 20;
+    if (pe) pe.value = threshAll.pending?.exc || 10;
+
+    // Legacy fallback
     const pEl = document.getElementById('thresh-poor');
     const mEl = document.getElementById('thresh-med');
     const gEl = document.getElementById('thresh-good');
     const eEl = document.getElementById('thresh-exc');
-    if (pEl) pEl.value = thresh.poor;
-    if (mEl) mEl.value = thresh.med;
-    if (gEl) gEl.value = thresh.good;
-    if (eEl) eEl.value = thresh.good; // Exc starts where Good ends
+    if (pEl) pEl.value = threshAll.settle?.poor || 20;
+    if (mEl) mEl.value = threshAll.settle?.med || 30;
+    if (gEl) gEl.value = threshAll.settle?.good || 50;
+    if (eEl) eEl.value = threshAll.settle?.good || 50;
 }
 
 function saveEvalThresholds() {
+    const threshAll = {
+        settle: {
+            poor: parseInt(document.getElementById('th-settle-poor')?.value) || 20,
+            med: parseInt(document.getElementById('th-settle-med')?.value) || 30,
+            good: parseInt(document.getElementById('th-settle-good')?.value) || 50
+        },
+        total: {
+            poor: parseInt(document.getElementById('th-total-poor')?.value) || 10,
+            med: parseInt(document.getElementById('th-total-med')?.value) || 25,
+            good: parseInt(document.getElementById('th-total-good')?.value) || 50
+        },
+        active: {
+            poor: parseInt(document.getElementById('th-active-poor')?.value) || 50,
+            good: parseInt(document.getElementById('th-active-good')?.value) || 35,
+            exc: parseInt(document.getElementById('th-active-exc')?.value) || 20
+        },
+        close: {
+            poor: parseInt(document.getElementById('th-close-poor')?.value) || 40,
+            good: parseInt(document.getElementById('th-close-good')?.value) || 25,
+            exc: parseInt(document.getElementById('th-close-exc')?.value) || 15
+        },
+        pending: {
+            poor: parseInt(document.getElementById('th-pending-poor')?.value) || 30,
+            good: parseInt(document.getElementById('th-pending-good')?.value) || 20,
+            exc: parseInt(document.getElementById('th-pending-exc')?.value) || 10
+        }
+    };
+
+    localStorage.setItem('nadr_eval_thresholds_all', JSON.stringify(threshAll));
+    localStorage.setItem('nadr_eval_thresholds', JSON.stringify(threshAll.settle));
+
     const pEl = document.getElementById('thresh-poor');
     const mEl = document.getElementById('thresh-med');
     const gEl = document.getElementById('thresh-good');
-    if (!pEl || !mEl || !gEl) return;
-    const poor = parseInt(pEl.value) || 20;
-    const med = parseInt(mEl.value) || 30;
-    const good = parseInt(gEl.value) || 50;
-    const thresh = { poor, med, good };
-    localStorage.setItem('nadr_eval_thresholds', JSON.stringify(thresh));
     const eEl = document.getElementById('thresh-exc');
-    if (eEl) eEl.value = good;
+    if (pEl) pEl.value = threshAll.settle.poor;
+    if (mEl) mEl.value = threshAll.settle.med;
+    if (gEl) gEl.value = threshAll.settle.good;
+    if (eEl) eEl.value = threshAll.settle.good;
 }
 
-// Request 2: Resolution Strategies Management
+// Request 2: Resolution Strategies Management across 5 Categories
 function loadResolutionStrategies() {
     const def = {
+        totalGuidance: '១. បន្តជំរុញការផ្សព្វផ្សាយ និងលើកកម្ពស់ការយល់ដឹងអំពីយន្តការដោះស្រាយវិវាទក្រៅប្រព័ន្ធតុលាការដល់ប្រជាពលរដ្ឋក្នុងមូលដ្ឋាន។ ២. រៀបចំប្រព័ន្ធគ្រប់គ្រង និងបែងចែកសំណុំរឿងចូលថ្មីឱ្យបានឆាប់រហ័សដល់មន្ត្រីជំនាញ។ ៣. ពង្រឹងកិច្ចសហការជាមួយអាជ្ញាធរមូលដ្ឋានក្នុងការទទួលពាក្យបណ្ដឹង។',
         settleLow: '១. ពង្រឹងសមត្ថភាពមន្ត្រីសម្រុះសម្រួលលើបច្ចេកទេសចរចា និងចិត្តសាស្ត្រវិវាទ។ ២. បង្កើនការប្រជុំត្រួតពិនិត្យមុនពេលសម្រុះសម្រួលដើម្បីវិភាគចំណុចខ្វែងគំនិត។ ៣. ចុះសិក្សាផ្ទាល់ដល់ទីតាំងវិវាទដើម្បីស្វែងយល់ពីមូលហេតុពិតប្រាកដ។',
         activeHigh: '១. រៀបចំផែនការបែងចែកសំណុំរឿងតាមកម្រិតអាទិភាព និងកំណត់កាលវិភាគប្រជុំឱ្យបានច្បាស់លាស់។ ២. បន្ថែមមន្ត្រីជំនួយការក្នុងសំណុំរឿងស្មុគស្មាញដើម្បីពងឿននីតិវិធី។ ៣. តាមដានជាប្រចាំនូវសំណុំរឿងដែលលើសរយៈពេលស្ដង់ដារកំណត់។',
         closeHigh: '១. ធ្វើការសិក្សាមូលហេតុដែលនាំឱ្យបរាជ័យក្នុងការសម្រុះសម្រួលដើម្បីដកស្រង់បទពិសោធន៍។ ២. ផ្តល់ការពន្យល់ណែនាំអំពីនីតិវិធីផ្លូវច្បាប់បន្តដល់គូភាគីដើម្បីចៀសវាងអំពើហិង្សា។ ៣. ពិនិត្យលទ្ធភាពសហការជាមួយអាជ្ញាធរមូលដ្ឋាន ឬស្ថាប័នពាក់ព័ន្ធ។',
         pendingHigh: '១. ពិនិត្យឡើងវិញនូវសំណុំរឿងដែលតម្កល់យូរ និងទំនាក់ទំនងភាគីដើម្បីសួរនាំស្ថានភាពថ្មី។ ២. កំណត់កាលបរិច្ឆេទផុតកំណត់ជាក់លាក់ក្នុងការរក្សាសំណុំរឿងជាស្ថានភាពតម្កល់។ ៣. ប្រសិនបើភាគីបោះបង់ការតវ៉ា ត្រូវអនុវត្តនីតិវិធីបិទសំណុំរឿងតាមរដ្ឋបាល។'
     };
     const strats = JSON.parse(localStorage.getItem('nadr_resolution_strategies')) || def;
+    const elTotal = document.getElementById('strat-total-guidance');
     const elSettle = document.getElementById('strat-settle-low');
     const elActive = document.getElementById('strat-active-high');
     const elClose = document.getElementById('strat-close-high');
     const elPending = document.getElementById('strat-pending-high');
+    if (elTotal) elTotal.value = strats.totalGuidance || strats.totalHigh || def.totalGuidance;
     if (elSettle) elSettle.value = strats.settleLow || def.settleLow;
     if (elActive) elActive.value = strats.activeHigh || def.activeHigh;
     if (elClose) elClose.value = strats.closeHigh || def.closeHigh;
@@ -2181,20 +2299,22 @@ function loadResolutionStrategies() {
 }
 
 window.saveResolutionStrategies = function() {
+    const elTotal = document.getElementById('strat-total-guidance');
     const elSettle = document.getElementById('strat-settle-low');
     const elActive = document.getElementById('strat-active-high');
     const elClose = document.getElementById('strat-close-high');
     const elPending = document.getElementById('strat-pending-high');
     if (!elSettle) return;
     const strats = {
+        totalGuidance: elTotal?.value.trim() || '',
         settleLow: elSettle.value.trim(),
-        activeHigh: elActive.value.trim(),
-        closeHigh: elClose.value.trim(),
-        pendingHigh: elPending.value.trim()
+        activeHigh: elActive?.value.trim() || '',
+        closeHigh: elClose?.value.trim() || '',
+        pendingHigh: elPending?.value.trim() || ''
     };
     localStorage.setItem('nadr_resolution_strategies', JSON.stringify(strats));
     renderAllViews();
-    showToast('បានរក្សាទុកយុទ្ធសាស្ត្រដោះស្រាយវិវាទដោយជោគជ័យ!', 'success');
+    showToast('បានរក្សាទុកយុទ្ធសាស្ត្រដោះស្រាយវិវាទទាំង ៥ ដោយជោគជ័យ!', 'success');
 };
 
 window.resetResolutionStrategies = function() {

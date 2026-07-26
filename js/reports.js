@@ -14,6 +14,7 @@ function initReportEvents() {
     const btnGen = document.getElementById('btn-generate-report');
     const btnPrint = document.getElementById('btn-print-report');
     const btnExcel = document.getElementById('btn-export-excel');
+    const btnWord = document.getElementById('btn-export-word');
 
     if (btnGen) {
         btnGen.addEventListener('click', () => {
@@ -30,6 +31,12 @@ function initReportEvents() {
     if (btnExcel) {
         btnExcel.addEventListener('click', () => {
             exportReportToExcel();
+        });
+    }
+
+    if (btnWord) {
+        btnWord.addEventListener('click', () => {
+            exportReportToWord();
         });
     }
 }
@@ -72,11 +79,24 @@ function generateReport(silent = false) {
     const paper = document.getElementById('report-content');
     const btnPrint = document.getElementById('btn-print-report');
     const btnExcel = document.getElementById('btn-export-excel');
+    const btnWord = document.getElementById('btn-export-word');
 
     if (placeholder) placeholder.style.display = 'none';
     if (paper) paper.style.display = 'block';
     if (btnPrint) btnPrint.disabled = false;
     if (btnExcel) btnExcel.disabled = false;
+    if (btnWord) btnWord.disabled = false;
+
+    // Avoid duplicate Kingdom header for reports that render their own custom headers
+    const officialHeader = paper?.querySelector('.official-report-header');
+    const officialFooter = paper?.querySelector('.official-report-footer');
+    if (type === 'monthly-progress' || type === 'official-tracking') {
+        if (officialHeader) officialHeader.style.display = 'none';
+        if (officialFooter) officialFooter.style.display = 'none';
+    } else {
+        if (officialHeader) officialHeader.style.display = 'block';
+        if (officialFooter) officialFooter.style.display = 'flex';
+    }
 
     // Populate header info
     const titleEl = document.getElementById('report-header-title');
@@ -677,4 +697,151 @@ function exportReportToCSV() {
     a.click();
     document.body.removeChild(a);
     showToast('បានទាញយកទិន្នន័យទាំងអស់ជាឯកសារ CSV រួចរាល់!', 'success');
+}
+
+/**
+ * Export current report to Word (.doc) with Khmer font support and proper table formatting
+ */
+function exportReportToWord() {
+    const paper = document.getElementById('report-content');
+    if (!paper || paper.style.display === 'none') {
+        showToast('សូមបង្កើតរបាយការណ៍ជាមុនសិន មុននឹងទាញយកជាឯកសារ Word!', 'warning');
+        return;
+    }
+    
+    const clone = paper.cloneNode(true);
+    
+    // Format tables for Word rendering
+    const tables = clone.querySelectorAll('table');
+    tables.forEach(table => {
+        table.setAttribute('border', '1');
+        table.setAttribute('cellpadding', '6');
+        table.setAttribute('cellspacing', '0');
+        table.style.width = '100%';
+        table.style.borderCollapse = 'collapse';
+        table.style.borderColor = '#000000';
+    });
+
+    const ths = clone.querySelectorAll('th');
+    ths.forEach(th => {
+        th.style.backgroundColor = '#fde047';
+        th.style.color = '#000000';
+        th.style.fontWeight = 'bold';
+        th.style.border = '1px solid #000000';
+        th.style.padding = '8px';
+    });
+
+    const tds = clone.querySelectorAll('td');
+    tds.forEach(td => {
+        td.style.border = '1px solid #000000';
+        td.style.padding = '6px';
+    });
+
+    const contentHTML = clone.innerHTML;
+    const titleEl = document.getElementById('report-header-title');
+    const fileNameText = titleEl ? titleEl.innerText.replace(/[^a-zA-Z0-9ក-ឤ០-៩]/g, '_') : 'NADR_Report';
+    
+    const wordDocHTML = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head>
+            <meta charset='utf-8'>
+            <title>${titleEl ? titleEl.innerText : 'របាយការណ៍'}</title>
+            <style>
+                @page {
+                    size: A4 portrait;
+                    margin: 2cm;
+                }
+                body {
+                    font-family: 'Khmer OS Battambang', 'Khmer OS Content', 'Arial Unicode MS', sans-serif;
+                    font-size: 11pt;
+                    line-height: 1.6;
+                    color: #0f172a;
+                }
+                h1, h2, h3, h4, th {
+                    font-family: 'Khmer OS Muol Light', 'Muol Light', 'Khmer OS Battambang', serif;
+                }
+                table {
+                    border-collapse: collapse;
+                    width: 100%;
+                    margin-top: 15px;
+                    margin-bottom: 15px;
+                }
+                th, td {
+                    border: 1px solid #000000;
+                    padding: 6px 8px;
+                }
+                th {
+                    background-color: #fde047;
+                    font-weight: bold;
+                    text-align: center;
+                }
+                .official-report-header {
+                    text-align: center;
+                    margin-bottom: 25px;
+                }
+                .kingdom-title h3 {
+                    font-size: 14pt;
+                    color: #1e3a8a;
+                    margin: 0 0 4px 0;
+                }
+                .kingdom-title h4 {
+                    font-size: 12pt;
+                    color: #1e3a8a;
+                    margin: 0 0 10px 0;
+                }
+                .title-underline {
+                    width: 80px;
+                    height: 2px;
+                    background: #ca8a04;
+                    margin: 0 auto 15px auto;
+                }
+                .report-main-title h2 {
+                    font-size: 13pt;
+                    color: #0f172a;
+                    margin: 0 0 6px 0;
+                }
+                .report-main-title p {
+                    font-size: 11pt;
+                    color: #475569;
+                    margin: 0;
+                }
+                .official-report-footer {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-top: 40px;
+                    width: 100%;
+                }
+                .signature-box {
+                    text-align: center;
+                    width: 45%;
+                    display: inline-block;
+                    vertical-align: top;
+                }
+                .right-sig {
+                    float: right;
+                }
+                .left-sig {
+                    float: left;
+                }
+                .signature-space {
+                    height: 80px;
+                }
+            </style>
+        </head>
+        <body>
+            ${contentHTML}
+        </body>
+        </html>
+    `;
+    
+    const blob = new Blob(['\ufeff', wordDocHTML], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${fileNameText}_${new Date().toISOString().slice(0, 10)}.doc`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    showToast('បានទាញយករបាយការណ៍ជាឯកសារ Word ដោយជោគជ័យ!', 'success');
 }
