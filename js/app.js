@@ -102,6 +102,7 @@ function updateClock() {
 function renderAllViews() {
     renderDashboardStats();
     renderRecentCasesTable();
+    renderEntryCasesTable();
     renderMasterTableHeader();
     applyFiltersAndRenderMasterTable();
     if (typeof initOrUpdateCharts === 'function') {
@@ -240,6 +241,48 @@ function renderRecentCasesTable() {
                         <button class="btn-icon" onclick="openViewModal('${c.id}')" title="មើលប័ណ្ណព័ត៌មាន"><i class="fa-solid fa-eye"></i></button>
                         <button class="btn-icon text-success" onclick="if(typeof openLegalDocModal === 'function') openLegalDocModal('${c.id}')" title="ផលិតលិខិតគតិយុត្ត (5 Docs)"><i class="fa-solid fa-file-signature"></i></button>
                         <button class="btn-icon" onclick="openEditModal('${c.id}')" title="កែសម្រួល"><i class="fa-solid fa-pen"></i></button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    });
+    tbody.innerHTML = html;
+}
+
+/**
+ * Render All Cases Table in Case Entry View (#entry-view)
+ */
+function renderEntryCasesTable() {
+    const tbody = document.getElementById('entry-cases-tbody');
+    const countBadge = document.getElementById('entry-table-count');
+    if (!tbody) return;
+
+    const sorted = sortCases(casesData, 'date-desc');
+    if (countBadge) countBadge.innerText = `សរុប៖ ${sorted.length} ករណី`;
+
+    if (sorted.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-4">គ្មានទិន្នន័យសំណុំរឿងឡើយ</td></tr>`;
+        return;
+    }
+
+    let html = '';
+    sorted.forEach((c, idx) => {
+        html += `
+            <tr>
+                <td><strong>${idx + 1}</strong></td>
+                <td><span class="case-number-tag">${c.caseNumber}</span></td>
+                <td>${c.dateReceived}</td>
+                <td><span class="badge" style="background: #e2e8f0; color: #334155; font-size: 11px;">${c.category}</span></td>
+                <td><i class="fa-solid fa-location-dot text-muted"></i> ${c.disputeLocation}</td>
+                <td><strong>${c.partyA_name}</strong> <small class="text-muted">(${c.partyA_phone || 'គ្មានលេខ'})</small></td>
+                <td><strong>${c.partyB_name}</strong> <small class="text-muted">(${c.partyB_phone || 'គ្មានលេខ'})</small></td>
+                <td>${getStatusBadgeHTML(c.status)}</td>
+                <td class="text-center">
+                    <div class="action-btns" style="justify-content: center;">
+                        <button class="btn-icon" onclick="openViewModal('${c.id}')" title="មើលប័ណ្ណព័ត៌មាន"><i class="fa-solid fa-eye"></i></button>
+                        <button class="btn-icon text-success" onclick="if(typeof openLegalDocModal === 'function') openLegalDocModal('${c.id}')" title="ផលិតលិខិតគតិយុត្ត"><i class="fa-solid fa-file-signature"></i></button>
+                        <button class="btn-icon" onclick="openEditModal('${c.id}')" title="កែសម្រួល"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn-icon delete-btn" onclick="confirmDeleteCase('${c.id}')" title="លុប"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 </td>
             </tr>
@@ -462,6 +505,7 @@ function initModalEvents() {
     const modal = document.getElementById('case-modal');
     const btnAdd1 = document.getElementById('btn-open-add-modal');
     const btnAdd2 = document.getElementById('btn-open-add-modal-2');
+    const btnAddEntry = document.getElementById('btn-open-add-modal-entry');
     const btnClose = document.getElementById('btn-close-modal');
     const btnCancel = document.getElementById('btn-cancel-modal');
     const form = document.getElementById('case-form');
@@ -520,10 +564,25 @@ function initModalEvents() {
         modal.classList.add('open');
     };
 
+    const checkUnsavedAndClose = () => {
+        const caseNum = document.getElementById('case-number')?.value?.trim();
+        const partyA = document.getElementById('case-party-a-name')?.value?.trim();
+        const partyB = document.getElementById('case-party-b-name')?.value?.trim();
+        const summary = document.getElementById('case-summary')?.value?.trim();
+        if (caseNum || partyA || partyB || summary) {
+            customConfirm("បញ្ជាក់ការបោះបង់", "លោកអ្នកកំពុងបញ្ចូលទិន្នន័យ តើអ្នកពិតជាចង់បោះបង់ ឬចាកចេញពីផ្ទាំងនេះមែនទេ? ទិន្នន័យដែលបានវាយបញ្ចូលនឹងមិនត្រូវបានរក្សាទុកឡើយ!", () => {
+                modal.classList.remove('open');
+            });
+        } else {
+            modal.classList.remove('open');
+        }
+    };
+
     if (btnAdd1) btnAdd1.addEventListener('click', openAdd);
     if (btnAdd2) btnAdd2.addEventListener('click', openAdd);
-    if (btnClose) btnClose.addEventListener('click', () => modal.classList.remove('open'));
-    if (btnCancel) btnCancel.addEventListener('click', () => modal.classList.remove('open'));
+    if (btnAddEntry) btnAddEntry.addEventListener('click', openAdd);
+    if (btnClose) btnClose.addEventListener('click', checkUnsavedAndClose);
+    if (btnCancel) btnCancel.addEventListener('click', checkUnsavedAndClose);
 
     if (form) {
         form.addEventListener('submit', (e) => {
@@ -569,9 +628,11 @@ function initModalEvents() {
 
             if (id) {
                 updateCase(id, payload);
+                if (typeof logAuditAction === 'function') logAuditAction('កែសម្រួលសំណុំរឿង', `បានកែសម្រួលសំណុំរឿងលេខកូដ "${payload.caseNumber}"`);
                 showToast('បានកែសម្រួលសំណុំរឿងដោយជោគជ័យ!', 'success');
             } else {
                 addCase(payload);
+                if (typeof logAuditAction === 'function') logAuditAction('បង្កើតសំណុំរឿងថ្មី', `បានបញ្ចូលសំណុំរឿងថ្មីលេខកូដ "${payload.caseNumber}" (Full Form)`);
                 showToast('បានបង្កើតសំណុំរឿងថ្មីដោយជោគជ័យ!', 'success');
             }
             modal.classList.remove('open');
@@ -788,19 +849,60 @@ function openViewModal(id) {
 }
 
 /**
+ * Custom Confirmation Popup Modal System
+ */
+function customConfirm(title, message, onYes, onNo) {
+    const modal = document.getElementById('custom-confirm-modal');
+    if (!modal) {
+        if (confirm(`${title}\n\n${message}`)) {
+            if (onYes) onYes();
+        } else {
+            if (onNo) onNo();
+        }
+        return;
+    }
+    const titleEl = document.getElementById('custom-confirm-title');
+    const msgEl = document.getElementById('custom-confirm-message');
+    if (titleEl) titleEl.innerText = title || 'ការបញ្ជាក់សុវត្ថិភាព';
+    if (msgEl) msgEl.innerText = message || 'តើលោកអ្នកពិតជាចង់បន្តសកម្មភាពនេះមែនទេ?';
+    
+    const btnYes = document.getElementById('btn-confirm-yes');
+    const btnNo = document.getElementById('btn-confirm-no');
+    if (!btnYes || !btnNo) return;
+    
+    const newBtnYes = btnYes.cloneNode(true);
+    const newBtnNo = btnNo.cloneNode(true);
+    btnYes.parentNode.replaceChild(newBtnYes, btnYes);
+    btnNo.parentNode.replaceChild(newBtnNo, btnNo);
+    
+    newBtnYes.addEventListener('click', () => {
+        modal.classList.remove('open');
+        if (onYes) onYes();
+    });
+    
+    newBtnNo.addEventListener('click', () => {
+        modal.classList.remove('open');
+        if (onNo) onNo();
+    });
+    
+    modal.classList.add('open');
+}
+
+/**
  * Confirm delete case
  */
 function confirmDeleteCase(id, closeViewAfter = false) {
     const c = getCaseById(id);
     if (!c) return;
-    if (confirm(`តើលោកអ្នកពិតជាចង់លុបសំណុំរឿងលេខ "${c.caseNumber}" នេះមែនទេ? ទិន្នន័យដែលលុបហើយមិនអាចស្ដារវិញបានឡើយ!`)) {
+    customConfirm('បញ្ជាក់ការលុបសំណុំរឿង', `តើលោកអ្នកពិតជាចង់លុបសំណុំរឿងលេខ "${c.caseNumber}" នេះមែនទេ? ទិន្នន័យដែលលុបហើយមិនអាចស្ដារវិញបានឡើយ!`, () => {
         deleteCase(id);
+        if (typeof logAuditAction === 'function') logAuditAction('លុបសំណុំរឿង', `បានលុបសំណុំរឿងលេខកូដ "${c.caseNumber}"`);
         showToast(`បានលុបសំណុំរឿង "${c.caseNumber}" ចេញពីបញ្ជីដោយជោគជ័យ!`, 'success');
         if (closeViewAfter) {
             document.getElementById('view-modal')?.classList.remove('open');
         }
         renderAllViews();
-    }
+    });
 }
 
 /**
@@ -819,6 +921,34 @@ function renderAnalyticsView() {
     if (setEl) setEl.innerText = stats.settle;
     if (actEl) actEl.innerText = stats.active;
     if (othEl) othEl.innerText = (stats.close + stats.pending);
+
+    const avgDaysEl = document.getElementById('eval-avg-days');
+    const resRateEl = document.getElementById('eval-resolution-rate');
+    let totalDays = 0;
+    let resolvedCount = 0;
+    const now = new Date();
+    casesData.forEach(c => {
+        if (c.status === 'Settle (ព្រមព្រៀង)' || c.status === 'Close (បិទ)') {
+            resolvedCount++;
+            if (c.dateReceived) {
+                const receivedDate = new Date(c.dateReceived);
+                if (!isNaN(receivedDate.getTime())) {
+                    const diffTime = Math.abs(now - receivedDate);
+                    const diffDays = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+                    totalDays += Math.min(diffDays, 120);
+                } else {
+                    totalDays += 14;
+                }
+            } else {
+                totalDays += 14;
+            }
+        }
+    });
+    const avgDays = resolvedCount > 0 ? Math.round(totalDays / resolvedCount) : 14;
+    if (avgDaysEl) avgDaysEl.innerText = `${avgDays} ថ្ងៃ`;
+
+    const overallResRate = stats.total > 0 ? (((stats.settle + stats.close) / stats.total) * 100).toFixed(1) : 0;
+    if (resRateEl) resRateEl.innerText = `${overallResRate} %`;
 
     if (concEl) {
         const rateNum = parseFloat(stats.settleRate);
@@ -898,14 +1028,25 @@ function initDataManagementEvents() {
     const btnReset = document.getElementById('btn-reset-mock-data');
     if (btnReset) {
         btnReset.addEventListener('click', () => {
-            if (confirm('តើលោកអ្នកពិតជាចង់ស្ដារទិន្នន័យគំរូដើមទាំង ១០ ករណីវិញមែនទេ? រាល់ទិន្នន័យដែលបានកែប្រែនឹងត្រូវជំនួស!')) {
+            customConfirm('បញ្ជាក់ការស្ដារទិន្នន័យដើម', 'តើលោកអ្នកពិតជាចង់ស្ដារទិន្នន័យគំរូដើមទាំង ១០ ករណីវិញមែនទេ? រាល់ទិន្នន័យដែលបានកែប្រែនឹងត្រូវជំនួស!', () => {
                 resetToMockData();
                 renderAllViews();
+                if (typeof logAuditAction === 'function') logAuditAction('ស្ដារទិន្នន័យគំរូ', 'បានស្ដារទិន្នន័យគំរូដើម ១០ សំណុំរឿង NADR');
                 showToast('បានស្ដារទិន្នន័យគំរូដើមទាំង ១០ ករណីដោយជោគជ័យ!', 'success');
-            }
+            });
         });
     }
 }
+
+window.confirmFactoryReset = function() {
+    customConfirm('បញ្ជាក់ការលុបទិន្នន័យទាំងអស់ (Factory Reset)', 'ប្រកាសអាសន្ន! តើលោកអ្នកពិតជាចង់លុបទិន្នន័យសំណុំរឿងទាំងអស់ក្នុងប្រព័ន្ធឱ្យក្លាយជាសូន្យ (Empty State) មែនទេ? ទិន្នន័យដែលលុបហើយមិនអាចស្ដារវិញបានឡើយ!', () => {
+        casesData = [];
+        saveCases();
+        renderAllViews();
+        if (typeof logAuditAction === 'function') logAuditAction('Factory Reset', 'បានលុបសម្អាតទិន្នន័យសំណុំរឿងទាំងអស់ (Empty State)');
+        showToast('បានលុបទិន្នន័យសំណុំរឿងទាំងអស់ក្លាយជាសូន្យ (Factory Reset)!', 'success');
+    });
+};
 
 /**
  * Theme Toggle
@@ -1043,6 +1184,7 @@ function initAuth() {
                 storage.setItem('nadr_auth_user_role', uRole);
 
                 updateSidebarUser(uName, uRole);
+                if (typeof logAuditAction === 'function') logAuditAction('ចូលប្រព័ន្ធ', `បានចូលប្រើប្រព័ន្ធក្នុងនាម ${uName} (${uRole})`);
 
                 // Animate out
                 if (overlay) {
@@ -1064,9 +1206,10 @@ function initAuth() {
 
     // 4. Logout click
     const doLogout = () => {
-        if (confirm('តើអ្នកពិតជាចង់ចាកចេញពីប្រព័ន្ធ (Logout) មែនទេ?')) {
+        customConfirm('បញ្ជាក់ការចាកចេញ', 'តើអ្នកពិតជាចង់ចាកចេញពីប្រព័ន្ធ (Logout) មែនទេ?', () => {
             localStorage.removeItem('nadr_auth_logged_in');
             sessionStorage.removeItem('nadr_auth_logged_in');
+            if (typeof logAuditAction === 'function') logAuditAction('ចាកចេញពីប្រព័ន្ធ', 'បានចាកចេញពីប្រព័ន្ធ (Logout)');
             
             if (overlay) overlay.classList.remove('hidden-auth');
             const pwd = document.getElementById('login-password');
@@ -1074,7 +1217,7 @@ function initAuth() {
             if (errorMsg) errorMsg.classList.add('d-none');
             
             showToast('បានចាកចេញពីប្រព័ន្ធដោយសុវត្ថិភាព', 'info');
-        }
+        });
     };
 
     if (btnLogout) btnLogout.addEventListener('click', doLogout);
@@ -1235,6 +1378,8 @@ function initSettingsEvents() {
     renderSettingsCategories();
     renderSettingsColumns();
     renderSettingsAdmins();
+    renderAuditLogs();
+    initOrgSettings();
 }
 
 function renderSettingsProvinces() {
@@ -1257,13 +1402,13 @@ function renderSettingsProvinces() {
 }
 
 window.deleteProvinceSetting = function(index) {
-    if (confirm(`តើអ្នកពិតជាចង់លុបខេត្ត ${PROVINCES_LIST[index].name} មែនទេ?`)) {
+    customConfirm('បញ្ជាក់ការលុបខេត្ត/ក្រុង', `តើអ្នកពិតជាចង់លុបខេត្ត ${PROVINCES_LIST[index].name} មែនទេ?`, () => {
         PROVINCES_LIST.splice(index, 1);
         localStorage.setItem('nadr_provinces', JSON.stringify(PROVINCES_LIST));
         populateProvinceDropdowns();
         renderSettingsProvinces();
         showToast('បានលុបខេត្តដោយជោគជ័យ!', 'success');
-    }
+    });
 };
 
 function renderSettingsCategories() {
@@ -1285,13 +1430,13 @@ function renderSettingsCategories() {
 }
 
 window.deleteCategorySetting = function(index) {
-    if (confirm(`តើអ្នកពិតជាចង់លុបប្រភេទវិវាទ "${CASE_CATEGORIES[index]}" មែនទេ?`)) {
+    customConfirm('បញ្ជាក់ការលុបប្រភេទវិវាទ', `តើអ្នកពិតជាចង់លុបប្រភេទវិវាទ "${CASE_CATEGORIES[index]}" មែនទេ?`, () => {
         CASE_CATEGORIES.splice(index, 1);
         localStorage.setItem('nadr_categories', JSON.stringify(CASE_CATEGORIES));
         populateCategoryDropdowns();
         renderSettingsCategories();
         showToast('បានលុបប្រភេទវិវាទដោយជោគជ័យ!', 'success');
-    }
+    });
 };
 
 function renderSettingsColumns() {
@@ -1314,13 +1459,13 @@ function renderSettingsColumns() {
 }
 
 window.deleteColumnSetting = function(index) {
-    if (confirm(`តើអ្នកពិតជាចង់លុបកូឡោន "${CUSTOM_COLUMNS[index].labelKh}" មែនទេ?`)) {
+    customConfirm('បញ្ជាក់ការលុបកូឡោន', `តើអ្នកពិតជាចង់លុបកូឡោន "${CUSTOM_COLUMNS[index].labelKh}" មែនទេ?`, () => {
         CUSTOM_COLUMNS.splice(index, 1);
         localStorage.setItem('nadr_custom_columns', JSON.stringify(CUSTOM_COLUMNS));
         renderSettingsColumns();
         renderAllViews();
         showToast('បានលុបកូឡោនដោយជោគជ័យ!', 'success');
-    }
+    });
 };
 
 function renderSettingsAdmins() {
@@ -1350,12 +1495,63 @@ window.deleteAdminSetting = function(index) {
         showToast('មិនអាចលុបគណនីរដ្ឋបាលមេ (admin) បានទេ!', 'error');
         return;
     }
-    if (confirm(`តើអ្នកពិតជាចង់លុបគណនី "${user.username}" មែនទេ?`)) {
+    customConfirm('បញ្ជាក់ការលុបគណនី', `តើអ្នកពិតជាចង់លុបគណនី "${user.username}" មែនទេ?`, () => {
         ADMIN_USERS.splice(index, 1);
         localStorage.setItem('nadr_admin_users', JSON.stringify(ADMIN_USERS));
         renderSettingsAdmins();
         showToast('បានលុបគណនីដោយជោគជ័យ!', 'success');
+    });
+};
+
+function renderAuditLogs() {
+    const tbody = document.getElementById('settings-audit-tbody');
+    if (!tbody) return;
+    if (!AUDIT_LOGS || AUDIT_LOGS.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-3">គ្មានកំណត់ហេតុសកម្មភាពឡើយ</td></tr>`;
+        return;
     }
+    let html = '';
+    AUDIT_LOGS.forEach(log => {
+        html += `
+            <tr>
+                <td style="white-space: nowrap;"><i class="fa-regular fa-clock text-muted"></i> ${log.timestamp}</td>
+                <td><span class="badge badge-active" style="font-size: 11px;">${log.user}</span></td>
+                <td><strong>${log.action}</strong></td>
+                <td style="color: var(--text-muted);">${log.details}</td>
+            </tr>
+        `;
+    });
+    tbody.innerHTML = html;
+}
+
+window.clearAuditLogs = function() {
+    customConfirm('សម្អាតកំណត់ហេតុ', 'តើអ្នកពិតជាចង់លុបសម្អាតកំណត់ហេតុសកម្មភាពទាំងអស់មែនទេ?', () => {
+        AUDIT_LOGS = [];
+        localStorage.setItem('nadr_audit_logs', JSON.stringify(AUDIT_LOGS));
+        renderAuditLogs();
+        showToast('បានសម្អាតកំណត់ហេតុសកម្មភាពទាំងអស់រួចរាល់!', 'success');
+    });
+};
+
+function initOrgSettings() {
+    const kmEl = document.getElementById('setting-org-km');
+    const enEl = document.getElementById('setting-org-en');
+    const pfxEl = document.getElementById('setting-case-prefix');
+    if (kmEl && ORG_SETTINGS.nameKm) kmEl.value = ORG_SETTINGS.nameKm;
+    if (enEl && ORG_SETTINGS.nameEn) enEl.value = ORG_SETTINGS.nameEn;
+    if (pfxEl && ORG_SETTINGS.casePrefix) pfxEl.value = ORG_SETTINGS.casePrefix;
+}
+
+window.saveOrgSettings = function() {
+    const kmEl = document.getElementById('setting-org-km');
+    const enEl = document.getElementById('setting-org-en');
+    const pfxEl = document.getElementById('setting-case-prefix');
+    if (kmEl) ORG_SETTINGS.nameKm = kmEl.value.trim();
+    if (enEl) ORG_SETTINGS.nameEn = enEl.value.trim();
+    if (pfxEl) ORG_SETTINGS.casePrefix = pfxEl.value.trim() || 'NADR-2026-';
+    localStorage.setItem('nadr_org_settings', JSON.stringify(ORG_SETTINGS));
+    if (typeof logAuditAction === 'function') logAuditAction('កែប្រែការកំណត់ស្ថាប័ន', `បានផ្លាស់ប្តូរក្បាលលេខកូដសំណុំរឿងទៅជា "${ORG_SETTINGS.casePrefix}"`);
+    showToast('បានរក្សាទុកការកំណត់ស្ថាប័ន និងលេខកូដដោយជោគជ័យ!', 'success');
 };
 
 /**
@@ -1451,7 +1647,7 @@ function initDashboardQuickForm() {
                 partyB_phone: '',
                 partyB_location: document.getElementById('quick-case-dispute-location').value,
 
-                summary: 'បញ្ចូលរហ័សតាម Dashboard',
+                summary: document.getElementById('quick-case-summary')?.value.trim() || 'បញ្ចូលរហ័សតាម Dashboard',
                 meetingPartyA: 'មិនទាន់ប្រជុំ',
                 meetingPartyB: 'មិនទាន់ប្រជុំ',
                 mediationMeeting: 'មិនទាន់ប្រជុំ',
@@ -1465,6 +1661,7 @@ function initDashboardQuickForm() {
             });
 
             addCase(payload);
+            if (typeof logAuditAction === 'function') logAuditAction('បញ្ចូលសំណុំរឿងរហ័ស', `បានបញ្ចូលសំណុំរឿងរហ័សលេខកូដ "${payload.caseNumber}" (AI Quick Entry)`);
             showToast('បានបង្កើតសំណុំរឿងថ្មីរហ័សដោយជោគជ័យ!', 'success');
             
             // Reset form

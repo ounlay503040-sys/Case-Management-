@@ -83,7 +83,11 @@
 
             <nav class="sidebar-nav">
                 <div class="nav-section-title" data-i18n="nav.main">មេនុយទូទៅ (MAIN)</div>
-                <a href="#cases-view" class="nav-item active" data-view="cases-view">
+                <a href="#entry-view" class="nav-item active" data-view="entry-view">
+                    <i class="fa-solid fa-folder-plus"></i>
+                    <span data-i18n="nav.entry">បញ្ចូលសំណុំរឿង</span>
+                </a>
+                <a href="#cases-view" class="nav-item" data-view="cases-view">
                     <i class="fa-solid fa-table-list"></i>
                     <span data-i18n="nav.cases">បញ្ជីសំណុំរឿង</span>
                 </a>
@@ -161,11 +165,6 @@
                             <i class="fa-solid fa-power-off" style="font-size: 12px;"></i>
                         </button>
                     </div>
-
-                    <button class="btn btn-primary btn-add-case" id="btn-open-add-modal">
-                        <i class="fa-solid fa-plus"></i>
-                        <span data-i18n="header.addCase">បង្កើតសំណុំរឿងថ្មី</span>
-                    </button>
                 </div>
             </header>
 
@@ -236,11 +235,8 @@
                     </div>
                 </div>
 
-                <!-- TWO-COLUMN COMMAND CENTER LAYOUT -->
-                <div class="dashboard-split-layout mt-4" style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: start;">
-                    <!-- LEFT COLUMN: STATS BREAKDOWN + RECENT CASES TABLE -->
-                    <div class="dashboard-main-pane" style="display: flex; flex-direction: column; gap: 24px;">
-                        
+                <!-- FULL WIDTH COMMAND CENTER LAYOUT -->
+                <div class="dashboard-full-layout mt-4" style="display: flex; flex-direction: column; gap: 24px;">
                         <!-- SECTION 2: OVERALL CASE ACTION RESULTS BREAKDOWN -->
                         <div class="card-panel">
                             <div class="panel-header" style="margin-bottom: 15px;">
@@ -331,73 +327,10 @@
                                     </tbody>
                                 </table>
                             </div>
+                                </table>
+                            </div>
                         </div>
 
-                    </div>
-
-                    <!-- RIGHT COLUMN: QUICK CASE ENTRY FORM CARD WITH AI -->
-                    <div class="dashboard-side-pane">
-                        <div class="card-panel quick-entry-card" style="position: sticky; top: 20px; background: var(--bg-card); border: 2px solid var(--primary-color); padding: 20px;">
-                            <div class="panel-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 16px;">
-                                <h3 style="color: var(--primary-color); font-weight: 700; font-size: 14px; margin: 0; display: flex; align-items: center; gap: 8px;">
-                                    <i class="fa-solid fa-folder-plus text-accent"></i> បញ្ចូលសំណុំរឿងរហ័ស
-                                </h3>
-                            </div>
-                            
-                            <!-- AI Box -->
-                            <div class="quick-ai-box mb-3" style="background: linear-gradient(135deg, #eff6ff, #f0fdf4); padding: 12px; border-radius: var(--radius-sm); border: 1px solid #bfdbfe; font-size: 12px;">
-                                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; font-weight: 700; color: #1e3a8a;">
-                                    <i class="fa-solid fa-wand-magic-sparkles"></i>
-                                    <span>AI Extract (PDF / text)</span>
-                                </div>
-                                <textarea id="dashboard-ai-text" class="form-control mb-2" rows="2" placeholder="បិទភ្ជាប់ពាក្យបណ្តឹងនៅទីនេះ រួចចុច AI Extract..." style="font-size: 11px; border: 1px solid #cbd5e1; padding: 6px; border-radius: 4px; width: 100%; resize: vertical;"></textarea>
-                                <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <label class="btn btn-sm btn-outline mb-0" style="font-size: 10px; cursor: pointer; padding: 3px 8px; background: #fff; border: 1px solid #cbd5e1; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px;">
-                                        <i class="fa-solid fa-file-pdf text-danger"></i> PDF/Text
-                                        <input type="file" id="dashboard-ai-file" accept=".txt,.doc,.docx,.csv,.pdf" style="display: none;">
-                                    </label>
-                                    <button type="button" class="btn btn-sm btn-primary" id="btn-dashboard-ai-extract" style="font-size: 10px; padding: 4px 10px; font-weight: 600;">
-                                        ✨ AI Extract
-                                    </button>
-                                </div>
-                            </div>
-
-                            <form id="dashboard-quick-form">
-                                <div class="form-group mb-2">
-                                    <label style="font-size: 11px; font-weight: 600; margin-bottom: 3px; display: block;">លេខកូដសំណុំរឿង <span class="text-danger">*</span></label>
-                                    <input type="text" id="quick-case-number" class="form-control" placeholder="NADR-2026-xxx" required style="font-size: 12px; padding: 6px 8px; height: 32px;">
-                                </div>
-                                <div class="form-group mb-2">
-                                    <label style="font-size: 11px; font-weight: 600; margin-bottom: 3px; display: block;">កាលបរិច្ឆេទទទួល <span class="text-danger">*</span></label>
-                                    <input type="date" id="quick-case-date" class="form-control" required style="font-size: 12px; padding: 6px 8px; height: 32px;">
-                                </div>
-                                <div class="form-group mb-2">
-                                    <label style="font-size: 11px; font-weight: 600; margin-bottom: 3px; display: block;">ប្រភេទសំណុំរឿង <span class="text-danger">*</span></label>
-                                    <select id="quick-case-category" class="form-control" required style="font-size: 12px; padding: 2px 8px; height: 32px;">
-                                        <!-- Populated dynamically -->
-                                    </select>
-                                </div>
-                                <div class="form-group mb-2">
-                                    <label style="font-size: 11px; font-weight: 600; margin-bottom: 3px; display: block;">ទីតាំងវិវាទ <span class="text-danger">*</span></label>
-                                    <select id="quick-case-dispute-location" class="form-control" required style="font-size: 12px; padding: 2px 8px; height: 32px;">
-                                        <!-- Populated dynamically -->
-                                    </select>
-                                </div>
-                                <div class="form-group mb-2">
-                                    <label style="font-size: 11px; font-weight: 600; margin-bottom: 3px; display: block;">ឈ្មោះភាគី (ក) ដើមបណ្ដឹង <span class="text-danger">*</span></label>
-                                    <input type="text" id="quick-case-party-a-name" class="form-control" placeholder="ឈ្មោះភាគី ក" required style="font-size: 12px; padding: 6px 8px; height: 32px;">
-                                </div>
-                                <div class="form-group mb-3">
-                                    <label style="font-size: 11px; font-weight: 600; margin-bottom: 3px; display: block;">ឈ្មោះភាគី (ខ) ចុងបណ្ដឹង <span class="text-danger">*</span></label>
-                                    <input type="text" id="quick-case-party-b-name" class="form-control" placeholder="ឈ្មោះភាគី ខ" required style="font-size: 12px; padding: 6px 8px; height: 32px;">
-                                </div>
-
-                                <button type="submit" class="btn btn-primary w-100" style="font-weight: 700; padding: 8px; font-size: 12px; border-radius: var(--radius-sm); box-shadow: 0 4px 8px rgba(30,58,138,0.25);">
-                                    <i class="fa-solid fa-save"></i> ਰក្សាទុកសំណុំរឿង
-                                </button>
-                            </form>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- CHARTS ROW (Visual Charts Section below split layout) -->
@@ -425,8 +358,145 @@
                 </div>
             </section>
 
+            <!-- VIEW 0: CASE ENTRY VIEW -->
+            <section class="view-section active" id="entry-view">
+                <div class="section-title-box">
+                    <div>
+                        <h1 data-i18n="entry.title">បញ្ជាក់ និងបញ្ចូលសំណុំរឿងថ្មី (Case Intake & Registration Center)</h1>
+                        <p data-i18n="entry.subtitle">ទទួលពាក្យបណ្តឹង ចាត់បែងចែកលេខកូដ និងបញ្ចូលទិន្នន័យសំណុំរឿងវិវាទចូលក្នុងប្រព័ន្ធ NADR</p>
+                    </div>
+                </div>
+
+                <!-- TWO-COLUMN COMMAND CENTER FOR CASE ENTRY -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 24px; margin-bottom: 32px;">
+                    <!-- CARD 1: QUICK ENTRY WITH AI EXTRACT -->
+                    <div class="card-panel quick-entry-card" style="background: var(--bg-card); border: 2px solid var(--primary-color); padding: 24px; border-radius: var(--radius-lg); box-shadow: var(--shadow-md);">
+                        <div class="panel-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between;">
+                            <h3 style="color: var(--primary-color); font-weight: 700; font-size: 16px; margin: 0; display: flex; align-items: center; gap: 8px;">
+                                <i class="fa-solid fa-wand-magic-sparkles text-accent"></i> ១. បញ្ចូលសំណុំរឿងរហ័ស ជាមួយ AI Extract
+                            </h3>
+                            <span class="badge" style="background: #e0f2fe; color: #0369a1; font-size: 11px; padding: 4px 10px; border-radius: 12px; font-weight: 700;">Smart AI</span>
+                        </div>
+                        
+                        <!-- AI Box -->
+                        <div class="quick-ai-box mb-3" style="background: linear-gradient(135deg, #eff6ff, #f0fdf4); padding: 14px; border-radius: var(--radius-md); border: 1px solid #bfdbfe; font-size: 13px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-weight: 700; color: #1e3a8a;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <i class="fa-solid fa-robot"></i>
+                                    <span>AI Auto-Extractor (PDF & Text Parser)</span>
+                                </div>
+                                <span style="font-size: 11px; font-weight: normal; color: #475569;">ទាញយកឈ្មោះ និងកាលបរិច្ឆេទស្វ័យប្រវត្តិ</span>
+                            </div>
+                            <textarea id="dashboard-ai-text" class="form-control mb-2" rows="3" placeholder="បិទភ្ជាប់អត្ថបទពាក្យបណ្តឹង ឬខ្លឹមសារវិវាទនៅទីនេះ រួចចុច AI Extract..." style="font-size: 13px; border: 1px solid #cbd5e1; padding: 8px; border-radius: 6px; width: 100%; resize: vertical;"></textarea>
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                                <label class="btn btn-sm btn-outline mb-0" style="font-size: 12px; cursor: pointer; padding: 6px 12px; background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px;">
+                                    <i class="fa-solid fa-file-pdf text-danger" style="font-size: 15px;"></i> ជ្រើសរើសឯកសារ PDF / Doc
+                                    <input type="file" id="dashboard-ai-file" accept=".txt,.doc,.docx,.csv,.pdf" style="display: none;">
+                                </label>
+                                <button type="button" class="btn btn-sm btn-primary" id="btn-dashboard-ai-extract" style="font-size: 12px; padding: 6px 16px; font-weight: 700; background: linear-gradient(135deg, #2563eb, #3b82f6); border: none; box-shadow: 0 4px 10px rgba(37,99,235,0.25);">
+                                    ✨ ទាញទិន្នន័យ (AI Extract)
+                                </button>
+                            </div>
+                        </div>
+
+                        <form id="dashboard-quick-form">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                <div class="form-group mb-2">
+                                    <label style="font-size: 12px; font-weight: 600; margin-bottom: 4px; display: block;">លេខកូដសំណុំរឿង <span class="text-danger">*</span></label>
+                                    <input type="text" id="quick-case-number" class="form-control" placeholder="NADR-2026-xxx" required style="font-size: 13px; padding: 8px 10px; height: 38px;">
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label style="font-size: 12px; font-weight: 600; margin-bottom: 4px; display: block;">កាលបរិច្ឆេទទទួល <span class="text-danger">*</span></label>
+                                    <input type="date" id="quick-case-date" class="form-control" required style="font-size: 13px; padding: 8px 10px; height: 38px;">
+                                </div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                <div class="form-group mb-2">
+                                    <label style="font-size: 12px; font-weight: 600; margin-bottom: 4px; display: block;">ប្រភេទវិវាទ <span class="text-danger">*</span></label>
+                                    <select id="quick-case-category" class="form-control" required style="font-size: 13px; padding: 6px 10px; height: 38px;">
+                                        <!-- Populated dynamically -->
+                                    </select>
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label style="font-size: 12px; font-weight: 600; margin-bottom: 4px; display: block;">ទីតាំងវិវាទ <span class="text-danger">*</span></label>
+                                    <select id="quick-case-dispute-location" class="form-control" required style="font-size: 13px; padding: 6px 10px; height: 38px;">
+                                        <!-- Populated dynamically -->
+                                    </select>
+                                </div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                <div class="form-group mb-2">
+                                    <label style="font-size: 12px; font-weight: 600; margin-bottom: 4px; display: block;">ឈ្មោះភាគី ក (ដើមបណ្តឹង) <span class="text-danger">*</span></label>
+                                    <input type="text" id="quick-case-party-a-name" class="form-control" placeholder="ឈ្មោះភាគី ក..." required style="font-size: 13px; padding: 8px 10px; height: 38px;">
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label style="font-size: 12px; font-weight: 600; margin-bottom: 4px; display: block;">ឈ្មោះភាគី ខ (ចុងបណ្តឹង) <span class="text-danger">*</span></label>
+                                    <input type="text" id="quick-case-party-b-name" class="form-control" placeholder="ឈ្មោះភាគី ខ..." required style="font-size: 13px; padding: 8px 10px; height: 38px;">
+                                </div>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label style="font-size: 12px; font-weight: 600; margin-bottom: 4px; display: block;">សង្ខេបកម្មវត្ថុវិវាទ <span class="text-danger">*</span></label>
+                                <textarea id="quick-case-summary" class="form-control" rows="2" placeholder="វាយខ្លឹមសារសង្ខេបពីវិវាទ..." required style="font-size: 13px; padding: 8px 10px;"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100" style="padding: 12px; font-size: 14px; font-weight: 700; background: var(--primary-color); border: none; box-shadow: var(--shadow-sm); display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                <i class="fa-solid fa-circle-check"></i> បញ្ចូល និងរក្សាទុកក្នុងប្រព័ន្ធ
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- CARD 2: MANUAL FULL CASE ENTRY -->
+                    <div class="card-panel" style="background: linear-gradient(145deg, var(--bg-card), #f8fafc); border: 2px dashed #94a3b8; padding: 32px 24px; border-radius: var(--radius-lg); display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; box-shadow: var(--shadow-sm);">
+                        <div style="width: 80px; height: 80px; border-radius: 50%; background: #e0e7ff; color: #4338ca; display: flex; align-items: center; justify-content: center; font-size: 36px; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(67,56,202,0.15);">
+                            <i class="fa-solid fa-file-pen"></i>
+                        </div>
+                        <h3 style="font-size: 18px; font-weight: 800; color: var(--text-color); margin-bottom: 12px;">២. បញ្ចូលសំណុំរឿងដោយដៃ (Full Manual Intake Form)</h3>
+                        <p style="font-size: 14px; color: var(--text-muted); max-width: 380px; line-height: 1.6; margin-bottom: 28px;">
+                            បើកទម្រង់បែបបទពេញលេញដែលមាន ២០+ មុខវិជ្ជា រួមមានព័ត៌មានលម្អិតរបស់ភាគី ក/ខ (អាយុ, ភេទ, លេខទូរស័ព្ទ, អាសយដ្ឋាន), ទីតាំងវិវាទ, និងកាលបរិច្ឆេទប្រជុំសម្រុះសម្រួល។
+                        </p>
+                        <button type="button" class="btn btn-primary btn-add-case" id="btn-open-add-modal-entry" style="padding: 14px 28px; font-size: 15px; font-weight: 700; border-radius: 30px; box-shadow: 0 8px 20px rgba(37,99,235,0.3); background: linear-gradient(135deg, #1e40af, #3b82f6); border: none; display: inline-flex; align-items: center; gap: 10px; transition: transform 0.2s, box-shadow 0.2s;">
+                            <i class="fa-solid fa-circle-plus" style="font-size: 18px;"></i>
+                            <span>បើកទម្រង់បញ្ចូលសំណុំរឿងពេញលេញ (Full Form)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ALL / RECENT CASE LIST BELOW ENTRY FORMS -->
+                <div class="card-panel" style="padding: 24px; border-radius: var(--radius-lg); background: var(--bg-card); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+                    <div class="panel-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                        <div>
+                            <h3 style="color: var(--text-color); font-weight: 700; font-size: 16px; margin: 0; display: flex; align-items: center; gap: 8px;">
+                                <i class="fa-solid fa-list-check text-primary"></i> បញ្ជីសំណុំរឿងទាំងអស់នៅក្នុងប្រព័ន្ធ (All Cases Overview)
+                            </h3>
+                            <p style="font-size: 13px; color: var(--text-muted); margin: 4px 0 0 0;">ផ្ទៀងផ្ទាត់ និងតាមដានសំណុំរឿងដែលទើបបញ្ចូលថ្មីៗខាងលើភ្លាមៗ</p>
+                        </div>
+                        <span id="entry-table-count" class="badge" style="background: #f1f5f9; color: #334155; font-size: 13px; padding: 6px 14px; border-radius: 20px; font-weight: 700;">សរុប៖ ០ ករណី</span>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="data-table" style="width: 100%; font-size: 13px;">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px;">ល.រ</th>
+                                    <th>លេខកូដសំណុំរឿង</th>
+                                    <th>កាលបរិច្ឆេទ</th>
+                                    <th>ប្រភេទវិវាទ</th>
+                                    <th>ទីតាំង</th>
+                                    <th>ភាគី ក (ដើមបណ្តឹង)</th>
+                                    <th>ភាគី ខ (ចុងបណ្តឹង)</th>
+                                    <th>ស្ថានភាព</th>
+                                    <th class="text-center" style="width: 100px;">សកម្មភាព</th>
+                                </tr>
+                            </thead>
+                            <tbody id="entry-cases-tbody">
+                                <!-- Rendered dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
             <!-- VIEW 2: MASTER CASES DIRECTORY VIEW -->
-            <section class="view-section active" id="cases-view">
+            <section class="view-section" id="cases-view">
                 <div class="section-title-box">
                     <div>
                         <h1 data-i18n="cases.title">តារាងបញ្ជីសំណុំរឿង (Master Case Directory)</h1>
@@ -435,9 +505,6 @@
                     <div class="section-actions">
                         <button class="btn btn-outline" id="btn-export-current-excel" onclick="exportReportToExcel()">
                             <i class="fa-solid fa-file-excel text-success"></i> ទាញយកជា Excel
-                        </button>
-                        <button class="btn btn-primary" id="btn-open-add-modal-2">
-                            <i class="fa-solid fa-plus"></i> បង្កើតសំណុំរឿងថ្មី
                         </button>
                     </div>
                 </div>
@@ -546,7 +613,7 @@
                 </div>
 
                 <!-- ANALYTICS STAT CARDS -->
-                <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr);">
+                <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
                     <div class="stat-card" style="background: var(--primary-light); border-left: 4px solid var(--primary-color);">
                         <div class="stat-icon" style="color: var(--primary-color);"><i class="fa-solid fa-trophy"></i></div>
                         <div class="stat-content">
@@ -580,6 +647,24 @@
                             <span>ករណីបិទ ឬតម្កល់</span>
                             <h3 id="eval-other-count">០</h3>
                             <p class="stat-sub">Close & Pending Cases</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card" style="border-left: 4px solid #8b5cf6;">
+                        <div class="stat-icon" style="color: #8b5cf6;"><i class="fa-solid fa-clock"></i></div>
+                        <div class="stat-content">
+                            <span>រយៈពេលដោះស្រាយមធ្យម</span>
+                            <h3 id="eval-avg-days">០ ថ្ងៃ</h3>
+                            <p class="stat-sub">Average Resolution Days</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card" style="border-left: 4px solid #ec4899;">
+                        <div class="stat-icon" style="color: #ec4899;"><i class="fa-solid fa-chart-line"></i></div>
+                        <div class="stat-content">
+                            <span>អត្រាចាត់ការរួចរាល់សរុប</span>
+                            <h3 id="eval-resolution-rate">០ %</h3>
+                            <p class="stat-sub">Settle + Close / Total</p>
                         </div>
                     </div>
                 </div>
@@ -755,10 +840,15 @@
                         </div>
                         <p class="text-muted mb-3" style="font-size: 14px;">រក្សាទុកទិន្នន័យទាំងមូលជាឯកសារ Backup ដើម្បីការពារការបាត់បង់ ឬផ្ទេរទៅកុំព្យូទ័រផ្សេង៖</p>
                         <div class="mgmt-action-box mb-4">
-                            <button class="btn btn-primary w-100 mb-2" id="btn-export-json">
-                                <i class="fa-solid fa-download"></i> ទាញយក Backup (.json)
-                            </button>
-                            <span class="action-desc d-block text-center" style="font-size: 12px; color: var(--text-muted);">ទាញយកទិន្នន័យទាំងអស់ជាឯកសារបម្រុងសុវត្ថិភាព</span>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                <button class="btn btn-primary mb-2" id="btn-export-json" style="flex: 1; min-width: 200px;">
+                                    <i class="fa-solid fa-download"></i> ទាញយក Backup (.json)
+                                </button>
+                                <button class="btn btn-outline text-success mb-2" id="btn-export-csv-all" onclick="exportReportToCSV()" style="flex: 1; min-width: 200px;">
+                                    <i class="fa-solid fa-file-csv"></i> ទាញយកជា CSV (All Data)
+                                </button>
+                            </div>
+                            <span class="action-desc d-block text-center" style="font-size: 12px; color: var(--text-muted);">ទាញយកទិន្នន័យទាំងអស់ជាឯកសារបម្រុងសុវត្ថិភាព ឬជាទម្រង់ Excel/CSV</span>
                         </div>
 
                         <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 20px 0;">
@@ -774,10 +864,13 @@
                         <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 20px 0;">
 
                         <div class="mgmt-action-box">
-                            <button class="btn btn-danger w-100 mb-2" id="btn-reset-mock-data">
+                            <button class="btn btn-warning w-100 mb-2" id="btn-reset-mock-data" style="color: #92400e; background: #fef3c7; border: 1px solid #f59e0b; font-weight: 700;">
                                 <i class="fa-solid fa-rotate-left"></i> ស្ដារទិន្នន័យគំរូដើម (១០ សំណុំរឿង NADR)
                             </button>
-                            <span class="action-desc d-block text-center" style="font-size: 12px; color: var(--text-muted);">លុបទិន្នន័យដែលបានកែប្រែ រួចស្ដារមកទិន្នន័យគំរូដើមវិញ</span>
+                            <button class="btn btn-danger w-100 mb-2" id="btn-factory-reset" onclick="confirmFactoryReset()" style="font-weight: 700;">
+                                <i class="fa-solid fa-triangle-exclamation"></i> លុបទិន្នន័យទាំងអស់ (Factory Reset - Empty State)
+                            </button>
+                            <span class="action-desc d-block text-center" style="font-size: 12px; color: var(--text-muted);">លុបទិន្នន័យទាំងស្រុង ឬស្ដារមកទិន្នន័យគំរូដើមវិញ</span>
                         </div>
                     </div>
                 </div>
@@ -805,6 +898,12 @@
                         </button>
                         <button type="button" class="tab-btn" data-tab="tab-admins" style="flex: 1; padding: 14px; border: none; background: none; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;">
                             <i class="fa-solid fa-user-gear"></i> ៤. បន្ថែម Admin / គណនី
+                        </button>
+                        <button type="button" class="tab-btn" data-tab="tab-org" style="flex: 1; padding: 14px; border: none; background: none; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;">
+                            <i class="fa-solid fa-building"></i> ៥. កំណត់ស្ថាប័ន & លេខកូដ
+                        </button>
+                        <button type="button" class="tab-btn" data-tab="tab-audit" style="flex: 1; padding: 14px; border: none; background: none; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;">
+                            <i class="fa-solid fa-history"></i> ៦. កំណត់ហេតុសកម្មភាព
                         </button>
                     </div>
 
@@ -934,6 +1033,62 @@
                                         </tr>
                                     </thead>
                                     <tbody id="settings-admins-tbody">
+                                        <!-- Rendered dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- TAB 5: ORG & CASE PREFIX CONFIG -->
+                        <div class="settings-tab-pane" id="tab-org" style="display: none;">
+                            <div class="mb-3">
+                                <h4 style="margin: 0; font-size: 14px; font-weight: 700; color: var(--text-color);"><i class="fa-solid fa-building-flag text-primary"></i> កំណត់ព័ត៌មានស្ថាប័ន និងទម្រង់លេខកូដសំណុំរឿង (Organization & Prefix Settings)</h4>
+                                <p style="font-size: 12px; color: var(--text-muted); margin: 4px 0 0 0;">កំណត់ឈ្មោះស្ថាប័នសម្រាប់បោះពុម្ពរបាយការណ៍ និងក្បាលលេខកូដសំណុំរឿងស្វ័យប្រវត្តិ</p>
+                            </div>
+                            <div style="background: var(--bg-main); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); max-width: 600px;">
+                                <div class="form-group mb-3">
+                                    <label style="font-size: 13px; font-weight: 700; display: block; margin-bottom: 6px;">ឈ្មោះស្ថាប័នជាភាសាខ្មែរ៖</label>
+                                    <input type="text" id="setting-org-km" class="form-control" value="អាជ្ញាធរជាតិដោះស្រាយវិវាទ (អ.ដ.វ.)" style="font-size: 13px;">
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label style="font-size: 13px; font-weight: 700; display: block; margin-bottom: 6px;">ឈ្មោះស្ថាប័នជាភាសាអង់គ្លេស៖</label>
+                                    <input type="text" id="setting-org-en" class="form-control" value="National Authority for Dispute Resolution (NADR)" style="font-size: 13px;">
+                                </div>
+                                <div class="form-group mb-4">
+                                    <label style="font-size: 13px; font-weight: 700; display: block; margin-bottom: 6px;">ទម្រង់ក្បាលលេខកូដសំណុំរឿង (Case Prefix Format)៖</label>
+                                    <div style="display: flex; gap: 10px; align-items: center;">
+                                        <input type="text" id="setting-case-prefix" class="form-control" value="NADR-2026-" style="font-size: 13px; width: 200px; font-family: monospace; font-weight: 700;">
+                                        <span style="font-size: 12px; color: var(--text-muted);">ឧទាហរណ៍លេខដែលបង្កើត៖ <code>NADR-2026-001</code></span>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-primary" onclick="saveOrgSettings()" style="padding: 10px 20px; font-weight: 700;">
+                                    <i class="fa-solid fa-save"></i> រក្សាទុកការកំណត់ស្ថាប័ន
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- TAB 6: AUDIT LOGS -->
+                        <div class="settings-tab-pane" id="tab-audit" style="display: none;">
+                            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2" style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <h4 style="margin: 0; font-size: 14px; font-weight: 700; color: var(--text-color);"><i class="fa-solid fa-clipboard-list text-primary"></i> កំណត់ហេតុសកម្មភាពប្រព័ន្ធ (System Audit Logs & Security History)</h4>
+                                    <p style="font-size: 12px; color: var(--text-muted); margin: 0;">កត់ត្រាប្រវត្តិសកម្មភាពរបស់អ្នកប្រើប្រាស់ក្នុងប្រព័ន្ធ (ការបញ្ចូល កែសម្រួល លុប និងចាកចេញ)</p>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline text-danger" onclick="clearAuditLogs()" style="padding: 6px 12px; font-size: 12px;">
+                                    <i class="fa-solid fa-trash-can"></i> សម្អាតកំណត់ហេតុ
+                                </button>
+                            </div>
+                            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                                <table class="data-table" style="font-size: 12px; width: 100%;">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 150px;">កាលបរិច្ឆេទ & ម៉ោង</th>
+                                            <th style="width: 120px;">គណនី (User)</th>
+                                            <th style="width: 150px;">សកម្មភាព (Action)</th>
+                                            <th>ខ្លឹមសារលម្អិត (Details)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="settings-audit-tbody">
                                         <!-- Rendered dynamically -->
                                     </tbody>
                                 </table>
@@ -1266,6 +1421,25 @@
 
     <!-- HIDDEN PRINT AREA -->
     <div id="print-area" class="print-area" style="display: none;"></div>
+
+    <!-- CUSTOM CONFIRM MODAL -->
+    <div id="custom-confirm-modal" class="modal-overlay" style="z-index: 100000; backdrop-filter: blur(6px);">
+        <div class="modal-content custom-confirm-box" style="max-width: 420px; padding: 28px; text-align: center; border-radius: 16px; border: 1px solid var(--border-color); box-shadow: 0 20px 50px rgba(0,0,0,0.3); animation: scaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);">
+            <div id="custom-confirm-icon" style="width: 64px; height: 64px; border-radius: 50%; background: #fef3c7; color: #d97706; display: flex; align-items: center; justify-content: center; font-size: 30px; margin: 0 auto 16px;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 id="custom-confirm-title" style="font-size: 18px; font-weight: 800; color: var(--text-color); margin-bottom: 10px;">ការបញ្ជាក់សុវត្ថិភាព</h3>
+            <p id="custom-confirm-message" style="font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 24px;">តើលោកអ្នកពិតជាចង់បន្តសកម្មភាពនេះមែនទេ?</p>
+            <div style="display: flex; gap: 12px; justify-content: center;">
+                <button type="button" class="btn btn-outline" id="btn-confirm-no" style="flex: 1; justify-content: center; padding: 10px; font-weight: 700; border-radius: 8px;">
+                    <i class="fa-solid fa-xmark"></i> បោះបង់
+                </button>
+                <button type="button" class="btn btn-danger" id="btn-confirm-yes" style="flex: 1; justify-content: center; padding: 10px; font-weight: 700; border-radius: 8px;">
+                    <i class="fa-solid fa-check"></i> យល់ព្រម
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- TOAST NOTIFICATION CONTAINER -->
     <div id="toast-container" class="toast-container"></div>

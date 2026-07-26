@@ -50,6 +50,30 @@ let CASE_CATEGORIES = JSON.parse(localStorage.getItem('nadr_categories')) || [..
 // Custom Columns Schema
 let CUSTOM_COLUMNS = JSON.parse(localStorage.getItem('nadr_custom_columns')) || [];
 
+// Organization & Audit Logs Schema
+let ORG_SETTINGS = JSON.parse(localStorage.getItem('nadr_org_settings')) || {
+    nameKm: 'អាជ្ញាធរជាតិដោះស្រាយវិវាទ (អ.ដ.វ.)',
+    nameEn: 'National Authority for Dispute Resolution (NADR)',
+    casePrefix: 'NADR-2026-'
+};
+
+let AUDIT_LOGS = JSON.parse(localStorage.getItem('nadr_audit_logs')) || [
+    { timestamp: new Date().toLocaleString('km-KH'), user: 'Admin', action: 'ចូលប្រព័ន្ធ (Login)', details: 'បានចូលប្រើប្រព័ន្ធគ្រប់គ្រងសំណុំរឿង NADR' }
+];
+
+function logAuditAction(action, details) {
+    const entry = {
+        timestamp: new Date().toLocaleString('km-KH'),
+        user: document.getElementById('header-user-name')?.innerText || 'Admin',
+        action: action,
+        details: details
+    };
+    AUDIT_LOGS.unshift(entry);
+    if (AUDIT_LOGS.length > 100) AUDIT_LOGS = AUDIT_LOGS.slice(0, 100);
+    localStorage.setItem('nadr_audit_logs', JSON.stringify(AUDIT_LOGS));
+    if (typeof renderAuditLogs === 'function') renderAuditLogs();
+}
+
 
 // 3. លទ្ធផលសំណុំរឿង ៤ ស្ថានភាព (4 Case Statuses)
 const CASE_STATUSES = [
@@ -193,8 +217,7 @@ function getCaseById(id) {
  * Auto-generate next Case Number (e.g., NADR-2026-011)
  */
 function generateNextCaseNumber() {
-    const year = new Date().getFullYear();
-    const prefix = `NADR-${year}-`;
+    const prefix = ORG_SETTINGS?.casePrefix || `NADR-${new Date().getFullYear()}-`;
     let maxNum = 0;
     casesData.forEach(c => {
         if (c.caseNumber && c.caseNumber.startsWith(prefix)) {
@@ -567,6 +590,9 @@ let currentLang = localStorage.getItem('nadr_app_lang') || 'km';
 const I18N = {
     // ------------ Sidebar Navigation ------------
     'nav.main': { km: 'មេនុយទូទៅ (MAIN)', en: 'MAIN MENU' },
+    'nav.entry': { km: 'បញ្ចូលសំណុំរឿង', en: 'Case Entry' },
+    'entry.title': { km: 'បញ្ជាក់ និងបញ្ចូលសំណុំរឿងថ្មី (Case Intake & Registration Center)', en: 'Case Intake & Registration Center' },
+    'entry.subtitle': { km: 'ទទួលពាក្យបណ្តឹង ចាត់បែងចែកលេខកូដ និងបញ្ចូលទិន្នន័យសំណុំរឿងវិវាទចូលក្នុងប្រព័ន្ធ NADR', en: 'Receive complaints, assign case numbers, and register dispute records into NADR system' },
     'nav.dashboard': { km: 'ផ្ទាំងស្ថិតិសង្ខេប', en: 'Dashboard' },
     'nav.cases': { km: 'បញ្ជីសំណុំរឿង', en: 'Case List' },
     'nav.analytics': { km: 'វិភាគវាយតម្លៃចំណាត់ការ', en: 'Analytics & Assessment' },

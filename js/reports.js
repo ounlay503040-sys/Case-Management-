@@ -357,3 +357,42 @@ function exportReportToExcel() {
 
     showToast(`បានទាញយកឯកសារ Excel (${fileName}) ស្របតាមទម្រង់ដើម ១០០% ដោយជោគជ័យ!`, 'success');
 }
+
+/**
+ * Export All Cases to CSV (UTF-8 with BOM for Khmer support)
+ */
+function exportReportToCSV() {
+    if (typeof XLSX === 'undefined') {
+        showToast('បណ្ណាល័យ SheetJS ពុំត្រូវបានផ្ទុកទេ! សូមពិនិត្យការតភ្ជាប់អ៊ីនធឺណិត។', 'error');
+        return;
+    }
+    const dataToExport = casesData;
+    if (dataToExport.length === 0) {
+        showToast('គ្មានទិន្នន័យដើម្បីបញ្ចេញជា CSV ទេ!', 'error');
+        return;
+    }
+    const excelRows = dataToExport.map((c, index) => ({
+        'ល.រ': index + 1,
+        'លេខកូដសំណុំរឿង': c.caseNumber,
+        'កាលបរិច្ឆេទ': c.dateReceived,
+        'ឈ្មោះភាគី (ក)': c.partyA_name,
+        'ទូរស័ព្ទភាគី (ក)': c.partyA_phone,
+        'ឈ្មោះភាគី (ខ)': c.partyB_name,
+        'ទូរស័ព្ទភាគី (ខ)': c.partyB_phone,
+        'ប្រភេទសំណុំរឿង': c.category,
+        'ទីតាំងវិវាទ': c.disputeLocation,
+        'សេចក្តីសង្ខេបវិវាទ': c.summary,
+        'លទ្ធផលសំណុំរឿង': c.status
+    }));
+    const worksheet = XLSX.utils.json_to_sheet(excelRows);
+    const csvContent = XLSX.utils.sheet_to_csv(worksheet);
+    const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `NADR_All_Cases_Export_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    showToast('បានទាញយកទិន្នន័យទាំងអស់ជាឯកសារ CSV រួចរាល់!', 'success');
+}
