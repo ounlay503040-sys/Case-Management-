@@ -102,7 +102,6 @@ function updateClock() {
  */
 function renderAllViews() {
     renderDashboardStats();
-    renderRecentCasesTable();
     renderEntryCasesTable();
     renderMasterTableHeader();
     applyFiltersAndRenderMasterTable();
@@ -174,6 +173,33 @@ function renderDashboardStats() {
     if (setEl) setEl.innerText = stats.settle;
     if (cloEl) cloEl.innerText = stats.close;
     if (penEl) penEl.innerText = stats.pending;
+
+    // Update Circular Percentage Badges (Donut Indicators)
+    const tot = stats.total || 0;
+    const actPct = tot > 0 ? Math.round((stats.active / tot) * 100) : 0;
+    const setPct = tot > 0 ? Math.round((stats.settle / tot) * 100) : 0;
+    const cloPct = tot > 0 ? Math.round((stats.close / tot) * 100) : 0;
+    const penPct = tot > 0 ? Math.round((stats.pending / tot) * 100) : 0;
+
+    const actPctEl = document.getElementById('stat-active-pct');
+    const setPctEl = document.getElementById('stat-settle-pct');
+    const cloPctEl = document.getElementById('stat-close-pct');
+    const penPctEl = document.getElementById('stat-pending-pct');
+
+    if (actPctEl) actPctEl.innerText = `${actPct}%`;
+    if (setPctEl) setPctEl.innerText = `${setPct}%`;
+    if (cloPctEl) cloPctEl.innerText = `${cloPct}%`;
+    if (penPctEl) penPctEl.innerText = `${penPct}%`;
+
+    const actDonut = document.getElementById('stat-active-donut');
+    const setDonut = document.getElementById('stat-settle-donut');
+    const cloDonut = document.getElementById('stat-close-donut');
+    const penDonut = document.getElementById('stat-pending-donut');
+
+    if (actDonut) actDonut.style.background = `conic-gradient(#2563eb 0%, #2563eb ${actPct}%, #e2e8f0 ${actPct}%, #e2e8f0 100%)`;
+    if (setDonut) setDonut.style.background = `conic-gradient(#10b981 0%, #10b981 ${setPct}%, #e2e8f0 ${setPct}%, #e2e8f0 100%)`;
+    if (cloDonut) cloDonut.style.background = `conic-gradient(#ef4444 0%, #ef4444 ${cloPct}%, #e2e8f0 ${cloPct}%, #e2e8f0 100%)`;
+    if (penDonut) penDonut.style.background = `conic-gradient(#f59e0b 0%, #f59e0b ${penPct}%, #e2e8f0 ${penPct}%, #e2e8f0 100%)`;
 
     // Section 2 Hierarchical Counters
     const actGrpEl = document.getElementById('h-stat-active-total');
@@ -324,48 +350,7 @@ function filterByStatusQuick(statusStr) {
     }
 }
 
-/**
- * Render Recent Cases Table (top 5 latest)
- */
-function renderRecentCasesTable() {
-    const tbody = document.getElementById('recent-cases-tbody');
-    if (!tbody) return;
 
-    const sorted = sortCases(casesData, 'date-desc');
-    const recent = sorted.slice(0, 5);
-
-    if (recent.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-4">គ្មានទិន្នន័យសំណុំរឿងឡើយ</td></tr>`;
-        return;
-    }
-
-    let html = '';
-    recent.forEach(c => {
-        html += `
-            <tr>
-                <td><span class="case-number-tag">${c.caseNumber}</span></td>
-                <td>
-                    <div class="party-box">
-                        <strong>ក៖ ${c.partyA_name}</strong>
-                        <span>vs ខ៖ ${c.partyB_name}</span>
-                    </div>
-                </td>
-                <td>${c.category}</td>
-                <td><i class="fa-solid fa-location-dot text-muted"></i> ${c.disputeLocation}</td>
-                <td>${c.dateReceived}</td>
-                <td>${getStatusBadgeHTML(c.status)}</td>
-                <td class="text-center">
-                    <div class="action-btns">
-                        <button class="btn-icon" onclick="openViewModal('${c.id}')" title="មើលប័ណ្ណព័ត៌មាន"><i class="fa-solid fa-eye"></i></button>
-                        <button class="btn-icon text-success" onclick="if(typeof openLegalDocModal === 'function') openLegalDocModal('${c.id}')" title="ផលិតលិខិតគតិយុត្ត (5 Docs)"><i class="fa-solid fa-file-signature"></i></button>
-                        <button class="btn-icon" onclick="openEditModal('${c.id}')" title="កែសម្រួល"><i class="fa-solid fa-pen"></i></button>
-                    </div>
-                </td>
-            </tr>
-        `;
-    });
-    tbody.innerHTML = html;
-}
 
 /**
  * Shared Helper: Generate exact 12-column Master Table Row HTML
