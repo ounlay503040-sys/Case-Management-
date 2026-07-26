@@ -64,7 +64,7 @@ body {
     line-height: 1.6;
     font-size: 14px;
     transition: var(--transition);
-    overflow-x: hidden;
+    overflow-x: auto;
 }
 
 /* APP LAYOUT */
@@ -270,7 +270,8 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    overflow-x: hidden;
+    overflow-x: auto !important;
+    overflow-y: auto !important;
 }
 
 /* HEADER */
@@ -495,7 +496,7 @@ body {
     min-width: 0;
     width: 100%;
     max-width: 100%;
-    overflow-x: hidden;
+    overflow-x: auto !important;
     animation: fadeIn 0.3s ease;
 }
 
@@ -1243,7 +1244,7 @@ body.dark-theme .badge-close { color: #cbd5e1; }
 }
 
 /* RESPONSIVE DESIGN */
-@media (max-width: 1024px) {
+@media (max-width: 1366px) {
     .form-grid-4, .form-grid-3 { grid-template-columns: repeat(2, 1fr); }
     .charts-row { flex-direction: column; }
     .dashboard-split-layout { grid-template-columns: minmax(0, 1fr) !important; }

@@ -78,7 +78,7 @@ function generateReport() {
     if (genDateEl) genDateEl.innerText = `កាលបរិច្ឆេទបង្កើត៖ ${todayStr}`;
     if (sigDateEl) sigDateEl.innerText = `រាជធានីភ្នំពេញ, ${todayStr}`;
 
-    let titleText = 'របាយការណ៍បញ្ជីសំណុំរឿងគោល ១ (Master Cases Directory)';
+    let titleText = 'របាយការណ៍បញ្ជីសំណុំរឿង (Master Case Directory)';
     if (type === 'summary') titleText = 'របាយការណ៍សង្ខេបស្ថិតិ និងលទ្ធផលដោះស្រាយវិវាទ';
     else if (type === 'by-status') titleText = 'របាយការណ៍បែងចែកតាមលទ្ធផលសំណុំរឿង';
     else if (type === 'by-category') titleText = 'របាយការណ៍បែងចែកតាមប្រភេទវិវាទទាំង ៨';
@@ -349,7 +349,7 @@ function exportReportToExcel() {
     worksheet['!cols'] = colWidths;
 
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'បញ្ជីសំណុំរឿងគោល ១');
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'បញ្ជីសំណុំរឿង');
 
     // Generate Excel file download
     const fileName = `NADR_Master_Case_List_${new Date().toISOString().slice(0, 10)}.xlsx`;

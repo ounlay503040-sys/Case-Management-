@@ -568,7 +568,7 @@ const I18N = {
     // ------------ Sidebar Navigation ------------
     'nav.main': { km: 'មេនុយទូទៅ (MAIN)', en: 'MAIN MENU' },
     'nav.dashboard': { km: 'ផ្ទាំងស្ថិតិសង្ខេប', en: 'Dashboard' },
-    'nav.cases': { km: 'បញ្ជីសំណុំរឿងគោល ១', en: 'Case Registry #1' },
+    'nav.cases': { km: 'បញ្ជីសំណុំរឿង', en: 'Case List' },
     'nav.analytics': { km: 'វិភាគវាយតម្លៃចំណាត់ការ', en: 'Analytics & Assessment' },
     'nav.admin': { km: 'រដ្ឋបាល & ទិន្នន័យ (ADMIN)', en: 'ADMIN & DATA' },
     'nav.reports': { km: 'ផលិតរបាយការណ៍', en: 'Report Generator' },
@@ -594,7 +594,7 @@ const I18N = {
     'dashboard.pending': { km: 'តម្កល់', en: 'Pending' },
 
     // ------------ Cases View ------------
-    'cases.title': { km: 'បញ្ជីសំណុំរឿងគោល ១ (Master Case Registry)', en: 'Master Case Registry #1' },
+    'cases.title': { km: 'បញ្ជីសំណុំរឿង (Master Case Directory)', en: 'Master Case Directory' },
     'cases.subtitle': { km: 'រក្សាទុក ស្វែងរក និងគ្រប់គ្រងសំណុំរឿងទាំងអស់ ក្នុងស្ថាប័ន NADR', en: 'Store, search, and manage all cases at NADR' },
     'cases.filter.all': { km: 'ទាំងអស់', en: 'All' },
     'cases.filter.active': { km: 'Active', en: 'Active' },

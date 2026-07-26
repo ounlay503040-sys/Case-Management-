@@ -83,13 +83,13 @@
 
             <nav class="sidebar-nav">
                 <div class="nav-section-title" data-i18n="nav.main">មេនុយទូទៅ (MAIN)</div>
-                <a href="#dashboard-view" class="nav-item active" data-view="dashboard-view">
+                <a href="#cases-view" class="nav-item active" data-view="cases-view">
+                    <i class="fa-solid fa-table-list"></i>
+                    <span data-i18n="nav.cases">បញ្ជីសំណុំរឿង</span>
+                </a>
+                <a href="#dashboard-view" class="nav-item" data-view="dashboard-view">
                     <i class="fa-solid fa-chart-pie"></i>
                     <span data-i18n="nav.dashboard">ផ្ទាំងស្ថិតិសង្ខេប</span>
-                </a>
-                <a href="#cases-view" class="nav-item" data-view="cases-view">
-                    <i class="fa-solid fa-table-list"></i>
-                    <span data-i18n="nav.cases">បញ្ជីសំណុំរឿងគោល ១</span>
                 </a>
                 <a href="#analytics-view" class="nav-item" data-view="analytics-view">
                     <i class="fa-solid fa-chart-line"></i>
@@ -170,7 +170,7 @@
             </header>
 
             <!-- VIEW 1: DASHBOARD VIEW -->
-            <section class="view-section active" id="dashboard-view">
+            <section class="view-section" id="dashboard-view">
                 <div class="section-title-box">
                     <div>
                         <h1 data-i18n="dashboard.title">ផ្ទាំងស្ថិតិសង្ខេបទូទៅ</h1>
@@ -426,10 +426,10 @@
             </section>
 
             <!-- VIEW 2: MASTER CASES DIRECTORY VIEW -->
-            <section class="view-section" id="cases-view">
+            <section class="view-section active" id="cases-view">
                 <div class="section-title-box">
                     <div>
-                        <h1 data-i18n="cases.title">តារាងបញ្ជីសំណុំរឿងគោល ១ (Master Case Directory)</h1>
+                        <h1 data-i18n="cases.title">តារាងបញ្ជីសំណុំរឿង (Master Case Directory)</h1>
                         <p data-i18n="cases.subtitle">គ្រប់គ្រង ស្វែងរក និងចម្រោះទិន្នន័យសំណុំរឿងស្របតាមទម្រង់តារាង Excel គោល</p>
                     </div>
                     <div class="section-actions">
@@ -629,7 +629,7 @@
                         <div class="form-group">
                             <label>ប្រភេទរបាយការណ៍៖</label>
                             <select id="report-type" class="form-control">
-                                <option value="master-list">របាយការណ៍បញ្ជីសំណុំរឿងគោល ១ (Master Table Report)</option>
+                                <option value="master-list">របាយការណ៍បញ្ជីសំណុំរឿង (Master Table Report)</option>
                                 <option value="summary">របាយការណ៍សង្ខេបស្ថិតិទូទៅ</option>
                                 <option value="by-status">របាយការណ៍បែងចែកតាមលទ្ធផល (Active/Settle/Close/Pending)</option>
                                 <option value="by-category">របាយការណ៍បែងចែកតាមប្រភេទវិវាទទាំង ៨</option>
@@ -682,7 +682,7 @@
                                 <div class="title-underline"></div>
                             </div>
                             <div class="report-main-title">
-                                <h2 id="report-header-title">របាយការណ៍បញ្ជីសំណុំរឿងគោល ១</h2>
+                                <h2 id="report-header-title">របាយការណ៍បញ្ជីសំណុំរឿង</h2>
                                 <p id="report-header-subtitle">គិតត្រឹមថ្ងៃទី...</p>
                             </div>
                         </div>
@@ -722,7 +722,7 @@
                         <div class="panel-header">
                             <h3><i class="fa-solid fa-file-excel text-success"></i> ទាញទិន្នន័យចូលពី Excel / CSV (Import Excel)</h3>
                         </div>
-                        <p class="text-muted mb-3" style="font-size: 14px;">ជ្រើសរើសឯកសារ Excel (.xlsx, .xls, .csv) ដែលជាតារាងបញ្ជីសំណុំរឿងគោលរបស់អ្នកដើម្បីទាញបញ្ចូលក្នុងកម្មវិធីស្វ័យប្រវត្តិ៖</p>
+                        <p class="text-muted mb-3" style="font-size: 14px;">ជ្រើសរើសឯកសារ Excel (.xlsx, .xls, .csv) ដែលជាតារាងបញ្ជីសំណុំរឿងរបស់អ្នកដើម្បីទាញបញ្ចូលក្នុងកម្មវិធីស្វ័យប្រវត្តិ៖</p>
                         
                         <div class="template-download-box mb-4" style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 14px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
                             <div>
@@ -780,6 +780,8 @@
                             <span class="action-desc d-block text-center" style="font-size: 12px; color: var(--text-muted);">លុបទិន្នន័យដែលបានកែប្រែ រួចស្ដារមកទិន្នន័យគំរូដើមវិញ</span>
                         </div>
                     </div>
+                </div>
+            </section>
             <!-- VIEW 6: SYSTEM SETTINGS VIEW -->
             <section class="view-section" id="settings-view">
                 <div class="section-title-box">
