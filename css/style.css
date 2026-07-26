@@ -64,36 +64,38 @@ body {
     line-height: 1.6;
     font-size: 14px;
     transition: var(--transition);
-    height: 100vh;
-    overflow: hidden;
+    overflow-x: hidden !important;
+    overflow-y: auto !important; /* Allow native browser window scrolling LIKE BEFORE! */
+    margin: 0;
+    padding: 0;
 }
 
 /* =====================================================================
-   APP LAYOUT: Pure Flex — sidebar + main-content side by side
-   Sidebar = fixed width flex child (no overlap possible)
-   Main content = flex:1 column (header pinned + scroll area)
+   APP LAYOUT: Standard Fixed Sidebar + Fixed Header + Native Body Scroll
    ===================================================================== */
 .app-container {
-    display: flex;
-    height: 100vh;
-    width: 100vw;
-    overflow: hidden;
+    width: 100%;
+    min-height: 100vh;
+    position: relative;
+    display: block;
 }
 
-/* SIDEBAR — flex child, fixed width, full height */
+/* SIDEBAR — Fixed on the left side forever */
 .sidebar {
     width: 270px;
     min-width: 270px;
-    flex-shrink: 0;
     background-color: var(--bg-sidebar);
     color: #ffffff;
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    position: fixed !important;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
     overflow-y: auto;
     overflow-x: hidden;
-    z-index: 100;
-    transition: width var(--transition), margin var(--transition);
+    transition: var(--transition);
     box-shadow: 4px 0 15px rgba(0, 0, 0, 0.15);
 }
 
@@ -268,32 +270,35 @@ body {
     box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
 }
 
-/* MAIN CONTENT — flex:1 column next to sidebar, NO position:fixed */
+/* MAIN CONTENT — Starts after the sidebar, scrolls natively with browser window */
 .main-content {
-    flex: 1;
-    min-width: 0;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+    margin-left: 270px !important;
+    padding-top: 72px !important; /* Exactly the height of the fixed top header */
+    width: calc(100% - 270px) !important;
+    min-height: 100vh;
     background-color: var(--bg-main);
+    display: block !important;
+    position: relative;
 }
 
-/* HEADER — pinned at top of main-content via flex-shrink:0 */
+/* HEADER — Pinned at top right, next to sidebar */
 .top-header {
     height: 72px;
     min-height: 72px;
     background-color: var(--bg-card);
     border-bottom: 1px solid var(--border-color);
-    padding: 0 28px;
+    padding: 0 48px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    flex-shrink: 0;
-    width: 100%;
+    position: fixed !important;
+    top: 0;
+    left: 270px !important;
+    right: 0 !important;
+    width: calc(100% - 270px) !important;
     z-index: 95;
     box-shadow: var(--shadow-sm);
-    position: relative;
+    transition: var(--transition);
 }
 
 .header-left {
@@ -495,20 +500,17 @@ body {
     cursor: pointer;
 }
 
-/* CONTENT SCROLL WRAPPER — the ONLY element that scrolls vertically */
+/* CONTENT SCROLL WRAPPER — Transparent container allowing native page scroll */
 .content-scroll-area {
-    flex: 1;
-    min-height: 0;      /* CRITICAL: allows flex child to scroll */
-    overflow-y: auto;
-    overflow-x: hidden;
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    display: block;
+    position: relative;
 }
 
-/* VIEW SECTIONS */
+/* VIEW SECTIONS — Generous 56px left/right gap away from sidebar menu! */
 .view-section {
     display: none;
-    padding: 28px 32px 60px 32px;
+    padding: 40px 56px 80px 56px !important;
     min-width: 0;
     width: 100%;
     animation: fadeIn 0.3s ease;
@@ -1275,6 +1277,15 @@ body.dark-theme .badge-close { color: #cbd5e1; }
     .entry-cards-grid { grid-template-columns: minmax(0, 1fr) !important; }
 }
 
+@media (max-width: 1024px) {
+    .view-section {
+        padding: 30px 32px 60px 32px !important;
+    }
+    .top-header {
+        padding: 0 28px !important;
+    }
+}
+
 @media (max-width: 768px) {
     /* On mobile: sidebar slides left, main takes full width */
     .app-container { position: relative; }
@@ -1285,7 +1296,20 @@ body.dark-theme .badge-close { color: #cbd5e1; }
         z-index: 200;
     }
     .sidebar.open { transform: translateX(0); }
-    .main-content { min-width: 100vw !important; }
+    .main-content {
+        margin-left: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding-top: 72px !important;
+    }
+    .top-header {
+        left: 0 !important;
+        width: 100% !important;
+        padding: 0 16px !important;
+    }
+    .view-section {
+        padding: 24px 16px 60px 16px !important;
+    }
     .menu-toggle-btn { display: block; }
     .search-bar { width: 180px; }
     .form-grid-2, .form-grid-3, .form-grid-4 { grid-template-columns: 1fr; }
