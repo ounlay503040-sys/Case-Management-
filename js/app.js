@@ -193,6 +193,123 @@ function renderDashboardStats() {
     if (cloSub2El) cloSub2El.innerText = stats.close || 0;
     if (noSetR1El) noSetR1El.innerText = stats.noSettleReason1 || 0;
     if (noSetR2El) noSetR2El.innerText = stats.noSettleReason2 || 0;
+
+    renderDashboardExtendedStats(stats);
+}
+
+/**
+ * Render Extended Dashboard Statistics (Section 4 & 5 - Request 3)
+ */
+function renderDashboardExtendedStats(stats) {
+    const catTbody = document.getElementById('dashboard-cat-stats-tbody');
+    const yrTbody = document.getElementById('dashboard-yearly-tbody');
+    const totalSys = stats.total || 1;
+
+    // 1. Category Breakdown Table (Section 4)
+    if (catTbody && typeof CASE_CATEGORIES !== 'undefined') {
+        let catHtml = '';
+        CASE_CATEGORIES.forEach((cat, idx) => {
+            const count = stats.byCategory[cat] || 0;
+            const pct = ((count / totalSys) * 100).toFixed(1);
+            const settleCount = casesData.filter(c => c.category === cat && (c.status.startsWith('Settle') || c.status.includes('ព្រមព្រៀង'))).length;
+            const activeCount = casesData.filter(c => c.category === cat && (c.status.startsWith('Active') || c.status.includes('កំពុង'))).length;
+            
+            catHtml += `
+                <tr style="border-bottom: 1px solid #f1f5f9;">
+                    <td class="text-center"><strong>${idx + 1}</strong></td>
+                    <td><strong style="color: var(--primary-color);">${cat}</strong></td>
+                    <td class="text-center"><span class="badge" style="background: #eff6ff; color: #1d4ed8; font-size: 13px; font-weight: 700;">${count}</span></td>
+                    <td class="text-center"><strong style="color: #1e293b;">${pct}%</strong></td>
+                    <td class="text-center"><span style="color: #10b981; font-weight: 700;">${settleCount}</span></td>
+                    <td class="text-center"><span style="color: #2563eb; font-weight: 700;">${activeCount}</span></td>
+                    <td style="padding: 10px 15px;">
+                        <div style="background: #e2e8f0; border-radius: 10px; height: 12px; width: 100%; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);">
+                            <div style="background: linear-gradient(90deg, #2563eb, #3b82f6); width: ${pct}%; height: 100%; border-radius: 10px; transition: width 0.6s ease;"></div>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+        catTbody.innerHTML = catHtml;
+    }
+
+    // 2. Yearly Breakdown Table (Section 5)
+    if (yrTbody) {
+        const yearMap = {};
+        casesData.forEach(c => {
+            const yr = (c.dateReceived && c.dateReceived.length >= 4) ? c.dateReceived.substring(0, 4) : '2026';
+            if (!yearMap[yr]) yearMap[yr] = { total: 0, settle: 0, active: 0, other: 0 };
+            yearMap[yr].total++;
+            if (c.status.startsWith('Settle') || c.status.includes('ព្រមព្រៀង')) yearMap[yr].settle++;
+            else if (c.status.startsWith('Active') || c.status.includes('កំពុង')) yearMap[yr].active++;
+            else yearMap[yr].other++;
+        });
+
+        if (Object.keys(yearMap).length === 0) {
+            yearMap['2026'] = { total: stats.total || 0, settle: stats.settle || 0, active: stats.active || 0, other: (stats.close + stats.pending) || 0 };
+        }
+
+        const sortedYears = Object.keys(yearMap).sort((a, b) => b.localeCompare(a));
+        let yrHtml = '';
+        sortedYears.forEach(yr => {
+            const d = yearMap[yr];
+            const rate = d.total > 0 ? ((d.settle / d.total) * 100).toFixed(1) + '%' : '0%';
+            yrHtml += `
+                <tr style="border-bottom: 1px solid #f1f5f9;">
+                    <td><strong style="color: #1e3a8a;">ឆ្នាំ ${yr}</strong></td>
+                    <td><span class="badge" style="background: #f1f5f9; color: #334155; font-weight: 700;">${d.total}</span></td>
+                    <td style="color: #10b981; font-weight: 700;">${d.settle}</td>
+                    <td style="color: #2563eb; font-weight: 700;">${d.active}</td>
+                    <td style="color: #64748b; font-weight: 700;">${d.other}</td>
+                    <td><span class="badge" style="background: #dcfce7; color: #15803d; font-weight: 700;">${rate}</span></td>
+                </tr>
+            `;
+        });
+        yrTbody.innerHTML = yrHtml;
+    }
+
+    // 3. Render Dashboard Location Chart (Section 5)
+    if (typeof renderDashboardLocationChart === 'function') {
+        const ctxDashLoc = document.getElementById('dashboardLocationChart')?.getContext('2d');
+        if (ctxDashLoc && typeof Chart !== 'undefined') {
+            renderDashboardLocationChart(stats.byLocation, ctxDashLoc);
+        }
+    }
+}
+
+let dashLocationChartInstance = null;
+function renderDashboardLocationChart(byLocObj, ctx) {
+    if (!ctx) return;
+    if (dashLocationChartInstance) dashLocationChartInstance.destroy();
+    
+    const entries = Object.entries(byLocObj || {}).filter(e => e[1] > 0);
+    entries.sort((a, b) => b[1] - a[1]);
+    const topEntries = entries.slice(0, 7);
+    
+    const labels = topEntries.length > 0 ? topEntries.map(e => e[0]) : ['គ្មានទិន្នន័យ'];
+    const data = topEntries.length > 0 ? topEntries.map(e => e[1]) : [0];
+    
+    dashLocationChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'ចំនួនសំណុំរឿងតាមខេត្ត/រាជធានី',
+                data: data,
+                backgroundColor: 'rgba(239, 68, 68, 0.85)',
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1 } },
+                x: { ticks: { font: { family: "'Kantumruy Pro', sans-serif", size: 11, weight: '600' } } }
+            }
+        }
+    });
 }
 
 /**
@@ -251,44 +368,84 @@ function renderRecentCasesTable() {
 }
 
 /**
+ * Shared Helper: Generate exact 12-column Master Table Row HTML
+ */
+function generateMasterCaseRowHTML(c, rowNum) {
+    let customCells = '';
+    if (typeof CUSTOM_COLUMNS !== 'undefined') {
+        CUSTOM_COLUMNS.forEach(col => {
+            const val = c[col.key] || '';
+            customCells += `<td class="text-center">${val}</td>`;
+        });
+    }
+
+    return `
+        <tr>
+            <td class="text-center"><strong>${rowNum}</strong></td>
+            <td><span class="case-number-tag">${c.caseNumber}</span></td>
+            <td>${c.dateReceived}</td>
+            <td>
+                <div class="party-box">
+                    <strong>${c.partyA_name} (${c.partyA_gender}, ${c.partyA_age || '?'} ឆ្នាំ)</strong>
+                    <span><i class="fa-solid fa-phone"></i> ${c.partyA_phone || 'ពុំមាន'} | <i class="fa-solid fa-map-marker-alt"></i> ${c.partyA_location}</span>
+                </div>
+            </td>
+            <td>
+                <div class="party-box">
+                    <strong>${c.partyB_name} (${c.partyB_gender}, ${c.partyB_age || '?'} ឆ្នាំ)</strong>
+                    <span><i class="fa-solid fa-phone"></i> ${c.partyB_phone || 'ពុំមាន'} | <i class="fa-solid fa-map-marker-alt"></i> ${c.partyB_location}</span>
+                </div>
+            </td>
+            <td><span style="font-weight: 600;">${c.category}</span></td>
+            <td><span class="badge" style="background: var(--border-color); color: var(--text-color);">${c.disputeLocation}</span></td>
+            <td>
+                <div style="font-size: 11px; line-height: 1.5;">
+                    <div>🔹 ក៖ ${c.meetingPartyA}</div>
+                    <div>🔸 ខ៖ ${c.meetingPartyB}</div>
+                    <div style="font-weight: 600; color: var(--primary-color);">⚖️ ផ្សះផ្សា៖ ${c.mediationMeeting}</div>
+                </div>
+            </td>
+            <td class="text-center">${getStatusBadgeHTML(c.status)}</td>
+            <td class="text-center">
+                <span class="badge ${c.remarks === 'បានបិទរួចរាល់' ? 'badge-settle' : 'badge-pending'}" style="font-size: 11px;">
+                    ${c.remarks}
+                </span>
+            </td>
+            ${customCells}
+            <td class="text-center">${renderTableFileCell(c)}</td>
+            <td class="text-center">
+                <div class="action-btns">
+                    <button class="btn-icon" onclick="openViewModal('${c.id}')" title="មើលប័ណ្ណ"><i class="fa-solid fa-eye"></i></button>
+                    <button class="btn-icon text-success" onclick="if(typeof openLegalDocModal === 'function') openLegalDocModal('${c.id}')" title="ផលិតលិខិតគតិយុត្ត"><i class="fa-solid fa-file-signature"></i></button>
+                    <button class="btn-icon" onclick="openEditModal('${c.id}')" title="កែសម្រួល"><i class="fa-solid fa-pen"></i></button>
+                    <button class="btn-icon delete-btn" onclick="confirmDeleteCase('${c.id}')" title="លុប"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            </td>
+        </tr>
+    `;
+}
+
+/**
  * Render All Cases Table in Case Entry View (#entry-view)
+ * Aligned 100% with Master Case Directory schema & styling
  */
 function renderEntryCasesTable() {
     const tbody = document.getElementById('entry-cases-tbody');
     const countBadge = document.getElementById('entry-table-count');
     if (!tbody) return;
 
-    const sorted = sortCases(casesData, 'date-desc');
+    // Sort from 1 to N (oldest/first entered to newest/last entered, matching master list)
+    const sorted = sortCases(casesData, 'date-asc');
     if (countBadge) countBadge.innerText = `សរុប៖ ${sorted.length} ករណី`;
 
     if (sorted.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-4">គ្មានទិន្នន័យសំណុំរឿងឡើយ</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="12" class="text-center text-muted py-4">គ្មានទិន្នន័យសំណុំរឿងឡើយ</td></tr>`;
         return;
     }
 
     let html = '';
     sorted.forEach((c, idx) => {
-        html += `
-            <tr>
-                <td><strong>${idx + 1}</strong></td>
-                <td><span class="case-number-tag">${c.caseNumber}</span></td>
-                <td>${c.dateReceived}</td>
-                <td><span class="badge" style="background: #e2e8f0; color: #334155; font-size: 11px;">${c.category}</span></td>
-                <td><i class="fa-solid fa-location-dot text-muted"></i> ${c.disputeLocation}</td>
-                <td><strong>${c.partyA_name}</strong> <small class="text-muted">(${c.partyA_phone || 'គ្មានលេខ'})</small></td>
-                <td><strong>${c.partyB_name}</strong> <small class="text-muted">(${c.partyB_phone || 'គ្មានលេខ'})</small></td>
-                <td>${getStatusBadgeHTML(c.status)}</td>
-                <td class="text-center">${renderTableFileCell(c)}</td>
-                <td class="text-center">
-                    <div class="action-btns" style="justify-content: center;">
-                        <button class="btn-icon" onclick="openViewModal('${c.id}')" title="មើលប័ណ្ណព័ត៌មាន"><i class="fa-solid fa-eye"></i></button>
-                        <button class="btn-icon text-success" onclick="if(typeof openLegalDocModal === 'function') openLegalDocModal('${c.id}')" title="ផលិតលិខិតគតិយុត្ត"><i class="fa-solid fa-file-signature"></i></button>
-                        <button class="btn-icon" onclick="openEditModal('${c.id}')" title="កែសម្រួល"><i class="fa-solid fa-pen"></i></button>
-                        <button class="btn-icon delete-btn" onclick="confirmDeleteCase('${c.id}')" title="លុប"><i class="fa-solid fa-trash"></i></button>
-                    </div>
-                </td>
-            </tr>
-        `;
+        html += generateMasterCaseRowHTML(c, idx + 1);
     });
     tbody.innerHTML = html;
 }
@@ -298,7 +455,7 @@ function applyFiltersAndRenderMasterTable() {
     const cat = document.getElementById('filter-category')?.value || 'ALL';
     const st = document.getElementById('filter-status')?.value || 'ALL';
     const loc = document.getElementById('filter-location')?.value || 'ALL';
-    const sortBy = document.getElementById('sort-by')?.value || 'date-desc';
+    const sortBy = document.getElementById('sort-by')?.value || 'date-asc';
 
     const filters = { search: q, category: cat, status: st, location: loc };
     let filtered = filterCases(filters);
@@ -322,70 +479,18 @@ function applyFiltersAndRenderMasterTable() {
 
     if (emptyState) emptyState.style.display = 'none';
 
-    // Pagination slice
-    const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
-    if (currentPage > totalPages) currentPage = totalPages || 1;
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const paginated = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+    // Show ALL cases in a vertical scrollable list without pagination splitting (Request 2)
+    const paginated = filtered;
+    const totalPages = 1;
 
     if (!tbody) return;
     let html = '';
     paginated.forEach((c, idx) => {
-        const rowNum = startIndex + idx + 1;
-        
-        let customCells = '';
-        CUSTOM_COLUMNS.forEach(col => {
-            const val = c[col.key] || '';
-            customCells += `<td class="text-center">${val}</td>`;
-        });
-
-        html += `
-            <tr>
-                <td class="text-center">${rowNum}</td>
-                <td><span class="case-number-tag">${c.caseNumber}</span></td>
-                <td>${c.dateReceived}</td>
-                <td>
-                    <div class="party-box">
-                        <strong>${c.partyA_name} (${c.partyA_gender}, ${c.partyA_age || '?'} ឆ្នាំ)</strong>
-                        <span><i class="fa-solid fa-phone"></i> ${c.partyA_phone || 'ពុំមាន'} | <i class="fa-solid fa-map-marker-alt"></i> ${c.partyA_location}</span>
-                    </div>
-                </td>
-                <td>
-                    <div class="party-box">
-                        <strong>${c.partyB_name} (${c.partyB_gender}, ${c.partyB_age || '?'} ឆ្នាំ)</strong>
-                        <span><i class="fa-solid fa-phone"></i> ${c.partyB_phone || 'ពុំមាន'} | <i class="fa-solid fa-map-marker-alt"></i> ${c.partyB_location}</span>
-                    </div>
-                </td>
-                <td><span style="font-weight: 600;">${c.category}</span></td>
-                <td><span class="badge" style="background: var(--border-color); color: var(--text-color);">${c.disputeLocation}</span></td>
-                <td>
-                    <div style="font-size: 11px; line-height: 1.5;">
-                        <div>🔹 ក៖ ${c.meetingPartyA}</div>
-                        <div>🔸 ខ៖ ${c.meetingPartyB}</div>
-                        <div style="font-weight: 600; color: var(--primary-color);">⚖️ ផ្សះផ្សា៖ ${c.mediationMeeting}</div>
-                    </div>
-                </td>
-                <td class="text-center">${getStatusBadgeHTML(c.status)}</td>
-                <td class="text-center">
-                    <span class="badge ${c.remarks === 'បានបិទរួចរាល់' ? 'badge-settle' : 'badge-pending'}" style="font-size: 11px;">
-                        ${c.remarks}
-                    </span>
-                </td>
-                ${customCells}
-                <td class="text-center">${renderTableFileCell(c)}</td>
-                <td class="text-center">
-                    <div class="action-btns">
-                        <button class="btn-icon" onclick="openViewModal('${c.id}')" title="មើលប័ណ្ណ"><i class="fa-solid fa-eye"></i></button>
-                        <button class="btn-icon text-success" onclick="if(typeof openLegalDocModal === 'function') openLegalDocModal('${c.id}')" title="ផលិតលិខិតគតិយុត្ត (5 Docs)"><i class="fa-solid fa-file-signature"></i></button>
-                        <button class="btn-icon" onclick="openEditModal('${c.id}')" title="កែសម្រួល"><i class="fa-solid fa-pen"></i></button>
-                        <button class="btn-icon delete-btn" onclick="confirmDeleteCase('${c.id}')" title="លុប"><i class="fa-solid fa-trash"></i></button>
-                    </div>
-                </td>
-            </tr>
-        `;
+        const rowNum = idx + 1;
+        html += generateMasterCaseRowHTML(c, rowNum);
     });
     tbody.innerHTML = html;
-    renderPagination(filtered.length, totalPages);
+    renderPagination(filtered.length, 1);
 }
 
 /**
@@ -985,6 +1090,123 @@ function renderAnalyticsView() {
 
     if (typeof renderLocationChart === 'function') {
         renderLocationChart(stats.byLocation);
+    }
+    renderAnalyticsTables(stats);
+}
+
+/**
+ * Render Analytics Tables matching Screenshot 3 & Screenshot 4 (Request 4)
+ */
+function renderAnalyticsTables(stats) {
+    const pctTbody = document.getElementById('analytics-percentage-tbody');
+    const pctTfoot = document.getElementById('analytics-percentage-tfoot');
+    const evalTbody = document.getElementById('analytics-evaluation-tbody');
+    const evalTfoot = document.getElementById('analytics-evaluation-tfoot');
+    const totalSys = stats.total || 1;
+
+    // 1. Outcome Percentage Analysis Table (Table 4 - Screenshot 4)
+    if (pctTbody && typeof CASE_CATEGORIES !== 'undefined') {
+        let pctHtml = '';
+        CASE_CATEGORIES.forEach((cat, idx) => {
+            const catCases = casesData.filter(c => c.category === cat);
+            const catLen = catCases.length;
+            const sysPct = ((catLen / totalSys) * 100).toFixed(0);
+            
+            const actCount = catCases.filter(c => c.status.startsWith('Active') || c.status.includes('កំពុង')).length;
+            const setCount = catCases.filter(c => c.status.startsWith('Settle') || c.status.includes('ព្រមព្រៀង')).length;
+            const noSetCount = catCases.filter(c => c.status.startsWith('Close') || c.status.includes('បិទ') || (c.mediationMeeting && c.mediationMeeting.includes('មិនព្រមព្រៀង'))).length;
+            const penCount = catCases.filter(c => c.status.startsWith('Pending') || c.status.includes('តម្កល់') || c.status.includes('ផ្អាក')).length;
+            
+            const actPct = catLen > 0 ? ((actCount / catLen) * 100).toFixed(0) : 0;
+            const setPct = catLen > 0 ? ((setCount / catLen) * 100).toFixed(0) : 0;
+            const noSetPct = catLen > 0 ? ((noSetCount / catLen) * 100).toFixed(0) : 0;
+            const penPct = catLen > 0 ? ((penCount / catLen) * 100).toFixed(0) : 0;
+
+            pctHtml += `
+                <tr style="border-bottom: 1px solid #e2e8f0; transition: background 0.2s;">
+                    <td style="padding: 10px; border-right: 1px solid #e2e8f0;">${idx + 1}</td>
+                    <td style="text-align: left; padding: 10px 15px; font-weight: 600; color: #1e3a8a; border-right: 1px solid #e2e8f0;">${cat}</td>
+                    <td style="padding: 10px; font-weight: 700; background: #f8fafc; border-right: 1px solid #e2e8f0;">${sysPct}%</td>
+                    <td style="padding: 10px; color: #2563eb; font-weight: 600; border-right: 1px solid #e2e8f0;">${actPct}%</td>
+                    <td style="padding: 10px; color: #10b981; font-weight: 700; border-right: 1px solid #e2e8f0;">${setPct}%</td>
+                    <td style="padding: 10px; color: #ef4444; font-weight: 600; border-right: 1px solid #e2e8f0;">${noSetPct}%</td>
+                    <td style="padding: 10px; color: #f59e0b; font-weight: 600;">${penPct}%</td>
+                </tr>
+            `;
+        });
+        pctTbody.innerHTML = pctHtml;
+
+        if (pctTfoot) {
+            const totActPct = ((stats.active / totalSys) * 100).toFixed(0);
+            const totSetPct = ((stats.settle / totalSys) * 100).toFixed(0);
+            const totNoSetPct = ((stats.close / totalSys) * 100).toFixed(0);
+            const totPenPct = ((stats.pending / totalSys) * 100).toFixed(0);
+            pctTfoot.innerHTML = `
+                <tr>
+                    <td colspan="2" style="padding: 12px 15px; text-align: left; font-weight: 700; color: #1e3a8a; border-right: 1px solid #cbd5e1;">សរុបមធ្យម (Total Average)</td>
+                    <td style="padding: 12px; font-weight: 700; color: #1e293b; background: #e2e8f0; border-right: 1px solid #cbd5e1;">100%</td>
+                    <td style="padding: 12px; font-weight: 700; color: #2563eb; border-right: 1px solid #cbd5e1;">${totActPct}%</td>
+                    <td style="padding: 12px; font-weight: 700; color: #10b981; border-right: 1px solid #cbd5e1;">${totSetPct}%</td>
+                    <td style="padding: 12px; font-weight: 700; color: #ef4444; border-right: 1px solid #cbd5e1;">${totNoSetPct}%</td>
+                    <td style="padding: 12px; font-weight: 700; color: #f59e0b;">${totPenPct}%</td>
+                </tr>
+            `;
+        }
+    }
+
+    // 2. Assessment Evaluation Matrix Table (Table 3 - Screenshot 3)
+    if (evalTbody && typeof CASE_CATEGORIES !== 'undefined') {
+        const evalBaselineMap = {
+            'វិវាទក្នុងគ្រួសារ': { resp: '-', nego: 'ល្អណាស់', emp: '-', spirit: '-', time: 'យឺត (> ៣០ ថ្ងៃ)' },
+            'វិវាទជំពាក់ប្រាក់': { resp: 'ល្អ', nego: 'ល្អណាស់', emp: 'ល្អ', spirit: 'មធ្យម', time: 'យឺត (> ៣០ ថ្ងៃ)' },
+            'វិវាទដីធ្លី': { resp: 'ល្អ', nego: 'ល្អ', emp: 'ល្អ', spirit: 'មិនល្អ', time: 'យឺត (> ៤៥ ថ្ងៃ)' },
+            'វិវាទពាណិជ្ជកម្ម': { resp: '-', nego: 'មធ្យម', emp: '-', spirit: 'មិនល្អ', time: 'យឺត (> ៣០ ថ្ងៃ)' },
+            'វិវាទមត៌ក': { resp: '-', nego: '-', emp: 'មិនល្អ', spirit: '-', time: 'លឿន (< ១៥ ថ្ងៃ)' },
+            'វិវាទអចលនវត្ថុ': { resp: '-', nego: 'ល្អណាស់', emp: 'មធ្យម', spirit: 'មធ្យម', time: 'យឺត (> ៣០ ថ្ងៃ)' },
+            'វិវាទកិច្ចសន្យា': { resp: 'ល្អ', nego: 'ល្អ', emp: 'មធ្យម', spirit: 'ល្អ', time: 'លឿន (< ១៥ ថ្ងៃ)' },
+            'វិវាទការងារ': { resp: 'ល្អណាស់', nego: 'ល្អ', emp: 'ល្អ', spirit: 'ល្អ', time: 'លឿន (< ១៥ ថ្ងៃ)' }
+        };
+
+        const getBadge = (val) => {
+            if (!val || val === '-') return `<span style="color: #94a3b8; font-weight: 700;">-</span>`;
+            if (val === 'ល្អណាស់') return `<span class="badge" style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; padding: 4px 10px; font-weight: 700; font-size: 12px;">ល្អណាស់</span>`;
+            if (val === 'ល្អ') return `<span class="badge" style="background: #fef9c3; color: #a16207; border: 1px solid #fde047; padding: 4px 10px; font-weight: 700; font-size: 12px;">ល្អ</span>`;
+            if (val === 'មធ្យម') return `<span class="badge" style="background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; padding: 4px 10px; font-weight: 700; font-size: 12px;">មធ្យម</span>`;
+            if (val === 'មិនល្អ') return `<span class="badge" style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; padding: 4px 10px; font-weight: 700; font-size: 12px;">មិនល្អ</span>`;
+            if (val.includes('យឺត')) return `<span class="badge" style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; padding: 4px 10px; font-weight: 700; font-size: 12px;"><i class="fa-solid fa-triangle-exclamation"></i> ${val}</span>`;
+            if (val.includes('លឿន')) return `<span class="badge" style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; padding: 4px 10px; font-weight: 700; font-size: 12px;"><i class="fa-solid fa-check"></i> ${val}</span>`;
+            return `<span class="badge" style="background: #f1f5f9; color: #334155; padding: 4px 10px; font-weight: 700;">${val}</span>`;
+        };
+
+        let evalHtml = '';
+        CASE_CATEGORIES.forEach((cat, idx) => {
+            const b = evalBaselineMap[cat] || { resp: 'ល្អ', nego: 'ល្អ', emp: 'មធ្យម', spirit: 'ល្អ', time: 'មធ្យម (២០ ថ្ងៃ)' };
+            evalHtml += `
+                <tr style="border-bottom: 1px solid #e2e8f0;">
+                    <td style="padding: 10px; border-right: 1px solid #e2e8f0;">${idx + 1}</td>
+                    <td style="text-align: left; padding: 10px 15px; font-weight: 600; color: #065f46; border-right: 1px solid #e2e8f0;">${cat}</td>
+                    <td style="padding: 10px; border-right: 1px solid #e2e8f0;">${getBadge(b.resp)}</td>
+                    <td style="padding: 10px; border-right: 1px solid #e2e8f0;">${getBadge(b.nego)}</td>
+                    <td style="padding: 10px; border-right: 1px solid #e2e8f0;">${getBadge(b.emp)}</td>
+                    <td style="padding: 10px; border-right: 1px solid #e2e8f0;">${getBadge(b.spirit)}</td>
+                    <td style="padding: 10px;">${getBadge(b.time)}</td>
+                </tr>
+            `;
+        });
+        evalTbody.innerHTML = evalHtml;
+
+        if (evalTfoot) {
+            evalTfoot.innerHTML = `
+                <tr>
+                    <td colspan="2" style="padding: 12px 15px; text-align: left; font-weight: 700; color: #065f46; border-right: 1px solid #cbd5e1;">សរុបវាយតម្លៃមធ្យម (Overall Assessment)</td>
+                    <td style="padding: 12px; border-right: 1px solid #cbd5e1;">${getBadge('ល្អ')}</td>
+                    <td style="padding: 12px; border-right: 1px solid #cbd5e1;">${getBadge('ល្អណាស់')}</td>
+                    <td style="padding: 12px; border-right: 1px solid #cbd5e1;">${getBadge('ល្អ')}</td>
+                    <td style="padding: 12px; border-right: 1px solid #cbd5e1;">${getBadge('មិនល្អ')}</td>
+                    <td style="padding: 12px;">${getBadge('យឺត (មធ្យម ២៤ ថ្ងៃ)')}</td>
+                </tr>
+            `;
+        }
     }
 }
 

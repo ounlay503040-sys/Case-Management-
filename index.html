@@ -15,7 +15,7 @@
     <!-- SheetJS (XLSX) for Excel Import and Export -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/style.css?v=9.6">
+    <link rel="stylesheet" href="css/style.css?v=9.7">
 </head>
 <body class="light-theme">
     <!-- AUTHENTICATION OVERLAY -->
@@ -364,6 +364,71 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- SECTION 4: DETAILED CATEGORY STATISTICS WITH PERCENTAGES -->
+                <div class="section-subtitle mt-4 mb-3">
+                    <h3 style="font-size: 16px; font-weight: 700; color: var(--text-main);"><i class="fa-solid fa-table-list text-primary"></i> ៤. ស្ថិតិភាគរយ និងចំនួនសំណុំរឿងតាមប្រភេទវិវាទ (Percentage & Count by Category)</h3>
+                </div>
+                <div class="card-panel">
+                    <div class="table-responsive">
+                        <table class="data-table" style="width: 100%; font-size: 13.5px;">
+                            <thead>
+                                <tr style="background: linear-gradient(135deg, #1e3a8a, #2563eb); color: white;">
+                                    <th style="width: 50px; text-align: center;">ល.រ</th>
+                                    <th>ប្រភេទវិវាទ (Dispute Category)</th>
+                                    <th style="text-align: center;">ចំនួនសំណុំរឿង</th>
+                                    <th style="text-align: center;">ភាគរយសរុប (%)</th>
+                                    <th style="text-align: center;">ព្រមព្រៀង (Settle)</th>
+                                    <th style="text-align: center;">កំពុងចាត់ការ (Active)</th>
+                                    <th style="min-width: 180px;">កម្រិតភាគរយ (Progress Bar)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashboard-cat-stats-tbody">
+                                <!-- Dynamically populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- SECTION 5: YEARLY OUTCOMES & PROVINCIAL STATISTICS -->
+                <div class="section-subtitle mt-4 mb-3">
+                    <h3 style="font-size: 16px; font-weight: 700; color: var(--text-main);"><i class="fa-solid fa-chart-column text-primary"></i> ៥. លទ្ធផលដោះស្រាយវិវាទតាមឆ្នាំ និងក្រាហ្វវិវាទតាមខេត្ត/រាជធានី</h3>
+                </div>
+                <div class="charts-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 24px;">
+                    <!-- Yearly Table Card -->
+                    <div class="card-panel">
+                        <div class="panel-header" style="margin-bottom: 15px;">
+                            <h3><i class="fa-solid fa-calendar-check text-success"></i> លទ្ធផលដោះស្រាយវិវាទតាមឆ្នាំ (Yearly Outcomes)</h3>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table text-center" style="width: 100%; font-size: 13px;">
+                                <thead>
+                                    <tr style="background: #f1f5f9; color: #1e293b; font-weight: 700;">
+                                        <th>ឆ្នាំ (Year)</th>
+                                        <th>សរុប</th>
+                                        <th style="color: #10b981;">ព្រមព្រៀង</th>
+                                        <th style="color: #2563eb;">កំពុងចាត់ការ</th>
+                                        <th style="color: #64748b;">ផ្សេងៗ</th>
+                                        <th>អត្រាជោគជ័យ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dashboard-yearly-tbody">
+                                    <!-- Dynamically populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Province Chart Card -->
+                    <div class="chart-container card-panel">
+                        <div class="panel-header" style="margin-bottom: 15px;">
+                            <h3><i class="fa-solid fa-map-location-dot text-danger"></i> ក្រាហ្វបង្ហាញពីវិវាទតាមខេត្ត/រាជធានី (Top Locations)</h3>
+                        </div>
+                        <div class="chart-wrapper" style="height: 260px;">
+                            <canvas id="dashboardLocationChart"></canvas>
+                        </div>
+                    </div>
+                </div>
             </section>
 
             <!-- VIEW 0: CASE ENTRY VIEW -->
@@ -513,16 +578,18 @@
                         <table class="data-table" style="width: 100%; font-size: 13px;">
                             <thead>
                                 <tr>
-                                    <th style="width: 50px;">ល.រ</th>
-                                    <th>លេខកូដសំណុំរឿង</th>
-                                    <th>កាលបរិច្ឆេទ</th>
-                                    <th>ប្រភេទវិវាទ</th>
-                                    <th>ទីតាំង</th>
-                                    <th>ភាគី ក (ដើមបណ្តឹង)</th>
-                                    <th>ភាគី ខ (ចុងបណ្តឹង)</th>
-                                    <th>ស្ថានភាព</th>
-                                    <th class="text-center">ឯកសារ PDF</th>
-                                    <th class="text-center" style="width: 100px;">សកម្មភាព</th>
+                                    <th class="text-center" style="width: 50px;">ល.រ</th>
+                                    <th style="width: 130px;">លេខកូដសំណុំរឿង</th>
+                                    <th style="width: 110px;">កាលបរិច្ឆេទ</th>
+                                    <th style="min-width: 180px;">ភាគី (ក) ដើមបណ្ដឹង</th>
+                                    <th style="min-width: 180px;">ភាគី (ខ) ចុងបណ្ដឹង</th>
+                                    <th style="width: 140px;">ប្រភេទវិវាទ</th>
+                                    <th style="width: 120px;">ទីតាំងវិវាទ</th>
+                                    <th style="min-width: 200px;">ចំណាត់ការសម្រុះសម្រួល</th>
+                                    <th style="width: 140px;" class="text-center">លទ្ធផលសំណុំរឿង</th>
+                                    <th style="width: 110px;" class="text-center">កំណត់ចំណាំ</th>
+                                    <th style="width: 120px;" class="text-center">ឯកសារ ដើម (PDF)</th>
+                                    <th style="width: 120px;" class="text-center">សកម្មភាព</th>
                                 </tr>
                             </thead>
                             <tbody id="entry-cases-tbody">
@@ -588,8 +655,8 @@
                         <div class="filter-group">
                             <label><i class="fa-solid fa-arrow-up-z-a"></i> តម្រៀបតាម៖</label>
                             <select id="sort-by">
-                                <option value="date-desc">កាលបរិច្ឆេទថ្មី -> ចាស់</option>
-                                <option value="date-asc">កាលបរិច្ឆេទចាស់ -> ថ្មី</option>
+                                <option value="date-asc">កាលបរិច្ឆេទចាស់ -> ថ្មី (តាមលំដាប់ពី ១ ដល់ ៧០)</option>
+                                <option value="date-desc">កាលបរិច្ឆេទថ្មី -> ចាស់ (៧០ ដល់ ១)</option>
                                 <option value="number-asc">លេខកូដសំណុំរឿង A -> Z</option>
                                 <option value="number-desc">លេខកូដសំណុំរឿង Z -> A</option>
                             </select>
@@ -705,6 +772,68 @@
                             <h3 id="eval-resolution-rate">០ %</h3>
                             <p class="stat-sub">Settle + Close / Total</p>
                         </div>
+                    </div>
+                </div>
+
+                <!-- NEW SECTION: TABLE 4 (PERCENTAGE ANALYSIS BY CATEGORY) -->
+                <div class="section-subtitle mt-4 mb-3">
+                    <h3 style="font-size: 16px; font-weight: 700; color: var(--text-main);"><i class="fa-solid fa-percent text-primary"></i> តារាងការវិភាគតាមប្រភេទវិវាទនីមួយៗ/លទ្ធផល គិតជាភាគរយ (Outcome Percentage Analysis)</h3>
+                </div>
+                <div class="card-panel">
+                    <div class="table-responsive">
+                        <table class="data-table eval-table text-center" style="width: 100%; border-collapse: collapse; font-size: 13.5px;">
+                            <thead>
+                                <tr style="background: linear-gradient(135deg, #1e3a8a, #2563eb); color: white;">
+                                    <th rowspan="2" style="width: 50px; border: 1px solid rgba(255,255,255,0.2); vertical-align: middle; text-align: center;">ល.រ</th>
+                                    <th rowspan="2" style="text-align: left; padding-left: 15px; border: 1px solid rgba(255,255,255,0.2); vertical-align: middle;">ប្រភេទវិវាទ (Dispute Category)</th>
+                                    <th colspan="5" style="border: 1px solid rgba(255,255,255,0.2); text-align: center; padding: 10px 0;">វិភាគសំណុំរឿង (គិតជាភាគរយ %)</th>
+                                </tr>
+                                <tr style="background: #1e40af; color: white;">
+                                    <th style="width: 13%; border: 1px solid rgba(255,255,255,0.2); text-align: center;">សរុប (%)</th>
+                                    <th style="width: 16%; border: 1px solid rgba(255,255,255,0.2); text-align: center;">កំពុងសម្រុះសម្រួល</th>
+                                    <th style="width: 16%; border: 1px solid rgba(255,255,255,0.2); text-align: center;">ព្រមព្រៀង</th>
+                                    <th style="width: 16%; border: 1px solid rgba(255,255,255,0.2); text-align: center;">មិនព្រមព្រៀង</th>
+                                    <th style="width: 16%; border: 1px solid rgba(255,255,255,0.2); text-align: center;">ផ្អាក / ផ្សេងៗ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="analytics-percentage-tbody">
+                                <!-- Dynamically rendered -->
+                            </tbody>
+                            <tfoot id="analytics-percentage-tfoot" style="background: #f1f5f9; font-weight: 700; color: #1e293b;">
+                                <!-- Dynamically rendered total row -->
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- NEW SECTION: TABLE 3 (EVALUATION MATRIX BY CATEGORY) -->
+                <div class="section-subtitle mt-4 mb-3">
+                    <h3 style="font-size: 16px; font-weight: 700; color: var(--text-main);"><i class="fa-solid fa-scale-balanced text-success"></i> តារាងវាយតម្លៃកម្រិតវិវាទ និងរយៈពេលដោះស្រាយតាមប្រភេទ (Evaluation & Resolution Matrix)</h3>
+                </div>
+                <div class="card-panel">
+                    <div class="table-responsive">
+                        <table class="data-table eval-table text-center" style="width: 100%; border-collapse: collapse; font-size: 13.5px;">
+                            <thead>
+                                <tr style="background: linear-gradient(135deg, #065f46, #059669); color: white;">
+                                    <th rowspan="2" style="width: 50px; border: 1px solid rgba(255,255,255,0.2); vertical-align: middle; text-align: center;">ល.រ</th>
+                                    <th rowspan="2" style="text-align: left; padding-left: 15px; border: 1px solid rgba(255,255,255,0.2); vertical-align: middle;">ប្រភេទវិវាទ (Dispute Category)</th>
+                                    <th colspan="5" style="border: 1px solid rgba(255,255,255,0.2); text-align: center; padding: 10px 0;">វាយតម្លៃកម្រិត និងរយៈពេលដោះស្រាយ</th>
+                                </tr>
+                                <tr style="background: #047857; color: white;">
+                                    <th style="width: 15%; border: 1px solid rgba(255,255,255,0.2); text-align: center;">ទំនួលខុសត្រូវ</th>
+                                    <th style="width: 15%; border: 1px solid rgba(255,255,255,0.2); text-align: center;">ការចរចា</th>
+                                    <th style="width: 15%; border: 1px solid rgba(255,255,255,0.2); text-align: center;">ការយោគយល់</th>
+                                    <th style="width: 15%; border: 1px solid rgba(255,255,255,0.2); text-align: center;">ស្មារតី</th>
+                                    <th style="width: 18%; border: 1px solid rgba(255,255,255,0.2); text-align: center;">រយៈពេលដោះស្រាយ (ថ្ងៃ)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="analytics-evaluation-tbody">
+                                <!-- Dynamically rendered -->
+                            </tbody>
+                            <tfoot id="analytics-evaluation-tfoot" style="background: #f1f5f9; font-weight: 700; color: #1e293b;">
+                                <!-- Dynamically rendered total row -->
+                            </tfoot>
+                        </table>
                     </div>
                 </div>
 
@@ -1658,11 +1787,11 @@
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
         }
     </script>
-    <script src="js/data.js?v=9.6"></script>
-    <script src="js/ai-assistant.js?v=9.6"></script>
-    <script src="js/docs.js?v=9.6"></script>
-    <script src="js/charts.js?v=9.6"></script>
-    <script src="js/reports.js?v=9.6"></script>
-    <script src="js/app.js?v=9.6"></script>
+    <script src="js/data.js?v=9.7"></script>
+    <script src="js/ai-assistant.js?v=9.7"></script>
+    <script src="js/docs.js?v=9.7"></script>
+    <script src="js/charts.js?v=9.7"></script>
+    <script src="js/reports.js?v=9.7"></script>
+    <script src="js/app.js?v=9.7"></script>
 </body>
 </html>

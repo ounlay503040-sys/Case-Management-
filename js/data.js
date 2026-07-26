@@ -277,20 +277,20 @@ function filterCases(filters = {}) {
 /**
  * Sort cases by specific field
  */
-function sortCases(casesArray, sortBy = 'date-desc') {
+function sortCases(casesArray, sortBy = 'date-asc') {
     const sorted = [...casesArray];
     sorted.sort((a, b) => {
         switch (sortBy) {
-            case 'date-desc':
-                return b.dateReceived.localeCompare(a.dateReceived);
             case 'date-asc':
-                return a.dateReceived.localeCompare(b.dateReceived);
+                return a.dateReceived.localeCompare(b.dateReceived) || a.caseNumber.localeCompare(b.caseNumber, undefined, {numeric: true});
+            case 'date-desc':
+                return b.dateReceived.localeCompare(a.dateReceived) || b.caseNumber.localeCompare(a.caseNumber, undefined, {numeric: true});
             case 'number-asc':
-                return a.caseNumber.localeCompare(b.caseNumber);
+                return a.caseNumber.localeCompare(b.caseNumber, undefined, {numeric: true});
             case 'number-desc':
-                return b.caseNumber.localeCompare(a.caseNumber);
+                return b.caseNumber.localeCompare(a.caseNumber, undefined, {numeric: true});
             default:
-                return b.dateReceived.localeCompare(a.dateReceived);
+                return a.dateReceived.localeCompare(b.dateReceived) || a.caseNumber.localeCompare(b.caseNumber, undefined, {numeric: true});
         }
     });
     return sorted;
