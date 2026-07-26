@@ -173,6 +173,8 @@ function switchView(viewId) {
     } else if (viewId === 'settings-view') {
         const activeTabBtn = document.querySelector('#settings-view .tab-btn.active');
         if (activeTabBtn) activeTabBtn.click();
+    } else if (viewId === 'strategic-plan-view') {
+        if (typeof renderStrategicPlanView === 'function') renderStrategicPlanView();
     }
 }
 
@@ -1177,7 +1179,7 @@ function renderAnalyticsTables(stats) {
             `;
         }
     }
-    renderStrategicRecommendations();
+    renderEvaluationMatrixInterpretation(stats);
 }
 
 function renderStrategicRecommendations() {
@@ -1329,6 +1331,231 @@ function renderStrategicRecommendations() {
             </div>
         </div>
     `;
+}
+
+/**
+ * Render analytical interpretation of Evaluation Matrix in Analytics View (Request 4)
+ */
+function renderEvaluationMatrixInterpretation(stats) {
+    const el = document.getElementById('analytics-interpretation-content');
+    if (!el) return;
+
+    let html = `
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 4px;">
+            <div style="background: #f8fafc; padding: 18px; border-radius: 12px; border-left: 4px solid #2563eb; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                <h4 style="color: #1e3a8a; font-size: 15px; margin: 0 0 10px 0; font-weight: 700;"><i class="fa-solid fa-handshake-angle text-primary"></i> កម្រិតទំនួលខុសត្រូវ និងការចរចា (Responsibility & Negotiation)</h4>
+                <p style="margin: 0; font-size: 13.5px; color: #475569; line-height: 1.7;">
+                    តាមតារាងវាយតម្លៃ សំណុំរឿងប្រភេទ <strong>វិវាទដីធ្លី និងព្រំប្រទល់</strong> និង <strong>វិវាទកិច្ចសន្យា/ពាណិជ្ជកម្ម</strong> បង្ហាញសន្ទស្សន៍ការចរចា និងទំនួលខុសត្រូវក្នុងកម្រិត <span class="badge" style="background:#dcfce7; color:#15803d; font-size:11.5px; font-weight:700;">ល្អ</span> និង <span class="badge" style="background:#dcfce7; color:#15803d; font-size:11.5px; font-weight:700;">ល្អណាស់</span> ដែលឆ្លុះបញ្ចាំងពីការចូលរួមសហការយ៉ាងសកម្មពីភាគីវិវាទក្នុងការស្វែងរកដំណោះស្រាយរួម និងភាពប៉ិនប្រសប់ក្នុងការដឹកនាំកិច្ចប្រជុំសម្រុះសម្រួល។
+                </p>
+            </div>
+            <div style="background: #f8fafc; padding: 18px; border-radius: 12px; border-left: 4px solid #10b981; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                <h4 style="color: #065f46; font-size: 15px; margin: 0 0 10px 0; font-weight: 700;"><i class="fa-solid fa-heart-pulse text-success"></i> ស្មារតី និងការយោគយល់ (Spirit & Empathy)</h4>
+                <p style="margin: 0; font-size: 13.5px; color: #475569; line-height: 1.7;">
+                    ចំពោះករណី <strong>វិវាទគ្រួសារ និងមរតក</strong> និង <strong>វិវាទបំណុល</strong> កម្រិតការយោគយល់ និងស្មារតីផ្សះផ្សានៅមានកម្រិត <span class="badge" style="background:#e0f2fe; color:#0369a1; font-size:11.5px; font-weight:700;">មធ្យម</span> និង <span class="badge" style="background:#fee2e2; color:#b91c1c; font-size:11.5px; font-weight:700;">មិនល្អ</span> ដោយសារពាក់ព័ន្ធនឹងមនោសញ្ចេតនា និងសម្ពាធហិរញ្ញវត្ថុ ដែលទាមទារឱ្យមន្ត្រីសម្រុះសម្រួលពង្រឹងយន្តការចិត្តសាស្ត្រ និងបន្តពន្យល់ណែនាំអំពីអត្ថប្រយោជន៍នៃការផ្សះផ្សា។
+                </p>
+            </div>
+            <div style="background: #f8fafc; padding: 18px; border-radius: 12px; border-left: 4px solid #f59e0b; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                <h4 style="color: #b45309; font-size: 15px; margin: 0 0 10px 0; font-weight: 700;"><i class="fa-solid fa-clock-rotate-left text-warning"></i> សន្ទស្សន៍រយៈពេលដោះស្រាយ (Resolution Timeframe)</h4>
+                <p style="margin: 0; font-size: 13.5px; color: #475569; line-height: 1.7;">
+                    រយៈពេលដោះស្រាយជាមធ្យមមានភាពខុសគ្នាទៅតាមប្រភេទវិវាទ៖ ករណីស្មុគស្មាញដូចជា <strong>វិវាទដីធ្លី</strong> និង <strong>សំណង់</strong> មានរយៈពេលដោះស្រាយមធ្យម <strong>២០ ដល់ ២៥ ថ្ងៃ</strong> ខណៈករណីបំណុល ឬកិច្ចសន្យាអាចសម្រេចលទ្ធផលបានលឿនក្នុងរង្វង់ <strong>១៤ ទៅ ១៥ ថ្ងៃ</strong>។
+                </p>
+            </div>
+        </div>
+        <div style="margin-top: 18px; padding: 16px; background: #eff6ff; border-radius: 10px; border: 1px dashed #3b82f6; font-size: 14px; color: #1e3a8a; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+            <div>
+                <strong><i class="fa-solid fa-lightbulb text-warning"></i> សេចក្តីសន្និដ្ឋានជារួម៖</strong> លទ្ធផលនៃការវាយតម្លៃនេះ ជាមូលដ្ឋានគ្រឹះដ៏សំខាន់សម្រាប់មន្ត្រី ក្នុងការដាក់ចេញនូវ <strong>«ផែនការយុទ្ធសាស្ត្រ»</strong> អនុវត្តបន្ត ដើម្បីជំរុញអត្រាព្រមព្រៀងឱ្យកាន់តែខ្ពស់។
+            </div>
+            <a href="javascript:void(0)" onclick="switchView('strategic-plan-view')" style="background: #2563eb; color: white; padding: 6px 14px; border-radius: 6px; font-weight: 700; text-decoration: none; font-size: 12.5px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(37,99,235,0.2);">
+                <i class="fa-solid fa-arrow-right"></i> ចូលទៅកាន់ ផែនការយុទ្ធសាស្ត្រ
+            </a>
+        </div>
+    `;
+    el.innerHTML = html;
+}
+
+/**
+ * Strategic Plan View Initialization & Render (Request 5)
+ */
+function renderStrategicPlanView() {
+    initStrategicPlanTabs();
+    
+    const activeTab = document.querySelector('#strategic-plan-view .strat-tab-btn.active');
+    const targetId = activeTab ? activeTab.getAttribute('data-target') : 'strat-tab-plan';
+    
+    if (targetId === 'strat-tab-strategy') {
+        renderStrategicRecommendations();
+    } else {
+        renderActionPlans();
+    }
+}
+
+let strategicPlanTabsInitialized = false;
+function initStrategicPlanTabs() {
+    if (strategicPlanTabsInitialized) return;
+    const tabBtns = document.querySelectorAll('#strategic-plan-view .strat-tab-btn');
+    if (tabBtns.length === 0) return;
+    
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            tabBtns.forEach(b => {
+                b.classList.remove('active');
+                b.style.background = '#f1f5f9';
+                b.style.color = '#475569';
+                b.style.boxShadow = 'none';
+            });
+            btn.classList.add('active');
+            btn.style.background = '#2563eb';
+            btn.style.color = '#ffffff';
+            btn.style.boxShadow = '0 2px 6px rgba(37,99,235,0.2)';
+
+            const targetId = btn.getAttribute('data-target');
+            document.querySelectorAll('#strategic-plan-view .strat-tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            const targetEl = document.getElementById(targetId);
+            if (targetEl) targetEl.style.display = 'block';
+
+            if (targetId === 'strat-tab-strategy') {
+                renderStrategicRecommendations();
+            } else if (targetId === 'strat-tab-plan') {
+                renderActionPlans();
+            }
+        });
+    });
+    strategicPlanTabsInitialized = true;
+}
+
+/**
+ * Action Plans Management (localStorage: nadr_strategic_action_plans)
+ */
+function getActionPlans() {
+    const stored = localStorage.getItem('nadr_strategic_action_plans');
+    if (stored) {
+        try { return JSON.parse(stored); } catch (e) { }
+    }
+    const defaultPlans = [
+        { id: 1, target: 'យុទ្ធសាស្ត្រអត្រាព្រមព្រៀង (Settle Rate)', action: 'ពង្រឹងនីតិវិធីប្រជុំសម្រុះសម្រួលកម្រិតមូលដ្ឋានឱ្យបានយ៉ាងតិច ២ លើក មុននឹងសម្រេចបិទ ឬតម្កល់', date: '២០២៦-០៨-១៥', status: 'កំពុងអនុវត្ត' },
+        { id: 2, target: 'យុទ្ធសាស្ត្រកំពុងសម្រុះសម្រួល (Active Rate)', action: 'ចុះពិនិត្យទីតាំង និងវាស់វែងជាក់ស្តែងលើករណីវិវាទដីធ្លីដែលកកស្ទះលើសពី ២០ ថ្ងៃ', date: '២០២៦-០៨-២០', status: 'កំពុងអនុវត្ត' },
+        { id: 3, target: 'យុទ្ធសាស្ត្រតម្កល់/ផ្អាក (Pending Rate)', action: 'ទំនាក់ទំនងភាគីទាំងពីរឡើងវិញដើម្បីពិនិត្យលទ្ធភាពផ្សះផ្សាលើករណីដែលបានផ្អាកបណ្តោះអាសន្ន', date: '២០២៦-០៨-៣០', status: 'សម្រេចបានរួចរាល់' }
+    ];
+    localStorage.setItem('nadr_strategic_action_plans', JSON.stringify(defaultPlans));
+    return defaultPlans;
+}
+
+function renderActionPlans() {
+    const tbody = document.getElementById('action-plan-tbody');
+    if (!tbody) return;
+
+    const plans = getActionPlans();
+    if (plans.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 24px; color: #64748b;">ពុំទាន់មានផែនការសកម្មភាពនៅឡើយ សូមចុចប៊ូតុង «បន្ថែមផែនការថ្មី»</td></tr>`;
+        return;
+    }
+
+    let html = '';
+    plans.forEach((p, idx) => {
+        let statusBadge = '';
+        if (p.status === 'សម្រេចបានរួចរាល់') {
+            statusBadge = `<span class="badge" style="background: #dcfce7; color: #15803d; padding: 4px 10px; font-weight: 700; border-radius: 20px;"><i class="fa-solid fa-check-circle"></i> ${p.status}</span>`;
+        } else if (p.status === 'ពន្យារពេល/បន្ត') {
+            statusBadge = `<span class="badge" style="background: #fef9c3; color: #a16207; padding: 4px 10px; font-weight: 700; border-radius: 20px;"><i class="fa-solid fa-clock"></i> ${p.status}</span>`;
+        } else {
+            statusBadge = `<span class="badge" style="background: #e0f2fe; color: #0369a1; padding: 4px 10px; font-weight: 700; border-radius: 20px;"><i class="fa-solid fa-spinner fa-spin" style="animation-duration: 3s;"></i> ${p.status}</span>`;
+        }
+
+        html += `
+            <tr style="border-bottom: 1px solid #e2e8f0; transition: background 0.2s;">
+                <td style="padding: 12px; text-align: center; font-weight: 700; color: #64748b;">${idx + 1}</td>
+                <td style="padding: 12px; font-weight: 700; color: #1e3a8a;">${p.target}</td>
+                <td style="padding: 12px; color: #334155; line-height: 1.6;">${p.action}</td>
+                <td style="padding: 12px; text-align: center; font-weight: 600; color: #475569;">${p.date || '-'}</td>
+                <td style="padding: 12px; text-align: center; cursor: pointer;" onclick="toggleActionPlanStatus(${p.id})" title="ចុចដើម្បីប្តូរស្ថានភាព">${statusBadge}</td>
+                <td style="padding: 12px; text-align: center;">
+                    <button class="btn-action edit" onclick="editActionPlan(${p.id})" title="កែសម្រួល" style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; padding: 6px 10px; border-radius: 6px; margin-right: 4px; cursor: pointer;"><i class="fa-solid fa-pen"></i></button>
+                    <button class="btn-action delete" onclick="deleteActionPlan(${p.id})" title="លុបចោល" style="background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; padding: 6px 10px; border-radius: 6px; cursor: pointer;"><i class="fa-solid fa-trash"></i></button>
+                </td>
+            </tr>
+        `;
+    });
+    tbody.innerHTML = html;
+}
+
+function openNewActionPlanModal() {
+    document.getElementById('plan-modal-id').value = '';
+    document.getElementById('plan-modal-action').value = '';
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('plan-modal-date').value = today;
+    document.getElementById('plan-modal-status').value = 'កំពុងអនុវត្ត';
+    document.getElementById('action-plan-modal').classList.add('active');
+}
+
+function closeActionPlanModal() {
+    document.getElementById('action-plan-modal').classList.remove('active');
+}
+
+function editActionPlan(id) {
+    const plans = getActionPlans();
+    const p = plans.find(item => item.id === id);
+    if (!p) return;
+
+    document.getElementById('plan-modal-id').value = p.id;
+    document.getElementById('plan-modal-target').value = p.target;
+    document.getElementById('plan-modal-action').value = p.action;
+    document.getElementById('plan-modal-date').value = p.date || '';
+    document.getElementById('plan-modal-status').value = p.status || 'កំពុងអនុវត្ត';
+    document.getElementById('action-plan-modal').classList.add('active');
+}
+
+function saveActionPlan() {
+    const idVal = document.getElementById('plan-modal-id').value;
+    const target = document.getElementById('plan-modal-target').value;
+    const action = document.getElementById('plan-modal-action').value.trim();
+    const date = document.getElementById('plan-modal-date').value;
+    const status = document.getElementById('plan-modal-status').value;
+
+    if (!action) {
+        showToast('សូមបញ្ចូលសកម្មភាពផែនការការងារ!', 'warning');
+        return;
+    }
+
+    let plans = getActionPlans();
+    if (idVal) {
+        const idx = plans.findIndex(item => item.id === parseInt(idVal));
+        if (idx !== -1) {
+            plans[idx] = { id: parseInt(idVal), target, action, date, status };
+        }
+    } else {
+        const newId = plans.length > 0 ? Math.max(...plans.map(item => item.id || 0)) + 1 : 1;
+        plans.push({ id: newId, target, action, date, status });
+    }
+
+    localStorage.setItem('nadr_strategic_action_plans', JSON.stringify(plans));
+    closeActionPlanModal();
+    renderActionPlans();
+    showToast('បានរក្សាទុកផែនការសកម្មភាពដោយជោគជ័យ!', 'success');
+}
+
+function deleteActionPlan(id) {
+    if (!confirm('តើអ្នកពិតជាចង់លុបផែនការសកម្មភាពនេះមែនឬទេ?')) return;
+    let plans = getActionPlans();
+    plans = plans.filter(item => item.id !== id);
+    localStorage.setItem('nadr_strategic_action_plans', JSON.stringify(plans));
+    renderActionPlans();
+    showToast('បានលុបផែនការសកម្មភាពរួចរាល់!', 'success');
+}
+
+function toggleActionPlanStatus(id) {
+    let plans = getActionPlans();
+    const idx = plans.findIndex(item => item.id === id);
+    if (idx !== -1) {
+        const current = plans[idx].status;
+        if (current === 'កំពុងអនុវត្ត') plans[idx].status = 'សម្រេចបានរួចរាល់';
+        else if (current === 'សម្រេចបានរួចរាល់') plans[idx].status = 'ពន្យារពេល/បន្ត';
+        else plans[idx].status = 'កំពុងអនុវត្ត';
+        localStorage.setItem('nadr_strategic_action_plans', JSON.stringify(plans));
+        renderActionPlans();
+        showToast('បានប្តូរស្ថានភាពផែនការទៅជា៖ ' + plans[idx].status, 'info');
+    }
 }
 
 /**

@@ -119,6 +119,10 @@
                     <i class="fa-solid fa-chart-line"></i>
                     <span data-i18n="nav.analytics">វិភាគវាយតម្លៃចំណាត់ការ</span>
                 </a>
+                <a href="#strategic-plan-view" class="nav-item" data-view="strategic-plan-view">
+                    <i class="fa-solid fa-compass-drafting"></i>
+                    <span>ផែនការយុទ្ធសាស្ត្រ</span>
+                </a>
 
                 <div class="nav-section-title" data-i18n="nav.admin">រដ្ឋបាល &amp; ទិន្នន័យ (ADMIN)</div>
                 <a href="#reports-view" class="nav-item" data-view="reports-view">
@@ -849,16 +853,15 @@
                     </div>
                 </div>
 
-                <!-- STRATEGIC RECOMMENDATIONS (Request 2) -->
-                <div class="card-panel mt-4 mb-4" style="background: linear-gradient(135deg, #f0fdf4, #ecfdf5); border: 1.5px solid #10b981; padding: 24px; border-radius: 16px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.1);">
-                    <div class="panel-header mb-3" style="border-bottom: 1px solid rgba(16, 185, 129, 0.2); padding-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                        <h3 style="color: #065f46; font-size: 16px; margin: 0; display: flex; align-items: center; gap: 10px;">
-                            <i class="fa-solid fa-chess-knight" style="color: #10b981; font-size: 20px;"></i> យុទ្ធសាស្ត្រ និងអនុសាសន៍ដោះស្រាយវិវាទ (Strategic Resolution Guidance)
+                <!-- INTERPRETATION OF RESULTS BASED ON EVALUATION MATRIX (Request 4) -->
+                <div class="card-panel mt-4 mb-4" style="background: white; border: 1.5px solid #cbd5e1; padding: 24px; border-radius: 16px; box-shadow: var(--shadow-sm);">
+                    <div class="panel-header mb-3" style="border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                        <h3 style="color: #1e3a8a; font-size: 16px; margin: 0; font-weight: 700;">
+                            <i class="fa-solid fa-circle-info text-primary"></i> បកស្រាយលទ្ធផល ផ្អែកតាមតារាងវាយតម្លៃកម្រិតវិវាទ និងរយៈពេលដោះស្រាយតាមប្រភេទ (Evaluation & Resolution Matrix)
                         </h3>
-                        <span class="badge" style="background: #10b981; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px;">ប្រព័ន្ធវិភាគស្វ័យប្រវត្តិ</span>
                     </div>
-                    <div id="analytics-strategy-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
-                        <!-- Rendered dynamically -->
+                    <div id="analytics-interpretation-content" style="line-height: 1.8; font-size: 14.5px; color: #334155;">
+                        <!-- Dynamically populated explanation -->
                     </div>
                 </div>
 
@@ -888,6 +891,73 @@
                                 <li>ការចូលរួមពី <strong>ភាគី "ខ"</strong> ក្នុងកិច្ចប្រជុំសម្រុះសម្រួល មានសន្ទុះខ្ពស់ក្នុងករណីវិវាទដីធ្លី និងកិច្ចសន្យា។</li>
                                 <li>ករណីដែលមានលទ្ធផល <strong>Settle (ព្រមព្រៀង)</strong> ភាគច្រើនបានឆ្លងកាត់កិច្ចប្រជុំសម្រុះសម្រួលចាប់ពី ១ ទៅ ២ លើកឡើងទៅ។</li>
                             </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- STRATEGIC PLAN VIEW (Request 5) -->
+            <section class="view-section" id="strategic-plan-view">
+                <div class="section-title-box mb-4" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; border-bottom: 2px solid var(--border-color); padding-bottom: 16px;">
+                    <div>
+                        <h1 style="font-size: 22px; font-weight: 800; color: var(--primary-color); display: flex; align-items: center; gap: 12px; margin: 0;">
+                            <i class="fa-solid fa-compass-drafting text-success"></i> ផែនការយុទ្ធសាស្ត្រ (Strategic Resolution Plan)
+                        </h1>
+                        <p style="color: var(--text-muted); font-size: 13.5px; margin: 4px 0 0 0;">រៀបចំផែនការសកម្មភាពអនុវត្តការងារ និងពិនិត្យអនុសាសន៍យុទ្ធសាស្ត្រដោះស្រាយវិវាទ</p>
+                    </div>
+                </div>
+
+                <!-- TABS FOR PLAN VS STRATEGY -->
+                <div class="tabs-header mb-4" style="display: flex; gap: 12px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px;">
+                    <button class="btn strat-tab-btn active" data-target="strat-tab-plan" style="padding: 10px 20px; font-weight: 700; border: none; background: #2563eb; color: white; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 6px rgba(37,99,235,0.2);">
+                        <i class="fa-solid fa-list-check"></i> ចំណុច ផែនការ (Action Plans)
+                    </button>
+                    <button class="btn strat-tab-btn" data-target="strat-tab-strategy" style="padding: 10px 20px; font-weight: 700; border: none; background: #f1f5f9; color: #475569; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-chess-knight"></i> ចំណុច យុទ្ធសាស្ត្រ (Resolution Strategies)
+                    </button>
+                </div>
+
+                <!-- TAB 1: ACTION PLAN (ចំណុច ផែនការ) -->
+                <div id="strat-tab-plan" class="strat-tab-content" style="display: block;">
+                    <div class="card-panel p-4" style="background: white; border-radius: 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+                            <h3 style="font-size: 16px; font-weight: 700; color: #1e3a8a; margin: 0;"><i class="fa-solid fa-calendar-check text-primary"></i> តារាងផែនការសកម្មភាពអនុវត្តការងារតាមយុទ្ធសាស្ត្រ</h3>
+                            <button class="btn btn-primary" onclick="openNewActionPlanModal()" style="background: #2563eb; color: white; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(37,99,235,0.2);">
+                                <i class="fa-solid fa-plus"></i> បន្ថែមផែនការថ្មី
+                            </button>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="data-table text-left" style="width: 100%; border-collapse: collapse; font-size: 13.5px;">
+                                <thead>
+                                    <tr style="background: #f8fafc; color: #1e293b; border-bottom: 2px solid #cbd5e1;">
+                                        <th style="padding: 12px; width: 50px; text-align: center;">ល.រ</th>
+                                        <th style="padding: 12px; width: 220px;">គោលដៅយុទ្ធសាស្ត្រពាក់ព័ន្ធ</th>
+                                        <th style="padding: 12px;">សកម្មភាពផែនការការងារ</th>
+                                        <th style="padding: 12px; width: 140px; text-align: center;">កាលបរិច្ឆេទ</th>
+                                        <th style="padding: 12px; width: 150px; text-align: center;">ស្ថានភាព</th>
+                                        <th style="padding: 12px; width: 120px; text-align: center;">សកម្មភាព</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="action-plan-tbody">
+                                    <!-- Rendered dynamically from localStorage -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: RESOLUTION STRATEGIES (ចំណុច យុទ្ធសាស្ត្រ) -->
+                <div id="strat-tab-strategy" class="strat-tab-content" style="display: none;">
+                    <div class="card-panel p-4" style="background: linear-gradient(135deg, #f0fdf4, #ecfdf5); border: 1.5px solid #10b981; border-radius: 16px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.1);">
+                        <div class="panel-header mb-3" style="border-bottom: 1px solid rgba(16, 185, 129, 0.2); padding-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                            <h3 style="color: #065f46; font-size: 16px; margin: 0; display: flex; align-items: center; gap: 10px;">
+                                <i class="fa-solid fa-chess-knight" style="color: #10b981; font-size: 20px;"></i> អនុសាសន៍ដោះស្រាយវិវាទ ផ្អែកតាមតារាង Evaluation & Resolution Matrix
+                            </h3>
+                            <span class="badge" style="background: #10b981; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px;">ប្រព័ន្ធវិភាគស្វ័យប្រវត្តិ</span>
+                        </div>
+                        <div id="analytics-strategy-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+                            <!-- Rendered dynamically by renderStrategicRecommendations() -->
                         </div>
                     </div>
                 </div>
@@ -2217,6 +2287,51 @@
 
     <!-- TOAST NOTIFICATION CONTAINER -->
     <div id="toast-container" class="toast-container"></div>
+
+    <!-- ACTION PLAN MODAL (Request 5) -->
+    <div class="modal-overlay" id="action-plan-modal">
+        <div class="modal-dialog" style="max-width: 580px;">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-calendar-plus text-primary"></i> បន្ថែម/កែសម្រួលផែនការសកម្មភាពអនុវត្តការងារ</h3>
+                <button class="btn-close-modal" onclick="closeActionPlanModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body p-4">
+                <input type="hidden" id="plan-modal-id">
+                <div class="form-group mb-3">
+                    <label style="font-weight: 700; color: #1e3a8a;">គោលដៅយុទ្ធសាស្ត្រពាក់ព័ន្ធ៖</label>
+                    <select id="plan-modal-target" class="form-control" style="font-weight: 600;">
+                        <option value="យុទ្ធសាស្ត្រអត្រាព្រមព្រៀង (Settle Rate)">យុទ្ធសាស្ត្រអត្រាព្រមព្រៀង (Settle Rate)</option>
+                        <option value="យុទ្ធសាស្ត្រសំណុំរឿងសរុប (Total Volume)">យុទ្ធសាស្ត្រសំណុំរឿងសរុប (Total Volume)</option>
+                        <option value="យុទ្ធសាស្ត្រកំពុងសម្រុះសម្រួល (Active Rate)">យុទ្ធសាស្ត្រកំពុងសម្រុះសម្រួល (Active Rate)</option>
+                        <option value="យុទ្ធសាស្ត្របិទ/មិនព្រមព្រៀង (Closed Rate)">យុទ្ធសាស្ត្របិទ/មិនព្រមព្រៀង (Closed Rate)</option>
+                        <option value="យុទ្ធសាស្ត្រតម្កល់/ផ្អាក (Pending Rate)">យុទ្ធសាស្ត្រតម្កល់/ផ្អាក (Pending Rate)</option>
+                    </select>
+                </div>
+                <div class="form-group mb-3">
+                    <label style="font-weight: 700; color: #1e3a8a;">សកម្មភាពផែនការការងារ៖</label>
+                    <textarea id="plan-modal-action" class="form-control" rows="3" placeholder="បញ្ចូលសកម្មភាពការងារដែលត្រូវអនុវត្ត..." style="font-size: 14px;"></textarea>
+                </div>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label style="font-weight: 700; color: #1e3a8a;">កាលបរិច្ឆេទអនុវត្ត៖</label>
+                        <input type="date" id="plan-modal-date" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label style="font-weight: 700; color: #1e3a8a;">ស្ថានភាព៖</label>
+                        <select id="plan-modal-status" class="form-control" style="font-weight: 600;">
+                            <option value="កំពុងអនុវត្ត">កំពុងអនុវត្ត</option>
+                            <option value="សម្រេចបានរួចរាល់">សម្រេចបានរួចរាល់</option>
+                            <option value="ពន្យារពេល/បន្ត">ពន្យារពេល/បន្ត</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer flex-between" style="padding: 16px 24px;">
+                <button type="button" class="btn btn-secondary" onclick="closeActionPlanModal()">បោះបង់ (Cancel)</button>
+                <button type="button" class="btn btn-primary" onclick="saveActionPlan()" style="background: #2563eb; color: white; font-weight: 700;"><i class="fa-solid fa-floppy-disk"></i> រក្សាទុកផែនការ</button>
+            </div>
+        </div>
+    </div>
 
     <!-- JAVASCRIPT SCRIPTS -->
     <!-- Mammoth.js for Word (.docx) rendering - MUST load before app.js -->

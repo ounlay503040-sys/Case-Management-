@@ -180,10 +180,10 @@ function renderMonthlyProgressReportHTML(dataArray) {
     let html = `
         <div style="font-family: inherit; margin-bottom: 20px; position: relative;">
             <div style="text-align: center; margin-bottom: 15px;">
-                <h3 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif; font-size: 13pt; color: #1e3a8a; margin: 0 0 4px 0;">ព្រះរាជាណាចក្រកម្ពុជា</h3>
-                <h4 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif; font-size: 11pt; color: #1e3a8a; margin: 0 0 15px 0;">ជាតិ សាសនា ព្រះមហាក្សត្រ</h4>
-                <div style="font-size: 12pt; font-weight: bold; color: #ca8a04; margin-bottom: 15px;">3</div>
-                <h2 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif; font-size: 12.5pt; color: #0f172a; margin: 0 0 8px 0; line-height: 1.6;">របាយការណ៍វឌ្ឍនភាពចំណាត់ការសំណុំរឿងរបស់ ម.ស.វ. ឈ្មោះ <span style="color: #dc2626;">${officerName}</span></h2>
+                <h3 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif; font-size: 13pt; font-weight: normal; color: #1e3a8a; margin: 0 0 4px 0;">ព្រះរាជាណាចក្រកម្ពុជា</h3>
+                <h4 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif; font-size: 11pt; font-weight: normal; color: #1e3a8a; margin: 0 0 15px 0;">ជាតិ សាសនា ព្រះមហាក្សត្រ</h4>
+                <div style="font-family: 'Tacteing', 'Khmer OS Tacteing', 'Moul Light', serif; font-size: 16pt; font-weight: normal; color: #ca8a04; margin-bottom: 15px;">3</div>
+                <h2 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif; font-size: 12.5pt; font-weight: normal; color: #0f172a; margin: 0 0 8px 0; line-height: 1.6;">របាយការណ៍វឌ្ឍនភាពចំណាត់ការសំណុំរឿងរបស់ ម.ស.វ. ឈ្មោះ <span style="color: #dc2626; font-weight: normal;">${officerName}</span></h2>
                 <p style="font-size: 10.5pt; font-weight: 700; color: #334155; margin: 0;">ប្រចាំខែ <span style="color: #2563eb;">${monthStr}</span> <span style="font-weight: normal; color: #64748b;">( គិតត្រឹមថ្ងៃទី ${todayStr} )</span></p>
             </div>
 
@@ -309,10 +309,10 @@ function renderMonthlyProgressReportHTML(dataArray) {
 function renderOfficialTrackingReportHTML(dataArray) {
     let html = `
         <div style="text-align: center; margin-bottom: 20px; font-family: inherit;">
-            <h3 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif; font-size: 14pt; color: #1e3a8a; margin: 0 0 4px 0;">ព្រះរាជាណាចក្រកម្ពុជា</h3>
-            <h4 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif; font-size: 12pt; color: #1e3a8a; margin: 0 0 10px 0;">ជាតិ សាសនា ព្រះមហាក្សត្រ</h4>
-            <div style="font-size: 14pt; font-weight: bold; color: #ca8a04; margin-bottom: 15px;">3</div>
-            <h2 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif; font-size: 13pt; color: #0f172a; margin: 0 0 6px 0;">តារាងតាមដានលទ្ធផលនៃការដោះស្រាយវិវាទ (Official Case Tracking & Outcome Report)</h2>
+            <h3 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif; font-size: 14pt; font-weight: normal; color: #1e3a8a; margin: 0 0 4px 0;">ព្រះរាជាណាចក្រកម្ពុជា</h3>
+            <h4 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif; font-size: 12pt; font-weight: normal; color: #1e3a8a; margin: 0 0 10px 0;">ជាតិ សាសនា ព្រះមហាក្សត្រ</h4>
+            <div style="font-family: 'Tacteing', 'Khmer OS Tacteing', 'Moul Light', serif; font-size: 16pt; font-weight: normal; color: #ca8a04; margin-bottom: 15px;">3</div>
+            <h2 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif; font-size: 13pt; font-weight: normal; color: #0f172a; margin: 0 0 6px 0;">តារាងតាមដានលទ្ធផលនៃការដោះស្រាយវិវាទ (Official Case Tracking & Outcome Report)</h2>
             <p style="font-size: 10pt; color: #475569; margin: 0;">អាជ្ញាធរជាតិដោះស្រាយវិវាទ - អគ្គលេខាធិការដ្ឋាន</p>
         </div>
         <table style="width: 100%; border-collapse: collapse; font-size: 9.5pt; margin-top: 15px; font-family: inherit;" border="1">
@@ -748,8 +748,8 @@ function exportReportToWord() {
             <title>${titleEl ? titleEl.innerText : 'របាយការណ៍'}</title>
             <style>
                 @page {
-                    size: A4 portrait;
-                    margin: 2cm;
+                    size: A4 landscape;
+                    margin: 1.5cm;
                 }
                 body {
                     font-family: 'Khmer OS Battambang', 'Khmer OS Content', 'Arial Unicode MS', sans-serif;
