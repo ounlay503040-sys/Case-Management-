@@ -278,13 +278,7 @@ function renderEntryCasesTable() {
                 <td><strong>${c.partyA_name}</strong> <small class="text-muted">(${c.partyA_phone || 'គ្មានលេខ'})</small></td>
                 <td><strong>${c.partyB_name}</strong> <small class="text-muted">(${c.partyB_phone || 'គ្មានលេខ'})</small></td>
                 <td>${getStatusBadgeHTML(c.status)}</td>
-                <td class="text-center">${(() => {
-                    if (c.attachedPdf) {
-                        return `<button class="btn btn-sm" style="background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; font-weight: 700; padding: 3px 10px; border-radius: 20px; display: inline-flex; align-items: center; gap: 5px; font-size: 11px; white-space: nowrap; box-shadow: 0 2px 4px rgba(220,38,38,0.15);" onclick="openPdfViewerModal('${c.id}')" title="បើកមើលឯកសារ PDF៖ ${c.pdfName || 'Case PDF'}"><i class="fa-solid fa-file-pdf"></i> បើកមើល</button>`;
-                    } else {
-                        return `<button class="btn btn-sm" style="background: #f1f5f9; color: #64748b; border: 1px dashed #cbd5e1; font-weight: 600; padding: 3px 10px; border-radius: 20px; display: inline-flex; align-items: center; gap: 5px; font-size: 11px; white-space: nowrap;" onclick="triggerQuickPdfUpload('${c.id}')" title="ភ្ជាប់ឯកសារ PDF"><i class="fa-solid fa-cloud-arrow-up text-primary"></i> ភ្ជាប់ PDF</button>`;
-                    }
-                })()}</td>
+                <td class="text-center">${renderTableFileCell(c)}</td>
                 <td class="text-center">
                     <div class="action-btns" style="justify-content: center;">
                         <button class="btn-icon" onclick="openViewModal('${c.id}')" title="មើលប័ណ្ណព័ត៌មាន"><i class="fa-solid fa-eye"></i></button>
@@ -378,13 +372,7 @@ function applyFiltersAndRenderMasterTable() {
                     </span>
                 </td>
                 ${customCells}
-                <td class="text-center">${(() => {
-                    if (c.attachedPdf) {
-                        return `<button class="btn btn-sm" style="background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; font-weight: 700; padding: 4px 10px; border-radius: 20px; display: inline-flex; align-items: center; gap: 5px; font-size: 11px; white-space: nowrap; box-shadow: 0 2px 4px rgba(220,38,38,0.15);" onclick="openPdfViewerModal('${c.id}')" title="បើកមើលឯកសារ PDF៖ ${c.pdfName || 'Case PDF'}"><i class="fa-solid fa-file-pdf"></i> បើកមើល</button>`;
-                    } else {
-                        return `<button class="btn btn-sm" style="background: #f1f5f9; color: #64748b; border: 1px dashed #cbd5e1; font-weight: 600; padding: 4px 10px; border-radius: 20px; display: inline-flex; align-items: center; gap: 5px; font-size: 11px; white-space: nowrap; transition: all 0.2s;" onclick="triggerQuickPdfUpload('${c.id}')" title="ភ្ជាប់ឯកសារ PDF សំណុំរឿង"><i class="fa-solid fa-cloud-arrow-up text-primary"></i> ភ្ជាប់ PDF</button>`;
-                    }
-                })()}</td>
+                <td class="text-center">${renderTableFileCell(c)}</td>
                 <td class="text-center">
                     <div class="action-btns">
                         <button class="btn-icon" onclick="openViewModal('${c.id}')" title="មើលប័ណ្ណ"><i class="fa-solid fa-eye"></i></button>
@@ -576,15 +564,8 @@ function initModalEvents() {
         document.getElementById('case-date').value = getTodayDateString();
         handleStatusChange();
         renderModalCustomFields();
-        if (document.getElementById('case-pdf-base64')) document.getElementById('case-pdf-base64').value = '';
-        if (document.getElementById('case-pdf-filename')) document.getElementById('case-pdf-filename').value = '';
-        if (document.getElementById('case-pdf-name-text')) document.getElementById('case-pdf-name-text').innerText = 'ពុំទាន់មានឯកសារភ្ជាប់ឡើយ';
-        if (document.getElementById('case-pdf-status-badge')) {
-            document.getElementById('case-pdf-status-badge').style.background = '#f1f5f9';
-            document.getElementById('case-pdf-status-badge').style.color = '#64748b';
-            document.getElementById('case-pdf-status-badge').innerText = 'មិនទាន់មានឯកសារ';
-        }
-        if (document.getElementById('case-pdf-action-btns')) document.getElementById('case-pdf-action-btns').style.display = 'none';
+        currentModalCaseFiles = [];
+        renderModalCaseFilesGrid();
         modal.classList.add('open');
     };
 
@@ -641,8 +622,9 @@ function initModalEvents() {
                 mediationMeeting: document.getElementById('case-mediation-meeting').value,
                 status: statusVal,
                 remarks: remarksVal,
-                attachedPdf: document.getElementById('case-pdf-base64')?.value || '',
-                pdfName: document.getElementById('case-pdf-filename')?.value || ''
+                caseFiles: currentModalCaseFiles,
+                attachedPdf: (currentModalCaseFiles.length > 0 ? currentModalCaseFiles[0].base64 : (document.getElementById('case-pdf-base64')?.value || '')),
+                pdfName: (currentModalCaseFiles.length > 0 ? currentModalCaseFiles[0].name : (document.getElementById('case-pdf-filename')?.value || ''))
             };
 
             // Add custom fields values
@@ -741,17 +723,19 @@ function openEditModal(id) {
     // Close view modal if open
     document.getElementById('view-modal')?.classList.remove('open');
     renderModalCustomFields(c);
-    if (document.getElementById('case-pdf-base64')) document.getElementById('case-pdf-base64').value = c.attachedPdf || '';
-    if (document.getElementById('case-pdf-filename')) document.getElementById('case-pdf-filename').value = c.pdfName || '';
-    if (document.getElementById('case-pdf-name-text')) {
-        document.getElementById('case-pdf-name-text').innerHTML = c.attachedPdf ? `<i class="fa-solid fa-file-pdf text-danger"></i> <strong>${c.pdfName || 'Case_Document.pdf'}</strong>` : 'ពុំទាន់មានឯកសារភ្ជាប់ឡើយ';
+    currentModalCaseFiles = c.caseFiles ? JSON.parse(JSON.stringify(c.caseFiles)) : [];
+    if (c.attachedPdf && currentModalCaseFiles.length === 0) {
+        currentModalCaseFiles.push({
+            id: 'f_migrated_' + Date.now(),
+            name: c.pdfName || 'Case_PDF.pdf',
+            type: 'application/pdf',
+            size: 'N/A',
+            category: 'ពាក្យបណ្តឹង',
+            base64: c.attachedPdf,
+            uploadedAt: new Date().toISOString()
+        });
     }
-    if (document.getElementById('case-pdf-status-badge')) {
-        document.getElementById('case-pdf-status-badge').style.background = c.attachedPdf ? '#dcfce7' : '#f1f5f9';
-        document.getElementById('case-pdf-status-badge').style.color = c.attachedPdf ? '#166534' : '#64748b';
-        document.getElementById('case-pdf-status-badge').innerText = c.attachedPdf ? 'មានឯកសារភ្ជាប់' : 'មិនទាន់មានឯកសារ';
-    }
-    if (document.getElementById('case-pdf-action-btns')) document.getElementById('case-pdf-action-btns').style.display = c.attachedPdf ? 'flex' : 'none';
+    renderModalCaseFilesGrid();
     modal.classList.add('open');
 }
 
@@ -849,38 +833,7 @@ function openViewModal(id) {
                 customHtml += `</div></div>`;
                 return customHtml;
             })()}
-            ${(() => {
-                if (c.attachedPdf) {
-                    return `
-                    <div class="dossier-item full-width" style="grid-column: 1 / -1; background: #fef2f2; border-color: #fecaca; margin-top: 10px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="font-size: 24px; color: #dc2626;"><i class="fa-solid fa-file-pdf"></i></span>
-                            <div>
-                                <span class="d-label" style="color: #991b1b; font-weight: 700; margin: 0;">ឯកសារ PDF សំណុំរឿងភ្ជាប់ (Attached Case Document)</span>
-                                <div style="font-size: 13px; font-weight: 600; color: #334155;">${c.pdfName || 'Case_Document.pdf'}</div>
-                            </div>
-                        </div>
-                        <div style="display: flex; gap: 10px;">
-                            <button class="btn btn-sm" style="background: #dc2626; color: #fff; border: none; font-weight: 600; padding: 6px 14px; border-radius: 6px; box-shadow: 0 2px 4px rgba(220,38,38,0.2);" onclick="openPdfViewerModal('${c.id}')"><i class="fa-solid fa-eye"></i> បើកមើល PDF</button>
-                            <a href="${c.attachedPdf}" download="${c.pdfName || 'Case_Document.pdf'}" class="btn btn-sm btn-outline" style="background: #fff; border-color: #cbd5e1; color: #334155; padding: 6px 14px; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;"><i class="fa-solid fa-download"></i> ទាញយក</a>
-                        </div>
-                    </div>
-                    `;
-                } else {
-                    return `
-                    <div class="dossier-item full-width" style="grid-column: 1 / -1; background: #f8fafc; border-color: #cbd5e1; border-style: dashed; margin-top: 10px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="font-size: 20px; color: #94a3b8;"><i class="fa-solid fa-file-pdf"></i></span>
-                            <div>
-                                <span class="d-label" style="color: #64748b; font-weight: 600; margin: 0;">ឯកសារ PDF សំណុំរឿង (Case PDF Document)</span>
-                                <div style="font-size: 12px; color: #94a3b8;">ពុំទាន់មានឯកសារភ្ជាប់ក្នុងសំណុំរឿងនេះឡើយ</div>
-                            </div>
-                        </div>
-                        <button class="btn btn-sm btn-outline" style="background: #fff; border-color: #3b82f6; color: #2563eb; font-weight: 600; padding: 6px 14px; border-radius: 6px;" onclick="triggerQuickPdfUpload('${c.id}')"><i class="fa-solid fa-cloud-arrow-up"></i> ភ្ជាប់ឯកសារ PDF ឥឡូវនេះ</button>
-                    </div>
-                    `;
-                }
-            })()}
+            ${renderDossierFilesSection(c)}
         </div>
     `;
 
@@ -1722,6 +1675,20 @@ function initDashboardQuickForm() {
                 mediationMeeting: 'មិនទាន់ប្រជុំ',
                 status: 'Active (កំពុងសម្រុះសម្រួល)',
                 remarks: 'កំពុងពិនិត្យ និងដោះស្រាយ (មិនទាន់បិទ)',
+                caseFiles: (() => {
+                    const qBase64 = document.getElementById('quick-case-pdf-base64')?.value || '';
+                    const qName = document.getElementById('quick-case-pdf-filename')?.value || '';
+                    const qType = document.getElementById('quick-case-pdf-type')?.value || '';
+                    return (qBase64 && qName) ? [{
+                        id: 'f_quick_' + Date.now(),
+                        name: qName,
+                        type: qType || (qName.endsWith('.pdf') ? 'application/pdf' : 'document'),
+                        size: 'N/A',
+                        category: 'ពាក្យបណ្តឹង',
+                        base64: qBase64,
+                        uploadedAt: new Date().toISOString()
+                    }] : [];
+                })(),
                 attachedPdf: document.getElementById('quick-case-pdf-base64')?.value || '',
                 pdfName: document.getElementById('quick-case-pdf-filename')?.value || ''
             };
@@ -1740,14 +1707,7 @@ function initDashboardQuickForm() {
             document.getElementById('quick-case-number').value = generateNextCaseNumber();
             document.getElementById('quick-case-date').value = getTodayDateString();
             if (aiTextarea) aiTextarea.value = '';
-            if (document.getElementById('quick-case-pdf-base64')) document.getElementById('quick-case-pdf-base64').value = '';
-            if (document.getElementById('quick-case-pdf-filename')) document.getElementById('quick-case-pdf-filename').value = '';
-            if (document.getElementById('quick-case-pdf-name')) document.getElementById('quick-case-pdf-name').innerText = 'ពុំទាន់ជ្រើសរើស';
-            if (document.getElementById('quick-pdf-badge')) {
-                document.getElementById('quick-pdf-badge').style.background = '#e2e8f0';
-                document.getElementById('quick-pdf-badge').style.color = '#64748b';
-                document.getElementById('quick-pdf-badge').innerText = 'គ្មាន';
-            }
+            removeQuickFormPdf();
 
             renderAllViews();
         });
@@ -1758,6 +1718,8 @@ function initDashboardQuickForm() {
         aiFile.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
+
+            handleQuickFormFileSelect(file);
 
             if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
                 const reader = new FileReader();
@@ -2036,30 +1998,422 @@ function initPdfUploaders() {
         quickUploader.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
-            if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-                showToast('សូមជ្រើសរើសឯកសារជាទម្រង់ PDF ប៉ុណ្ណោះ!', 'error');
-                return;
-            }
-            if (file.size > 15 * 1024 * 1024) {
-                showToast('ទំហំឯកសារធំពេក (អតិបរមា 15MB)!', 'error');
-                return;
-            }
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                if (document.getElementById('quick-case-pdf-base64')) document.getElementById('quick-case-pdf-base64').value = evt.target.result;
-                if (document.getElementById('quick-case-pdf-filename')) document.getElementById('quick-case-pdf-filename').value = file.name;
-                if (document.getElementById('quick-case-pdf-name')) {
-                    document.getElementById('quick-case-pdf-name').innerHTML = `<i class="fa-solid fa-file-pdf text-danger"></i> <strong style="color:#166534;">${file.name}</strong>`;
-                }
-                if (document.getElementById('quick-pdf-badge')) {
-                    document.getElementById('quick-pdf-badge').style.background = '#dcfce7';
-                    document.getElementById('quick-pdf-badge').style.color = '#166534';
-                    document.getElementById('quick-pdf-badge').innerText = 'មាន PDF';
-                }
-                showToast('បានភ្ជាប់ PDF សម្រាប់ទម្រង់រហ័សរួចរាល់!', 'success');
-            };
-            reader.readAsDataURL(file);
+            handleQuickFormFileSelect(file);
         });
     }
+
+    // Modal Form Folder multi-uploader
+    const folderUploader = document.getElementById('case-folder-file-input');
+    if (folderUploader) {
+        folderUploader.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            if (!files || files.length === 0) return;
+            const cat = document.getElementById('case-file-category-select')?.value || 'ពាក្យបណ្តឹង';
+            let loaded = 0;
+            files.forEach(file => {
+                if (file.size > 15 * 1024 * 1024) {
+                    showToast(`ឯកសារ "${file.name}" ធំជាង 15MB ត្រូវបានរំលង!`, 'error');
+                    loaded++;
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    currentModalCaseFiles.push({
+                        id: 'f_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                        name: file.name,
+                        type: file.type || (file.name.endsWith('.pdf') ? 'application/pdf' : 'document'),
+                        size: (file.size / 1024).toFixed(1) + ' KB',
+                        category: cat,
+                        base64: evt.target.result,
+                        uploadedAt: new Date().toISOString()
+                    });
+                    loaded++;
+                    if (loaded === files.length) {
+                        renderModalCaseFilesGrid();
+                        showToast(`បានបន្ថែមឯកសារចូល Folder រួចរាល់!`, 'success');
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+            e.target.value = '';
+        });
+    }
+
+    // Case Folder Repository Modal Uploader
+    const repoUploader = document.getElementById('folder-modal-file-input');
+    if (repoUploader) {
+        repoUploader.addEventListener('change', (e) => {
+            if (!currentFolderModalCaseId) return;
+            const c = getCaseById(currentFolderModalCaseId);
+            if (!c) return;
+            const files = Array.from(e.target.files);
+            if (!files || files.length === 0) return;
+            if (!c.caseFiles) c.caseFiles = [];
+            const cat = document.getElementById('folder-modal-category-select')?.value || 'ពាក្យបណ្តឹង';
+            let loaded = 0;
+            files.forEach(file => {
+                if (file.size > 15 * 1024 * 1024) {
+                    showToast(`ឯកសារ "${file.name}" ធំជាង 15MB ត្រូវបានរំលង!`, 'error');
+                    loaded++;
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    c.caseFiles.push({
+                        id: 'f_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                        name: file.name,
+                        type: file.type || (file.name.endsWith('.pdf') ? 'application/pdf' : 'document'),
+                        size: (file.size / 1024).toFixed(1) + ' KB',
+                        category: cat,
+                        base64: evt.target.result,
+                        uploadedAt: new Date().toISOString()
+                    });
+                    loaded++;
+                    if (loaded === files.length) {
+                        const firstPdf = c.caseFiles.find(f => f.name.toLowerCase().endsWith('.pdf') || f.type === 'application/pdf');
+                        if (firstPdf) {
+                            c.attachedPdf = firstPdf.base64;
+                            c.pdfName = firstPdf.name;
+                        }
+                        updateCase(c.id, c);
+                        if (typeof logAuditAction === 'function') logAuditAction('ភ្ជាប់ឯកសារចូល Folder', `បានបន្ថែមឯកសារ ${files.length} ចូល Folder សំណុំរឿង "${c.caseNumber}"`);
+                        showToast(`បានរក្សាទុកឯកសារថ្មីចូល Folder សំណុំរឿង "${c.caseNumber}" រួចរាល់!`, 'success');
+                        renderFolderModalGrid(c);
+                        renderAllViews();
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+            e.target.value = '';
+        });
+    }
+}
+
+// Global state and helper functions for Phase 4 Folder Repository
+let currentModalCaseFiles = [];
+let currentFolderModalCaseId = null;
+
+function renderTableFileCell(c) {
+    const files = c.caseFiles && c.caseFiles.length > 0 ? c.caseFiles : (c.attachedPdf ? [{ id: 'default', name: c.pdfName || 'Case_PDF.pdf', type: 'application/pdf', base64: c.attachedPdf, category: 'ពាក្យបណ្តឹង' }] : []);
+    const count = files.length;
+    if (count > 0) {
+        return `<button class="btn btn-sm" style="background: linear-gradient(135deg, #1e3a8a, #2563eb); color: white; border: none; font-weight: 700; padding: 4px 10px; border-radius: 20px; display: inline-flex; align-items: center; gap: 5px; font-size: 11px; white-space: nowrap; box-shadow: 0 2px 4px rgba(37,99,235,0.25);" onclick="openCaseFolderModal('${c.id}')" title="Folder ឯកសារសំណុំរឿង (${count} ឯកសារ)"><i class="fa-solid fa-folder-open text-warning"></i> ឯកសារ (${count}) - បើកមើល</button>`;
+    } else {
+        return `<button class="btn btn-sm" style="background: #f8fafc; color: #475569; border: 1px dashed #cbd5e1; font-weight: 600; padding: 4px 10px; border-radius: 20px; display: inline-flex; align-items: center; gap: 5px; font-size: 11px; white-space: nowrap; transition: all 0.2s;" onclick="openCaseFolderModal('${c.id}')" title="បញ្ជូលឯកសារ ឬរូបភាពចូល Folder"><i class="fa-solid fa-cloud-arrow-up text-primary"></i> ដាក់ចូល Folder</button>`;
+    }
+}
+
+function handleQuickFormFileSelect(file) {
+    if (!file) return;
+    if (file.size > 15 * 1024 * 1024) {
+        showToast('ទំហំឯកសារធំពេក (អតិបរមា 15MB)!', 'error');
+        return;
+    }
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+        const base64 = evt.target.result;
+        if (document.getElementById('quick-case-pdf-base64')) document.getElementById('quick-case-pdf-base64').value = base64;
+        if (document.getElementById('quick-case-pdf-filename')) document.getElementById('quick-case-pdf-filename').value = file.name;
+        if (document.getElementById('quick-case-pdf-type')) document.getElementById('quick-case-pdf-type').value = file.type || '';
+        
+        if (document.getElementById('quick-pdf-badge')) {
+            document.getElementById('quick-pdf-badge').style.background = '#dcfce7';
+            document.getElementById('quick-pdf-badge').style.color = '#166534';
+            document.getElementById('quick-pdf-badge').innerText = 'ត្រៀមរក្សាទុក';
+        }
+        if (document.getElementById('quick-case-pdf-name')) {
+            document.getElementById('quick-case-pdf-name').innerText = file.name;
+        }
+        if (document.getElementById('quick-ai-file-name-display')) {
+            document.getElementById('quick-ai-file-name-display').innerText = file.name;
+        }
+        const iconElem = document.getElementById('quick-preview-icon');
+        if (iconElem) {
+            if (file.type.includes('image') || file.name.match(/\.(jpg|jpeg|png|gif)$/i)) {
+                iconElem.innerHTML = '<i class="fa-solid fa-image text-success"></i>';
+            } else if (file.name.endsWith('.doc') || file.name.endsWith('.docx')) {
+                iconElem.innerHTML = '<i class="fa-solid fa-file-word text-primary"></i>';
+            } else {
+                iconElem.innerHTML = '<i class="fa-solid fa-file-pdf text-danger"></i>';
+            }
+        }
+        if (document.getElementById('quick-ai-file-preview')) {
+            document.getElementById('quick-ai-file-preview').style.display = 'flex';
+        }
+        showToast(`បានភ្ជាប់ឯកសារ "${file.name}" សម្រាប់រក្សាទុកចូលសំណុំរឿង!`, 'success');
+    };
+    reader.readAsDataURL(file);
+}
+
+function previewQuickFormPdf() {
+    const base64 = document.getElementById('quick-case-pdf-base64')?.value;
+    const name = document.getElementById('quick-case-pdf-filename')?.value;
+    const type = document.getElementById('quick-case-pdf-type')?.value || '';
+    if (!base64) {
+        showToast('ពុំមានឯកសារភ្ជាប់ឡើយ!', 'warning');
+        return;
+    }
+    previewFolderFile({ name: name, base64: base64, type: type });
+}
+
+function removeQuickFormPdf() {
+    if (document.getElementById('quick-case-pdf-base64')) document.getElementById('quick-case-pdf-base64').value = '';
+    if (document.getElementById('quick-case-pdf-filename')) document.getElementById('quick-case-pdf-filename').value = '';
+    if (document.getElementById('quick-case-pdf-type')) document.getElementById('quick-case-pdf-type').value = '';
+    if (document.getElementById('quick-case-pdf-name')) document.getElementById('quick-case-pdf-name').innerText = 'អាចជ្រើសរើសពីទីនេះ ឬពីប៊ូតុង AI ខាងលើ';
+    if (document.getElementById('quick-pdf-badge')) {
+        document.getElementById('quick-pdf-badge').style.background = '#e2e8f0';
+        document.getElementById('quick-pdf-badge').style.color = '#64748b';
+        document.getElementById('quick-pdf-badge').innerText = 'គ្មានឯកសារ';
+    }
+    if (document.getElementById('quick-ai-file-preview')) {
+        document.getElementById('quick-ai-file-preview').style.display = 'none';
+    }
+    if (document.getElementById('dashboard-ai-file')) document.getElementById('dashboard-ai-file').value = '';
+    if (document.getElementById('quick-case-pdf-input')) document.getElementById('quick-case-pdf-input').value = '';
+    showToast('បានដកឯកសារភ្ជាប់ចេញ!', 'info');
+}
+
+function renderModalCaseFilesGrid() {
+    const grid = document.getElementById('modal-case-files-grid');
+    const countBadge = document.getElementById('modal-folder-count');
+    if (countBadge) countBadge.innerText = currentModalCaseFiles.length;
+    
+    const firstPdf = currentModalCaseFiles.find(f => f.name.toLowerCase().endsWith('.pdf') || f.type === 'application/pdf');
+    if (document.getElementById('case-pdf-base64')) document.getElementById('case-pdf-base64').value = firstPdf ? firstPdf.base64 : '';
+    if (document.getElementById('case-pdf-filename')) document.getElementById('case-pdf-filename').value = firstPdf ? firstPdf.name : '';
+    if (document.getElementById('case-pdf-type')) document.getElementById('case-pdf-type').value = firstPdf ? firstPdf.type : '';
+
+    if (!grid) return;
+    if (currentModalCaseFiles.length === 0) {
+        grid.innerHTML = `
+            <div class="text-center text-muted" style="grid-column: 1 / -1; padding: 15px; font-style: italic;">
+                <i class="fa-solid fa-folder-open mb-1" style="font-size: 20px; color: #cbd5e1; display: block;"></i>
+                ពុំទាន់មានឯកសារ ឬរូបភាពនៅក្នុង Folder នេះឡើយ។ សូមជ្រើសរើសឯកសារខាងលើដើម្បីទាញចូល!
+            </div>
+        `;
+        return;
+    }
+
+    let html = '';
+    currentModalCaseFiles.forEach((f, idx) => {
+        const isImg = f.type && (f.type.includes('image') || f.name.match(/\.(jpg|jpeg|png|gif)$/i));
+        const iconHtml = isImg ? `<i class="fa-solid fa-image text-success" style="font-size: 24px;"></i>` : (f.name.endsWith('.doc') || f.name.endsWith('.docx') ? `<i class="fa-solid fa-file-word text-primary" style="font-size: 24px;"></i>` : `<i class="fa-solid fa-file-pdf text-danger" style="font-size: 24px;"></i>`);
+        html += `
+            <div style="background: white; border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+                <div style="display: flex; gap: 10px; align-items: flex-start; margin-bottom: 8px;">
+                    ${iconHtml}
+                    <div style="flex: 1; overflow: hidden;">
+                        <span class="badge" style="background: #eff6ff; color: #1e3a8a; font-size: 10px; margin-bottom: 4px; display: inline-block;">${f.category || 'ឯកសារ'}</span>
+                        <strong style="font-size: 12px; color: #1e293b; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${f.name}">${f.name}</strong>
+                        <small style="font-size: 10px; color: #64748b;">${f.size || 'N/A'}</small>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 6px; border-top: 1px solid #f1f5f9; padding-top: 6px;">
+                    <button type="button" class="btn btn-sm" style="flex: 1; background: #eff6ff; color: #2563eb; border: none; font-size: 11px; font-weight: 600; padding: 4px;" onclick="previewModalCaseFile(${idx})"><i class="fa-solid fa-eye"></i> មើល</button>
+                    <button type="button" class="btn btn-sm" style="background: #fee2e2; color: #dc2626; border: none; font-size: 11px; font-weight: 600; padding: 4px 8px;" onclick="removeModalCaseFile(${idx})" title="លុប"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            </div>
+        `;
+    });
+    grid.innerHTML = html;
+}
+
+function removeModalCaseFile(index) {
+    currentModalCaseFiles.splice(index, 1);
+    renderModalCaseFilesGrid();
+    showToast('បានលុបឯកសារចេញពី Folder បណ្ដោះអាសន្ន!', 'info');
+}
+
+function previewModalCaseFile(index) {
+    const f = currentModalCaseFiles[index];
+    if (!f) return;
+    previewFolderFile(f);
+}
+
+function previewFolderFile(f) {
+    if (!f || !f.base64) return;
+    const isImg = f.type && (f.type.includes('image') || f.name.match(/\.(jpg|jpeg|png|gif)$/i));
+    if (isImg) {
+        const imgModal = document.getElementById('image-viewer-modal');
+        const imgElem = document.getElementById('image-viewer-img');
+        const titleElem = document.getElementById('image-viewer-title');
+        const infoElem = document.getElementById('image-viewer-info');
+        const dlBtn = document.getElementById('image-viewer-download-btn');
+        if (imgElem) imgElem.src = f.base64;
+        if (titleElem) titleElem.innerText = `ពិនិត្យរូបភាព៖ ${f.name}`;
+        if (infoElem) infoElem.innerText = `ចំណាត់ថ្នាក់៖ ${f.category || 'រូបភាពភស្តុតាង'} | ទំហំ៖ ${f.size || 'N/A'}`;
+        if (dlBtn) {
+            dlBtn.href = f.base64;
+            dlBtn.download = f.name || 'evidence.jpg';
+        }
+        if (imgModal) imgModal.classList.add('open');
+    } else {
+        const modal = document.getElementById('pdf-viewer-modal');
+        const iframe = document.getElementById('pdf-viewer-iframe');
+        const title = document.getElementById('pdf-viewer-title');
+        const dlBtn = document.getElementById('pdf-viewer-download-btn');
+        const info = document.getElementById('pdf-viewer-info-text');
+        if (!modal || !iframe) return;
+        iframe.src = f.base64;
+        if (title) title.innerHTML = `<i class="fa-solid fa-file-lines text-danger"></i> <span>ពិនិត្យឯកសារ៖ ${f.name}</span>`;
+        if (dlBtn) {
+            dlBtn.href = f.base64;
+            dlBtn.download = f.name;
+        }
+        if (info) info.innerHTML = `ឈ្មោះ៖ <strong>${f.name}</strong> | ចំណាត់ថ្នាក់៖ <span class="badge" style="background:#e2e8f0;color:#334155;">${f.category || 'ឯកសារ'}</span>`;
+        modal.classList.add('open');
+    }
+}
+
+function closeImageViewerModal() {
+    const imgModal = document.getElementById('image-viewer-modal');
+    if (imgModal) imgModal.classList.remove('open');
+    const imgElem = document.getElementById('image-viewer-img');
+    if (imgElem) imgElem.src = '';
+}
+
+function openCaseFolderModal(caseId) {
+    currentFolderModalCaseId = caseId;
+    const c = getCaseById(caseId);
+    if (!c) return;
+    const modal = document.getElementById('case-folder-modal');
+    const title = document.getElementById('case-folder-title');
+    if (title) title.innerHTML = `<i class="fa-solid fa-folder-open text-warning"></i> <span>Folder ឯកសារសំណុំរឿង៖ <strong style="color:#60a5fa;">${c.caseNumber}</strong></span>`;
+    renderFolderModalGrid(c);
+    if (modal) modal.classList.add('open');
+}
+
+function closeCaseFolderModal() {
+    currentFolderModalCaseId = null;
+    const modal = document.getElementById('case-folder-modal');
+    if (modal) modal.classList.remove('open');
+}
+
+function renderFolderModalGrid(c) {
+    const grid = document.getElementById('folder-modal-files-grid');
+    const countBadge = document.getElementById('folder-modal-count');
+    const files = c.caseFiles && c.caseFiles.length > 0 ? c.caseFiles : (c.attachedPdf ? [{ id: 'f_default_' + Date.now(), name: c.pdfName || 'Case_PDF.pdf', type: 'application/pdf', base64: c.attachedPdf, category: 'ពាក្យបណ្តឹង', size: 'N/A' }] : []);
+    if (countBadge) countBadge.innerText = files.length;
+    if (!grid) return;
+    if (files.length === 0) {
+        grid.innerHTML = `
+            <div class="text-center text-muted" style="grid-column: 1 / -1; padding: 25px; font-style: italic; background: white; border-radius: 8px; border: 1px dashed #cbd5e1;">
+                <i class="fa-solid fa-folder-open mb-2" style="font-size: 28px; color: #cbd5e1; display: block;"></i>
+                ពុំទាន់មានឯកសារ ឬរូបភាពនៅក្នុង Folder សំណុំរឿង "${c.caseNumber}" នេះឡើយ។<br>សូមជ្រើសរើសឯកសារនៅរបារខាងលើ ដើម្បីបញ្ចូលចូលក្នុង Folder នេះ!
+            </div>
+        `;
+        return;
+    }
+
+    let html = '';
+    files.forEach((f, idx) => {
+        const isImg = f.type && (f.type.includes('image') || f.name.match(/\.(jpg|jpeg|png|gif)$/i));
+        const iconHtml = isImg ? `<i class="fa-solid fa-image text-success" style="font-size: 26px;"></i>` : (f.name.endsWith('.doc') || f.name.endsWith('.docx') ? `<i class="fa-solid fa-file-word text-primary" style="font-size: 26px;"></i>` : `<i class="fa-solid fa-file-pdf text-danger" style="font-size: 26px;"></i>`);
+        html += `
+            <div style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;">
+                <div style="display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px;">
+                    ${iconHtml}
+                    <div style="flex: 1; overflow: hidden;">
+                        <span class="badge" style="background: #eff6ff; color: #1e3a8a; font-size: 11px; margin-bottom: 6px; display: inline-block; font-weight: 700;">${f.category || 'ឯកសារ'}</span>
+                        <strong style="font-size: 13px; color: #1e293b; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${f.name}">${f.name}</strong>
+                        <small style="font-size: 11px; color: #64748b;">ទំហំ៖ ${f.size || 'N/A'} ${f.uploadedAt ? '| ' + f.uploadedAt.split('T')[0] : ''}</small>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px; border-top: 1px solid #f1f5f9; padding-top: 10px;">
+                    <button type="button" class="btn btn-sm" style="flex: 1; background: #eff6ff; color: #2563eb; border: none; font-size: 12px; font-weight: 600; padding: 6px;" onclick="previewFolderItem('${c.id}', ${idx})"><i class="fa-solid fa-eye"></i> មើល</button>
+                    <a href="${f.base64}" download="${f.name}" class="btn btn-sm" style="flex: 1; background: #f1f5f9; color: #334155; text-decoration: none; text-align: center; font-size: 12px; font-weight: 600; padding: 6px;"><i class="fa-solid fa-download"></i> ទាញយក</a>
+                    <button type="button" class="btn btn-sm" style="background: #fee2e2; color: #dc2626; border: none; font-size: 12px; font-weight: 600; padding: 6px 10px;" onclick="deleteFileFromCaseFolder('${c.id}', ${idx})" title="លុបចេញពី Folder"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            </div>
+        `;
+    });
+    grid.innerHTML = html;
+}
+
+function previewFolderItem(caseId, idx) {
+    const c = getCaseById(caseId);
+    if (!c) return;
+    const files = c.caseFiles && c.caseFiles.length > 0 ? c.caseFiles : (c.attachedPdf ? [{ id: 'f_default', name: c.pdfName || 'Case_PDF.pdf', type: 'application/pdf', base64: c.attachedPdf, category: 'ពាក្យបណ្តឹង' }] : []);
+    const f = files[idx];
+    if (!f) return;
+    previewFolderFile(f);
+}
+
+function deleteFileFromCaseFolder(caseId, idx) {
+    const c = getCaseById(caseId);
+    if (!c) return;
+    customConfirm("លុបឯកសារពី Folder", `តើលោកអ្នកពិតជាចង់លុបឯកសារនេះចេញពី Folder សំណុំរឿង "${c.caseNumber}" មែនទេ?`, () => {
+        if (!c.caseFiles || c.caseFiles.length === 0) {
+            if (c.attachedPdf) {
+                c.attachedPdf = '';
+                c.pdfName = '';
+            }
+        } else {
+            const removed = c.caseFiles.splice(idx, 1)[0];
+            if (removed && removed.base64 === c.attachedPdf) {
+                const nextPdf = c.caseFiles.find(f => f.name.toLowerCase().endsWith('.pdf') || f.type === 'application/pdf');
+                c.attachedPdf = nextPdf ? nextPdf.base64 : '';
+                c.pdfName = nextPdf ? nextPdf.name : '';
+            }
+        }
+        updateCase(c.id, c);
+        if (typeof logAuditAction === 'function') logAuditAction('លុបឯកសារពី Folder', `បានលុបឯកសារ ១ ចេញពី Folder សំណុំរឿង "${c.caseNumber}"`);
+        showToast('បានលុបឯកសារចេញពី Folder រួចរាល់!', 'success');
+        renderFolderModalGrid(c);
+        renderAllViews();
+    });
+}
+
+function closeViewModalAndOpenFolder(caseId) {
+    const viewModal = document.getElementById('view-modal');
+    if (viewModal) viewModal.classList.remove('open');
+    openCaseFolderModal(caseId);
+}
+
+function renderDossierFilesSection(c) {
+    const files = c.caseFiles && c.caseFiles.length > 0 ? c.caseFiles : (c.attachedPdf ? [{ id: 'default', name: c.pdfName || 'Case_PDF.pdf', type: 'application/pdf', base64: c.attachedPdf, category: 'ពាក្យបណ្តឹង', size: 'N/A' }] : []);
+    let html = `
+        <div class="dossier-item full-width" style="grid-column: 1 / -1; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 16px; margin-top: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px dashed #cbd5e1;">
+                <span style="font-size: 14px; font-weight: 700; color: #1e3a8a; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-folder-open text-warning"></i> 📁 ឃ្លាំងឯកសារ និងភស្តុតាងសំណុំរឿង (${files.length} ឯកសារ)
+                </span>
+                <button class="btn btn-sm btn-primary" style="background: #2563eb; color: white; border: none; font-weight: 600; padding: 5px 12px; border-radius: 6px;" onclick="closeViewModalAndOpenFolder('${c.id}')"><i class="fa-solid fa-folder-plus"></i> បញ្ចូលឯកសារក្នុង Folder</button>
+            </div>
+    `;
+    if (files.length === 0) {
+        html += `
+            <div class="text-center text-muted" style="padding: 20px; font-style: italic; background: white; border-radius: 6px; border: 1px dashed #cbd5e1;">
+                <i class="fa-solid fa-file-excel mb-1" style="font-size: 24px; color: #cbd5e1; display: block;"></i>
+                ពុំទាន់មានឯកសារ ឬរូបភាពភស្តុតាងនៅក្នុងសំណុំរឿងនេះឡើយ
+            </div>
+        `;
+    } else {
+        html += `<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px;">`;
+        files.forEach((f, idx) => {
+            const isImg = f.type && (f.type.includes('image') || f.name.match(/\.(jpg|jpeg|png|gif)$/i));
+            const iconHtml = isImg ? `<i class="fa-solid fa-image text-success" style="font-size: 20px;"></i>` : (f.name.endsWith('.doc') || f.name.endsWith('.docx') ? `<i class="fa-solid fa-file-word text-primary" style="font-size: 20px;"></i>` : `<i class="fa-solid fa-file-pdf text-danger" style="font-size: 20px;"></i>`);
+            html += `
+                <div style="background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                    <div style="display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px;">
+                        ${iconHtml}
+                        <div style="flex: 1; overflow: hidden;">
+                            <span class="badge" style="background: #f1f5f9; color: #334155; font-size: 10px; margin-bottom: 4px; display: inline-block;">${f.category || 'ឯកសារ'}</span>
+                            <strong style="font-size: 12px; color: #1e293b; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${f.name}">${f.name}</strong>
+                            <small style="font-size: 10px; color: #64748b;">${f.size || 'N/A'}</small>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 6px; border-top: 1px solid #f1f5f9; padding-top: 8px;">
+                        <button class="btn btn-sm" style="flex: 1; background: #eff6ff; color: #2563eb; border: none; font-size: 11px; font-weight: 600; padding: 4px;" onclick="previewFolderItem('${c.id}', ${idx})"><i class="fa-solid fa-eye"></i> មើល</button>
+                        <a href="${f.base64}" download="${f.name}" class="btn btn-sm" style="flex: 1; background: #f1f5f9; color: #334155; text-decoration: none; text-align: center; font-size: 11px; font-weight: 600; padding: 4px;"><i class="fa-solid fa-download"></i> ទាញយក</a>
+                    </div>
+                </div>
+            `;
+        });
+        html += `</div>`;
+    }
+    html += `</div>`;
+    return html;
 }
 
