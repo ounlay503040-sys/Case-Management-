@@ -15,21 +15,31 @@
     <!-- SheetJS (XLSX) for Excel Import and Export -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/style.css?v=8.2">
+    <link rel="stylesheet" href="css/style.css?v=9.3">
 </head>
 <body class="light-theme">
     <!-- AUTHENTICATION OVERLAY -->
     <div id="login-overlay" class="login-overlay">
-        <div class="login-box card-panel">
+        <div class="login-box card-panel" style="max-width: 460px;">
             <div class="login-header text-center">
                 <div class="login-logo-circle">
                     <i class="fa-solid fa-scale-balanced"></i>
                 </div>
-                <h3>អាជ្ញាធរជាតិដោះស្រាយវិវាទក្រៅប្រព័ន្ធតុលាការ</h3>
-                <p>ប្រព័ន្ធគ្រប់គ្រងសំណុំរឿងគោល (CMS Pro)</p>
+                <h3 style="font-size: 17px; margin-top: 10px; color: #1e3a8a;">អាជ្ញាធរជាតិដោះស្រាយវិវាទក្រៅប្រព័ន្ធតុលាការ</h3>
+                <p style="font-size: 13px; color: #475569; margin: 4px 0 0;">ប្រព័ន្ធគ្រប់គ្រងសំណុំរឿងគោល (CMS Pro)</p>
             </div>
             
-            <form id="login-form" class="login-form mt-4">
+            <!-- Welcome characters and text -->
+            <div class="login-welcome-section" style="margin: 18px 0; padding: 10px; border-radius: 12px; background: #f8fafc; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; gap: 12px; overflow: hidden; position: relative;">
+                <img src="images/welcome_boy.png" alt="Welcome Boy" class="welcome-avatar-left" style="height: 80px; width: auto; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.08));">
+                <div style="flex: 1; text-align: center; z-index: 1;">
+                    <h4 class="login-welcome-title" style="font-size: 13px; margin: 0 0 4px; line-height: 1.5; font-family: 'Kantumruy Pro', 'Battambang', sans-serif; font-weight: 700;">សូមស្វាគមន៍ មកកាន់កម្មវិធីគ្រប់គ្រងសំណុំរឿង</h4>
+                    <span style="font-size: 10px; color: #64748b; font-weight: 600; letter-spacing: 0.3px;">(Master Case Management System)</span>
+                </div>
+                <img src="images/welcome_girl.png" alt="Welcome Girl" class="welcome-avatar" style="height: 80px; width: auto; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.08));">
+            </div>
+
+            <form id="login-form" class="login-form">
                 <div class="form-group mb-3">
                     <label><i class="fa-solid fa-user text-primary"></i> ឈ្មោះគណនី (Username / ID) <span class="text-danger">*</span></label>
                     <input type="text" id="login-username" class="form-control" placeholder="វាយឈ្មោះគណនី (ឧ. admin)" required autocomplete="username">
@@ -43,11 +53,10 @@
                 </div>
                 
                 <div class="login-options mb-4" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-                    <label class="remember-checkbox" style="display: flex; align-items: center; cursor: pointer; font-size: 13px; margin: 0;">
+                    <label class="remember-checkbox" style="display: flex; align-items: center; cursor: pointer; font-size: 13px; margin: 0; user-select: none;">
                         <input type="checkbox" id="login-remember" checked style="margin-right: 8px;">
                         <span>ចងចាំការចូលប្រើលើកក្រោយ</span>
                     </label>
-                    <span class="auth-hint text-muted" style="font-size: 12px; background: #f1f5f9; padding: 4px 8px; border-radius: 4px;"><i class="fa-solid fa-key"></i> គណនី៖ <b>admin</b> | <b>admin123</b></span>
                 </div>
 
                 <div id="login-error-msg" class="alert alert-danger d-none mb-3" style="font-size: 13px; padding: 10px; border-radius: 6px; background: #fef2f2; border: 1px solid #fecaca; color: #dc2626;">
@@ -60,8 +69,8 @@
             </form>
 
             <div class="login-footer mt-4 text-center text-muted" style="font-size: 12px; border-top: 1px dashed var(--border-color); padding-top: 15px;">
-                <p class="mb-1"><i class="fa-solid fa-shield-halved text-success"></i> ប្រព័ន្ធសុវត្ថិភាពទិន្នន័យផ្ទៃក្នុង NADR</p>
-                <span>រក្សាសិទ្ធិគ្រប់យ៉ាង © ២០២៦</span>
+                <p class="mb-1" style="font-weight: 500;"><i class="fa-solid fa-shield-halved text-success"></i> ប្រព័ន្ធសុវត្ថិភាពទិន្នន័យផ្ទៃក្នុង NADR</p>
+                <p class="mb-0" style="margin-top: 4px; font-weight: 500;"><i class="fa-solid fa-code text-primary"></i> អភិវឌ្ឍន៍ដោយ លោក ឡាយ អូន</p>
             </div>
         </div>
     </div>
