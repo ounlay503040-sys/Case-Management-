@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initSettingsEvents();
     initDashboardQuickForm();
     initPdfUploaders();
+    if (typeof initUserProfile === 'function') initUserProfile();
 
     // 5. Initial render
     renderAllViews();
@@ -151,8 +152,19 @@ function switchView(viewId) {
     const targetSection = document.getElementById(viewId);
     if (targetSection) targetSection.classList.add('active');
 
-    if (viewId === 'analytics-view') {
+    if (viewId === 'dashboard-view') {
+        renderDashboardStats();
+        if (typeof initOrUpdateCharts === 'function') initOrUpdateCharts();
+    } else if (viewId === 'analytics-view') {
         renderAnalyticsView();
+        if (typeof initOrUpdateCharts === 'function') initOrUpdateCharts();
+    } else if (viewId === 'cases-view') {
+        applyFiltersAndRenderMasterTable();
+    } else if (viewId === 'entry-view') {
+        renderEntryCasesTable();
+    } else if (viewId === 'reports-view') {
+        if (typeof renderMasterTableHeader === 'function') renderMasterTableHeader();
+        if (typeof generateReport === 'function') setTimeout(() => generateReport(true), 50);
     }
 }
 
@@ -262,12 +274,17 @@ function renderDashboardExtendedStats(stats) {
     // 2. Yearly Breakdown Table (Section 5)
     if (yrTbody) {
         const yearMap = {};
-        casesData.forEach(c => {
-            const yr = (c.dateReceived && c.dateReceived.length >= 4) ? c.dateReceived.substring(0, 4) : '2026';
+        const allCases = typeof casesData !== 'undefined' ? casesData : [];
+        allCases.forEach(c => {
+            let yr = '2026';
+            if (c && c.dateReceived) {
+                const match = String(c.dateReceived).match(/\d{4}/);
+                if (match) yr = match[0];
+            }
             if (!yearMap[yr]) yearMap[yr] = { total: 0, settle: 0, active: 0, other: 0 };
             yearMap[yr].total++;
-            if (c.status.startsWith('Settle') || c.status.includes('ព្រមព្រៀង')) yearMap[yr].settle++;
-            else if (c.status.startsWith('Active') || c.status.includes('កំពុង')) yearMap[yr].active++;
+            if (c && (c.status.startsWith('Settle') || c.status.includes('ព្រមព្រៀង'))) yearMap[yr].settle++;
+            else if (c && (c.status.startsWith('Active') || c.status.includes('កំពុង'))) yearMap[yr].active++;
             else yearMap[yr].other++;
         });
 
@@ -301,41 +318,9 @@ function renderDashboardExtendedStats(stats) {
             renderDashboardLocationChart(stats.byLocation, ctxDashLoc);
         }
     }
-}
-
-let dashLocationChartInstance = null;
-function renderDashboardLocationChart(byLocObj, ctx) {
-    if (!ctx) return;
-    if (dashLocationChartInstance) dashLocationChartInstance.destroy();
-    
-    const entries = Object.entries(byLocObj || {}).filter(e => e[1] > 0);
-    entries.sort((a, b) => b[1] - a[1]);
-    const topEntries = entries.slice(0, 7);
-    
-    const labels = topEntries.length > 0 ? topEntries.map(e => e[0]) : ['គ្មានទិន្នន័យ'];
-    const data = topEntries.length > 0 ? topEntries.map(e => e[1]) : [0];
-    
-    dashLocationChartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'ចំនួនសំណុំរឿងតាមខេត្ត/រាជធានី',
-                data: data,
-                backgroundColor: 'rgba(239, 68, 68, 0.85)',
-                borderRadius: 6
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-                y: { beginAtZero: true, ticks: { stepSize: 1 } },
-                x: { ticks: { font: { family: "'Kantumruy Pro', sans-serif", size: 11, weight: '600' } } }
-            }
-        }
-    });
+    if (typeof initOrUpdateCharts === 'function') {
+        initOrUpdateCharts();
+    }
 }
 
 /**
@@ -1141,16 +1126,7 @@ function renderAnalyticsTables(stats) {
 
     // 2. Assessment Evaluation Matrix Table (Table 3 - Screenshot 3)
     if (evalTbody && typeof CASE_CATEGORIES !== 'undefined') {
-        const evalBaselineMap = {
-            'វិវាទក្នុងគ្រួសារ': { resp: '-', nego: 'ល្អណាស់', emp: '-', spirit: '-', time: 'យឺត (> ៣០ ថ្ងៃ)' },
-            'វិវាទជំពាក់ប្រាក់': { resp: 'ល្អ', nego: 'ល្អណាស់', emp: 'ល្អ', spirit: 'មធ្យម', time: 'យឺត (> ៣០ ថ្ងៃ)' },
-            'វិវាទដីធ្លី': { resp: 'ល្អ', nego: 'ល្អ', emp: 'ល្អ', spirit: 'មិនល្អ', time: 'យឺត (> ៤៥ ថ្ងៃ)' },
-            'វិវាទពាណិជ្ជកម្ម': { resp: '-', nego: 'មធ្យម', emp: '-', spirit: 'មិនល្អ', time: 'យឺត (> ៣០ ថ្ងៃ)' },
-            'វិវាទមត៌ក': { resp: '-', nego: '-', emp: 'មិនល្អ', spirit: '-', time: 'លឿន (< ១៥ ថ្ងៃ)' },
-            'វិវាទអចលនវត្ថុ': { resp: '-', nego: 'ល្អណាស់', emp: 'មធ្យម', spirit: 'មធ្យម', time: 'យឺត (> ៣០ ថ្ងៃ)' },
-            'វិវាទកិច្ចសន្យា': { resp: 'ល្អ', nego: 'ល្អ', emp: 'មធ្យម', spirit: 'ល្អ', time: 'លឿន (< ១៥ ថ្ងៃ)' },
-            'វិវាទការងារ': { resp: 'ល្អណាស់', nego: 'ល្អ', emp: 'ល្អ', spirit: 'ល្អ', time: 'លឿន (< ១៥ ថ្ងៃ)' }
-        };
+        const evalBaselineMap = EVAL_BASELINE_MAP;
 
         const getBadge = (val) => {
             if (!val || val === '-') return `<span style="color: #94a3b8; font-weight: 700;">-</span>`;
@@ -1409,6 +1385,13 @@ function initAuth() {
                 (u.password === password || (username.toLowerCase() === 'admin' && (password === 'admin123' || password === '123' || password === 'admin')))
             );
             if (matchedUser) {
+                if (matchedUser.status === 'Locked' || matchedUser.status === 'មិនអនុញ្ញាតឱ្យចូលប្រព័ន្ធ') {
+                    if (errorMsg) {
+                        errorMsg.innerHTML = '<i class="fa-solid fa-ban"></i> គណនីនេះត្រូវបានបិទ/មិនអនុញ្ញាតឱ្យចូលប្រព័ន្ធទេ! សូមទាក់ទងរដ្ឋបាល។';
+                        errorMsg.classList.remove('d-none');
+                    }
+                    return;
+                }
                 isValid = true;
                 uName = matchedUser.name;
                 uRole = matchedUser.role;
@@ -1470,6 +1453,135 @@ function updateSidebarUser(name, role) {
     if (nameEl) nameEl.textContent = name;
     if (roleEl) roleEl.textContent = role;
     if (headerNameEl) headerNameEl.textContent = name;
+    if (typeof initUserProfile === 'function') initUserProfile();
+}
+
+/**
+ * User Profile Management (Request 3)
+ */
+function initUserProfile() {
+    const pName = localStorage.getItem('nadr_user_profile_name') || 'ឡាយ អូន';
+    const pRole = localStorage.getItem('nadr_user_profile_role') || 'មន្ត្រីសម្រុះសម្រួលវិវាទ NADR';
+    const pPhone = localStorage.getItem('nadr_user_profile_phone') || '012 345 678';
+    const pEmail = localStorage.getItem('nadr_user_profile_email') || 'oun.lay@nadr.gov.kh';
+    const pAvatar = localStorage.getItem('nadr_user_profile_avatar') || `https://ui-avatars.com/api/?name=${encodeURIComponent(pName)}&background=0D8ABC&color=fff`;
+
+    // Update Header and Sidebar
+    const headerNameEl = document.getElementById('header-user-name');
+    const headerAvatarEl = document.getElementById('header-user-avatar');
+    const sidebarNameEl = document.getElementById('logged-user-name');
+    const sidebarRoleEl = document.getElementById('logged-user-role');
+    
+    if (headerNameEl) headerNameEl.textContent = pName;
+    if (headerAvatarEl) headerAvatarEl.src = pAvatar;
+    if (sidebarNameEl) sidebarNameEl.textContent = pName;
+    if (sidebarRoleEl) sidebarRoleEl.textContent = pRole;
+
+    // Populate profile inputs if element exists
+    const inputName = document.getElementById('profile-fullname');
+    const inputRole = document.getElementById('profile-role');
+    const inputPhone = document.getElementById('profile-phone');
+    const inputEmail = document.getElementById('profile-email');
+    const previewImg = document.getElementById('profile-preview-img');
+
+    if (inputName && !inputName.value) inputName.value = pName;
+    if (inputRole && !inputRole.value) inputRole.value = pRole;
+    if (inputPhone && !inputPhone.value) inputPhone.value = pPhone;
+    if (inputEmail && !inputEmail.value) inputEmail.value = pEmail;
+    if (previewImg) previewImg.src = pAvatar;
+
+    // Header click to Profile tab
+    const badgeClick = document.getElementById('header-user-badge-click') || document.querySelector('.header-user-badge');
+    if (badgeClick && !badgeClick.dataset.profileBound) {
+        badgeClick.dataset.profileBound = 'true';
+        badgeClick.style.cursor = 'pointer';
+        badgeClick.addEventListener('click', (e) => {
+            if (e.target && e.target.closest('#btn-logout-header')) return;
+            switchView('settings-view');
+            setTimeout(() => {
+                const profTabBtn = document.querySelector('.tab-btn[data-tab="tab-profile"]');
+                if (profTabBtn) profTabBtn.click();
+            }, 50);
+        });
+    }
+
+    // Sidebar footer card click to Profile tab
+    const sidebarProfileCard = document.querySelector('.user-profile-card');
+    if (sidebarProfileCard && !sidebarProfileCard.dataset.profileBound) {
+        sidebarProfileCard.dataset.profileBound = 'true';
+        sidebarProfileCard.style.cursor = 'pointer';
+        sidebarProfileCard.addEventListener('click', (e) => {
+            if (e.target && (e.target.closest('#btn-logout') || e.target.closest('button'))) return;
+            switchView('settings-view');
+            setTimeout(() => {
+                const profTabBtn = document.querySelector('.tab-btn[data-tab="tab-profile"]');
+                if (profTabBtn) profTabBtn.click();
+            }, 50);
+        });
+    }
+}
+
+function saveUserProfile() {
+    const inputName = document.getElementById('profile-fullname');
+    const inputRole = document.getElementById('profile-role');
+    const inputPhone = document.getElementById('profile-phone');
+    const inputEmail = document.getElementById('profile-email');
+    const inputPass = document.getElementById('profile-password');
+
+    if (inputName && inputName.value.trim()) {
+        localStorage.setItem('nadr_user_profile_name', inputName.value.trim());
+    }
+    if (inputRole && inputRole.value.trim()) {
+        localStorage.setItem('nadr_user_profile_role', inputRole.value.trim());
+    }
+    if (inputPhone && inputPhone.value.trim()) {
+        localStorage.setItem('nadr_user_profile_phone', inputPhone.value.trim());
+    }
+    if (inputEmail && inputEmail.value.trim()) {
+        localStorage.setItem('nadr_user_profile_email', inputEmail.value.trim());
+    }
+
+    if (inputPass && inputPass.value.trim()) {
+        let admins = JSON.parse(localStorage.getItem('nadr_admins_list_v2')) || [];
+        if (admins.length > 0) {
+            admins[0].password = inputPass.value.trim();
+            localStorage.setItem('nadr_admins_list_v2', JSON.stringify(admins));
+        }
+        inputPass.value = '';
+    }
+
+    initUserProfile();
+    if (typeof logAuditAction === 'function') {
+        logAuditAction('កែសម្រួលប្រវត្តិរូប', `បានកែសម្រួលព័ត៌មានគណនីមន្រ្តី៖ ${inputName?.value || ''}`);
+    }
+    showToast('ព័ត៌មានប្រវត្តិរូបត្រូវបានរក្សាទុកជោគជ័យ! (Profile Updated)', 'success');
+}
+
+function handleProfilePhotoUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const base64 = e.target.result;
+        localStorage.setItem('nadr_user_profile_avatar', base64);
+        const previewImg = document.getElementById('profile-preview-img');
+        const headerAvatarEl = document.getElementById('header-user-avatar');
+        if (previewImg) previewImg.src = base64;
+        if (headerAvatarEl) headerAvatarEl.src = base64;
+        showToast('បានអាប់ឡូតរូបថតប្រវត្តិរូបថ្មីរួចរាល់!', 'success');
+    };
+    reader.readAsDataURL(file);
+}
+
+function resetProfileAvatar() {
+    localStorage.removeItem('nadr_user_profile_avatar');
+    const pName = localStorage.getItem('nadr_user_profile_name') || 'ឡាយ អូន';
+    const defaultUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(pName)}&background=0D8ABC&color=fff`;
+    const previewImg = document.getElementById('profile-preview-img');
+    const headerAvatarEl = document.getElementById('header-user-avatar');
+    if (previewImg) previewImg.src = defaultUrl;
+    if (headerAvatarEl) headerAvatarEl.src = defaultUrl;
+    showToast('រូបថតប្រវត្តិរូបត្រូវបានកំណត់ទៅលក្ខខណ្ឌដើម!', 'info');
 }
 
 /**
@@ -1507,10 +1619,13 @@ function initLanguageSwitcher() {
  * Dynamic Admin User accounts loaded from localStorage
  */
 let ADMIN_USERS = JSON.parse(localStorage.getItem('nadr_admin_users')) || [
-    { username: 'admin', password: 'admin123', name: 'គណនីរដ្ឋបាល (Admin)', role: 'អគ្គលេខាធិការដ្ឋាន NADR' },
-    { username: 'nadr', password: 'nadr', name: 'មន្ត្រីជាន់ខ្ពស់ NADR', role: 'ថ្នាក់ដឹកនាំ NADR' },
-    { username: 'user', password: 'user', name: 'មន្ត្រីសម្របសម្រួល', role: 'មន្ត្រីទទួលបន្ទុក' }
+    { username: 'admin', password: 'admin123', name: 'គណនីរដ្ឋបាល (Admin)', role: 'Super Admin (រដ្ឋបាលមេ)', status: 'Active' },
+    { username: 'nadr', password: 'nadr', name: 'មន្ត្រីជាន់ខ្ពស់ NADR', role: 'Super Admin (រដ្ឋបាលមេ)', status: 'Active' },
+    { username: 'user', password: 'user', name: 'មន្ត្រីសម្របសម្រួល', role: 'Case Officer (មន្ត្រីសម្រុះសម្រួល)', status: 'Active' }
 ];
+
+// Ensure all users have a status property
+ADMIN_USERS.forEach(u => { if (!u.status) u.status = 'Active'; });
 
 // Automatically upgrade legacy '123' password to 'admin123' for the admin account in localStorage
 let legacyAdmin = ADMIN_USERS.find(u => u.username.toLowerCase() === 'admin');
@@ -1518,6 +1633,20 @@ if (legacyAdmin && legacyAdmin.password === '123') {
     legacyAdmin.password = 'admin123';
     localStorage.setItem('nadr_admin_users', JSON.stringify(ADMIN_USERS));
 }
+
+/**
+ * Dynamic Evaluation Matrix Baseline Map loaded from localStorage
+ */
+let EVAL_BASELINE_MAP = JSON.parse(localStorage.getItem('nadr_eval_baseline_map')) || {
+    'វិវាទក្នុងគ្រួសារ': { resp: '-', nego: 'ល្អណាស់', emp: '-', spirit: '-', time: 'យឺត (> ៣០ ថ្ងៃ)' },
+    'វិវាទជំពាក់ប្រាក់': { resp: 'ល្អ', nego: 'ល្អណាស់', emp: 'ល្អ', spirit: 'មធ្យម', time: 'យឺត (> ៣០ ថ្ងៃ)' },
+    'វិវាទដីធ្លី': { resp: 'ល្អ', nego: 'ល្អ', emp: 'ល្អ', spirit: 'មិនល្អ', time: 'យឺត (> ៤៥ ថ្ងៃ)' },
+    'វិវាទពាណិជ្ជកម្ម': { resp: '-', nego: 'មធ្យម', emp: '-', spirit: 'មិនល្អ', time: 'យឺត (> ៣០ ថ្ងៃ)' },
+    'វិវាទមត៌ក': { resp: '-', nego: '-', emp: 'មិនល្អ', spirit: '-', time: 'លឿន (< ១៥ ថ្ងៃ)' },
+    'វិវាទអចលនវត្ថុ': { resp: '-', nego: 'ល្អណាស់', emp: 'មធ្យម', spirit: 'មធ្យម', time: 'យឺត (> ៣០ ថ្ងៃ)' },
+    'វិវាទកិច្ចសន្យា': { resp: 'ល្អ', nego: 'ល្អ', emp: 'មធ្យម', spirit: 'ល្អ', time: 'លឿន (< ១៥ ថ្ងៃ)' },
+    'វិវាទការងារ': { resp: 'ល្អណាស់', nego: 'ល្អ', emp: 'ល្អ', spirit: 'ល្អ', time: 'លឿន (< ១៥ ថ្ងៃ)' }
+};
 
 function initSettingsEvents() {
     const tabs = document.querySelectorAll('#settings-view .tab-btn');
@@ -1541,6 +1670,15 @@ function initSettingsEvents() {
             panes.forEach(pane => {
                 pane.style.display = pane.id === paneId ? 'block' : 'none';
             });
+            if (paneId === 'tab-eval-matrix') {
+                renderSettingsEvalMatrix();
+            } else if (paneId === 'tab-admins') {
+                renderSettingsAdmins();
+            } else if (paneId === 'tab-provinces') {
+                renderSettingsProvinces();
+            } else if (paneId === 'tab-columns') {
+                renderSettingsColumns();
+            }
         });
     });
 
@@ -1591,23 +1729,51 @@ function initSettingsEvents() {
         };
     }
 
-    // Add Admin user
-    const btnAddAdmin = document.getElementById('btn-add-admin');
-    if (btnAddAdmin) {
-        btnAddAdmin.onclick = () => {
-            const username = prompt("សូមបញ្ចូល Username ថ្មី៖");
-            if (!username) return;
-            const password = prompt("សូមបញ្ចូល Password៖");
-            if (!password) return;
-            const dispName = prompt("សូមបញ្ចូលឈ្មោះពិត (Display Name)៖");
-            if (!dispName) return;
-            const role = prompt("សូមបញ្ចូលតួនាទី (Role)៖");
-            if (!role) return;
+    // User Account Management Inline Form
+    const btnToggleUserForm = document.getElementById('btn-toggle-user-form');
+    const userFormCard = document.getElementById('user-account-form-card');
+    const userForm = document.getElementById('settings-user-form');
+    const btnCancelUserForm = document.getElementById('btn-cancel-user-form');
 
-            ADMIN_USERS.push({ username: username.trim(), password: password.trim(), name: dispName.trim(), role: role.trim() });
+    if (btnToggleUserForm && userFormCard) {
+        btnToggleUserForm.onclick = () => {
+            userFormCard.style.display = 'block';
+            document.getElementById('user-form-title').innerText = 'បញ្ចូលព័ត៌មានគណនីថ្មី (New User Account)';
+            document.getElementById('edit-user-index').value = '-1';
+            if (userForm) userForm.reset();
+        };
+    }
+    if (btnCancelUserForm && userFormCard) {
+        btnCancelUserForm.onclick = () => {
+            userFormCard.style.display = 'none';
+            if (userForm) userForm.reset();
+        };
+    }
+    if (userForm) {
+        userForm.onsubmit = (e) => {
+            e.preventDefault();
+            const idx = parseInt(document.getElementById('edit-user-index').value, 10);
+            const username = document.getElementById('admin-username').value.trim();
+            const dispName = document.getElementById('admin-dispname').value.trim();
+            const password = document.getElementById('admin-password').value.trim();
+            const role = document.getElementById('admin-role').value;
+            const status = document.getElementById('admin-status').value;
+
+            if (idx >= 0 && ADMIN_USERS[idx]) {
+                ADMIN_USERS[idx] = { ...ADMIN_USERS[idx], username, name: dispName, password, role, status };
+                showToast('បានកែសម្រួលព័ត៌មានគណនីរួចរាល់!', 'success');
+            } else {
+                if (ADMIN_USERS.some(u => u.username.toLowerCase() === username.toLowerCase())) {
+                    showToast('ឈ្មោះគណនីនេះ (Username) មានរួចហើយ!', 'error');
+                    return;
+                }
+                ADMIN_USERS.push({ username, password, name: dispName, role, status });
+                showToast('បានបង្កើតគណនីថ្មីដោយជោគជ័យ!', 'success');
+            }
             localStorage.setItem('nadr_admin_users', JSON.stringify(ADMIN_USERS));
+            userFormCard.style.display = 'none';
+            userForm.reset();
             renderSettingsAdmins();
-            showToast('បានបន្ថែមគណនីថ្មីដោយជោគជ័យ!', 'success');
         };
     }
 
@@ -1617,6 +1783,7 @@ function initSettingsEvents() {
     renderSettingsColumns();
     renderSettingsAdmins();
     renderAuditLogs();
+    renderSettingsEvalMatrix();
     initOrgSettings();
 }
 
@@ -1711,21 +1878,58 @@ function renderSettingsAdmins() {
     if (!tbody) return;
     let html = '';
     ADMIN_USERS.forEach((user, index) => {
+        const isLocked = user.status === 'Locked';
+        const statusBadge = isLocked 
+            ? `<span class="badge" style="background: #fee2e2; color: #b91c1c; padding: 5px 10px; font-weight: 700;"><i class="fa-solid fa-ban"></i> មិនអនុញ្ញាតឱ្យចូល (Locked)</span>`
+            : `<span class="badge" style="background: #dcfce7; color: #15803d; padding: 5px 10px; font-weight: 700;"><i class="fa-solid fa-check-circle"></i> អនុញ្ញាតឱ្យចូល (Active)</span>`;
+
         html += `
-            <tr>
+            <tr style="${isLocked ? 'background: #fef2f2; opacity: 0.85;' : ''}">
                 <td>${index + 1}</td>
-                <td><strong>${user.username}</strong></td>
+                <td><strong style="color: #1e293b;">${user.username}</strong></td>
                 <td>${user.name}</td>
-                <td><span class="badge badge-active" style="font-size: 11px;">${user.role}</span></td>
-                <td><code>${user.password}</code></td>
-                <td class="text-center">
-                    <button class="btn-icon text-danger" onclick="deleteAdminSetting(${index})" title="លុប" ${user.username === 'admin' ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : ''}><i class="fa-solid fa-trash"></i></button>
+                <td><span class="badge badge-active" style="font-size: 11px; background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc;">${user.role}</span></td>
+                <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">${user.password}</code></td>
+                <td>${statusBadge}</td>
+                <td class="text-center" style="white-space: nowrap;">
+                    <button class="btn-icon text-primary" onclick="editAdminSetting(${index})" title="កែសម្រួលគណនី (Edit)"><i class="fa-solid fa-pen-to-square"></i></button>
+                    <button class="btn-icon ${isLocked ? 'text-success' : 'text-warning'}" onclick="toggleLockAdminSetting(${index})" title="${isLocked ? 'អនុញ្ញាតឱ្យចូលប្រព័ន្ធវិញ (Allow Login)' : 'បិទមិនអនុញ្ញាតឱ្យចូលប្រព័ន្ធ (Block Login)'}" ${user.username === 'admin' ? 'disabled style="opacity:0.3;cursor:not-allowed;"' : ''}><i class="fa-solid ${isLocked ? 'fa-lock-open' : 'fa-ban'}"></i></button>
+                    <button class="btn-icon text-danger" onclick="deleteAdminSetting(${index})" title="លុបគណនី (Delete)" ${user.username === 'admin' ? 'disabled style="opacity:0.3;cursor:not-allowed;"' : ''}><i class="fa-solid fa-trash"></i></button>
                 </td>
             </tr>
         `;
     });
     tbody.innerHTML = html;
 }
+
+window.editAdminSetting = function(index) {
+    const user = ADMIN_USERS[index];
+    if (!user) return;
+    const userFormCard = document.getElementById('user-account-form-card');
+    if (userFormCard) {
+        userFormCard.style.display = 'block';
+        document.getElementById('user-form-title').innerText = `កែសម្រួលគណនី៖ ${user.username} (Edit Account)`;
+        document.getElementById('edit-user-index').value = index;
+        document.getElementById('admin-username').value = user.username;
+        document.getElementById('admin-dispname').value = user.name;
+        document.getElementById('admin-password').value = user.password;
+        document.getElementById('admin-role').value = user.role || 'Case Officer (មន្ត្រីសម្រុះសម្រួល)';
+        document.getElementById('admin-status').value = user.status || 'Active';
+        userFormCard.scrollIntoView({ behavior: 'smooth' });
+    }
+};
+
+window.toggleLockAdminSetting = function(index) {
+    const user = ADMIN_USERS[index];
+    if (!user || user.username === 'admin') {
+        showToast('មិនអាចផ្អាកសិទ្ធិគណនីរដ្ឋបាលមេ (admin) បានទេ!', 'error');
+        return;
+    }
+    user.status = user.status === 'Locked' ? 'Active' : 'Locked';
+    localStorage.setItem('nadr_admin_users', JSON.stringify(ADMIN_USERS));
+    renderSettingsAdmins();
+    showToast(`គណនី "${user.username}" ត្រូវបាន ${user.status === 'Locked' ? 'បិទមិនអនុញ្ញាតឱ្យចូលប្រព័ន្ធ (Locked)' : 'អនុញ្ញាតឱ្យចូលប្រព័ន្ធវិញ (Active)'}!`, user.status === 'Locked' ? 'warning' : 'success');
+};
 
 window.deleteAdminSetting = function(index) {
     const user = ADMIN_USERS[index];
@@ -1738,6 +1942,82 @@ window.deleteAdminSetting = function(index) {
         localStorage.setItem('nadr_admin_users', JSON.stringify(ADMIN_USERS));
         renderSettingsAdmins();
         showToast('បានលុបគណនីដោយជោគជ័យ!', 'success');
+    });
+};
+
+/**
+ * Render Settings Evaluation Matrix Tab (Tab 7)
+ */
+function renderSettingsEvalMatrix() {
+    const tbody = document.getElementById('settings-eval-matrix-tbody');
+    if (!tbody || typeof CASE_CATEGORIES === 'undefined') return;
+
+    const optValues = ['ល្អណាស់', 'ល្អ', 'មធ្យម', 'មិនល្អ', '-'];
+    const timeValues = ['លឿន (< ១៥ ថ្ងៃ)', 'មធ្យម (២០ ថ្ងៃ)', 'យឺត (> ៣០ ថ្ងៃ)', 'យឺត (> ៤៥ ថ្ងៃ)', '-'];
+
+    const getSelectHTML = (currVal, opts, className) => {
+        let h = `<select class="form-control ${className}" style="font-size: 12px; padding: 4px 8px; height: auto; font-weight: 600;">`;
+        opts.forEach(o => {
+            h += `<option value="${o}" ${currVal === o ? 'selected' : ''}>${o}</option>`;
+        });
+        h += `</select>`;
+        return h;
+    };
+
+    let html = '';
+    CASE_CATEGORIES.forEach((cat, idx) => {
+        const b = EVAL_BASELINE_MAP[cat] || { resp: 'ល្អ', nego: 'ល្អ', emp: 'មធ្យម', spirit: 'ល្អ', time: 'មធ្យម (២០ ថ្ងៃ)' };
+        html += `
+            <tr data-cat="${cat}">
+                <td style="font-weight: 700;">${idx + 1}</td>
+                <td style="text-align: left; font-weight: 700; color: #065f46;">${cat}</td>
+                <td>${getSelectHTML(b.resp, optValues, 'eval-sel-resp')}</td>
+                <td>${getSelectHTML(b.nego, optValues, 'eval-sel-nego')}</td>
+                <td>${getSelectHTML(b.emp, optValues, 'eval-sel-emp')}</td>
+                <td>${getSelectHTML(b.spirit, optValues, 'eval-sel-spirit')}</td>
+                <td>${getSelectHTML(b.time, timeValues, 'eval-sel-time')}</td>
+            </tr>
+        `;
+    });
+    tbody.innerHTML = html;
+}
+
+window.saveEvalMatrixSetting = function() {
+    const tbody = document.getElementById('settings-eval-matrix-tbody');
+    if (!tbody) return;
+    const rows = tbody.querySelectorAll('tr[data-cat]');
+    const newMap = {};
+    rows.forEach(r => {
+        const cat = r.getAttribute('data-cat');
+        const resp = r.querySelector('.eval-sel-resp').value;
+        const nego = r.querySelector('.eval-sel-nego').value;
+        const emp = r.querySelector('.eval-sel-emp').value;
+        const spirit = r.querySelector('.eval-sel-spirit').value;
+        const time = r.querySelector('.eval-sel-time').value;
+        newMap[cat] = { resp, nego, emp, spirit, time };
+    });
+    EVAL_BASELINE_MAP = newMap;
+    localStorage.setItem('nadr_eval_baseline_map', JSON.stringify(EVAL_BASELINE_MAP));
+    renderAllViews();
+    showToast('បានរក្សាទុកលក្ខណៈវិនិច្ឆ័យវាយតម្លៃវិវាទដោយជោគជ័យ!', 'success');
+};
+
+window.resetEvalMatrixSetting = function() {
+    customConfirm('កំណត់ទៅលក្ខខណ្ឌដើម', 'តើលោកអ្នកពិតជាចង់កំណត់លក្ខណៈវិនិច្ឆ័យវាយតម្លៃវិវាទទាំងអស់ទៅជាលក្ខខណ្ឌស្ដង់ដារដើមវិញមែនទេ?', () => {
+        EVAL_BASELINE_MAP = {
+            'វិវាទក្នុងគ្រួសារ': { resp: '-', nego: 'ល្អណាស់', emp: '-', spirit: '-', time: 'យឺត (> ៣០ ថ្ងៃ)' },
+            'វិវាទជំពាក់ប្រាក់': { resp: 'ល្អ', nego: 'ល្អណាស់', emp: 'ល្អ', spirit: 'មធ្យម', time: 'យឺត (> ៣០ ថ្ងៃ)' },
+            'វិវាទដីធ្លី': { resp: 'ល្អ', nego: 'ល្អ', emp: 'ល្អ', spirit: 'មិនល្អ', time: 'យឺត (> ៤៥ ថ្ងៃ)' },
+            'វិវាទពាណិជ្ជកម្ម': { resp: '-', nego: 'មធ្យម', emp: '-', spirit: 'មិនល្អ', time: 'យឺត (> ៣០ ថ្ងៃ)' },
+            'វិវាទមត៌ក': { resp: '-', nego: '-', emp: 'មិនល្អ', spirit: '-', time: 'លឿន (< ១៥ ថ្ងៃ)' },
+            'វិវាទអចលនវត្ថុ': { resp: '-', nego: 'ល្អណាស់', emp: 'មធ្យម', spirit: 'មធ្យម', time: 'យឺត (> ៣០ ថ្ងៃ)' },
+            'វិវាទកិច្ចសន្យា': { resp: 'ល្អ', nego: 'ល្អ', emp: 'មធ្យម', spirit: 'ល្អ', time: 'លឿន (< ១៥ ថ្ងៃ)' },
+            'វិវាទការងារ': { resp: 'ល្អណាស់', nego: 'ល្អ', emp: 'ល្អ', spirit: 'ល្អ', time: 'លឿន (< ១៥ ថ្ងៃ)' }
+        };
+        localStorage.setItem('nadr_eval_baseline_map', JSON.stringify(EVAL_BASELINE_MAP));
+        renderSettingsEvalMatrix();
+        renderAllViews();
+        showToast('បានកំណត់លក្ខណៈវិនិច្ឆ័យវាយតម្លៃទៅជាស្ដង់ដារដើមវិញរួចរាល់!', 'info');
     });
 };
 

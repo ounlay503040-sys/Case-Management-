@@ -126,6 +126,10 @@
                     <i class="fa-solid fa-gears"></i>
                     <span data-i18n="nav.settings">ការកំណត់ប្រព័ន្ធ (Settings)</span>
                 </a>
+                <a href="#settings-view" class="nav-item" onclick="setTimeout(() => { const btn = document.querySelector('.tab-btn[data-tab=\'tab-profile\']'); if (btn) btn.click(); }, 50);" style="border-left: 3px solid #3b82f6; background: rgba(59, 130, 246, 0.08);">
+                    <i class="fa-solid fa-id-card-clip" style="color: #3b82f6;"></i>
+                    <span style="font-weight: 700; color: #3b82f6;">ប្រវត្តិរូបមន្ត្រី (My Profile)</span>
+                </a>
             </nav>
 
             <div class="sidebar-footer">
@@ -344,62 +348,25 @@
                     <h3 style="font-size: 17px; font-weight: 800; color: var(--text-main);"><i class="fa-solid fa-chart-line text-primary"></i> ៣. ក្រាហ្វិកស្ថិតិ និងការវិភាគទិន្នន័យ (Visual Charts & Case Slicer Grid)</h3>
                 </div>
                 
-                <!-- ROW 1: YEARLY TABLE & STATUS DONUT CHART -->
+                <!-- ROW 1: STATUS DONUT CHART & CATEGORY BAR CHART -->
                 <div class="charts-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 24px; margin-bottom: 24px;">
-                    <!-- Yearly Outcomes Table Card (Case by Years) -->
-                    <div class="card-panel" style="padding: 24px; border-radius: 16px; box-shadow: var(--shadow-sm);">
-                        <div class="panel-header" style="margin-bottom: 18px; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px;">
-                            <h3 style="font-size: 15.5px; font-weight: 700; margin: 0;"><i class="fa-solid fa-calendar-check text-success"></i> លទ្ធផលដោះស្រាយវិវាទតាមឆ្នាំ (Case by Years)</h3>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="data-table text-center" style="width: 100%; font-size: 13.5px;">
-                                <thead>
-                                    <tr style="background: #f8fafc; color: #1e293b; font-weight: 700;">
-                                        <th style="padding: 10px;">ឆ្នាំ (Year)</th>
-                                        <th style="padding: 10px;">សរុប</th>
-                                        <th style="color: #10b981; padding: 10px;">ព្រមព្រៀង</th>
-                                        <th style="color: #2563eb; padding: 10px;">កំពុងចាត់ការ</th>
-                                        <th style="color: #64748b; padding: 10px;">ផ្សេងៗ</th>
-                                        <th style="padding: 10px;">អត្រាជោគជ័យ</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="dashboard-yearly-tbody">
-                                    <!-- Dynamically populated by JS -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
                     <!-- Status Breakdown Donut Chart (Result Case) -->
                     <div class="chart-container card-panel" style="padding: 24px; border-radius: 16px; box-shadow: var(--shadow-sm);">
                         <div class="panel-header" style="margin-bottom: 18px; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px;">
                             <h3 style="font-size: 15.5px; font-weight: 700; margin: 0;"><i class="fa-solid fa-chart-pie text-primary"></i> បំណែងចែកតាមលទ្ធផលសំណុំរឿង (Result Case Breakdown)</h3>
                         </div>
-                        <div class="chart-wrapper" style="height: 260px; display: flex; justify-content: center;">
+                        <div class="chart-wrapper" style="height: 280px; display: flex; justify-content: center;">
                             <canvas id="statusChart"></canvas>
                         </div>
                     </div>
-                </div>
 
-                <!-- ROW 2: CATEGORY CHART & PROVINCE BAR CHART -->
-                <div class="charts-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 24px; margin-bottom: 24px;">
                     <!-- Dispute Categories Chart (Case by Type) -->
                     <div class="chart-container card-panel" style="padding: 24px; border-radius: 16px; box-shadow: var(--shadow-sm);">
                         <div class="panel-header" style="margin-bottom: 18px; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px;">
                             <h3 style="font-size: 15.5px; font-weight: 700; margin: 0;"><i class="fa-solid fa-chart-bar text-accent"></i> ស្ថិតិតាមប្រភេទសំណុំរឿងទាំង ៨ (Case by Type Chart)</h3>
                         </div>
-                        <div class="chart-wrapper" style="height: 260px;">
+                        <div class="chart-wrapper" style="height: 280px;">
                             <canvas id="categoryChart"></canvas>
-                        </div>
-                    </div>
-
-                    <!-- Province Chart Card (Case by City/Province) -->
-                    <div class="chart-container card-panel" style="padding: 24px; border-radius: 16px; box-shadow: var(--shadow-sm);">
-                        <div class="panel-header" style="margin-bottom: 18px; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px;">
-                            <h3 style="font-size: 15.5px; font-weight: 700; margin: 0;"><i class="fa-solid fa-map-location-dot text-danger"></i> ក្រាហ្វបង្ហាញពីវិវាទតាមខេត្ត/រាជធានី (Case by City/Province)</h3>
-                        </div>
-                        <div class="chart-wrapper" style="height: 260px;">
-                            <canvas id="dashboardLocationChart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -430,25 +397,25 @@
                 </div>
 
                 <!-- SECTION 5: YEARLY OUTCOMES & PROVINCIAL STATISTICS -->
-                <div class="section-subtitle mt-4 mb-3">
-                    <h3 style="font-size: 16px; font-weight: 700; color: var(--text-main);"><i class="fa-solid fa-chart-column text-primary"></i> ៥. លទ្ធផលដោះស្រាយវិវាទតាមឆ្នាំ និងក្រាហ្វវិវាទតាមខេត្ត/រាជធានី</h3>
+                <div class="section-subtitle mt-5 mb-3">
+                    <h3 style="font-size: 17px; font-weight: 800; color: var(--text-main);"><i class="fa-solid fa-chart-column text-primary"></i> ៥. លទ្ធផលដោះស្រាយវិវាទតាមឆ្នាំ និងក្រាហ្វវិវាទតាមខេត្ត/រាជធានី</h3>
                 </div>
-                <div class="charts-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 24px;">
+                <div class="charts-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 24px;">
                     <!-- Yearly Table Card -->
-                    <div class="card-panel">
-                        <div class="panel-header" style="margin-bottom: 15px;">
-                            <h3><i class="fa-solid fa-calendar-check text-success"></i> លទ្ធផលដោះស្រាយវិវាទតាមឆ្នាំ (Yearly Outcomes)</h3>
+                    <div class="card-panel" style="padding: 24px; border-radius: 16px; box-shadow: var(--shadow-sm);">
+                        <div class="panel-header" style="margin-bottom: 18px; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px;">
+                            <h3 style="font-size: 15.5px; font-weight: 700; margin: 0;"><i class="fa-solid fa-calendar-check text-success"></i> លទ្ធផលដោះស្រាយវិវាទតាមឆ្នាំ (Yearly Outcomes)</h3>
                         </div>
                         <div class="table-responsive">
-                            <table class="data-table text-center" style="width: 100%; font-size: 13px;">
+                            <table class="data-table text-center" style="width: 100%; font-size: 13.5px;">
                                 <thead>
-                                    <tr style="background: #f1f5f9; color: #1e293b; font-weight: 700;">
-                                        <th>ឆ្នាំ (Year)</th>
-                                        <th>សរុប</th>
-                                        <th style="color: #10b981;">ព្រមព្រៀង</th>
-                                        <th style="color: #2563eb;">កំពុងចាត់ការ</th>
-                                        <th style="color: #64748b;">ផ្សេងៗ</th>
-                                        <th>អត្រាជោគជ័យ</th>
+                                    <tr style="background: #f8fafc; color: #1e293b; font-weight: 700;">
+                                        <th style="padding: 10px;">ឆ្នាំ (Year)</th>
+                                        <th style="padding: 10px;">សរុប</th>
+                                        <th style="color: #10b981; padding: 10px;">ព្រមព្រៀង</th>
+                                        <th style="color: #2563eb; padding: 10px;">កំពុងចាត់ការ</th>
+                                        <th style="color: #64748b; padding: 10px;">ផ្សេងៗ</th>
+                                        <th style="padding: 10px;">អត្រាជោគជ័យ</th>
                                     </tr>
                                 </thead>
                                 <tbody id="dashboard-yearly-tbody">
@@ -459,11 +426,11 @@
                     </div>
 
                     <!-- Province Chart Card -->
-                    <div class="chart-container card-panel">
-                        <div class="panel-header" style="margin-bottom: 15px;">
-                            <h3><i class="fa-solid fa-map-location-dot text-danger"></i> ក្រាហ្វបង្ហាញពីវិវាទតាមខេត្ត/រាជធានី (Top Locations)</h3>
+                    <div class="chart-container card-panel" style="padding: 24px; border-radius: 16px; box-shadow: var(--shadow-sm);">
+                        <div class="panel-header" style="margin-bottom: 18px; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px;">
+                            <h3 style="font-size: 15.5px; font-weight: 700; margin: 0;"><i class="fa-solid fa-map-location-dot text-danger"></i> ក្រាហ្វបង្ហាញពីវិវាទតាមខេត្ត/រាជធានី (Top Locations)</h3>
                         </div>
-                        <div class="chart-wrapper" style="height: 260px;">
+                        <div class="chart-wrapper" style="height: 280px;">
                             <canvas id="dashboardLocationChart"></canvas>
                         </div>
                     </div>
@@ -921,6 +888,8 @@
                         <div class="form-group">
                             <label>ប្រភេទរបាយការណ៍៖</label>
                             <select id="report-type" class="form-control">
+                                <option value="monthly-progress">របាយការណ៍វឌ្ឍនភាពចំណាត់ការសំណុំរឿងប្រចាំខែ (Monthly Progress Report - ទម្រង់គំរូ PDF)</option>
+                                <option value="official-tracking">របាយការណ៍បញ្ជីតាមដានលទ្ធផលដោះស្រាយវិវាទ (Official Tracking - ទម្រង់គំរូរូបទី១)</option>
                                 <option value="master-list">របាយការណ៍បញ្ជីសំណុំរឿង (Master Table Report)</option>
                                 <option value="summary">របាយការណ៍សង្ខេបស្ថិតិទូទៅ</option>
                                 <option value="by-status">របាយការណ៍បែងចែកតាមលទ្ធផល (Active/Settle/Close/Pending)</option>
@@ -1104,13 +1073,19 @@
                             <i class="fa-solid fa-table-columns"></i> ៣. បន្ថែមកូឡោនសំណុំរឿង
                         </button>
                         <button type="button" class="tab-btn" data-tab="tab-admins" style="flex: 1; padding: 14px; border: none; background: none; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;">
-                            <i class="fa-solid fa-user-gear"></i> ៤. បន្ថែម Admin / គណនី
+                            <i class="fa-solid fa-user-shield"></i> ៤. គ្រប់គ្រងគណនី & សិទ្ធិចូលប្រព័ន្ធ
                         </button>
                         <button type="button" class="tab-btn" data-tab="tab-org" style="flex: 1; padding: 14px; border: none; background: none; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;">
                             <i class="fa-solid fa-building"></i> ៥. កំណត់ស្ថាប័ន & លេខកូដ
                         </button>
                         <button type="button" class="tab-btn" data-tab="tab-audit" style="flex: 1; padding: 14px; border: none; background: none; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;">
                             <i class="fa-solid fa-history"></i> ៦. កំណត់ហេតុសកម្មភាព
+                        </button>
+                        <button type="button" class="tab-btn" data-tab="tab-eval-matrix" style="flex: 1; padding: 14px; border: none; background: none; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;">
+                            <i class="fa-solid fa-scale-balanced"></i> ៧. កំណត់លក្ខណៈវិនិច្ឆ័យ & តារាងវាយតម្លៃ
+                        </button>
+                        <button type="button" class="tab-btn" data-tab="tab-profile" style="flex: 1; padding: 14px; border: none; background: none; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;">
+                            <i class="fa-solid fa-id-card-clip"></i> ៨. ប្រវត្តិរូបរបស់ខ្ញុំ (My Profile)
                         </button>
                     </div>
 
@@ -1220,23 +1195,70 @@
                         <div class="settings-tab-pane" id="tab-admins" style="display: none;">
                             <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2" style="display: flex; justify-content: space-between; align-items: center;">
                                 <div>
-                                    <h4 style="margin: 0; font-size: 14px; font-weight: 700; color: var(--text-color);"><i class="fa-solid fa-user-shield text-primary"></i> គ្រប់គ្រងគណនីរដ្ឋបាល & សិទ្ធិដំណើរការ</h4>
-                                    <p style="font-size: 12px; color: var(--text-muted); margin: 0;">បន្ថែមគណនី និងគ្រប់គ្រងពាក្យសម្ងាត់សម្រាប់ចូលប្រើប្រព័ន្ធ</p>
+                                    <h4 style="margin: 0; font-size: 15px; font-weight: 700; color: var(--text-color);"><i class="fa-solid fa-user-shield text-primary"></i> គ្រប់គ្រងគណនី និងសិទ្ធិអ្នកប្រើប្រាស់ប្រព័ន្ធ (User Accounts & Role Management)</h4>
+                                    <p style="font-size: 12px; color: var(--text-muted); margin: 0;">បង្កើត កែសម្រួល បិទ/បើកសិទ្ធិ និងគ្រប់គ្រងគណនីមន្ត្រីសម្រុះសម្រួលក្នុងប្រព័ន្ធ</p>
                                 </div>
-                                <button type="button" class="btn btn-sm btn-primary" id="btn-add-admin" style="padding: 6px 12px; font-size: 12px;">
-                                    <i class="fa-solid fa-plus"></i> បន្ថែមគណនីថ្មី
+                                <button type="button" class="btn btn-sm btn-primary" id="btn-toggle-user-form" style="padding: 8px 14px; font-size: 13px; font-weight: 700;">
+                                    <i class="fa-solid fa-user-plus"></i> + បង្កើតគណនីថ្មី (Create Account)
                                 </button>
                             </div>
+
+                            <!-- INLINE USER CREATION / EDITING FORM -->
+                            <div id="user-account-form-card" style="display: none; background: var(--bg-main); padding: 20px; border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 20px; box-shadow: var(--shadow-sm);">
+                                <h5 style="margin-top: 0; margin-bottom: 15px; font-size: 14px; font-weight: 700; color: var(--text-color);"><i class="fa-solid fa-user-pen text-primary"></i> <span id="user-form-title">បញ្ចូលព័ត៌មានគណនីថ្មី (New User Account)</span></h5>
+                                <form id="settings-user-form">
+                                    <input type="hidden" id="edit-user-index" value="-1">
+                                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
+                                        <div class="form-group">
+                                            <label style="font-size: 12px; font-weight: 700; margin-bottom: 6px; display: block;">Username (ឈ្មោះគណនី) <span class="text-danger">*</span></label>
+                                            <input type="text" id="admin-username" class="form-control" placeholder="ឧ. lay.oun" required style="font-size: 13px;">
+                                        </div>
+                                        <div class="form-group">
+                                            <label style="font-size: 12px; font-weight: 700; margin-bottom: 6px; display: block;">ឈ្មោះពិត (Full Display Name) <span class="text-danger">*</span></label>
+                                            <input type="text" id="admin-dispname" class="form-control" placeholder="ឧ. លោក ឡាយ អូន" required style="font-size: 13px;">
+                                        </div>
+                                        <div class="form-group">
+                                            <label style="font-size: 12px; font-weight: 700; margin-bottom: 6px; display: block;">ពាក្យសម្ងាត់ (Password) <span class="text-danger">*</span></label>
+                                            <input type="text" id="admin-password" class="form-control" placeholder="ឧ. nadr@2026" required style="font-size: 13px;">
+                                        </div>
+                                        <div class="form-group">
+                                            <label style="font-size: 12px; font-weight: 700; margin-bottom: 6px; display: block;">តួនាទី / កម្រិតសិទ្ធិ (Role & Permission) <span class="text-danger">*</span></label>
+                                            <select id="admin-role" class="form-control" style="font-size: 13px;">
+                                                <option value="Super Admin (រដ្ឋបាលមេ)">Super Admin (រដ្ឋបាលមេ)</option>
+                                                <option value="Case Officer (មន្ត្រីសម្រុះសម្រួល)">Case Officer (មន្ត្រីសម្រុះសម្រួល)</option>
+                                                <option value="Data Entry (មន្ត្រីបញ្ចូលទិន្នន័យ)">Data Entry (មន្ត្រីបញ្ចូលទិន្នន័យ)</option>
+                                                <option value="Viewer (អ្នកពិនិត្យរបាយការណ៍)">Viewer (អ្នកពិនិត្យរបាយការណ៍)</option>
+                                            </select>
+                                        <div class="form-group">
+                                            <label style="font-size: 12px; font-weight: 700; margin-bottom: 6px; display: block;">សិទ្ធិចូលប្រព័ន្ធ (Login Access Control)</label>
+                                            <select id="admin-status" class="form-control" style="font-size: 13px;">
+                                                <option value="Active">Active (អនុញ្ញាតឱ្យចូលប្រព័ន្ធ)</option>
+                                                <option value="Locked">Locked (មិនអនុញ្ញាតឱ្យចូលប្រព័ន្ធ - ផ្អាក)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; gap: 10px;">
+                                        <button type="submit" class="btn btn-primary" style="padding: 8px 18px; font-weight: 700; font-size: 13px;">
+                                            <i class="fa-solid fa-save"></i> រក្សាទុកគណនី (Save Account)
+                                        </button>
+                                        <button type="button" class="btn btn-secondary" id="btn-cancel-user-form" style="padding: 8px 18px; font-size: 13px;">
+                                            បោះបង់ (Cancel)
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+
                             <div class="table-responsive">
-                                <table class="data-table" style="font-size: 13px; width: 100%;">
+                                <table class="data-table text-center" style="font-size: 13px; width: 100%;">
                                     <thead>
-                                        <tr>
-                                            <th style="width: 80px;">ល.រ</th>
-                                            <th>ឈ្មោះអ្នកប្រើ (Username)</th>
+                                        <tr style="background: #f1f5f9; color: #1e293b;">
+                                            <th style="width: 50px;">ល.រ</th>
+                                            <th>ឈ្មោះគណនី (Username)</th>
                                             <th>ឈ្មោះពិត (Display Name)</th>
-                                            <th>តួនាទី (Role)</th>
+                                            <th>តួនាទី / កម្រិតសិទ្ធិ (Role)</th>
                                             <th>ពាក្យសម្ងាត់</th>
-                                            <th class="text-center" style="width: 100px;">សកម្មភាព</th>
+                                            <th>ស្ថានភាព (Status)</th>
+                                            <th class="text-center" style="width: 150px;">សកម្មភាព (Actions)</th>
                                         </tr>
                                     </thead>
                                     <tbody id="settings-admins-tbody">
@@ -1299,6 +1321,107 @@
                                         <!-- Rendered dynamically -->
                                     </tbody>
                                 </table>
+                            </div>
+                        </div>
+
+                        <!-- TAB 7: EVALUATION & RESOLUTION MATRIX CRITERIA -->
+                        <div class="settings-tab-pane" id="tab-eval-matrix" style="display: none;">
+                            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2" style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <h4 style="margin: 0; font-size: 15px; font-weight: 700; color: var(--text-color);"><i class="fa-solid fa-scale-balanced text-success"></i> កំណត់លក្ខណៈវិនិច្ឆ័យ ក្នុងតារាងវាយតម្លៃកម្រិតវិវាទ និងរយៈពេលដោះស្រាយ (Evaluation Matrix Settings)</h4>
+                                    <p style="font-size: 12px; color: var(--text-muted); margin: 0;">កំណត់លក្ខណៈវិនិច្ឆ័យស្ដង់ដារសម្រាប់ប្រភេទវិវាទទាំង ៨ នៅក្នុងមីនុយស្ថិតិ (Analytics Evaluation Matrix)</p>
+                                </div>
+                                <div style="display: flex; gap: 8px;">
+                                    <button type="button" class="btn btn-sm btn-secondary" onclick="resetEvalMatrixSetting()" style="padding: 8px 16px; font-size: 13px; font-weight: 600;">
+                                        <i class="fa-solid fa-rotate-left"></i> កំណត់ទៅលក្ខខណ្ឌដើម
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-primary" onclick="saveEvalMatrixSetting()" style="padding: 8px 16px; font-size: 13px; font-weight: 700;">
+                                        <i class="fa-solid fa-save"></i> រក្សាទុកការកំណត់ (Save Matrix)
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="data-table text-center" style="font-size: 13px; width: 100%;">
+                                    <thead>
+                                        <tr style="background: linear-gradient(135deg, #065f46, #059669); color: white;">
+                                            <th style="width: 50px;">ល.រ</th>
+                                            <th style="text-align: left; padding-left: 15px;">ប្រភេទវិវាទ (Dispute Category)</th>
+                                            <th>ទំនួលខុសត្រូវ (Responsibility)</th>
+                                            <th>ការចរចា (Negotiation)</th>
+                                            <th>ការយោគយល់ (Empathy)</th>
+                                            <th>ស្មារតី (Spirit)</th>
+                                            <th>រយៈពេលដោះស្រាយស្ដង់ដារ (Standard Timeframe)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="settings-eval-matrix-tbody">
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- TAB 8: MY PROFILE CONFIG -->
+                        <div class="settings-tab-pane" id="tab-profile" style="display: none;">
+                            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
+                                <div>
+                                    <h4 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-color); display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-id-card-clip text-primary"></i> គ្រប់គ្រង និងកែសម្រួលព័ត៌មានអ្នកប្រើប្រាស់ (User Profile Management)</h4>
+                                    <p style="font-size: 13px; color: var(--text-muted); margin: 4px 0 0 0;">កែសម្រួលព័ត៌មានទូទៅ អាប់ឡូតរូបថតប្រវត្តិរូប និងកំណត់ឈ្មោះមន្រ្តីសម្រាប់បង្ហាញលើរបាយការណ៍</p>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-primary" onclick="saveUserProfile()" style="padding: 10px 20px; font-size: 14px; font-weight: 700; border-radius: 8px; box-shadow: var(--shadow-sm);">
+                                        <i class="fa-solid fa-check-circle"></i> រក្សាទុកព័ត៌មានប្រវត្តិរូប (Save Profile)
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; align-items: start;">
+                                <!-- Left Card: Avatar Upload -->
+                                <div class="card-panel" style="padding: 24px; text-align: center; border-radius: 12px; background: var(--bg-main); border: 1px solid var(--border-color);">
+                                    <h5 style="font-size: 14px; font-weight: 700; margin: 0 0 16px 0; color: var(--text-color);">រូបថតប្រវត្តិរូប (Profile Avatar)</h5>
+                                    <div style="position: relative; display: inline-block; margin-bottom: 16px;">
+                                        <img id="profile-preview-img" src="https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff" style="width: 130px; height: 130px; border-radius: 50%; object-fit: cover; border: 4px solid var(--primary-color); box-shadow: 0 8px 16px rgba(0,0,0,0.15); background: white;" alt="Avatar">
+                                    </div>
+                                    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">អនុញ្ញាតឱ្យ Upload ឯកសាររូបភាព (JPG, PNG, WEBP) ដើម្បីបង្ហាញនៅផ្នែកខាងលើ និងលើរបាយការណ៍</p>
+                                    <input type="file" id="profile-upload-input" accept="image/*" style="display: none;" onchange="handleProfilePhotoUpload(event)">
+                                    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                                        <button type="button" class="btn btn-outline" onclick="document.getElementById('profile-upload-input').click()" style="padding: 8px 14px; font-size: 12.5px; font-weight: 600; border: 1px solid var(--primary-color); color: var(--primary-color);">
+                                            <i class="fa-solid fa-camera"></i> ជ្រើសរើសរូបថតថ្មី
+                                        </button>
+                                        <button type="button" class="btn btn-outline" onclick="resetProfileAvatar()" style="padding: 8px 14px; font-size: 12.5px; font-weight: 600; border: 1px solid #ef4444; color: #ef4444;">
+                                            <i class="fa-solid fa-trash-can"></i> លុបរូបថត
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Right Card: General Information -->
+                                <div class="card-panel" style="padding: 24px; border-radius: 12px; background: var(--bg-main); border: 1px solid var(--border-color); grid-column: span 2;">
+                                    <h5 style="font-size: 14px; font-weight: 700; margin: 0 0 18px 0; color: var(--text-color); border-bottom: 1px solid var(--border-color); padding-bottom: 10px;"><i class="fa-solid fa-user-pen text-primary"></i> ព័ត៌មានទូទៅរបស់អ្នកប្រើប្រាស់ (General User Information)</h5>
+                                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px;">
+                                        <div class="form-group">
+                                            <label style="font-size: 13px; font-weight: 600; margin-bottom: 6px; display: block;">ឈ្មោះគណនី (Username / ID):</label>
+                                            <input type="text" id="profile-username" class="form-control" value="Admin" readonly style="background: var(--bg-card); font-weight: 700; cursor: not-allowed; color: var(--text-muted);">
+                                        </div>
+                                        <div class="form-group">
+                                            <label style="font-size: 13px; font-weight: 600; margin-bottom: 6px; display: block;">ឈ្មោះពេញ / ឈ្មោះមន្រ្តី (Full Name): <span class="text-danger">*</span></label>
+                                            <input type="text" id="profile-fullname" class="form-control" placeholder="ឧទាហរណ៍៖ ឡាយ អូន">
+                                            <small style="font-size: 11.5px; color: var(--text-muted);">ឈ្មោះនេះនឹងត្រូវបានយកទៅបង្ហាញលើចំណងជើងរបាយការណ៍ប្រចាំខែ</small>
+                                        </div>
+                                        <div class="form-group">
+                                            <label style="font-size: 13px; font-weight: 600; margin-bottom: 6px; display: block;">តួនាទីក្នុងស្ថាប័ន (Role / Position):</label>
+                                            <input type="text" id="profile-role" class="form-control" placeholder="ឧទាហរណ៍៖ មន្រ្តីសម្រុះសម្រួលវិវាទ NADR">
+                                        </div>
+                                        <div class="form-group">
+                                            <label style="font-size: 13px; font-weight: 600; margin-bottom: 6px; display: block;">លេខទូរស័ព្ទទំនាក់ទំនង (Phone Number):</label>
+                                            <input type="text" id="profile-phone" class="form-control" placeholder="ឧទាហរណ៍៖ 012 345 678">
+                                        </div>
+                                        <div class="form-group">
+                                            <label style="font-size: 13px; font-weight: 600; margin-bottom: 6px; display: block;">អ៊ីមែល ឬអង្គភាព (Email / Department):</label>
+                                            <input type="text" id="profile-email" class="form-control" placeholder="ឧទាហរណ៍៖ oun.lay@nadr.gov.kh">
+                                        </div>
+                                        <div class="form-group">
+                                            <label style="font-size: 13px; font-weight: 600; margin-bottom: 6px; display: block;">ប្តូរពាក្យសម្ងាត់ថ្មី (New Password):</label>
+                                            <input type="password" id="profile-password" class="form-control" placeholder="ទុកទំនេរប្រសិនបើមិនចង់ប្តូរពាក្យសម្ងាត់">
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -1826,11 +1949,11 @@
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
         }
     </script>
-    <script src="js/data.js?v=9.8"></script>
-    <script src="js/ai-assistant.js?v=9.8"></script>
-    <script src="js/docs.js?v=9.8"></script>
-    <script src="js/charts.js?v=9.8"></script>
-    <script src="js/reports.js?v=9.8"></script>
-    <script src="js/app.js?v=9.8"></script>
+    <script src="js/data.js?v=11.0"></script>
+    <script src="js/ai-assistant.js?v=11.0"></script>
+    <script src="js/docs.js?v=11.0"></script>
+    <script src="js/charts.js?v=11.0"></script>
+    <script src="js/reports.js?v=11.0"></script>
+    <script src="js/app.js?v=11.0"></script>
 </body>
 </html>

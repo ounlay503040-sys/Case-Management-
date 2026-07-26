@@ -122,6 +122,76 @@ function initOrUpdateCharts() {
             }
         });
     }
+
+    // 3. Update both Location Charts (Dashboard & Analytics)
+    const ctxDashLoc = document.getElementById('dashboardLocationChart')?.getContext('2d');
+    if (ctxDashLoc) renderDashboardLocationChart(stats.byLocation, ctxDashLoc);
+    
+    if (typeof renderLocationChart === 'function') {
+        renderLocationChart(stats.byLocation);
+    }
+}
+
+let dashLocationChartInstance = null;
+function renderDashboardLocationChart(byLocObj, ctx) {
+    if (!ctx || typeof Chart === 'undefined') return;
+    if (dashLocationChartInstance) dashLocationChartInstance.destroy();
+    
+    const isDark = document.body.classList.contains('dark-theme');
+    const textColor = isDark ? '#f1f5f9' : '#1e293b';
+    const gridColor = isDark ? '#1f2937' : '#e2e8f0';
+
+    const entries = Object.entries(byLocObj || {}).filter(e => e[1] > 0);
+    entries.sort((a, b) => b[1] - a[1]);
+    const topEntries = entries.slice(0, 7);
+    
+    const labels = topEntries.length > 0 ? topEntries.map(e => e[0]) : ['គ្មានទិន្នន័យ'];
+    const data = topEntries.length > 0 ? topEntries.map(e => e[1]) : [0];
+    
+    dashLocationChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'ចំនួនសំណុំរឿងតាមខេត្ត/រាជធានី',
+                data: data,
+                backgroundColor: [
+                    'rgba(239, 68, 68, 0.85)',
+                    'rgba(59, 130, 246, 0.85)',
+                    'rgba(16, 185, 129, 0.85)',
+                    'rgba(245, 158, 11, 0.85)',
+                    'rgba(139, 92, 246, 0.85)',
+                    'rgba(236, 72, 153, 0.85)',
+                    'rgba(100, 116, 139, 0.85)'
+                ],
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { 
+                legend: { display: false },
+                tooltip: {
+                    bodyFont: { family: "'Kantumruy Pro', 'Battambang', sans-serif", size: 13 },
+                    callbacks: {
+                        label: (ctx) => ` ចំនួន៖ ${ctx.raw} ករណី`
+                    }
+                }
+            },
+            scales: {
+                y: { 
+                    beginAtZero: true, 
+                    ticks: { stepSize: 1, color: textColor, font: { family: "'Kantumruy Pro', sans-serif" } },
+                    grid: { color: gridColor }
+                },
+                x: { 
+                    ticks: { color: textColor, font: { family: "'Kantumruy Pro', 'Battambang', sans-serif", size: 11, weight: '600' } },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
 }
 
 /**
