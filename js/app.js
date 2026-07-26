@@ -1148,6 +1148,51 @@ function initAuth() {
     const pwdInput = document.getElementById('login-password');
     const errorMsg = document.getElementById('login-error-msg');
 
+    // Helper to dynamically remove white background from welcome characters
+    const processAvatar = (imgId) => {
+        const img = document.getElementById(imgId);
+        if (!img) return;
+        
+        const tempImg = new Image();
+        tempImg.crossOrigin = "anonymous";
+        tempImg.onload = function() {
+            const canvas = document.createElement('canvas');
+            canvas.width = tempImg.width;
+            canvas.height = tempImg.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(tempImg, 0, 0);
+            
+            try {
+                const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imgData.data;
+                for (let i = 0; i < data.length; i += 4) {
+                    const r = data[i];
+                    const g = data[i+1];
+                    const b = data[i+2];
+                    
+                    // If the color is very close to white/light grey, make it transparent
+                    if (r > 240 && g > 240 && b > 240) {
+                        data[i+3] = 0; // Alpha
+                    } else if (r > 215 && g > 215 && b > 215) {
+                        // Blend edge softly
+                        const maxVal = Math.max(r, g, b);
+                        const factor = (240 - maxVal) / 25;
+                        data[i+3] = Math.max(0, Math.min(255, Math.round(data[i+3] * factor)));
+                    }
+                }
+                ctx.putImageData(imgData, 0, 0);
+                img.src = canvas.toDataURL();
+            } catch (e) {
+                console.warn("Could not remove background due to canvas limits", e);
+            }
+        };
+        tempImg.src = img.src;
+    };
+
+    // Process both avatars
+    processAvatar('welcome-avatar-boy');
+    processAvatar('welcome-avatar-girl');
+
     // 1. Check existing session
     const isLogged = localStorage.getItem('nadr_auth_logged_in') || sessionStorage.getItem('nadr_auth_logged_in');
     const savedName = localStorage.getItem('nadr_auth_user_name') || sessionStorage.getItem('nadr_auth_user_name') || 'មន្ត្រីសម្របសម្រួល';

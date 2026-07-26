@@ -1688,10 +1688,10 @@ body.dark-theme .badge-close { color: #cbd5e1; }
 
 /* AUTHENTICATION WELCOME SYSTEM DESIGN */
 .welcome-avatar {
-    animation: avatarFloat 2.5s ease-in-out infinite alternate;
+    animation: avatarFloat 2.6s ease-in-out infinite alternate;
 }
-.welcome-avatar-left {
-    animation: avatarFloatLeft 2.5s ease-in-out infinite alternate;
+#welcome-avatar-girl {
+    animation-delay: 0.4s;
 }
 
 @keyframes avatarFloat {

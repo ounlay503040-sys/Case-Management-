@@ -30,13 +30,22 @@
             </div>
             
             <!-- Welcome characters and text -->
-            <div class="login-welcome-section" style="margin: 18px 0; padding: 10px; border-radius: 12px; background: #f8fafc; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; gap: 12px; overflow: hidden; position: relative;">
-                <img src="images/welcome_boy.png" alt="Welcome Boy" class="welcome-avatar-left" style="height: 80px; width: auto; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.08));">
-                <div style="flex: 1; text-align: center; z-index: 1;">
-                    <h4 class="login-welcome-title" style="font-size: 13px; margin: 0 0 4px; line-height: 1.5; font-family: 'Kantumruy Pro', 'Battambang', sans-serif; font-weight: 700;">សូមស្វាគមន៍ មកកាន់កម្មវិធីគ្រប់គ្រងសំណុំរឿង</h4>
-                    <span style="font-size: 10px; color: #64748b; font-weight: 600; letter-spacing: 0.3px;">(Master Case Management System)</span>
+            <div class="login-welcome-section text-center" style="margin: 18px 0; padding: 15px; border-radius: 14px; background: rgba(248, 250, 252, 0.95); border: 1px solid rgba(226, 232, 240, 0.9); box-shadow: inset 0 2px 4px rgba(0,0,0,0.01); display: flex; flex-direction: column; align-items: center; gap: 12px; overflow: hidden; position: relative;">
+                
+                <!-- Beautiful Welcoming Text -->
+                <div style="text-align: center; width: 100%;">
+                    <h4 class="login-welcome-title" style="font-size: 15.5px; margin: 0; line-height: 1.6; font-family: 'Kantumruy Pro', 'Battambang', sans-serif; font-weight: 700; letter-spacing: 0.2px; text-shadow: 0 2px 4px rgba(37, 99, 235, 0.08);">
+                        សូមស្វាគមន៍ មកកាន់កម្មវិធីគ្រប់គ្រងសំណុំរឿង
+                    </h4>
+                    <div style="width: 50px; height: 3px; background: linear-gradient(90deg, #1e3a8a, #3b82f6); margin: 6px auto; border-radius: 2px;"></div>
+                    <span style="font-size: 10px; color: #64748b; font-weight: 600; letter-spacing: 0.4px;">(Master Case Management System)</span>
                 </div>
-                <img src="images/welcome_girl.png" alt="Welcome Girl" class="welcome-avatar" style="height: 80px; width: auto; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.08));">
+                
+                <!-- Boy and Girl characters side-by-side standing underneath -->
+                <div style="display: flex; justify-content: center; align-items: flex-end; gap: 20px; width: 100%; margin-top: 2px;">
+                    <img id="welcome-avatar-boy" src="images/welcome_boy.png" alt="Welcome Boy" class="welcome-avatar" style="height: 100px; width: auto; object-fit: contain; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.12));">
+                    <img id="welcome-avatar-girl" src="images/welcome_girl.png" alt="Welcome Girl" class="welcome-avatar" style="height: 100px; width: auto; object-fit: contain; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.12));">
+                </div>
             </div>
 
             <form id="login-form" class="login-form">
