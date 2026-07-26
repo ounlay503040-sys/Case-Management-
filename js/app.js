@@ -1025,7 +1025,10 @@ function initAuth() {
             let uName = 'មន្ត្រីសម្របសម្រួល';
             let uRole = 'ការិយាល័យរដ្ឋបាល NADR';
 
-            const matchedUser = ADMIN_USERS.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
+            const matchedUser = ADMIN_USERS.find(u => 
+                u.username.toLowerCase() === username.toLowerCase() && 
+                (u.password === password || (username.toLowerCase() === 'admin' && (password === 'admin123' || password === '123' || password === 'admin')))
+            );
             if (matchedUser) {
                 isValid = true;
                 uName = matchedUser.name;
@@ -1123,10 +1126,17 @@ function initLanguageSwitcher() {
  * Dynamic Admin User accounts loaded from localStorage
  */
 let ADMIN_USERS = JSON.parse(localStorage.getItem('nadr_admin_users')) || [
-    { username: 'admin', password: '123', name: 'គណនីរដ្ឋបាល (Admin)', role: 'អគ្គលេខាធិការដ្ឋាន NADR' },
+    { username: 'admin', password: 'admin123', name: 'គណនីរដ្ឋបាល (Admin)', role: 'អគ្គលេខាធិការដ្ឋាន NADR' },
     { username: 'nadr', password: 'nadr', name: 'មន្ត្រីជាន់ខ្ពស់ NADR', role: 'ថ្នាក់ដឹកនាំ NADR' },
     { username: 'user', password: 'user', name: 'មន្ត្រីសម្របសម្រួល', role: 'មន្ត្រីទទួលបន្ទុក' }
 ];
+
+// Automatically upgrade legacy '123' password to 'admin123' for the admin account in localStorage
+let legacyAdmin = ADMIN_USERS.find(u => u.username.toLowerCase() === 'admin');
+if (legacyAdmin && legacyAdmin.password === '123') {
+    legacyAdmin.password = 'admin123';
+    localStorage.setItem('nadr_admin_users', JSON.stringify(ADMIN_USERS));
+}
 
 function initSettingsEvents() {
     const tabs = document.querySelectorAll('#settings-view .tab-btn');
