@@ -1197,13 +1197,17 @@ function renderStrategicRecommendations() {
     const thresh = JSON.parse(localStorage.getItem('nadr_eval_thresholds')) || threshAll.settle || { poor: 20, med: 30, good: 50 };
 
     const defStrats = {
-        totalGuidance: '១. បន្តជំរុញការផ្សព្វផ្សាយ និងលើកកម្ពស់ការយល់ដឹងអំពីយន្តការដោះស្រាយវិវាទក្រៅប្រព័ន្ធតុលាការដល់ប្រជាពលរដ្ឋក្នុងមូលដ្ឋាន។ ២. រៀបចំប្រព័ន្ធគ្រប់គ្រង និងបែងចែកសំណុំរឿងចូលថ្មីឱ្យបានឆាប់រហ័សដល់មន្ត្រីជំនាញ។ ៣. ពង្រឹងកិច្ចសហការជាមួយអាជ្ញាធរមូលដ្ឋានក្នុងការទទួលពាក្យបណ្ដឹង។',
-        settleLow: '១. ពង្រឹងសមត្ថភាពមន្ត្រីសម្រុះសម្រួលលើបច្ចេកទេសចរចា និងចិត្តសាស្ត្រវិវាទ។ ២. បង្កើនការប្រជុំត្រួតពិនិត្យមុនពេលសម្រុះសម្រួលដើម្បីវិភាគចំណុចខ្វែងគំនិត។ ៣. ចុះសិក្សាផ្ទាល់ដល់ទីតាំងវិវាទដើម្បីស្វែងយល់ពីមូលហេតុពិតប្រាកដ។',
-        activeHigh: '១. រៀបចំផែនការបែងចែកសំណុំរឿងតាមកម្រិតអាទិភាព និងកំណត់កាលវិភាគប្រជុំឱ្យបានច្បាស់លាស់។ ២. បន្ថែមមន្ត្រីជំនួយការក្នុងសំណុំរឿងស្មុគស្មាញដើម្បីពងឿននីតិវិធី។ ៣. តាមដានជាប្រចាំនូវសំណុំរឿងដែលលើសរយៈពេលស្ដង់ដារកំណត់។',
-        closeHigh: '១. ធ្វើការសិក្សាមូលហេតុដែលនាំឱ្យបរាជ័យក្នុងការសម្រុះសម្រួលដើម្បីដកស្រង់បទពិសោធន៍។ ២. ផ្តល់ការពន្យល់ណែនាំអំពីនីតិវិធីផ្លូវច្បាប់បន្តដល់គូភាគីដើម្បីចៀសវាងអំពើហិង្សា។ ៣. ពិនិត្យលទ្ធភាពសហការជាមួយអាជ្ញាធរមូលដ្ឋាន ឬស្ថាប័នពាក់ព័ន្ធ។',
-        pendingHigh: '១. ពិនិត្យឡើងវិញនូវសំណុំរឿងដែលតម្កល់យូរ និងទំនាក់ទំនងភាគីដើម្បីសួរនាំស្ថានភាពថ្មី។ ២. កំណត់កាលបរិច្ឆេទផុតកំណត់ជាក់លាក់ក្នុងការរក្សាសំណុំរឿងជាស្ថានភាពតម្កល់។ ៣. ប្រសិនបើភាគីបោះបង់ការតវ៉ា ត្រូវអនុវត្តនីតិវិធីបិទសំណុំរឿងតាមរដ្ឋបាល។'
+        totalGuidance: '[លក្ខណៈវិនិច្ឆ័យ៖ ល្អណាស់ >=៥០ ករណី/ខែ | មធ្យម ១០-២៥ ករណី | មិនល្អ <១០ ករណី]\n១. ពង្រឹងយន្តការទទួលពាក្យបណ្ដឹងនៅគ្រប់មូលដ្ឋាន និងធ្វើទំនើបកម្មប្រព័ន្ធបែងចែកសំណុំរឿងរហ័ស (AI Dispatch) ដល់មន្ត្រីជំនាញ。\n២. បង្កើនការផ្សព្វផ្សាយជាសាធារណៈអំពីអត្ថប្រយោជន៍នៃការដោះស្រាយវិវាទក្រៅប្រព័ន្ធតុលាការ ដើម្បីលើកកម្ពស់ទំនុកចិត្តប្រជាពលរដ្ឋ。\n៣. រៀបចំកិច្ចសហការស្អិតរមួតជាមួយអាជ្ញាធរដែនដី និងរដ្ឋបាលឃុំ-សង្កាត់ ក្នុងការសម្របសម្រួល និងទទួលសំណុំរឿងពីមូលដ្ឋានផ្ទាល់។',
+        settleLow: '[លក្ខណៈវិនិច្ឆ័យ៖ ល្អណាស់ >=៥០% | ល្អ ៣០-៥០% | មធ្យម ២០-៣០% | មិនល្អ <២០%]\n១. លើកកម្ពស់បច្ចេកទេសចរចា និងចិត្តសាស្ត្រវិវាទដល់មន្ត្រីសម្រុះសម្រួល តាមរយៈវគ្គបណ្តុះបណ្តាលជាក់ស្តែង និងការចែករំលែកបទពិសោធន៍。\n២. រៀបចំកិច្ចប្រជុំត្រួតពិនិត្យ និងវិភាគចំណុចខ្វែងគំនិតគ្នាមុនពេលបើកសម័យប្រជុំផ្សះផ្សា ដើម្បីកំណត់ចំណុចរួមឱ្យបានច្បាស់លាស់。\n៣. ចុះសិក្សាស្រាវជ្រាវដល់ទីតាំងវិវាទផ្ទាល់ និងជួបប្រាស្រ័យជាមួយគូភាគីដាច់ដោយឡែក ដើម្បីស្វែងយល់ពីជំហរ និងមូលហេតុពិតប្រាកដ។',
+        activeHigh: '[លក្ខណៈវិនិច្ឆ័យ៖ ល្អណាស់ <=២០% | ល្អ ២០-៣៥% | មធ្យម ៣៥-៥០% | មិនល្អ >៥០%]\n១. រៀបចំកាលវិភាគប្រជុំសម្រុះសម្រួលឱ្យបានជាប់លាប់ និងកំណត់កាលបរិច្ឆេទគោលដៅដោះស្រាយបញ្ចប់សម្រាប់សំណុំរឿងនីមួយៗ。\n២. ចាត់ចែងបន្ថែមមន្ត្រីជំនួយការ ឬអ្នកច្បាប់ជំនាញក្នុងសំណុំរឿងដែលមានភាពស្មុគស្មាញខ្ពស់ (ដូចជាវិវាទដីធ្លី និងកិច្ចសន្យាពាណិជ្ជកម្ម)។\n៣. ដាក់ចេញប្រព័ន្ធតាមដាន (Red Flag Alert) លើសំណុំរឿងដែលដំណើរការលើសពី ៣០ ថ្ងៃ ដើម្បីជួយអន្តរាគមន៍ដោះស្រាយទាន់ពេលវេលា។',
+        closeHigh: '[លក្ខណៈវិនិច្ឆ័យ៖ ល្អណាស់ <=១៥% | ល្អ ១៥-២៥% | មធ្យម ២៥-៤០% | មិនល្អ >៤០%]\n១. ធ្វើការវិភាគស៊ីជម្រៅលើមូលហេតុដែលនាំឱ្យបរាជ័យក្នុងការផ្សះផ្សា (មិនព្រមព្រៀង) ដើម្បីចងក្រងជាករណីសិក្សា និងកែលម្អយុទ្ធសាស្ត្រ。\n២. ផ្តល់ការពន្យល់ណែនាំអំពីនីតិវិធីផ្លូវច្បាប់បន្ត និងផលវិបាកនៃការបន្តវិវាទដល់គូភាគី ដើម្បីបញ្ចៀសអំពើហិង្សា និងរក្សាភាពស្ងប់ស្ងាត់。\n៣. បង្កើនយន្តការសហការជាមួយស្ថាប័នពាក់ព័ន្ធ និងអាជ្ញាធរមានសមត្ថកិច្ច ក្នុងការបន្តគ្រប់គ្រងសភាពការណ៍ និងរក្សាសន្តិសុខសង្គម។',
+        pendingHigh: '[លក្ខណៈវិនិច្ឆ័យ៖ ល្អណាស់ <=១០% | ល្អ ១០-២០% | មធ្យម ២០-៣០% | មិនល្អ >៣០%]\n១. ធ្វើសវនកម្ម និងពិនិត្យឡើងវិញជាប្រចាំនូវសំណុំរឿងដែលតម្កល់លើសពី ១៥ ថ្ងៃ និងធ្វើការទំនាក់ទំនងទៅភាគីដើម្បីសួរនាំជំហរថ្មី。\n២. កំណត់នីតិវិធីរដ្ឋបាលច្បាស់លាស់៖ ប្រសិនបើភាគីមិនទាក់ទងមកវិញ ឬបោះបង់ការតវ៉ាក្នុងរយៈពេលកំណត់ ត្រូវអនុវត្តនីតិវិធីបិទបញ្ជីសំណុំរឿង。\n៣. បង្កើតក្រុមការងារពិសេស (Task Force) ដើរពិនិត្យ និងជំរុញការដោះស្រាយសំណុំរឿងចាស់ៗដែលកកស្ទះ ដើម្បីសម្អាតបញ្ជីទិន្នន័យ។'
     };
-    const strats = JSON.parse(localStorage.getItem('nadr_resolution_strategies')) || defStrats;
+    let strats = JSON.parse(localStorage.getItem('nadr_resolution_strategies')) || defStrats;
+    if (!strats.totalGuidance || !strats.totalGuidance.includes('លក្ខណៈវិនិច្ឆ័យ')) {
+        strats = defStrats;
+        localStorage.setItem('nadr_resolution_strategies', JSON.stringify(defStrats));
+    }
 
     const total = CASES.length || 1;
     const stats = { active: 0, settle: 0, close: 0, pending: 0 };
@@ -1251,7 +1255,7 @@ function renderStrategicRecommendations() {
                         ${total} ករណី (${totalEval.label})
                     </span>
                 </div>
-                <p style="font-size: 13px; color: var(--text-color); line-height: 1.6; margin: 0;">${strats.totalGuidance || strats.totalHigh || defStrats.totalGuidance}</p>
+                <p style="font-size: 13px; color: var(--text-color); line-height: 1.6; margin: 0; white-space: pre-line;">${strats.totalGuidance || strats.totalHigh || defStrats.totalGuidance}</p>
             </div>
             <div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed #e2e8f0; font-size: 11.5px; color: #64748b; display: flex; justify-content: space-between; align-items: center;">
                 <span>កម្រិតស្ដង់ដារ៖ &lt;${threshAll.total?.poor||10} (មិនល្អ), &gt;=${threshAll.total?.good||50} (ល្អណាស់)</span>
@@ -1269,7 +1273,7 @@ function renderStrategicRecommendations() {
                         ${settlePct}% (${settleEval.label})
                     </span>
                 </div>
-                <p style="font-size: 13px; color: var(--text-color); line-height: 1.6; margin: 0;">${strats.settleLow || defStrats.settleLow}</p>
+                <p style="font-size: 13px; color: var(--text-color); line-height: 1.6; margin: 0; white-space: pre-line;">${strats.settleLow || defStrats.settleLow}</p>
             </div>
             <div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed #e2e8f0; font-size: 11.5px; color: #64748b; display: flex; justify-content: space-between; align-items: center;">
                 <span>កម្រិតស្ដង់ដារ៖ &lt;${threshAll.settle?.poor||20}% (មិនល្អ), &gt;=${threshAll.settle?.good||50}% (ល្អណាស់)</span>
@@ -1287,7 +1291,7 @@ function renderStrategicRecommendations() {
                         ${activePct}% (${activeEval.label})
                     </span>
                 </div>
-                <p style="font-size: 13px; color: var(--text-color); line-height: 1.6; margin: 0;">${strats.activeHigh || defStrats.activeHigh}</p>
+                <p style="font-size: 13px; color: var(--text-color); line-height: 1.6; margin: 0; white-space: pre-line;">${strats.activeHigh || defStrats.activeHigh}</p>
             </div>
             <div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed #e2e8f0; font-size: 11.5px; color: #64748b; display: flex; justify-content: space-between; align-items: center;">
                 <span>កម្រិតស្ដង់ដារ៖ &gt;${threshAll.active?.poor||50}% (មិនល្អ), &lt;=${threshAll.active?.exc||20}% (ល្អណាស់)</span>
@@ -1305,7 +1309,7 @@ function renderStrategicRecommendations() {
                         ${closePct}% (${closeEval.label})
                     </span>
                 </div>
-                <p style="font-size: 13px; color: var(--text-color); line-height: 1.6; margin: 0;">${strats.closeHigh || defStrats.closeHigh}</p>
+                <p style="font-size: 13px; color: var(--text-color); line-height: 1.6; margin: 0; white-space: pre-line;">${strats.closeHigh || defStrats.closeHigh}</p>
             </div>
             <div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed #e2e8f0; font-size: 11.5px; color: #64748b; display: flex; justify-content: space-between; align-items: center;">
                 <span>កម្រិតស្ដង់ដារ៖ &gt;${threshAll.close?.poor||40}% (មិនល្អ), &lt;=${threshAll.close?.exc||15}% (ល្អណាស់)</span>
@@ -1323,7 +1327,7 @@ function renderStrategicRecommendations() {
                         ${pendingPct}% (${pendingEval.label})
                     </span>
                 </div>
-                <p style="font-size: 13px; color: var(--text-color); line-height: 1.6; margin: 0;">${strats.pendingHigh || defStrats.pendingHigh}</p>
+                <p style="font-size: 13px; color: var(--text-color); line-height: 1.6; margin: 0; white-space: pre-line;">${strats.pendingHigh || defStrats.pendingHigh}</p>
             </div>
             <div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed #e2e8f0; font-size: 11.5px; color: #64748b; display: flex; justify-content: space-between; align-items: center;">
                 <span>កម្រិតស្ដង់ដារ៖ &gt;${threshAll.pending?.poor||30}% (មិនល្អ), &lt;=${threshAll.pending?.exc||10}% (ល្អណាស់)</span>
@@ -2506,13 +2510,17 @@ function saveEvalThresholds() {
 // Request 2: Resolution Strategies Management across 5 Categories
 function loadResolutionStrategies() {
     const def = {
-        totalGuidance: '១. បន្តជំរុញការផ្សព្វផ្សាយ និងលើកកម្ពស់ការយល់ដឹងអំពីយន្តការដោះស្រាយវិវាទក្រៅប្រព័ន្ធតុលាការដល់ប្រជាពលរដ្ឋក្នុងមូលដ្ឋាន។ ២. រៀបចំប្រព័ន្ធគ្រប់គ្រង និងបែងចែកសំណុំរឿងចូលថ្មីឱ្យបានឆាប់រហ័សដល់មន្ត្រីជំនាញ។ ៣. ពង្រឹងកិច្ចសហការជាមួយអាជ្ញាធរមូលដ្ឋានក្នុងការទទួលពាក្យបណ្ដឹង។',
-        settleLow: '១. ពង្រឹងសមត្ថភាពមន្ត្រីសម្រុះសម្រួលលើបច្ចេកទេសចរចា និងចិត្តសាស្ត្រវិវាទ។ ២. បង្កើនការប្រជុំត្រួតពិនិត្យមុនពេលសម្រុះសម្រួលដើម្បីវិភាគចំណុចខ្វែងគំនិត។ ៣. ចុះសិក្សាផ្ទាល់ដល់ទីតាំងវិវាទដើម្បីស្វែងយល់ពីមូលហេតុពិតប្រាកដ។',
-        activeHigh: '១. រៀបចំផែនការបែងចែកសំណុំរឿងតាមកម្រិតអាទិភាព និងកំណត់កាលវិភាគប្រជុំឱ្យបានច្បាស់លាស់។ ២. បន្ថែមមន្ត្រីជំនួយការក្នុងសំណុំរឿងស្មុគស្មាញដើម្បីពងឿននីតិវិធី។ ៣. តាមដានជាប្រចាំនូវសំណុំរឿងដែលលើសរយៈពេលស្ដង់ដារកំណត់។',
-        closeHigh: '១. ធ្វើការសិក្សាមូលហេតុដែលនាំឱ្យបរាជ័យក្នុងការសម្រុះសម្រួលដើម្បីដកស្រង់បទពិសោធន៍។ ២. ផ្តល់ការពន្យល់ណែនាំអំពីនីតិវិធីផ្លូវច្បាប់បន្តដល់គូភាគីដើម្បីចៀសវាងអំពើហិង្សា។ ៣. ពិនិត្យលទ្ធភាពសហការជាមួយអាជ្ញាធរមូលដ្ឋាន ឬស្ថាប័នពាក់ព័ន្ធ។',
-        pendingHigh: '១. ពិនិត្យឡើងវិញនូវសំណុំរឿងដែលតម្កល់យូរ និងទំនាក់ទំនងភាគីដើម្បីសួរនាំស្ថានភាពថ្មី។ ២. កំណត់កាលបរិច្ឆេទផុតកំណត់ជាក់លាក់ក្នុងការរក្សាសំណុំរឿងជាស្ថានភាពតម្កល់។ ៣. ប្រសិនបើភាគីបោះបង់ការតវ៉ា ត្រូវអនុវត្តនីតិវិធីបិទសំណុំរឿងតាមរដ្ឋបាល។'
+        totalGuidance: '[លក្ខណៈវិនិច្ឆ័យ៖ ល្អណាស់ >=៥០ ករណី/ខែ | មធ្យម ១០-២៥ ករណី | មិនល្អ <១០ ករណី]\n១. ពង្រឹងយន្តការទទួលពាក្យបណ្ដឹងនៅគ្រប់មូលដ្ឋាន និងធ្វើទំនើបកម្មប្រព័ន្ធបែងចែកសំណុំរឿងរហ័ស (AI Dispatch) ដល់មន្ត្រីជំនាញ。\n២. បង្កើនការផ្សព្វផ្សាយជាសាធារណៈអំពីអត្ថប្រយោជន៍នៃការដោះស្រាយវិវាទក្រៅប្រព័ន្ធតុលាការ ដើម្បីលើកកម្ពស់ទំនុកចិត្តប្រជាពលរដ្ឋ。\n៣. រៀបចំកិច្ចសហការស្អិតរមួតជាមួយអាជ្ញាធរដែនដី និងរដ្ឋបាលឃុំ-សង្កាត់ ក្នុងការសម្របសម្រួល និងទទួលសំណុំរឿងពីមូលដ្ឋានផ្ទាល់។',
+        settleLow: '[លក្ខណៈវិនិច្ឆ័យ៖ ល្អណាស់ >=៥០% | ល្អ ៣០-៥០% | មធ្យម ២០-៣០% | មិនល្អ <២០%]\n១. លើកកម្ពស់បច្ចេកទេសចរចា និងចិត្តសាស្ត្រវិវាទដល់មន្ត្រីសម្រុះសម្រួល តាមរយៈវគ្គបណ្តុះបណ្តាលជាក់ស្តែង និងការចែករំលែកបទពិសោធន៍。\n២. រៀបចំកិច្ចប្រជុំត្រួតពិនិត្យ និងវិភាគចំណុចខ្វែងគំនិតគ្នាមុនពេលបើកសម័យប្រជុំផ្សះផ្សា ដើម្បីកំណត់ចំណុចរួមឱ្យបានច្បាស់លាស់。\n៣. ចុះសិក្សាស្រាវជ្រាវដល់ទីតាំងវិវាទផ្ទាល់ និងជួបប្រាស្រ័យជាមួយគូភាគីដាច់ដោយឡែក ដើម្បីស្វែងយល់ពីជំហរ និងមូលហេតុពិតប្រាកដ។',
+        activeHigh: '[លក្ខណៈវិនិច្ឆ័យ៖ ល្អណាស់ <=២០% | ល្អ ២០-៣៥% | មធ្យម ៣៥-៥០% | មិនល្អ >៥០%]\n១. រៀបចំកាលវិភាគប្រជុំសម្រុះសម្រួលឱ្យបានជាប់លាប់ និងកំណត់កាលបរិច្ឆេទគោលដៅដោះស្រាយបញ្ចប់សម្រាប់សំណុំរឿងនីមួយៗ。\n២. ចាត់ចែងបន្ថែមមន្ត្រីជំនួយការ ឬអ្នកច្បាប់ជំនាញក្នុងសំណុំរឿងដែលមានភាពស្មុគស្មាញខ្ពស់ (ដូចជាវិវាទដីធ្លី និងកិច្ចសន្យាពាណិជ្ជកម្ម)។\n៣. ដាក់ចេញប្រព័ន្ធតាមដាន (Red Flag Alert) លើសំណុំរឿងដែលដំណើរការលើសពី ៣០ ថ្ងៃ ដើម្បីជួយអន្តរាគមន៍ដោះស្រាយទាន់ពេលវេលា។',
+        closeHigh: '[លក្ខណៈវិនិច្ឆ័យ៖ ល្អណាស់ <=១៥% | ល្អ ១៥-២៥% | មធ្យម ២៥-៤០% | មិនល្អ >៤០%]\n១. ធ្វើការវិភាគស៊ីជម្រៅលើមូលហេតុដែលនាំឱ្យបរាជ័យក្នុងការផ្សះផ្សា (មិនព្រមព្រៀង) ដើម្បីចងក្រងជាករណីសិក្សា និងកែលម្អយុទ្ធសាស្ត្រ。\n២. ផ្តល់ការពន្យល់ណែនាំអំពីនីតិវិធីផ្លូវច្បាប់បន្ត និងផលវិបាកនៃការបន្តវិវាទដល់គូភាគី ដើម្បីបញ្ចៀសអំពើហិង្សា និងរក្សាភាពស្ងប់ស្ងាត់。\n៣. បង្កើនយន្តការសហការជាមួយស្ថាប័នពាក់ព័ន្ធ និងអាជ្ញាធរមានសមត្ថកិច្ច ក្នុងការបន្តគ្រប់គ្រងសភាពការណ៍ និងរក្សាសន្តិសុខសង្គម។',
+        pendingHigh: '[លក្ខណៈវិនិច្ឆ័យ៖ ល្អណាស់ <=១០% | ល្អ ១០-២០% | មធ្យម ២០-៣០% | មិនល្អ >៣០%]\n១. ធ្វើសវនកម្ម និងពិនិត្យឡើងវិញជាប្រចាំនូវសំណុំរឿងដែលតម្កល់លើសពី ១៥ ថ្ងៃ និងធ្វើការទំនាក់ទំនងទៅភាគីដើម្បីសួរនាំជំហរថ្មី。\n២. កំណត់នីតិវិធីរដ្ឋបាលច្បាស់លាស់៖ ប្រសិនបើភាគីមិនទាក់ទងមកវិញ ឬបោះបង់ការតវ៉ាក្នុងរយៈពេលកំណត់ ត្រូវអនុវត្តនីតិវិធីបិទបញ្ជីសំណុំរឿង。\n៣. បង្កើតក្រុមការងារពិសេស (Task Force) ដើរពិនិត្យ និងជំរុញការដោះស្រាយសំណុំរឿងចាស់ៗដែលកកស្ទះ ដើម្បីសម្អាតបញ្ជីទិន្នន័យ។'
     };
-    const strats = JSON.parse(localStorage.getItem('nadr_resolution_strategies')) || def;
+    let strats = JSON.parse(localStorage.getItem('nadr_resolution_strategies')) || def;
+    if (!strats.totalGuidance || !strats.totalGuidance.includes('លក្ខណៈវិនិច្ឆ័យ')) {
+        strats = def;
+        localStorage.setItem('nadr_resolution_strategies', JSON.stringify(def));
+    }
     const elTotal = document.getElementById('strat-total-guidance');
     const elSettle = document.getElementById('strat-settle-low');
     const elActive = document.getElementById('strat-active-high');

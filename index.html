@@ -6,6 +6,8 @@
     <title>ប្រព័ន្ធគ្រប់គ្រងសំណុំរឿងគោល - NADR Master Case Management</title>
     <!-- Web App Manifest & Desktop Icons (PWA) -->
     <link rel="manifest" href="manifest.json">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="icon" type="image/png" sizes="192x192" href="images/icon-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="images/icon-512.png">
     <link rel="apple-touch-icon" href="images/icon-192.png">
@@ -217,70 +219,85 @@
                     <h3 style="font-size: 16px; font-weight: 700; color: var(--text-main);"><i class="fa-solid fa-layer-group text-primary"></i> ១. ស្ថិតិសង្ខេបតាមស្ថានភាពកាត (៥ ស្ថានភាព - ដូចក្នុងរូប)</h3>
                 </div>
 
-                <!-- STATS CARDS GRID -->
-                <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px;">
-                    <div class="stat-card total-card" style="padding: 20px 24px; border-radius: 16px; display: flex; align-items: center; gap: 16px; background: linear-gradient(135deg, #1e3a8a, #2563eb); color: white; box-shadow: 0 10px 20px -5px rgba(37,99,235,0.3);">
-                        <div class="stat-icon" style="width: 56px; height: 56px; font-size: 26px; background: rgba(255,255,255,0.2); color: white; border-radius: 14px; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-folder-open"></i></div>
-                        <div class="stat-content">
-                            <span style="font-size: 13.5px; font-weight: 600; opacity: 0.9;">សំណុំរឿងសរុប (Total Case)</span>
-                            <h3 id="stat-total" style="font-size: 30px; font-weight: 800; margin: 4px 0 0 0; color: white;">០</h3>
-                            <p class="stat-sub" style="margin: 0; font-size: 11px; opacity: 0.8;">ក្នុងប្រព័ន្ធទិន្នន័យគោល</p>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card settle-card" onclick="filterByStatusQuick('Settle (ព្រមព្រៀង)')" style="padding: 18px 22px; border-radius: 16px; display: flex; align-items: center; justify-content: space-between; background: var(--bg-card); border: 1px solid #dcfce7; border-left: 5px solid #10b981; box-shadow: var(--shadow-sm); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;">
-                        <div style="display: flex; align-items: center; gap: 14px;">
-                            <div class="stat-icon" style="width: 50px; height: 50px; font-size: 22px; background: #f0fdf4; color: #10b981; border-radius: 12px; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-circle-check"></i></div>
+                <!-- STATS CARDS HERO & 4-COLUMN GRID -->
+                <div class="dashboard-stats-wrapper" style="margin-bottom: 24px;">
+                    <!-- 1. HERO CARD: TOTAL CASES (FULL WIDTH TOP) -->
+                    <div class="stat-card total-card" style="padding: 24px 30px; border-radius: 20px; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #2563eb 100%); color: white; box-shadow: 0 12px 25px -5px rgba(30,58,138,0.4); margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.15); position: relative; overflow: hidden;">
+                        <div style="display: flex; align-items: center; gap: 20px; z-index: 2;">
+                            <div class="stat-icon" style="width: 68px; height: 68px; font-size: 32px; background: rgba(255,255,255,0.15); color: #facc15; border-radius: 18px; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 2px 4px rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.2);"><i class="fa-solid fa-folder-open"></i></div>
                             <div class="stat-content">
-                                <span style="font-size: 13px; font-weight: 700; color: #10b981;">Settle (ព្រមព្រៀង)</span>
-                                <h3 id="stat-settle" style="font-size: 26px; font-weight: 800; margin: 4px 0 0 0; color: var(--text-main);">០</h3>
-                                <p class="stat-sub" style="margin: 0; font-size: 11px; color: var(--text-muted);">សម្រុះសម្រួលជោគជ័យ</p>
+                                <span style="font-size: 15px; font-weight: 600; color: #cbd5e1; display: block; margin-bottom: 2px;">សំណុំរឿងសរុបក្នុងប្រព័ន្ធគោល (Total Master Cases)</span>
+                                <h3 id="stat-total" style="font-size: 38px; font-weight: 900; margin: 0; color: #ffffff; letter-spacing: -0.5px; line-height: 1.1;">០</h3>
+                                <p class="stat-sub" style="margin: 4px 0 0 0; font-size: 12.5px; color: #93c5fd; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-circle-check text-warning" style="font-size: 10px;"></i> ទិន្នន័យគ្រប់គ្រងរដ្ឋបាល និងដោះស្រាយវិវាទក្រៅប្រព័ន្ធតុលាការ NADR</p>
                             </div>
                         </div>
-                        <div class="donut-badge" id="stat-settle-donut" style="width: 54px; height: 54px; border-radius: 50%; background: conic-gradient(#10b981 0%, #e2e8f0 0%); display: flex; align-items: center; justify-content: center; position: relative; flex-shrink: 0; box-shadow: 0 4px 10px rgba(16,185,129,0.15);">
-                            <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--bg-card); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: #10b981;" id="stat-settle-pct">0%</div>
+                        <div style="z-index: 2; text-align: right; display: none; @media(min-width: 768px){display: block;}">
+                            <span style="font-size: 12px; background: rgba(255,255,255,0.12); padding: 8px 16px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.2); color: #f8fafc; font-weight: 600;"><i class="fa-solid fa-shield-halved text-warning"></i> រដ្ឋបាលយុត្តិធម៌ទំនើប</span>
                         </div>
+                        <!-- Decorative background glow -->
+                        <div style="position: absolute; right: -30px; top: -30px; width: 180px; height: 180px; background: radial-gradient(circle, rgba(250,204,21,0.15) 0%, rgba(255,255,255,0) 70%); border-radius: 50%; pointer-events: none;"></div>
                     </div>
 
-                    <div class="stat-card pending-card" onclick="filterByStatusQuick('Pending (តម្កល់)')" style="padding: 18px 22px; border-radius: 16px; display: flex; align-items: center; justify-content: space-between; background: var(--bg-card); border: 1px solid #fef9c3; border-left: 5px solid #f59e0b; box-shadow: var(--shadow-sm); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;">
-                        <div style="display: flex; align-items: center; gap: 14px;">
-                            <div class="stat-icon" style="width: 50px; height: 50px; font-size: 22px; background: #fefce8; color: #f59e0b; border-radius: 12px; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-clock-rotate-left"></i></div>
-                            <div class="stat-content">
-                                <span style="font-size: 13px; font-weight: 700; color: #d97706;">Pending (តម្កល់)</span>
-                                <h3 id="stat-pending" style="font-size: 26px; font-weight: 800; margin: 4px 0 0 0; color: var(--text-main);">០</h3>
-                                <p class="stat-sub" style="margin: 0; font-size: 11px; color: var(--text-muted);">រង់ចាំ ឬផ្អាកបណ្តោះអាសន្ន</p>
+                    <!-- 2. 4-COLUMN EQUAL GRID FOR STATUS OUTCOMES (ACTIVE, SETTLE, PENDING, CLOSED) -->
+                    <div class="status-outcomes-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px;">
+                        <!-- ACTIVE -->
+                        <div class="stat-card active-card" onclick="filterByStatusQuick('Active (កំពុងសម្រុះសម្រួល)')" style="padding: 18px 20px; border-radius: 16px; display: flex; align-items: center; justify-content: space-between; background: #ffffff; border: 1px solid #bfdbfe; border-top: 5px solid #2563eb; box-shadow: 0 4px 12px rgba(37,99,235,0.06); cursor: pointer; transition: all 0.2s;">
+                            <div style="display: flex; align-items: center; gap: 14px;">
+                                <div class="stat-icon" style="width: 48px; height: 48px; font-size: 20px; background: #eff6ff; color: #2563eb; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><i class="fa-solid fa-handshake-angle"></i></div>
+                                <div class="stat-content">
+                                    <span style="font-size: 13px; font-weight: 700; color: #1d4ed8; display: block;">កំពុងសម្រុះសម្រួល (Active)</span>
+                                    <h3 id="stat-active" style="font-size: 26px; font-weight: 850; margin: 2px 0 0 0; color: #0f172a;">០</h3>
+                                    <p class="stat-sub" style="margin: 0; font-size: 11px; color: #64748b;">កំពុងអនុវត្តនីតិវិធី</p>
+                                </div>
+                            </div>
+                            <div class="donut-badge" id="stat-active-donut" style="width: 50px; height: 50px; border-radius: 50%; background: conic-gradient(#2563eb 0%, #e2e8f0 0%); display: flex; align-items: center; justify-content: center; position: relative; flex-shrink: 0; box-shadow: 0 3px 8px rgba(37,99,235,0.15);">
+                                <div style="width: 36px; height: 36px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; font-size: 11.5px; font-weight: 800; color: #2563eb;" id="stat-active-pct">0%</div>
                             </div>
                         </div>
-                        <div class="donut-badge" id="stat-pending-donut" style="width: 54px; height: 54px; border-radius: 50%; background: conic-gradient(#f59e0b 0%, #e2e8f0 0%); display: flex; align-items: center; justify-content: center; position: relative; flex-shrink: 0; box-shadow: 0 4px 10px rgba(245,158,11,0.15);">
-                            <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--bg-card); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: #d97706;" id="stat-pending-pct">0%</div>
-                        </div>
-                    </div>
 
-                    <div class="stat-card active-card" onclick="filterByStatusQuick('Active (កំពុងសម្រុះសម្រួល)')" style="padding: 18px 22px; border-radius: 16px; display: flex; align-items: center; justify-content: space-between; background: var(--bg-card); border: 1px solid #dbeafe; border-left: 5px solid #2563eb; box-shadow: var(--shadow-sm); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;">
-                        <div style="display: flex; align-items: center; gap: 14px;">
-                            <div class="stat-icon" style="width: 50px; height: 50px; font-size: 22px; background: #eff6ff; color: #2563eb; border-radius: 12px; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-handshake-angle"></i></div>
-                            <div class="stat-content">
-                                <span style="font-size: 13px; font-weight: 700; color: #2563eb;">Active (កំពុងចាត់ការ)</span>
-                                <h3 id="stat-active" style="font-size: 26px; font-weight: 800; margin: 4px 0 0 0; color: var(--text-main);">០</h3>
-                                <p class="stat-sub" style="margin: 0; font-size: 11px; color: var(--text-muted);">កំពុងអនុវត្តនីតិវិធី</p>
+                        <!-- SETTLE -->
+                        <div class="stat-card settle-card" onclick="filterByStatusQuick('Settle (ព្រមព្រៀង)')" style="padding: 18px 20px; border-radius: 16px; display: flex; align-items: center; justify-content: space-between; background: #ffffff; border: 1px solid #bbf7d0; border-top: 5px solid #10b981; box-shadow: 0 4px 12px rgba(16,185,129,0.06); cursor: pointer; transition: all 0.2s;">
+                            <div style="display: flex; align-items: center; gap: 14px;">
+                                <div class="stat-icon" style="width: 48px; height: 48px; font-size: 20px; background: #f0fdf4; color: #10b981; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><i class="fa-solid fa-circle-check"></i></div>
+                                <div class="stat-content">
+                                    <span style="font-size: 13px; font-weight: 700; color: #047857; display: block;">ព្រមព្រៀង (Settle)</span>
+                                    <h3 id="stat-settle" style="font-size: 26px; font-weight: 850; margin: 2px 0 0 0; color: #0f172a;">០</h3>
+                                    <p class="stat-sub" style="margin: 0; font-size: 11px; color: #64748b;">សម្រុះសម្រួលជោគជ័យ</p>
+                                </div>
+                            </div>
+                            <div class="donut-badge" id="stat-settle-donut" style="width: 50px; height: 50px; border-radius: 50%; background: conic-gradient(#10b981 0%, #e2e8f0 0%); display: flex; align-items: center; justify-content: center; position: relative; flex-shrink: 0; box-shadow: 0 3px 8px rgba(16,185,129,0.15);">
+                                <div style="width: 36px; height: 36px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; font-size: 11.5px; font-weight: 800; color: #10b981;" id="stat-settle-pct">0%</div>
                             </div>
                         </div>
-                        <div class="donut-badge" id="stat-active-donut" style="width: 54px; height: 54px; border-radius: 50%; background: conic-gradient(#2563eb 0%, #e2e8f0 0%); display: flex; align-items: center; justify-content: center; position: relative; flex-shrink: 0; box-shadow: 0 4px 10px rgba(37,99,235,0.15);">
-                            <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--bg-card); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: #2563eb;" id="stat-active-pct">0%</div>
-                        </div>
-                    </div>
 
-                    <div class="stat-card close-card" onclick="filterByStatusQuick('No Settle (មិនព្រមព្រៀង)')" style="padding: 18px 22px; border-radius: 16px; display: flex; align-items: center; justify-content: space-between; background: var(--bg-card); border: 1px solid #fee2e2; border-left: 5px solid #ef4444; box-shadow: var(--shadow-sm); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;">
-                        <div style="display: flex; align-items: center; gap: 14px;">
-                            <div class="stat-icon" style="width: 50px; height: 50px; font-size: 22px; background: #fef2f2; color: #ef4444; border-radius: 12px; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-circle-xmark"></i></div>
-                            <div class="stat-content">
-                                <span style="font-size: 13px; font-weight: 700; color: #ef4444;">No Settle (មិនព្រមព្រៀង)</span>
-                                <h3 id="stat-close" style="font-size: 26px; font-weight: 800; margin: 4px 0 0 0; color: var(--text-main);">០</h3>
-                                <p class="stat-sub" style="margin: 0; font-size: 11px; color: var(--text-muted);">បញ្ចប់នីតិវិធី / មិនព្រមព្រៀង</p>
+                        <!-- PENDING -->
+                        <div class="stat-card pending-card" onclick="filterByStatusQuick('Pending (តម្កល់)')" style="padding: 18px 20px; border-radius: 16px; display: flex; align-items: center; justify-content: space-between; background: #ffffff; border: 1px solid #fde68a; border-top: 5px solid #f59e0b; box-shadow: 0 4px 12px rgba(245,158,11,0.06); cursor: pointer; transition: all 0.2s;">
+                            <div style="display: flex; align-items: center; gap: 14px;">
+                                <div class="stat-icon" style="width: 48px; height: 48px; font-size: 20px; background: #fefce8; color: #f59e0b; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                                <div class="stat-content">
+                                    <span style="font-size: 13px; font-weight: 700; color: #b45309; display: block;">តម្កល់ (Pending)</span>
+                                    <h3 id="stat-pending" style="font-size: 26px; font-weight: 850; margin: 2px 0 0 0; color: #0f172a;">០</h3>
+                                    <p class="stat-sub" style="margin: 0; font-size: 11px; color: #64748b;">រង់ចាំ ឬផ្អាកបណ្តោះអាសន្ន</p>
+                                </div>
+                            </div>
+                            <div class="donut-badge" id="stat-pending-donut" style="width: 50px; height: 50px; border-radius: 50%; background: conic-gradient(#f59e0b 0%, #e2e8f0 0%); display: flex; align-items: center; justify-content: center; position: relative; flex-shrink: 0; box-shadow: 0 3px 8px rgba(245,158,11,0.15);">
+                                <div style="width: 36px; height: 36px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; font-size: 11.5px; font-weight: 800; color: #d97706;" id="stat-pending-pct">0%</div>
                             </div>
                         </div>
-                        <div class="donut-badge" id="stat-close-donut" style="width: 54px; height: 54px; border-radius: 50%; background: conic-gradient(#ef4444 0%, #e2e8f0 0%); display: flex; align-items: center; justify-content: center; position: relative; flex-shrink: 0; box-shadow: 0 4px 10px rgba(239,68,68,0.15);">
-                            <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--bg-card); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: #ef4444;" id="stat-close-pct">0%</div>
+
+                        <!-- CLOSED / NO SETTLE -->
+                        <div class="stat-card close-card" onclick="filterByStatusQuick('No Settle (មិនព្រមព្រៀង)')" style="padding: 18px 20px; border-radius: 16px; display: flex; align-items: center; justify-content: space-between; background: #ffffff; border: 1px solid #fecaca; border-top: 5px solid #ef4444; box-shadow: 0 4px 12px rgba(239,68,68,0.06); cursor: pointer; transition: all 0.2s;">
+                            <div style="display: flex; align-items: center; gap: 14px;">
+                                <div class="stat-icon" style="width: 48px; height: 48px; font-size: 20px; background: #fef2f2; color: #ef4444; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><i class="fa-solid fa-circle-xmark"></i></div>
+                                <div class="stat-content">
+                                    <span style="font-size: 13px; font-weight: 700; color: #b91c1c; display: block;">បិទ / មិនព្រមព្រៀង (Closed)</span>
+                                    <h3 id="stat-close" style="font-size: 26px; font-weight: 850; margin: 2px 0 0 0; color: #0f172a;">០</h3>
+                                    <p class="stat-sub" style="margin: 0; font-size: 11px; color: #64748b;">បញ្ចប់នីតិវិធី / មិនព្រមព្រៀង</p>
+                                </div>
+                            </div>
+                            <div class="donut-badge" id="stat-close-donut" style="width: 50px; height: 50px; border-radius: 50%; background: conic-gradient(#ef4444 0%, #e2e8f0 0%); display: flex; align-items: center; justify-content: center; position: relative; flex-shrink: 0; box-shadow: 0 3px 8px rgba(239,68,68,0.15);">
+                                <div style="width: 36px; height: 36px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; font-size: 11.5px; font-weight: 800; color: #ef4444;" id="stat-close-pct">0%</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -458,11 +475,58 @@
 
                 <!-- TWO-COLUMN COMMAND CENTER FOR CASE ENTRY -->
                 <div class="entry-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-bottom: 32px;">
-                    <!-- CARD 1: QUICK ENTRY WITH AI EXTRACT -->
-                    <div class="card-panel quick-entry-card" style="background: var(--bg-card); border: 2px solid var(--primary-color); padding: 24px; border-radius: var(--radius-lg); box-shadow: var(--shadow-md);">
+                    <!-- CARD 1: MANUAL FULL CASE ENTRY (NOW PLACED FIRST & REDESIGNED TO BE BEAUTIFUL) -->
+                    <div class="card-panel manual-entry-card" style="background: var(--bg-card); border: 2px solid #2563eb; padding: 24px; border-radius: var(--radius-lg); box-shadow: var(--shadow-md); position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <div class="panel-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between;">
+                                <h3 style="color: #1e40af; font-weight: 700; font-size: 16px; margin: 0; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fa-solid fa-file-pen text-primary"></i> ១. បញ្ចូលសំណុំរឿងដោយដៃ (Full Manual Form)
+                                </h3>
+                                <span class="badge" style="background: linear-gradient(135deg, #1e40af, #2563eb); color: white; font-size: 11px; padding: 4px 10px; border-radius: 12px; font-weight: 700; box-shadow: 0 2px 5px rgba(37,99,235,0.2);">Pro Intake</span>
+                            </div>
+
+                            <!-- Interactive Feature Highlights Box -->
+                            <div style="background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%); padding: 16px; border-radius: var(--radius-md); border: 1px solid #bfdbfe; margin-bottom: 20px;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; font-weight: 700; color: #1e3a8a; font-size: 13.5px;">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <i class="fa-solid fa-layer-group text-primary"></i>
+                                        <span>ទម្រង់បញ្ចូលទិន្នន័យពេញលេញ (២០+ មុខវិជ្ជា)</span>
+                                    </div>
+                                    <span class="badge" style="background: #dbeafe; color: #1e40af; font-size: 10.5px;">ស្ដង់ដារ NADR</span>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 10px; font-size: 12.5px; color: #334155;">
+                                    <div style="display: flex; align-items: center; gap: 10px; background: white; padding: 10px 12px; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+                                        <span style="width: 26px; height: 26px; border-radius: 6px; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; flex-shrink: 0;"><i class="fa-solid fa-user-group"></i></span>
+                                        <div><strong>ព័ត៌មានភាគីវិវាទ៖</strong> ឈ្មោះ អាយុ ភេទ លេខទូរស័ព្ទ និងអាសយដ្ឋានភាគី ក និងភាគី ខ</div>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 10px; background: white; padding: 10px 12px; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+                                        <span style="width: 26px; height: 26px; border-radius: 6px; background: #f0fdf4; color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; flex-shrink: 0;"><i class="fa-solid fa-location-dot"></i></span>
+                                        <div><strong>កម្មវត្ថុ និងទីតាំង៖</strong> ប្រភេទវិវាទ ទីតាំងវិវាទជាក់លាក់ និងខ្លឹមសារបណ្តឹងលម្អិត</div>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 10px; background: white; padding: 10px 12px; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+                                        <span style="width: 26px; height: 26px; border-radius: 6px; background: #fef3c7; color: #d97706; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; flex-shrink: 0;"><i class="fa-solid fa-gavel"></i></span>
+                                        <div><strong>នីតិវិធីដោះស្រាយ៖</strong> ចំណាត់ការបច្ចុប្បន្ន កាលបរិច្ឆេទប្រជុំ និងមន្ត្រីទទួលបន្ទុក</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="padding-top: 8px;">
+                            <button type="button" class="btn btn-primary btn-add-case w-100" id="btn-open-add-modal-entry" style="padding: 14px; font-size: 14.5px; font-weight: 700; background: linear-gradient(135deg, #1e40af, #2563eb); border: none; border-radius: 10px; box-shadow: 0 6px 15px rgba(37,99,235,0.25); display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; transition: all 0.2s;">
+                                <i class="fa-solid fa-folder-plus" style="font-size: 17px;"></i>
+                                <span>បើកទម្រង់បញ្ចូលសំណុំរឿងពេញលេញ (Full Form Entry)</span>
+                            </button>
+                            <div style="font-size: 11.5px; color: #64748b; margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                <i class="fa-solid fa-shield-check text-success"></i> ទិន្នន័យត្រូវបានរក្សាទុកក្នុងប្រព័ន្ធសុវត្ថិភាពខ្ពស់
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CARD 2: QUICK ENTRY WITH AI EXTRACT (NOW PLACED SECOND) -->
+                    <div class="card-panel quick-entry-card" style="background: var(--bg-card); border: 2px solid #0284c7; padding: 24px; border-radius: var(--radius-lg); box-shadow: var(--shadow-md);">
                         <div class="panel-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between;">
-                            <h3 style="color: var(--primary-color); font-weight: 700; font-size: 16px; margin: 0; display: flex; align-items: center; gap: 8px;">
-                                <i class="fa-solid fa-wand-magic-sparkles text-accent"></i> ១. បញ្ចូលសំណុំរឿងរហ័ស ជាមួយ AI Extract
+                            <h3 style="color: #0284c7; font-weight: 700; font-size: 16px; margin: 0; display: flex; align-items: center; gap: 8px;">
+                                <i class="fa-solid fa-wand-magic-sparkles text-accent"></i> ២. បញ្ចូលសំណុំរឿងរហ័ស ជាមួយ AI Extract
                             </h3>
                             <span class="badge" style="background: #e0f2fe; color: #0369a1; font-size: 11px; padding: 4px 10px; border-radius: 12px; font-weight: 700;">Smart AI</span>
                         </div>
@@ -556,25 +620,10 @@
                                     </div>
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100" style="padding: 12px; font-size: 14px; font-weight: 700; background: var(--primary-color); border: none; box-shadow: var(--shadow-sm); display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <button type="submit" class="btn btn-primary w-100" style="padding: 12px; font-size: 14px; font-weight: 700; background: #0284c7; border: none; box-shadow: var(--shadow-sm); display: flex; align-items: center; justify-content: center; gap: 8px;">
                                 <i class="fa-solid fa-circle-check"></i> បញ្ចូល និងរក្សាទុកក្នុងប្រព័ន្ធ
                             </button>
                         </form>
-                    </div>
-
-                    <!-- CARD 2: MANUAL FULL CASE ENTRY -->
-                    <div class="card-panel" style="background: linear-gradient(145deg, var(--bg-card), #f8fafc); border: 2px dashed #94a3b8; padding: 32px 24px; border-radius: var(--radius-lg); display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; box-shadow: var(--shadow-sm);">
-                        <div style="width: 80px; height: 80px; border-radius: 50%; background: #e0e7ff; color: #4338ca; display: flex; align-items: center; justify-content: center; font-size: 36px; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(67,56,202,0.15);">
-                            <i class="fa-solid fa-file-pen"></i>
-                        </div>
-                        <h3 style="font-size: 18px; font-weight: 800; color: var(--text-color); margin-bottom: 12px;">២. បញ្ចូលសំណុំរឿងដោយដៃ (Full Manual Intake Form)</h3>
-                        <p style="font-size: 14px; color: var(--text-muted); max-width: 380px; line-height: 1.6; margin-bottom: 28px;">
-                            បើកទម្រង់បែបបទពេញលេញដែលមាន ២០+ មុខវិជ្ជា រួមមានព័ត៌មានលម្អិតរបស់ភាគី ក/ខ (អាយុ, ភេទ, លេខទូរស័ព្ទ, អាសយដ្ឋាន), ទីតាំងវិវាទ, និងកាលបរិច្ឆេទប្រជុំសម្រុះសម្រួល។
-                        </p>
-                        <button type="button" class="btn btn-primary btn-add-case" id="btn-open-add-modal-entry" style="padding: 14px 28px; font-size: 15px; font-weight: 700; border-radius: 30px; box-shadow: 0 8px 20px rgba(37,99,235,0.3); background: linear-gradient(135deg, #1e40af, #3b82f6); border: none; display: inline-flex; align-items: center; gap: 10px; transition: transform 0.2s, box-shadow 0.2s;">
-                            <i class="fa-solid fa-circle-plus" style="font-size: 18px;"></i>
-                            <span>បើកទម្រង់បញ្ចូលសំណុំរឿងពេញលេញ (Full Form)</span>
-                        </button>
                     </div>
                 </div>
 
@@ -630,16 +679,22 @@
                     </div>
                 </div>
 
-                <!-- FILTER BAR -->
-                <div class="filter-panel card-panel">
-                    <div class="filter-grid">
-                        <div class="filter-group">
-                            <label><i class="fa-solid fa-magnifying-glass"></i> ស្វែងរកទូទៅ៖</label>
-                            <input type="text" id="filter-search" placeholder="លេខកូដ ឬឈ្មោះភាគី ក/ខ...">
+                <!-- FILTER BAR (REDESIGNED TO BE MODERN & POLISHED) -->
+                <div class="filter-panel card-panel" style="background: linear-gradient(135deg, var(--bg-card) 0%, #f8fafc 100%); border: 1px solid #cbd5e1; padding: 24px; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); margin-bottom: 24px;">
+                    <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                        <h3 style="color: #1e3a8a; font-weight: 700; font-size: 16px; margin: 0; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-sliders text-primary"></i> ឧបករណ៍ចម្រោះ និងស្វែងរកទិន្នន័យ (Smart Case Filters)
+                        </h3>
+                        <span class="badge" style="background: #e0f2fe; color: #0369a1; font-size: 11px; padding: 4px 10px; border-radius: 12px; font-weight: 700;"><i class="fa-solid fa-bolt-lightning text-accent"></i> Live Realtime Search</span>
+                    </div>
+                    <div class="filter-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; align-items: end;">
+                        <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px;">
+                            <label style="font-size: 12.5px; font-weight: 700; color: #334155;"><i class="fa-solid fa-magnifying-glass text-primary"></i> ស្វែងរកទូទៅ៖</label>
+                            <input type="text" id="filter-search" class="form-control" placeholder="លេខកូដ, ឈ្មោះភាគី ក/ខ..." style="font-size: 13px; padding: 8px 12px; height: 40px; border: 1px solid #cbd5e1; border-radius: 8px; background: white;">
                         </div>
-                        <div class="filter-group">
-                            <label><i class="fa-solid fa-tags"></i> ប្រភេទវិវាទ (៨ ប្រភេទ)៖</label>
-                            <select id="filter-category">
+                        <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px;">
+                            <label style="font-size: 12.5px; font-weight: 700; color: #334155;"><i class="fa-solid fa-tags text-success"></i> ប្រភេទវិវាទ (៨ ប្រភេទ)៖</label>
+                            <select id="filter-category" class="form-control" style="font-size: 13px; padding: 6px 12px; height: 40px; border: 1px solid #cbd5e1; border-radius: 8px; background: white;">
                                 <option value="ALL">ទាំងអស់ (All Categories)</option>
                                 <option value="វិវាទកិច្ចសន្យា">វិវាទកិច្ចសន្យា</option>
                                 <option value="វិវាទក្នុងគ្រួសារ">វិវាទក្នុងគ្រួសារ</option>
@@ -651,9 +706,9 @@
                                 <option value="វិវាទការងារ">វិវាទការងារ</option>
                             </select>
                         </div>
-                        <div class="filter-group">
-                            <label><i class="fa-solid fa-flag"></i> លទ្ធផលសំណុំរឿង (៤ ស្ថានភាព)៖</label>
-                            <select id="filter-status">
+                        <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px;">
+                            <label style="font-size: 12.5px; font-weight: 700; color: #334155;"><i class="fa-solid fa-flag text-danger"></i> លទ្ធផលសំណុំរឿង៖</label>
+                            <select id="filter-status" class="form-control" style="font-size: 13px; padding: 6px 12px; height: 40px; border: 1px solid #cbd5e1; border-radius: 8px; background: white;">
                                 <option value="ALL">ទាំងអស់ (All Statuses)</option>
                                 <option value="Active (កំពុងសម្រុះសម្រួល)">Active (កំពុងសម្រុះសម្រួល)</option>
                                 <option value="Pending (តម្កល់)">Pending (តម្កល់)</option>
@@ -661,35 +716,42 @@
                                 <option value="No Settle (មិនព្រមព្រៀង)">No Settle (មិនព្រមព្រៀង)</option>
                             </select>
                         </div>
-                        <div class="filter-group">
-                            <label><i class="fa-solid fa-location-dot"></i> ទីតាំងវិវាទ (២៥ ខេត្ត/ក្រុង)៖</label>
-                            <select id="filter-location">
+                        <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px;">
+                            <label style="font-size: 12.5px; font-weight: 700; color: #334155;"><i class="fa-solid fa-location-dot text-info"></i> ទីតាំងវិវាទ៖</label>
+                            <select id="filter-location" class="form-control" style="font-size: 13px; padding: 6px 12px; height: 40px; border: 1px solid #cbd5e1; border-radius: 8px; background: white;">
                                 <option value="ALL">គ្រប់ទីតាំងទាំងអស់</option>
                                 <!-- Will be populated by JS -->
                             </select>
                         </div>
-                        <div class="filter-group">
-                            <label><i class="fa-solid fa-arrow-up-z-a"></i> តម្រៀបតាម៖</label>
-                            <select id="sort-by">
-                                <option value="date-asc">កាលបរិច្ឆេទចាស់ -> ថ្មី (តាមលំដាប់ពី ១ ដល់ ៧០)</option>
-                                <option value="date-desc">កាលបរិច្ឆេទថ្មី -> ចាស់ (៧០ ដល់ ១)</option>
-                                <option value="number-asc">លេខកូដសំណុំរឿង A -> Z</option>
-                                <option value="number-desc">លេខកូដសំណុំរឿង Z -> A</option>
+                        <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px;">
+                            <label style="font-size: 12.5px; font-weight: 700; color: #334155;"><i class="fa-solid fa-arrow-up-z-a text-warning"></i> តម្រៀបតាម៖</label>
+                            <select id="sort-by" class="form-control" style="font-size: 13px; padding: 6px 12px; height: 40px; border: 1px solid #cbd5e1; border-radius: 8px; background: white;">
+                                <option value="date-asc">កាលបរិច្ឆេទចាស់ -> ថ្មី</option>
+                                <option value="date-desc">កាលបរិច្ឆេទថ្មី -> ចាស់</option>
+                                <option value="number-asc">លេខកូដ A -> Z</option>
+                                <option value="number-desc">លេខកូដ Z -> A</option>
                             </select>
                         </div>
-                        <div class="filter-group filter-btn-group">
-                            <button class="btn btn-secondary w-100" id="btn-reset-filters">
+                        <div class="filter-group filter-btn-group" style="display: flex; flex-direction: column; gap: 6px;">
+                            <button class="btn btn-secondary w-100" id="btn-reset-filters" style="height: 40px; font-size: 13px; font-weight: 700; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 6px;">
                                 <i class="fa-solid fa-filter-circle-xmark"></i> កំណត់ឡើងវិញ
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- ALL CASES MASTER DIRECTORY TABLE -->
-                <div class="card-panel mt-4">
-                    <div class="panel-header">
-                        <div class="table-info">
-                            <span>បង្ហាញទិន្នន័យ៖ <strong id="showing-count">០</strong> នៃ <strong id="total-count">០</strong> សំណុំរឿង</span>
+                <!-- ALL CASES MASTER DIRECTORY TABLE (REDESIGNED TO BE SLEEK) -->
+                <div class="card-panel mt-4" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); padding: 24px; overflow: hidden;">
+                    <div class="panel-header" style="border-bottom: 2px solid #f1f5f9; padding-bottom: 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                        <div class="table-info" style="display: flex; align-items: center; gap: 10px;">
+                            <span style="width: 36px; height: 36px; border-radius: 8px; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800;"><i class="fa-solid fa-list-check"></i></span>
+                            <div>
+                                <h4 style="font-size: 15px; font-weight: 800; color: #1e3a8a; margin: 0;">បញ្ជីទិន្នន័យសំណុំរឿងសរុប (Master Table)</h4>
+                                <span style="font-size: 13px; color: #64748b;">បង្ហាញទិន្នន័យ៖ <strong id="showing-count" style="color: #2563eb; font-size: 14px;">០</strong> នៃ <strong id="total-count" style="color: #0f172a; font-size: 14px;">០</strong> សំណុំរឿង</span>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="badge" style="background: #f0fdf4; color: #15803d; font-size: 11.5px; padding: 5px 12px; border-radius: 20px; border: 1px solid #bbf7d0;"><i class="fa-solid fa-circle-check"></i> ទិន្នន័យផ្ទៀងផ្ទាត់ត្រឹមត្រូវ</span>
                         </div>
                     </div>
                     <div class="table-responsive master-table-container">
@@ -1631,37 +1693,50 @@
                                 <div style="display: flex; flex-direction: column; gap: 20px;">
                                     <div class="card-panel" style="padding: 18px; border-radius: 12px; background: rgba(37, 99, 235, 0.04); border: 1px solid rgba(37, 99, 235, 0.2);">
                                         <h5 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 700; color: #1e3a8a;">
-                                            <i class="fa-solid fa-folder-tree text-primary"></i> ១. យុទ្ធសាស្ត្រសម្រាប់ "សំណុំរឿងសរុប (Total Cases)"
-                                        </h5>
-                                        <textarea id="strat-total-guidance" class="form-control" rows="3" style="width: 100%; font-size: 13.5px; padding: 10px; line-height: 1.6;">១. បន្តជំរុញការផ្សព្វផ្សាយ និងលើកកម្ពស់ការយល់ដឹងអំពីយន្តការដោះស្រាយវិវាទក្រៅប្រព័ន្ធតុលាការដល់ប្រជាពលរដ្ឋក្នុងមូលដ្ឋាន។ ២. រៀបចំប្រព័ន្ធគ្រប់គ្រង និងបែងចែកសំណុំរឿងចូលថ្មីឱ្យបានឆាប់រហ័សដល់មន្ត្រីជំនាញ។ ៣. ពង្រឹងកិច្ចសហការជាមួយអាជ្ញាធរមូលដ្ឋានក្នុងការទទួលពាក្យបណ្ដឹង។</textarea>
+                                        <textarea id="strat-total-guidance" class="form-control" rows="4" style="width: 100%; font-size: 13.5px; padding: 10px; line-height: 1.6;">[លក្ខណៈវិនិច្ឆ័យ៖ ល្អណាស់ >=៥០ ករណី/ខែ | មធ្យម ១០-២៥ ករណី | មិនល្អ <១០ ករណី]
+១. ពង្រឹងយន្តការទទួលពាក្យបណ្ដឹងនៅគ្រប់មូលដ្ឋាន និងធ្វើទំនើបកម្មប្រព័ន្ធបែងចែកសំណុំរឿងរហ័ស (AI Dispatch) ដល់មន្ត្រីជំនាញ។
+២. បង្កើនការផ្សព្វផ្សាយជាសាធារណៈអំពីអត្ថប្រយោជន៍នៃការដោះស្រាយវិវាទក្រៅប្រព័ន្ធតុលាការ ដើម្បីលើកកម្ពស់ទំនុកចិត្តប្រជាពលរដ្ឋ។
+៣. រៀបចំកិច្ចសហការស្អិតរមួតជាមួយអាជ្ញាធរដែនដី និងរដ្ឋបាលឃុំ-សង្កាត់ ក្នុងការសម្របសម្រួល និងទទួលសំណុំរឿងពីមូលដ្ឋានផ្ទាល់។</textarea>
                                     </div>
 
                                     <div class="card-panel" style="padding: 18px; border-radius: 12px; background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.2);">
                                         <h5 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 700; color: #d97706;">
                                             <i class="fa-solid fa-hand-holding-hand"></i> ២. យុទ្ធសាស្ត្រសម្រាប់ "បញ្ចប់ព្រមព្រៀង (Settle Rate)"
                                         </h5>
-                                        <textarea id="strat-settle-low" class="form-control" rows="3" style="width: 100%; font-size: 13.5px; padding: 10px; line-height: 1.6;">១. ពង្រឹងសមត្ថភាពមន្ត្រីសម្រុះសម្រួលលើបច្ចេកទេសចរចា និងចិត្តសាស្ត្រវិវាទ។ ២. បង្កើនការប្រជុំត្រួតពិនិត្យមុនពេលសម្រុះសម្រួលដើម្បីវិភាគចំណុចខ្វែងគំនិត។ ៣. ចុះសិក្សាផ្ទាល់ដល់ទីតាំងវិវាទដើម្បីស្វែងយល់ពីមូលហេតុពិតប្រាកដ។</textarea>
+                                        <textarea id="strat-settle-low" class="form-control" rows="4" style="width: 100%; font-size: 13.5px; padding: 10px; line-height: 1.6;">[លក្ខណៈវិនិច្ឆ័យ៖ ល្អណាស់ >=៥០% | ល្អ ៣០-៥០% | មធ្យម ២០-៣០% | មិនល្អ <២០%]
+១. លើកកម្ពស់បច្ចេកទេសចរចា និងចិត្តសាស្ត្រវិវាទដល់មន្ត្រីសម្រុះសម្រួល តាមរយៈវគ្គបណ្តុះបណ្តាលជាក់ស្តែង និងការចែករំលែកបទពិសោធន៍។
+២. រៀបចំកិច្ចប្រជុំត្រួតពិនិត្យ និងវិភាគចំណុចខ្វែងគំនិតគ្នាមុនពេលបើកសម័យប្រជុំផ្សះផ្សា ដើម្បីកំណត់ចំណុចរួមឱ្យបានច្បាស់លាស់។
+៣. ចុះសិក្សាស្រាវជ្រាវដល់ទីតាំងវិវាទផ្ទាល់ និងជួបប្រាស្រ័យជាមួយគូភាគីដាច់ដោយឡែក ដើម្បីស្វែងយល់ពីជំហរ និងមូលហេតុពិតប្រាកដ។</textarea>
                                     </div>
 
                                     <div class="card-panel" style="padding: 18px; border-radius: 12px; background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2);">
                                         <h5 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 700; color: #2563eb;">
                                             <i class="fa-solid fa-rotate text-primary"></i> ៣. យុទ្ធសាស្ត្រសម្រាប់ "កំពុងសម្រុះសម្រួល (Active Rate)"
                                         </h5>
-                                        <textarea id="strat-active-high" class="form-control" rows="3" style="width: 100%; font-size: 13.5px; padding: 10px; line-height: 1.6;">១. រៀបចំផែនការបែងចែកសំណុំរឿងតាមកម្រិតអាទិភាព និងកំណត់កាលវិភាគប្រជុំឱ្យបានច្បាស់លាស់។ ២. បន្ថែមមន្ត្រីជំនួយការក្នុងសំណុំរឿងស្មុគស្មាញដើម្បីពងឿននីតិវិធី។ ៣. តាមដានជាប្រចាំនូវសំណុំរឿងដែលលើសរយៈពេលស្ដង់ដារកំណត់។</textarea>
+                                        <textarea id="strat-active-high" class="form-control" rows="4" style="width: 100%; font-size: 13.5px; padding: 10px; line-height: 1.6;">[លក្ខណៈវិនិច្ឆ័យ៖ ល្អណាស់ <=២០% | ល្អ ២០-៣៥% | មធ្យម ៣៥-៥០% | មិនល្អ >៥០%]
+១. រៀបចំកាលវិភាគប្រជុំសម្រុះសម្រួលឱ្យបានជាប់លាប់ និងកំណត់កាលបរិច្ឆេទគោលដៅដោះស្រាយបញ្ចប់សម្រាប់សំណុំរឿងនីមួយៗ។
+២. ចាត់ចែងបន្ថែមមន្ត្រីជំនួយការ ឬអ្នកច្បាប់ជំនាញក្នុងសំណុំរឿងដែលមានភាពស្មុគស្មាញខ្ពស់ (ដូចជាវិវាទដីធ្លី និងកិច្ចសន្យាពាណិជ្ជកម្ម)។
+៣. ដាក់ចេញប្រព័ន្ធតាមដាន (Red Flag Alert) លើសំណុំរឿងដែលដំណើរការលើសពី ៣០ ថ្ងៃ ដើម្បីជួយអន្តរាគមន៍ដោះស្រាយទាន់ពេលវេលា។</textarea>
                                     </div>
 
                                     <div class="card-panel" style="padding: 18px; border-radius: 12px; background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2);">
                                         <h5 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 700; color: #dc2626;">
                                             <i class="fa-solid fa-file-excel text-danger"></i> ៤. យុទ្ធសាស្ត្រសម្រាប់ "បិទ/មិនព្រមព្រៀង (Closed Rate)"
                                         </h5>
-                                        <textarea id="strat-close-high" class="form-control" rows="3" style="width: 100%; font-size: 13.5px; padding: 10px; line-height: 1.6;">១. ធ្វើការសិក្សាមូលហេតុដែលនាំឱ្យបរាជ័យក្នុងការសម្រុះសម្រួលដើម្បីដកស្រង់បទពិសោធន៍។ ២. ផ្តល់ការពន្យល់ណែនាំអំពីនីតិវិធីផ្លូវច្បាប់បន្តដល់គូភាគីដើម្បីចៀសវាងអំពើហិង្សា។ ៣. ពិនិត្យលទ្ធភាពសហការជាមួយអាជ្ញាធរមូលដ្ឋាន ឬស្ថាប័នពាក់ព័ន្ធ។</textarea>
+                                        <textarea id="strat-close-high" class="form-control" rows="4" style="width: 100%; font-size: 13.5px; padding: 10px; line-height: 1.6;">[លក្ខណៈវិនិច្ឆ័យ៖ ល្អណាស់ <=១៥% | ល្អ ១៥-២៥% | មធ្យម ២៥-៤០% | មិនល្អ >៤០%]
+១. ធ្វើការវិភាគស៊ីជម្រៅលើមូលហេតុដែលនាំឱ្យបរាជ័យក្នុងការផ្សះផ្សា (មិនព្រមព្រៀង) ដើម្បីចងក្រងជាករណីសិក្សា និងកែលម្អយុទ្ធសាស្ត្រ។
+២. ផ្តល់ការពន្យល់ណែនាំអំពីនីតិវិធីផ្លូវច្បាប់បន្ត និងផលវិបាកនៃការបន្តវិវាទដល់គូភាគី ដើម្បីបញ្ចៀសអំពើហិង្សា និងរក្សាភាពស្ងប់ស្ងាត់។
+៣. បង្កើនយន្តការសហការជាមួយស្ថាប័នពាក់ព័ន្ធ និងអាជ្ញាធរមានសមត្ថកិច្ច ក្នុងការបន្តគ្រប់គ្រងសភាពការណ៍ និងរក្សាសន្តិសុខសង្គម។</textarea>
                                     </div>
 
                                     <div class="card-panel" style="padding: 18px; border-radius: 12px; background: rgba(100, 116, 139, 0.05); border: 1px solid rgba(100, 116, 139, 0.2);">
                                         <h5 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 700; color: #475569;">
                                             <i class="fa-solid fa-folder-closed text-secondary"></i> ៥. យុទ្ធសាស្ត្រសម្រាប់ "តម្កល់/ផ្អាក (Pending Rate)"
                                         </h5>
-                                        <textarea id="strat-pending-high" class="form-control" rows="3" style="width: 100%; font-size: 13.5px; padding: 10px; line-height: 1.6;">១. ពិនិត្យឡើងវិញនូវសំណុំរឿងដែលតម្កល់យូរ និងទំនាក់ទំនងភាគីដើម្បីសួរនាំស្ថានភាពថ្មី។ ២. កំណត់កាលបរិច្ឆេទផុតកំណត់ជាក់លាក់ក្នុងការរក្សាសំណុំរឿងជាស្ថានភាពតម្កល់។ ៣. ប្រសិនបើភាគីបោះបង់ការតវ៉ា ត្រូវអនុវត្តនីតិវិធីបិទសំណុំរឿងតាមរដ្ឋបាល។</textarea>
+                                        <textarea id="strat-pending-high" class="form-control" rows="4" style="width: 100%; font-size: 13.5px; padding: 10px; line-height: 1.6;">[លក្ខណៈវិនិច្ឆ័យ៖ ល្អណាស់ <=១០% | ល្អ ១០-២០% | មធ្យម ២០-៣០% | មិនល្អ >៣០%]
+១. ធ្វើសវនកម្ម និងពិនិត្យឡើងវិញជាប្រចាំនូវសំណុំរឿងដែលតម្កល់លើសពី ១៥ ថ្ងៃ និងធ្វើការទំនាក់ទំនងទៅភាគីដើម្បីសួរនាំជំហរថ្មី។
+២. កំណត់នីតិវិធីរដ្ឋបាលច្បាស់លាស់៖ ប្រសិនបើភាគីមិនទាក់ទងមកវិញ ឬបោះបង់ការតវ៉ាក្នុងរយៈពេលកំណត់ ត្រូវអនុវត្តនីតិវិធីបិទបញ្ជីសំណុំរឿង។
+៣. បង្កើតក្រុមការងារពិសេស (Task Force) ដើរពិនិត្យ និងជំរុញការដោះស្រាយសំណុំរឿងចាស់ៗដែលកកស្ទះ ដើម្បីសម្អាតបញ្ជីទិន្នន័យ។</textarea>
                                     </div>
                                 </div>
                             </div>
