@@ -1793,6 +1793,7 @@ function initAuth() {
                 // Save state
                 const storage = remember ? localStorage : sessionStorage;
                 storage.setItem('nadr_auth_logged_in', 'true');
+                storage.setItem('nadr_auth_username', matchedUser ? matchedUser.username : (username.toLowerCase() === 'admin' ? 'admin' : 'user'));
                 storage.setItem('nadr_auth_user_name', uName);
                 storage.setItem('nadr_auth_user_role', uRole);
 
@@ -1945,12 +1946,53 @@ function initUserProfile() {
     }
 }
 
+function getCurrentAuthUser() {
+    let admins = JSON.parse(localStorage.getItem('nadr_admin_users')) || ADMIN_USERS;
+    const authUsername = localStorage.getItem('nadr_auth_username') || sessionStorage.getItem('nadr_auth_username');
+    const authName = localStorage.getItem('nadr_auth_user_name') || sessionStorage.getItem('nadr_auth_user_name');
+    
+    let found = null;
+    let foundIdx = -1;
+    if (authUsername) {
+        foundIdx = admins.findIndex(u => u.username.toLowerCase() === authUsername.toLowerCase());
+        if (foundIdx >= 0) found = admins[foundIdx];
+    }
+    if (!found && authName) {
+        foundIdx = admins.findIndex(u => u.name.trim() === authName.trim() || u.name.includes(authName) || authName.includes(u.name));
+        if (foundIdx >= 0) found = admins[foundIdx];
+    }
+    if (!found) {
+        // Fallback check by role
+        const authRole = localStorage.getItem('nadr_auth_user_role') || sessionStorage.getItem('nadr_auth_user_role') || '';
+        if (authRole.toLowerCase().includes('admin') || authRole.includes('រដ្ឋបាល') || authRole.includes('គ្រប់គ្រង')) {
+            foundIdx = admins.findIndex(u => u.username.toLowerCase() === 'admin');
+            if (foundIdx < 0) foundIdx = 0;
+            found = admins[foundIdx];
+        } else {
+            foundIdx = admins.findIndex(u => u.username.toLowerCase() === 'user' || u.role.includes('មន្ត្រី') || u.role.includes('Officer'));
+            if (foundIdx < 0) foundIdx = admins.length - 1;
+            found = admins[foundIdx];
+        }
+    }
+    if (found) {
+        if (!found.phone) found.phone = found.username === 'admin' ? '012 345 678' : '098 765 432';
+        if (!found.email) found.email = `${found.username}@nadr.gov.kh`;
+        if (!found.avatar) found.avatar = localStorage.getItem(`nadr_avatar_${found.username}`) || `https://ui-avatars.com/api/?name=${encodeURIComponent(found.name)}&background=0D8ABC&color=fff`;
+    } else {
+        found = { username: 'user', name: authName || 'មន្ត្រីសម្របសម្រួល', role: 'Case Officer (មន្ត្រីសម្រុះសម្រួល)', phone: '098 765 432', email: 'officer@nadr.gov.kh', password: 'user', avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(authName || 'មន្ត្រី')}&background=0D8ABC&color=fff` };
+        foundIdx = 2;
+    }
+    return { user: found, index: foundIdx, admins };
+}
+
 function renderProfileView() {
-    const pName = localStorage.getItem('nadr_user_profile_name') || 'ឡាយ អូន';
-    const pRole = localStorage.getItem('nadr_user_profile_role') || 'មន្ត្រីសម្រុះសម្រួលវិវាទ NADR';
-    const pPhone = localStorage.getItem('nadr_user_profile_phone') || '012 345 678';
-    const pEmail = localStorage.getItem('nadr_user_profile_email') || 'oun.lay@nadr.gov.kh';
-    const pAvatar = localStorage.getItem('nadr_user_profile_avatar') || `https://ui-avatars.com/api/?name=${encodeURIComponent(pName)}&background=0D8ABC&color=fff`;
+    const { user: currUser } = getCurrentAuthUser();
+    const pName = currUser.name;
+    const pRole = currUser.role;
+    const pPhone = currUser.phone || '012 345 678';
+    const pEmail = currUser.email || `${currUser.username}@nadr.gov.kh`;
+    const pAvatar = currUser.avatar || localStorage.getItem(`nadr_avatar_${currUser.username}`) || `https://ui-avatars.com/api/?name=${encodeURIComponent(pName)}&background=0D8ABC&color=fff`;
+    const pUsername = currUser.username || 'user';
 
     // Title banner
     const avatarImg = document.getElementById('profile-view-avatar');
@@ -1966,15 +2008,40 @@ function renderProfileView() {
     if (titlePhone) titlePhone.textContent = pPhone;
 
     // Form inputs
+    const inUsername = document.getElementById('profile-view-username');
     const inName = document.getElementById('profile-view-fullname');
     const inRole = document.getElementById('profile-view-role');
     const inPhone = document.getElementById('profile-view-phone');
     const inEmail = document.getElementById('profile-view-email');
 
+    if (inUsername) inUsername.value = `${pUsername} / NADR-ID`;
     if (inName) inName.value = pName;
-    if (inRole) inRole.value = pRole;
+    if (inRole) {
+        inRole.value = pRole;
+        // Restrict role modification for non-admin officers
+        const isAdmin = pRole.toLowerCase().includes('admin') || pRole.includes('រដ្ឋបាល') || pRole.includes('គ្រប់គ្រង');
+        inRole.readOnly = !isAdmin;
+        inRole.style.backgroundColor = !isAdmin ? 'var(--bg-main)' : '';
+    }
     if (inPhone) inPhone.value = pPhone;
     if (inEmail) inEmail.value = pEmail;
+
+    // Security & Access Level Box update based on role
+    const secBox = document.getElementById('profile-security-box');
+    if (secBox) {
+        const isAdmin = pRole.toLowerCase().includes('admin') || pRole.includes('រដ្ឋបាល') || pRole.includes('គ្រប់គ្រង');
+        secBox.innerHTML = isAdmin ? `
+            <li><strong>កម្រិតសិទ្ធិ៖</strong> អគ្គនាយករដ្ឋបាល (Super Administrator)</li>
+            <li><strong>ការអនុញ្ញាត៖</strong> បញ្ចូល កែសម្រួល លុប និងបោះពុម្ពទិន្នន័យទាំងអស់</li>
+            <li><strong>ស្ថានភាពសុវត្ថិភាព៖</strong> ការពារដោយលេខកូដសម្ងាត់ ២ ជាន់ (Active)</li>
+            <li><strong>ការចូលប្រើចុងក្រោយ៖</strong> <span id="profile-view-last-login">ថ្ងៃនេះ, ម៉ោង ០៨:៣០ ព្រឹក</span></li>
+        ` : `
+            <li><strong>កម្រិតសិទ្ធិ៖</strong> មន្ត្រីសម្រុះសម្រួល (Case Officer)</li>
+            <li><strong>ការអនុញ្ញាត៖</strong> បញ្ចូល កែសម្រួល លុប និងបោះពុម្ពទិន្នន័យសំណុំរឿង</li>
+            <li><strong>ដែនកំណត់៖</strong> មិនមានសិទ្ធិចូលប្រើប្រាស់ផ្ទាំងការកំណត់ប្រព័ន្ធ (Settings)</li>
+            <li><strong>ស្ថានភាពសុវត្ថិភាព៖</strong> ការពារដោយលេខកូដសម្ងាត់ (Active)</li>
+        `;
+    }
 
     // Quick Stats
     const cases = typeof getCasesData === 'function' ? getCasesData() : [];
@@ -1985,6 +2052,7 @@ function renderProfileView() {
 }
 
 function saveUserProfileView() {
+    const { user: currUser, index: foundIdx, admins } = getCurrentAuthUser();
     const inputName = document.getElementById('profile-view-fullname');
     const inputRole = document.getElementById('profile-view-role');
     const inputPhone = document.getElementById('profile-view-phone');
@@ -1992,31 +2060,47 @@ function saveUserProfileView() {
     const inputPass = document.getElementById('profile-view-password');
 
     if (inputName && inputName.value.trim()) {
-        localStorage.setItem('nadr_user_profile_name', inputName.value.trim());
+        currUser.name = inputName.value.trim();
+        localStorage.setItem('nadr_user_profile_name', currUser.name);
     }
-    if (inputRole && inputRole.value.trim()) {
-        localStorage.setItem('nadr_user_profile_role', inputRole.value.trim());
+    if (inputRole && inputRole.value.trim() && !inputRole.readOnly) {
+        currUser.role = inputRole.value.trim();
+        localStorage.setItem('nadr_user_profile_role', currUser.role);
     }
-    if (inputPhone && inputPhone.value.trim()) {
-        localStorage.setItem('nadr_user_profile_phone', inputPhone.value.trim());
+    if (inputPhone) {
+        currUser.phone = inputPhone.value.trim() || '012 345 678';
+        localStorage.setItem('nadr_user_profile_phone', currUser.phone);
     }
-    if (inputEmail && inputEmail.value.trim()) {
-        localStorage.setItem('nadr_user_profile_email', inputEmail.value.trim());
+    if (inputEmail) {
+        currUser.email = inputEmail.value.trim() || `${currUser.username}@nadr.gov.kh`;
+        localStorage.setItem('nadr_user_profile_email', currUser.email);
     }
 
     if (inputPass && inputPass.value.trim()) {
-        let admins = JSON.parse(localStorage.getItem('nadr_admin_users')) || [];
-        if (admins.length > 0) {
-            admins[0].password = inputPass.value.trim();
-            localStorage.setItem('nadr_admin_users', JSON.stringify(admins));
-        }
+        currUser.password = inputPass.value.trim();
         inputPass.value = '';
     }
 
+    if (foundIdx >= 0 && admins[foundIdx]) {
+        admins[foundIdx] = currUser;
+    } else {
+        admins.push(currUser);
+    }
+    ADMIN_USERS = admins;
+    localStorage.setItem('nadr_admin_users', JSON.stringify(ADMIN_USERS));
+
+    // Update logged in session info
+    const isLocal = localStorage.getItem('nadr_auth_logged_in') === 'true';
+    const storage = isLocal ? localStorage : sessionStorage;
+    storage.setItem('nadr_auth_user_name', currUser.name);
+    storage.setItem('nadr_auth_user_role', currUser.role);
+    if (currUser.username) storage.setItem('nadr_auth_username', currUser.username);
+
+    updateSidebarUser(currUser.name, currUser.role);
     initUserProfile();
     renderProfileView();
     if (typeof logAuditAction === 'function') {
-        logAuditAction('កែសម្រួលប្រវត្តិរូប', `បានកែសម្រួលព័ត៌មានគណនីមន្រ្តី៖ ${inputName?.value || ''}`);
+        logAuditAction('កែសម្រួលប្រវត្តិរូប', `បានកែសម្រួលព័ត៌មានគណនី៖ ${currUser.name} (${currUser.username})`);
     }
     showToast('ព័ត៌មានប្រវត្តិរូបត្រូវបានរក្សាទុកជោគជ័យ! (Profile Updated)', 'success');
 }
@@ -2024,10 +2108,18 @@ function saveUserProfileView() {
 function handleProfilePhotoUploadView(event) {
     const file = event.target.files[0];
     if (!file) return;
+    const { user: currUser, index: foundIdx, admins } = getCurrentAuthUser();
     const reader = new FileReader();
     reader.onload = function(e) {
         const base64 = e.target.result;
+        currUser.avatar = base64;
+        localStorage.setItem(`nadr_avatar_${currUser.username}`, base64);
         localStorage.setItem('nadr_user_profile_avatar', base64);
+        if (foundIdx >= 0 && admins[foundIdx]) {
+            admins[foundIdx].avatar = base64;
+            ADMIN_USERS = admins;
+            localStorage.setItem('nadr_admin_users', JSON.stringify(ADMIN_USERS));
+        }
         initUserProfile();
         renderProfileView();
         showToast('បានអាប់ឡូតរូបថតប្រវត្តិរូបថ្មីរួចរាល់!', 'success');
@@ -2036,7 +2128,15 @@ function handleProfilePhotoUploadView(event) {
 }
 
 function resetProfileAvatarView() {
+    const { user: currUser, index: foundIdx, admins } = getCurrentAuthUser();
+    localStorage.removeItem(`nadr_avatar_${currUser.username}`);
     localStorage.removeItem('nadr_user_profile_avatar');
+    delete currUser.avatar;
+    if (foundIdx >= 0 && admins[foundIdx]) {
+        delete admins[foundIdx].avatar;
+        ADMIN_USERS = admins;
+        localStorage.setItem('nadr_admin_users', JSON.stringify(ADMIN_USERS));
+    }
     initUserProfile();
     renderProfileView();
     showToast('រូបថតប្រវត្តិរូបត្រូវបានកំណត់ទៅលក្ខខណ្ឌដើម!', 'info');
@@ -2077,13 +2177,17 @@ function initLanguageSwitcher() {
  * Dynamic Admin User accounts loaded from localStorage
  */
 let ADMIN_USERS = JSON.parse(localStorage.getItem('nadr_admin_users')) || [
-    { username: 'admin', password: 'admin123', name: 'គណនីរដ្ឋបាល (Admin)', role: 'Super Admin (អ្នកគ្រប់គ្រងកម្មវិធី)', status: 'Active' },
-    { username: 'nadr', password: 'nadr', name: 'មន្ត្រីជាន់ខ្ពស់ NADR', role: 'Super Admin (អ្នកគ្រប់គ្រងកម្មវិធី)', status: 'Active' },
-    { username: 'user', password: 'user', name: 'មន្ត្រីសម្របសម្រួល', role: 'Case Officer (មន្ត្រីសម្រុះសម្រួល)', status: 'Active' }
+    { username: 'admin', password: 'admin123', name: 'គណនីរដ្ឋបាល (Admin)', role: 'Super Admin (អ្នកគ្រប់គ្រងកម្មវិធី)', status: 'Active', phone: '012 345 678', email: 'admin@nadr.gov.kh' },
+    { username: 'nadr', password: 'nadr', name: 'មន្ត្រីជាន់ខ្ពស់ NADR', role: 'Super Admin (អ្នកគ្រប់គ្រងកម្មវិធី)', status: 'Active', phone: '011 222 333', email: 'nadr@nadr.gov.kh' },
+    { username: 'user', password: 'user', name: 'មន្ត្រីសម្របសម្រួល', role: 'Case Officer (មន្ត្រីសម្រុះសម្រួល)', status: 'Active', phone: '098 765 432', email: 'officer@nadr.gov.kh' }
 ];
 
-// Ensure all users have a status property
-ADMIN_USERS.forEach(u => { if (!u.status) u.status = 'Active'; });
+// Ensure all users have required properties
+ADMIN_USERS.forEach(u => { 
+    if (!u.status) u.status = 'Active';
+    if (!u.phone) u.phone = u.username.toLowerCase() === 'admin' ? '012 345 678' : '098 765 432';
+    if (!u.email) u.email = `${u.username}@nadr.gov.kh`;
+});
 
 // Automatically upgrade legacy '123' password to 'admin123' for the admin account in localStorage
 let legacyAdmin = ADMIN_USERS.find(u => u.username.toLowerCase() === 'admin');
@@ -2149,14 +2253,10 @@ function initSettingsEvents() {
                 if (tab.getAttribute('data-color')) iconEl.style.color = tab.getAttribute('data-color');
             }
 
-            // Automatically un-minimize when switching tabs
+            // Automatically exit fit screen when switching tabs if needed
             const card = document.getElementById('main-settings-card');
-            if (card && card.classList.contains('minimized')) {
-                card.classList.remove('minimized');
-                const minIcon = document.getElementById('minimize-settings-icon');
-                const minTxt = document.getElementById('minimize-settings-text');
-                if (minIcon) minIcon.className = 'fa-solid fa-minus';
-                if (minTxt) minTxt.textContent = 'បង្រួមផ្ទាំង (Minimize)';
+            if (card && card.classList.contains('fit-screen')) {
+                // Keep in fit screen or let user toggle
             }
 
             if (paneId === 'tab-eval-matrix') {
@@ -2178,19 +2278,19 @@ function initSettingsEvents() {
         });
     });
 
-    // Universal Minimize Settings Toggle
-    const minBtn = document.getElementById('btn-toggle-minimize-settings');
-    if (minBtn && !minBtn._hasHandler) {
-        minBtn._hasHandler = true;
-        minBtn.addEventListener('click', () => {
+    // Universal Fit Screen Settings Toggle
+    const fitBtn = document.getElementById('btn-toggle-fit-settings');
+    if (fitBtn && !fitBtn._hasHandler) {
+        fitBtn._hasHandler = true;
+        fitBtn.addEventListener('click', () => {
             const card = document.getElementById('main-settings-card');
-            const icon = document.getElementById('minimize-settings-icon');
-            const txt = document.getElementById('minimize-settings-text');
+            const icon = document.getElementById('fit-settings-icon');
+            const txt = document.getElementById('fit-settings-text');
             if (card) {
-                card.classList.toggle('minimized');
-                const isMin = card.classList.contains('minimized');
-                if (icon) icon.className = isMin ? 'fa-solid fa-plus' : 'fa-solid fa-minus';
-                if (txt) txt.textContent = isMin ? 'ពង្រីកផ្ទាំង (Expand)' : 'បង្រួមផ្ទាំង (Minimize)';
+                card.classList.toggle('fit-screen');
+                const isFit = card.classList.contains('fit-screen');
+                if (icon) icon.className = isFit ? 'fa-solid fa-minimize' : 'fa-solid fa-maximize';
+                if (txt) txt.textContent = isFit ? 'បង្រួមវិញ (Normal View)' : 'ពង្រីកពេញអេក្រង់ (Fit Screen)';
             }
         });
     }
@@ -2271,22 +2371,28 @@ function initSettingsEvents() {
             const password = document.getElementById('admin-password').value.trim();
             const role = document.getElementById('admin-role').value;
             const status = document.getElementById('admin-status').value;
+            const phoneEl = document.getElementById('admin-phone');
+            const emailEl = document.getElementById('admin-email');
+            const phone = phoneEl ? phoneEl.value.trim() : '012 345 678';
+            const email = emailEl ? emailEl.value.trim() : 'user@nadr.gov.kh';
 
             if (idx >= 0 && ADMIN_USERS[idx]) {
-                ADMIN_USERS[idx] = { ...ADMIN_USERS[idx], username, name: dispName, password, role, status };
+                ADMIN_USERS[idx] = { ...ADMIN_USERS[idx], username, name: dispName, password, role, status, phone, email };
                 showToast('បានកែសម្រួលព័ត៌មានគណនីរួចរាល់!', 'success');
             } else {
                 if (ADMIN_USERS.some(u => u.username.toLowerCase() === username.toLowerCase())) {
                     showToast('ឈ្មោះគណនីនេះ (Username) មានរួចហើយ!', 'error');
                     return;
                 }
-                ADMIN_USERS.push({ username, password, name: dispName, role, status });
+                ADMIN_USERS.push({ username, password, name: dispName, role, status, phone, email });
                 showToast('បានបង្កើតគណនីថ្មីដោយជោគជ័យ!', 'success');
             }
             localStorage.setItem('nadr_admin_users', JSON.stringify(ADMIN_USERS));
             userFormCard.style.display = 'none';
             userForm.reset();
             renderSettingsAdmins();
+            if (typeof initUserProfile === 'function') initUserProfile();
+            if (typeof renderProfileView === 'function') renderProfileView();
         };
     }
 
@@ -2395,6 +2501,8 @@ function renderSettingsAdmins() {
         const statusBadge = isLocked 
             ? `<span class="badge" style="background: #fee2e2; color: #b91c1c; padding: 5px 10px; font-weight: 700;"><i class="fa-solid fa-ban"></i> មិនអនុញ្ញាតឱ្យចូល (Locked)</span>`
             : `<span class="badge" style="background: #dcfce7; color: #15803d; padding: 5px 10px; font-weight: 700;"><i class="fa-solid fa-check-circle"></i> អនុញ្ញាតឱ្យចូល (Active)</span>`;
+        const pPhone = user.phone || '012 345 678';
+        const pEmail = user.email || `${user.username}@nadr.gov.kh`;
 
         html += `
             <tr style="${isLocked ? 'background: #fef2f2; opacity: 0.85;' : ''}">
@@ -2402,6 +2510,7 @@ function renderSettingsAdmins() {
                 <td><strong style="color: #1e293b;">${user.username}</strong></td>
                 <td>${user.name}</td>
                 <td><span class="badge badge-active" style="font-size: 11px; background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc;">${user.role}</span></td>
+                <td style="font-size: 12px; line-height: 1.5;"><i class="fa-solid fa-phone text-success"></i> ${pPhone}<br><i class="fa-solid fa-envelope text-primary"></i> ${pEmail}</td>
                 <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">${user.password}</code></td>
                 <td>${statusBadge}</td>
                 <td class="text-center" style="white-space: nowrap;">
@@ -2428,6 +2537,8 @@ window.editAdminSetting = function(index) {
         document.getElementById('admin-password').value = user.password;
         document.getElementById('admin-role').value = user.role || 'Case Officer (មន្ត្រីសម្រុះសម្រួល)';
         document.getElementById('admin-status').value = user.status || 'Active';
+        if (document.getElementById('admin-phone')) document.getElementById('admin-phone').value = user.phone || '';
+        if (document.getElementById('admin-email')) document.getElementById('admin-email').value = user.email || '';
         userFormCard.scrollIntoView({ behavior: 'smooth' });
     }
 };

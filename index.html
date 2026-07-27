@@ -1221,11 +1221,12 @@
                     .settings-horiz-btn {
                         display: flex;
                         align-items: center;
-                        gap: 10px;
-                        padding: 10px 16px;
-                        border: 1.5px solid transparent;
-                        background: var(--bg-main);
-                        border-radius: 12px;
+                        gap: 12px;
+                        padding: 12px 16px;
+                        border: 1px solid var(--border-color);
+                        border-left: 5px solid var(--btn-color, var(--primary-color));
+                        background: var(--btn-bg, var(--bg-card));
+                        border-radius: 14px;
                         cursor: pointer;
                         font-family: inherit;
                         font-size: 13.5px;
@@ -1233,34 +1234,41 @@
                         color: var(--text-color);
                         transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
                         white-space: nowrap;
+                        box-shadow: var(--shadow-sm);
+                        justify-content: flex-start;
+                        width: 100%;
                     }
                     .settings-horiz-btn:hover {
-                        background: rgba(59, 130, 246, 0.08);
-                        border-color: rgba(59, 130, 246, 0.3);
-                        color: var(--primary-color);
+                        background: var(--bg-card);
+                        border-color: var(--btn-color, var(--primary-color));
+                        color: var(--btn-color, var(--primary-color));
                         transform: translateY(-2px);
+                        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
                     }
                     .settings-horiz-btn.active {
-                        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-                        border-color: transparent;
+                        background: var(--btn-color, var(--primary-color)) !important;
+                        border-color: var(--btn-color, var(--primary-color)) !important;
                         color: #ffffff !important;
                         font-weight: 700;
-                        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+                        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+                        transform: translateY(-2px);
                     }
                     .settings-horiz-btn .icon-box {
-                        width: 30px;
-                        height: 30px;
+                        width: 32px;
+                        height: 32px;
                         border-radius: 8px;
                         display: flex;
                         align-items: center;
                         justify-content: center;
-                        font-size: 15px;
-                        background: rgba(0, 0, 0, 0.05);
-                        color: inherit;
+                        font-size: 16px;
+                        background: rgba(255, 255, 255, 0.8);
+                        color: var(--btn-color, var(--primary-color));
                         transition: all 0.2s;
+                        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+                        flex-shrink: 0;
                     }
                     .settings-horiz-btn.active .icon-box {
-                        background: rgba(255, 255, 255, 0.22);
+                        background: rgba(255, 255, 255, 0.25);
                         color: #ffffff;
                     }
                     .settings-pane-header {
@@ -1273,66 +1281,77 @@
                         flex-wrap: wrap;
                         gap: 14px;
                     }
-                    .settings-content-area.minimized #settings-panes-body {
-                        display: none !important;
+                    .settings-content-area.fit-screen {
+                        position: fixed !important;
+                        top: 0 !important;
+                        left: 0 !important;
+                        right: 0 !important;
+                        bottom: 0 !important;
+                        width: 100vw !important;
+                        height: 100vh !important;
+                        z-index: 99999 !important;
+                        border-radius: 0 !important;
+                        margin: 0 !important;
+                        overflow-y: auto !important;
+                        padding: 32px !important;
+                        background: var(--bg-card) !important;
                     }
-                    .settings-content-area.minimized {
-                        min-height: auto !important;
-                        padding-bottom: 20px !important;
+                    @media (max-width: 992px) {
+                        .settings-top-menu-rows > div {
+                            grid-template-columns: repeat(2, 1fr) !important;
+                        }
                     }
-                    .settings-content-area.minimized .settings-pane-header {
-                        margin-bottom: 0 !important;
-                        padding-bottom: 0 !important;
-                        border-bottom: none !important;
+                    @media (max-width: 600px) {
+                        .settings-top-menu-rows > div {
+                            grid-template-columns: 1fr !important;
+                        }
                     }
                     </style>
 
                     <div class="settings-horizontal-container" style="display: flex; flex-direction: column; gap: 20px; padding: 24px; background: var(--bg-main);">
-                        <!-- Top Horizontal Menu Bar -->
-                        <div class="card-panel settings-top-menu" style="padding: 14px 18px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
-                            <div style="font-size: 12.5px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; padding: 6px 12px; display: flex; align-items: center; gap: 8px; border-right: 2px solid var(--border-color); margin-right: 4px;">
-                                <i class="fa-solid fa-sliders text-primary" style="font-size: 16px;"></i> បញ្ជីការកំណត់ (Preferences):
+                        <!-- Top Menu: 2 Equal Rows without label -->
+                        <div class="card-panel settings-top-menu" style="padding: 18px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 14px; width: 100%;">
+                            <div class="settings-top-menu-rows" style="display: flex; flex-direction: column; gap: 14px; width: 100%;">
+                                <!-- Row 1: 4 Tabs -->
+                                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;">
+                                    <button type="button" class="settings-horiz-btn tab-btn active" data-tab="tab-org" data-title="១. កំណត់ស្ថាប័ន &amp; លេខកូដ" data-desc="កំណត់ឈ្មោះស្ថាប័នសម្រាប់បោះពុម្ពរបាយការណ៍ និងក្បាលលេខកូដសំណុំរឿងស្វ័យប្រវត្តិ" data-icon="fa-building-flag" data-color="#3b82f6" style="--btn-color: #3b82f6; --btn-bg: rgba(59, 130, 246, 0.08);">
+                                        <div class="icon-box"><i class="fa-solid fa-building-flag"></i></div>
+                                        <span>១. ស្ថាប័ន &amp; លេខកូដ</span>
+                                    </button>
+                                    <button type="button" class="settings-horiz-btn tab-btn" data-tab="tab-categories" data-title="២. ប្រភេទវិវាទទាំង ៨" data-desc="បន្ថែម ឬកែសម្រួលប្រភេទវិវាទក្នុងប្រព័ន្ធ" data-icon="fa-tags" data-color="#10b981" style="--btn-color: #10b981; --btn-bg: rgba(16, 185, 129, 0.08);">
+                                        <div class="icon-box"><i class="fa-solid fa-tags"></i></div>
+                                        <span>២. ប្រភេទវិវាទ (៨)</span>
+                                    </button>
+                                    <button type="button" class="settings-horiz-btn tab-btn" data-tab="tab-columns" data-title="៣. បន្ថែមកូឡោនសំណុំរឿង" data-desc="កំណត់បង្ហាញ/លាក់ជួរឈរតារាងបញ្ជីសំណុំរឿង" data-icon="fa-table-columns" data-color="#8b5cf6" style="--btn-color: #8b5cf6; --btn-bg: rgba(139, 92, 246, 0.08);">
+                                        <div class="icon-box"><i class="fa-solid fa-table-columns"></i></div>
+                                        <span>៣. កូឡោនតារាង</span>
+                                    </button>
+                                    <button type="button" class="settings-horiz-btn tab-btn" data-tab="tab-admins" data-title="៤. គ្រប់គ្រងគណនីរដ្ឋបាល" data-desc="គ្រប់គ្រងសិទ្ធិចូលប្រព័ន្ធ និងគណនីមន្ត្រី" data-icon="fa-user-shield" data-color="#f59e0b" style="--btn-color: #f59e0b; --btn-bg: rgba(245, 158, 11, 0.08);">
+                                        <div class="icon-box"><i class="fa-solid fa-user-shield"></i></div>
+                                        <span>៤. គណនីរដ្ឋបាល</span>
+                                    </button>
+                                </div>
+                                <!-- Row 2: 3 Tabs (aligned with 4 columns) -->
+                                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;">
+                                    <button type="button" class="settings-horiz-btn tab-btn" data-tab="tab-audit" data-title="៥. កំណត់ហេតុសកម្មភាព (Audit Logs)" data-desc="ប្រវត្តិសកម្មភាព និងកត់ត្រាការប្រើប្រាស់ក្នុងប្រព័ន្ធ" data-icon="fa-clipboard-list" data-color="#ef4444" style="--btn-color: #ef4444; --btn-bg: rgba(239, 68, 68, 0.08);">
+                                        <div class="icon-box"><i class="fa-solid fa-clipboard-list"></i></div>
+                                        <span>៥. កំណត់ហេតុ (Audit)</span>
+                                    </button>
+                                    <button type="button" class="settings-horiz-btn tab-btn" data-tab="tab-eval-matrix" data-title="៦. លក្ខណៈវិនិច្ឆ័យវាយតម្លៃចំណាត់ការ" data-desc="តារាងស្ដង់ដារកម្រិតវិវាទ និងគោលការណ៍វាយតម្លៃ" data-icon="fa-scale-balanced" data-color="#0ea5e9" style="--btn-color: #0ea5e9; --btn-bg: rgba(14, 165, 233, 0.08);">
+                                        <div class="icon-box"><i class="fa-solid fa-scale-balanced"></i></div>
+                                        <span>៦. លក្ខណៈវិនិច្ឆ័យ</span>
+                                    </button>
+                                    <button type="button" class="settings-horiz-btn tab-btn" data-tab="tab-strategies" data-title="៧. យុទ្ធសាស្ត្រដោះស្រាយវិវាទ" data-desc="កំណត់យុទ្ធសាស្ត្រ និងអនុសាសន៍តាមកម្រិតលទ្ធផល" data-icon="fa-chess-knight" data-color="#ec4899" style="--btn-color: #ec4899; --btn-bg: rgba(236, 72, 153, 0.08); grid-column: span 2;">
+                                        <div class="icon-box"><i class="fa-solid fa-chess-knight"></i></div>
+                                        <span>៧. យុទ្ធសាស្ត្រដោះស្រាយ</span>
+                                    </button>
+                                </div>
                             </div>
-                            
-                            <button type="button" class="settings-horiz-btn tab-btn active" data-tab="tab-org" data-title="១. កំណត់ស្ថាប័ន &amp; លេខកូដ" data-desc="កំណត់ឈ្មោះស្ថាប័នសម្រាប់បោះពុម្ពរបាយការណ៍ និងក្បាលលេខកូដសំណុំរឿងស្វ័យប្រវត្តិ" data-icon="fa-building-flag" data-color="#3b82f6">
-                                <div class="icon-box"><i class="fa-solid fa-building-flag"></i></div>
-                                <span>១. ស្ថាប័ន &amp; លេខកូដ</span>
-                            </button>
-
-                            <button type="button" class="settings-horiz-btn tab-btn" data-tab="tab-categories" data-title="២. ប្រភេទវិវាទទាំង ៨" data-desc="បន្ថែម ឬកែសម្រួលប្រភេទវិវាទក្នុងប្រព័ន្ធ" data-icon="fa-tags" data-color="#10b981">
-                                <div class="icon-box"><i class="fa-solid fa-tags"></i></div>
-                                <span>២. ប្រភេទវិវាទ (៨)</span>
-                            </button>
-
-                            <button type="button" class="settings-horiz-btn tab-btn" data-tab="tab-columns" data-title="៣. បន្ថែមកូឡោនសំណុំរឿង" data-desc="កំណត់បង្ហាញ/លាក់ជួរឈរតារាងបញ្ជីសំណុំរឿង" data-icon="fa-table-columns" data-color="#8b5cf6">
-                                <div class="icon-box"><i class="fa-solid fa-table-columns"></i></div>
-                                <span>៣. កូឡោនតារាង</span>
-                            </button>
-
-                            <button type="button" class="settings-horiz-btn tab-btn" data-tab="tab-admins" data-title="៤. គ្រប់គ្រងគណនីរដ្ឋបាល" data-desc="គ្រប់គ្រងសិទ្ធិចូលប្រព័ន្ធ និងគណនីមន្ត្រី" data-icon="fa-user-shield" data-color="#f59e0b">
-                                <div class="icon-box"><i class="fa-solid fa-user-shield"></i></div>
-                                <span>៤. គណនីរដ្ឋបាល</span>
-                            </button>
-
-                            <button type="button" class="settings-horiz-btn tab-btn" data-tab="tab-audit" data-title="៥. កំណត់ហេតុសកម្មភាព (Audit Logs)" data-desc="ប្រវត្តិសកម្មភាព និងកត់ត្រាការប្រើប្រាស់ក្នុងប្រព័ន្ធ" data-icon="fa-clipboard-list" data-color="#ef4444">
-                                <div class="icon-box"><i class="fa-solid fa-clipboard-list"></i></div>
-                                <span>៥. កំណត់ហេតុ (Audit)</span>
-                            </button>
-
-                            <button type="button" class="settings-horiz-btn tab-btn" data-tab="tab-eval-matrix" data-title="៦. លក្ខណៈវិនិច្ឆ័យវាយតម្លៃចំណាត់ការ" data-desc="តារាងស្ដង់ដារកម្រិតវិវាទ និងគោលការណ៍វាយតម្លៃ" data-icon="fa-scale-balanced" data-color="#0ea5e9">
-                                <div class="icon-box"><i class="fa-solid fa-scale-balanced"></i></div>
-                                <span>៦. លក្ខណៈវិនិច្ឆ័យ</span>
-                            </button>
-
-                            <button type="button" class="settings-horiz-btn tab-btn" data-tab="tab-strategies" data-title="៧. យុទ្ធសាស្ត្រដោះស្រាយវិវាទ" data-desc="កំណត់យុទ្ធសាស្ត្រ និងអនុសាសន៍តាមកម្រិតលទ្ធផល" data-icon="fa-chess-knight" data-color="#10b981">
-                                <div class="icon-box"><i class="fa-solid fa-chess-knight"></i></div>
-                                <span>៧. យុទ្ធសាស្ត្រដោះស្រាយ</span>
-                            </button>
                         </div>
 
                         <!-- Bottom Content Area: Settings Panes -->
                         <div class="card-panel settings-content-area" id="main-settings-card" style="padding: 26px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); min-height: 520px; transition: all 0.3s ease;">
-                            <!-- Universal Settings Pane Header with Minimize Button -->
+                            <!-- Universal Settings Pane Header with Fit Screen Button -->
                             <div class="settings-pane-header">
                                 <div style="display: flex; align-items: center; gap: 14px;">
                                     <div id="settings-current-icon" style="width: 42px; height: 42px; border-radius: 12px; background: rgba(59, 130, 246, 0.15); color: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 20px;"><i class="fa-solid fa-building-flag"></i></div>
@@ -1342,8 +1361,8 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <button type="button" id="btn-toggle-minimize-settings" class="btn-secondary" style="padding: 9px 16px; font-size: 13px; font-weight: 700; border-radius: 10px; display: flex; align-items: center; gap: 8px; background: var(--bg-main); border: 1.5px solid var(--border-color); cursor: pointer; color: var(--text-color); transition: all 0.2s;">
-                                        <i class="fa-solid fa-minus" id="minimize-settings-icon"></i> <span id="minimize-settings-text">បង្រួមផ្ទាំង (Minimize)</span>
+                                    <button type="button" id="btn-toggle-fit-settings" class="btn-secondary" style="padding: 9px 16px; font-size: 13px; font-weight: 700; border-radius: 10px; display: flex; align-items: center; gap: 8px; background: var(--bg-main); border: 1.5px solid var(--border-color); cursor: pointer; color: var(--text-color); transition: all 0.2s;">
+                                        <i class="fa-solid fa-maximize" id="fit-settings-icon"></i> <span id="fit-settings-text">ពង្រីកពេញអេក្រង់ (Fit Screen)</span>
                                     </button>
                                 </div>
                             </div>
@@ -1479,6 +1498,14 @@
                                                 <input type="text" id="admin-password" class="form-control" placeholder="ឧ. nadr@2026" required style="font-size: 13px;">
                                             </div>
                                             <div class="form-group">
+                                                <label style="font-size: 12.5px; font-weight: 700; margin-bottom: 6px; display: block; color: var(--text-color);">លេខទូរស័ព្ទ (Phone)</label>
+                                                <input type="text" id="admin-phone" class="form-control" placeholder="ឧ. 012 345 678" style="font-size: 13px;">
+                                            </div>
+                                            <div class="form-group">
+                                                <label style="font-size: 12.5px; font-weight: 700; margin-bottom: 6px; display: block; color: var(--text-color);">អ៊ីមែល (Email)</label>
+                                                <input type="text" id="admin-email" class="form-control" placeholder="ឧ. user@nadr.gov.kh" style="font-size: 13px;">
+                                            </div>
+                                            <div class="form-group">
                                                 <label style="font-size: 12.5px; font-weight: 700; margin-bottom: 6px; display: block; color: var(--text-color);">តួនាទី / កម្រិតសិទ្ធិ (Role & Permission) <span class="text-danger">*</span></label>
                                                 <select id="admin-role" class="form-control" style="font-size: 13px;">
                                                     <option value="Super Admin (អ្នកគ្រប់គ្រងកម្មវិធី)">Super Admin (អ្នកគ្រប់គ្រងកម្មវិធី - សិទ្ធិពេញលេញ ១០០%)</option>
@@ -1507,13 +1534,14 @@
                                 </div>
 
                                 <div class="table-responsive">
-                                    <table class="data-table text-center" style="font-size: 13.5px; width: 100%;">
+                                    <table class="data-table text-center" style="font-size: 13px; width: 100%;">
                                         <thead>
                                             <tr>
                                                 <th style="width: 50px;">ល.រ</th>
                                                 <th>ឈ្មោះគណនី (Username)</th>
                                                 <th>ឈ្មោះពិត (Display Name)</th>
                                                 <th>តួនាទី / កម្រិតសិទ្ធិ (Role)</th>
+                                                <th>លេខទូរស័ព្ទ / អ៊ីមែល</th>
                                                 <th>ពាក្យសម្ងាត់</th>
                                                 <th>ស្ថានភាព (Status)</th>
                                                 <th class="text-center" style="width: 150px;">សកម្មភាព (Actions)</th>
@@ -1764,7 +1792,7 @@
                         
                         <div class="form-group mb-3">
                             <label style="font-size: 13px; font-weight: 700; display: block; margin-bottom: 6px; color: var(--text-color);">ឈ្មោះគណនី (Username / ID):</label>
-                            <input type="text" class="form-control" value="Admin / NADR-001" readonly style="background: var(--bg-main); font-weight: 700; color: var(--text-muted); cursor: not-allowed;">
+                            <input type="text" id="profile-view-username" class="form-control" value="Admin / NADR-001" readonly style="background: var(--bg-main); font-weight: 700; color: var(--text-muted); cursor: not-allowed;">
                         </div>
 
                         <div class="form-group mb-3">
@@ -1828,7 +1856,7 @@
                             <h4 style="font-size: 15px; font-weight: 700; margin: 0 0 14px 0; color: var(--text-color); display: flex; align-items: center; gap: 8px;">
                                 <i class="fa-solid fa-shield-halved text-primary"></i> សិទ្ធិ និងសុវត្ថិភាព (Security & Access Level)
                             </h4>
-                            <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: var(--text-color); line-height: 2;">
+                            <ul id="profile-security-box" style="margin: 0; padding-left: 20px; font-size: 13px; color: var(--text-color); line-height: 2;">
                                 <li><strong>កម្រិតសិទ្ធិ៖</strong> អគ្គនាយករដ្ឋបាល (Super Administrator)</li>
                                 <li><strong>ការអនុញ្ញាត៖</strong> បញ្ចូល កែសម្រួល លុប និងបោះពុម្ពទិន្នន័យទាំងអស់</li>
                                 <li><strong>ស្ថានភាពសុវត្ថិភាព៖</strong> ការពារដោយលេខកូដសម្ងាត់ ២ ជាន់ (Active)</li>
