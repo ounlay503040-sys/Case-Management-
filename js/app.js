@@ -2137,6 +2137,28 @@ function initSettingsEvents() {
             panes.forEach(pane => {
                 pane.style.display = pane.id === paneId ? 'block' : 'none';
             });
+
+            // Update universal pane header title, desc, icon
+            const titleEl = document.getElementById('settings-current-title');
+            const descEl = document.getElementById('settings-current-desc');
+            const iconEl = document.getElementById('settings-current-icon');
+            if (titleEl && tab.getAttribute('data-title')) titleEl.textContent = tab.getAttribute('data-title');
+            if (descEl && tab.getAttribute('data-desc')) descEl.textContent = tab.getAttribute('data-desc');
+            if (iconEl && tab.getAttribute('data-icon')) {
+                iconEl.innerHTML = `<i class="fa-solid ${tab.getAttribute('data-icon')}"></i>`;
+                if (tab.getAttribute('data-color')) iconEl.style.color = tab.getAttribute('data-color');
+            }
+
+            // Automatically un-minimize when switching tabs
+            const card = document.getElementById('main-settings-card');
+            if (card && card.classList.contains('minimized')) {
+                card.classList.remove('minimized');
+                const minIcon = document.getElementById('minimize-settings-icon');
+                const minTxt = document.getElementById('minimize-settings-text');
+                if (minIcon) minIcon.className = 'fa-solid fa-minus';
+                if (minTxt) minTxt.textContent = 'បង្រួមផ្ទាំង (Minimize)';
+            }
+
             if (paneId === 'tab-eval-matrix') {
                 renderSettingsEvalMatrix();
                 if (typeof loadEvalThresholds === 'function') loadEvalThresholds();
@@ -2155,6 +2177,23 @@ function initSettingsEvents() {
             }
         });
     });
+
+    // Universal Minimize Settings Toggle
+    const minBtn = document.getElementById('btn-toggle-minimize-settings');
+    if (minBtn && !minBtn._hasHandler) {
+        minBtn._hasHandler = true;
+        minBtn.addEventListener('click', () => {
+            const card = document.getElementById('main-settings-card');
+            const icon = document.getElementById('minimize-settings-icon');
+            const txt = document.getElementById('minimize-settings-text');
+            if (card) {
+                card.classList.toggle('minimized');
+                const isMin = card.classList.contains('minimized');
+                if (icon) icon.className = isMin ? 'fa-solid fa-plus' : 'fa-solid fa-minus';
+                if (txt) txt.textContent = isMin ? 'ពង្រីកផ្ទាំង (Expand)' : 'បង្រួមផ្ទាំង (Minimize)';
+            }
+        });
+    }
 
     // Add Province
     const btnAddProv = document.getElementById('btn-add-province');

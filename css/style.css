@@ -93,8 +93,7 @@ body {
     bottom: 0;
     left: 0;
     z-index: 100;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: hidden;
     transition: var(--transition);
     box-shadow: 4px 0 15px rgba(0, 0, 0, 0.15);
 }
@@ -136,6 +135,33 @@ body {
     flex: 1;
     padding: 20px 14px;
     overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+    transition: scrollbar-color 0.3s ease;
+}
+
+.sidebar-nav::-webkit-scrollbar {
+    width: 5px;
+    background: transparent;
+}
+.sidebar-nav::-webkit-scrollbar-track {
+    background: transparent;
+}
+.sidebar-nav::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.sidebar:hover .sidebar-nav {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+}
+.sidebar:hover .sidebar-nav::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.22);
+}
+.sidebar:hover .sidebar-nav::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.45);
 }
 
 .nav-section-title {

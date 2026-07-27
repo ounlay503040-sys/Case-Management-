@@ -1216,160 +1216,141 @@
                 </div>
 
                 <div class="card-panel settings-card" style="padding: 0; overflow: hidden; border-radius: var(--radius-lg); background: var(--bg-card); border: 1px solid var(--border-color); box-shadow: var(--shadow-md);">
-                    <!-- Settings Vertical Layout Container (Phone settings style) -->
+                    <!-- Settings Horizontal Layout Container -->
                     <style>
-                    .settings-vert-btn {
+                    .settings-horiz-btn {
                         display: flex;
                         align-items: center;
-                        gap: 14px;
-                        width: 100%;
-                        padding: 14px 16px;
-                        border: 1px solid transparent;
-                        background: transparent;
+                        gap: 10px;
+                        padding: 10px 16px;
+                        border: 1.5px solid transparent;
+                        background: var(--bg-main);
                         border-radius: 12px;
                         cursor: pointer;
-                        text-align: left;
-                        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
                         font-family: inherit;
+                        font-size: 13.5px;
+                        font-weight: 600;
                         color: var(--text-color);
+                        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+                        white-space: nowrap;
                     }
-                    .settings-vert-btn:hover {
-                        background: var(--bg-main);
-                        transform: translateX(4px);
+                    .settings-horiz-btn:hover {
+                        background: rgba(59, 130, 246, 0.08);
+                        border-color: rgba(59, 130, 246, 0.3);
+                        color: var(--primary-color);
+                        transform: translateY(-2px);
                     }
-                    .settings-vert-btn.active {
-                        background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(29, 78, 216, 0.18));
-                        border-color: rgba(59, 130, 246, 0.4);
-                        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.08);
+                    .settings-horiz-btn.active {
+                        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+                        border-color: transparent;
+                        color: #ffffff !important;
+                        font-weight: 700;
+                        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
                     }
-                    .settings-vert-btn .icon-box {
-                        width: 42px;
-                        height: 42px;
-                        border-radius: 10px;
+                    .settings-horiz-btn .icon-box {
+                        width: 30px;
+                        height: 30px;
+                        border-radius: 8px;
                         display: flex;
                         align-items: center;
                         justify-content: center;
-                        font-size: 18px;
-                        flex-shrink: 0;
-                        transition: transform 0.2s;
+                        font-size: 15px;
+                        background: rgba(0, 0, 0, 0.05);
+                        color: inherit;
+                        transition: all 0.2s;
                     }
-                    .settings-vert-btn:hover .icon-box {
-                        transform: scale(1.1);
+                    .settings-horiz-btn.active .icon-box {
+                        background: rgba(255, 255, 255, 0.22);
+                        color: #ffffff;
                     }
-                    .settings-vert-btn .text-info {
+                    .settings-pane-header {
                         display: flex;
-                        flex-direction: column;
-                        flex: 1;
-                        overflow: hidden;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding-bottom: 16px;
+                        margin-bottom: 20px;
+                        border-bottom: 2px solid var(--border-color);
+                        flex-wrap: wrap;
+                        gap: 14px;
                     }
-                    .settings-vert-btn .text-info .title {
-                        font-size: 14px;
-                        font-weight: 700;
-                        color: var(--text-color);
-                        margin-bottom: 2px;
+                    .settings-content-area.minimized #settings-panes-body {
+                        display: none !important;
                     }
-                    .settings-vert-btn.active .text-info .title {
-                        color: var(--primary-color);
+                    .settings-content-area.minimized {
+                        min-height: auto !important;
+                        padding-bottom: 20px !important;
                     }
-                    .settings-vert-btn .text-info .desc {
-                        font-size: 11.5px;
-                        color: var(--text-muted);
-                        white-space: nowrap;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                    }
-                    .settings-vert-btn .arrow-icon {
-                        font-size: 12px;
-                        color: var(--text-muted);
-                        opacity: 0.5;
-                        transition: transform 0.2s;
-                    }
-                    .settings-vert-btn.active .arrow-icon {
-                        color: var(--primary-color);
-                        opacity: 1;
-                        transform: translateX(3px);
-                    }
-                    @media (max-width: 850px) {
-                        .settings-vertical-container {
-                            grid-template-columns: 1fr !important;
-                        }
+                    .settings-content-area.minimized .settings-pane-header {
+                        margin-bottom: 0 !important;
+                        padding-bottom: 0 !important;
+                        border-bottom: none !important;
                     }
                     </style>
 
-                    <div class="settings-vertical-container" style="display: grid; grid-template-columns: 310px 1fr; gap: 24px; align-items: start; padding: 24px; background: var(--bg-main);">
-                        <!-- Left Column: Vertical Menu Card (Mobile settings style) -->
-                        <div class="card-panel settings-sidebar-menu" style="padding: 16px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 6px;">
-                            <div style="font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 12px 6px 12px;">បញ្ជីការកំណត់ (Preferences)</div>
+                    <div class="settings-horizontal-container" style="display: flex; flex-direction: column; gap: 20px; padding: 24px; background: var(--bg-main);">
+                        <!-- Top Horizontal Menu Bar -->
+                        <div class="card-panel settings-top-menu" style="padding: 14px 18px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+                            <div style="font-size: 12.5px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; padding: 6px 12px; display: flex; align-items: center; gap: 8px; border-right: 2px solid var(--border-color); margin-right: 4px;">
+                                <i class="fa-solid fa-sliders text-primary" style="font-size: 16px;"></i> បញ្ជីការកំណត់ (Preferences):
+                            </div>
                             
-                            <button type="button" class="settings-vert-btn tab-btn active" data-tab="tab-org">
-                                <div class="icon-box" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6;"><i class="fa-solid fa-building-flag"></i></div>
-                                <div class="text-info">
-                                    <span class="title">១. កំណត់ស្ថាប័ន &amp; លេខកូដ</span>
-                                    <span class="desc">ឈ្មោះស្ថាប័ន &amp; ក្បាលសំណុំរឿង</span>
-                                </div>
-                                <i class="fa-solid fa-chevron-right arrow-icon"></i>
+                            <button type="button" class="settings-horiz-btn tab-btn active" data-tab="tab-org" data-title="១. កំណត់ស្ថាប័ន &amp; លេខកូដ" data-desc="កំណត់ឈ្មោះស្ថាប័នសម្រាប់បោះពុម្ពរបាយការណ៍ និងក្បាលលេខកូដសំណុំរឿងស្វ័យប្រវត្តិ" data-icon="fa-building-flag" data-color="#3b82f6">
+                                <div class="icon-box"><i class="fa-solid fa-building-flag"></i></div>
+                                <span>១. ស្ថាប័ន &amp; លេខកូដ</span>
                             </button>
 
-                            <button type="button" class="settings-vert-btn tab-btn" data-tab="tab-categories">
-                                <div class="icon-box" style="background: rgba(16, 185, 129, 0.15); color: #10b981;"><i class="fa-solid fa-tags"></i></div>
-                                <div class="text-info">
-                                    <span class="title">២. ប្រភេទវិវាទទាំង ៨</span>
-                                    <span class="desc">បន្ថែម ឬកែសម្រួលប្រភេទវិវាទ</span>
-                                </div>
-                                <i class="fa-solid fa-chevron-right arrow-icon"></i>
+                            <button type="button" class="settings-horiz-btn tab-btn" data-tab="tab-categories" data-title="២. ប្រភេទវិវាទទាំង ៨" data-desc="បន្ថែម ឬកែសម្រួលប្រភេទវិវាទក្នុងប្រព័ន្ធ" data-icon="fa-tags" data-color="#10b981">
+                                <div class="icon-box"><i class="fa-solid fa-tags"></i></div>
+                                <span>២. ប្រភេទវិវាទ (៨)</span>
                             </button>
 
-                            <button type="button" class="settings-vert-btn tab-btn" data-tab="tab-columns">
-                                <div class="icon-box" style="background: rgba(139, 92, 246, 0.15); color: #8b5cf6;"><i class="fa-solid fa-table-columns"></i></div>
-                                <div class="text-info">
-                                    <span class="title">៣. បន្ថែមកូឡោនសំណុំរឿង</span>
-                                    <span class="desc">កំណត់បង្ហាញ/លាក់ជួរឈរតារាង</span>
-                                </div>
-                                <i class="fa-solid fa-chevron-right arrow-icon"></i>
+                            <button type="button" class="settings-horiz-btn tab-btn" data-tab="tab-columns" data-title="៣. បន្ថែមកូឡោនសំណុំរឿង" data-desc="កំណត់បង្ហាញ/លាក់ជួរឈរតារាងបញ្ជីសំណុំរឿង" data-icon="fa-table-columns" data-color="#8b5cf6">
+                                <div class="icon-box"><i class="fa-solid fa-table-columns"></i></div>
+                                <span>៣. កូឡោនតារាង</span>
                             </button>
 
-                            <button type="button" class="settings-vert-btn tab-btn" data-tab="tab-admins">
-                                <div class="icon-box" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;"><i class="fa-solid fa-user-shield"></i></div>
-                                <div class="text-info">
-                                    <span class="title">៤. គ្រប់គ្រងគណនីរដ្ឋបាល</span>
-                                    <span class="desc">សិទ្ធិចូលប្រព័ន្ធ &amp; គណនីមន្ត្រី</span>
-                                </div>
-                                <i class="fa-solid fa-chevron-right arrow-icon"></i>
+                            <button type="button" class="settings-horiz-btn tab-btn" data-tab="tab-admins" data-title="៤. គ្រប់គ្រងគណនីរដ្ឋបាល" data-desc="គ្រប់គ្រងសិទ្ធិចូលប្រព័ន្ធ និងគណនីមន្ត្រី" data-icon="fa-user-shield" data-color="#f59e0b">
+                                <div class="icon-box"><i class="fa-solid fa-user-shield"></i></div>
+                                <span>៤. គណនីរដ្ឋបាល</span>
                             </button>
 
-                            <button type="button" class="settings-vert-btn tab-btn" data-tab="tab-audit">
-                                <div class="icon-box" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;"><i class="fa-solid fa-clipboard-list"></i></div>
-                                <div class="text-info">
-                                    <span class="title">៥. កំណត់ហេតុសកម្មភាព</span>
-                                    <span class="desc">ប្រវត្តិសកម្មភាពក្នុងប្រព័ន្ធ</span>
-                                </div>
-                                <i class="fa-solid fa-chevron-right arrow-icon"></i>
+                            <button type="button" class="settings-horiz-btn tab-btn" data-tab="tab-audit" data-title="៥. កំណត់ហេតុសកម្មភាព (Audit Logs)" data-desc="ប្រវត្តិសកម្មភាព និងកត់ត្រាការប្រើប្រាស់ក្នុងប្រព័ន្ធ" data-icon="fa-clipboard-list" data-color="#ef4444">
+                                <div class="icon-box"><i class="fa-solid fa-clipboard-list"></i></div>
+                                <span>៥. កំណត់ហេតុ (Audit)</span>
                             </button>
 
-                            <button type="button" class="settings-vert-btn tab-btn" data-tab="tab-eval-matrix">
-                                <div class="icon-box" style="background: rgba(14, 165, 233, 0.15); color: #0ea5e9;"><i class="fa-solid fa-scale-balanced"></i></div>
-                                <div class="text-info">
-                                    <span class="title">៦. លក្ខណៈវិនិច្ឆ័យវាយតម្លៃ</span>
-                                    <span class="desc">តារាងស្ដង់ដារកម្រិតវិវាទ</span>
-                                </div>
-                                <i class="fa-solid fa-chevron-right arrow-icon"></i>
+                            <button type="button" class="settings-horiz-btn tab-btn" data-tab="tab-eval-matrix" data-title="៦. លក្ខណៈវិនិច្ឆ័យវាយតម្លៃចំណាត់ការ" data-desc="តារាងស្ដង់ដារកម្រិតវិវាទ និងគោលការណ៍វាយតម្លៃ" data-icon="fa-scale-balanced" data-color="#0ea5e9">
+                                <div class="icon-box"><i class="fa-solid fa-scale-balanced"></i></div>
+                                <span>៦. លក្ខណៈវិនិច្ឆ័យ</span>
                             </button>
 
-                            <button type="button" class="settings-vert-btn tab-btn" data-tab="tab-strategies">
-                                <div class="icon-box" style="background: rgba(16, 185, 129, 0.15); color: #10b981;"><i class="fa-solid fa-chess-knight"></i></div>
-                                <div class="text-info">
-                                    <span class="title">៧. យុទ្ធសាស្ត្រដោះស្រាយវិវាទ</span>
-                                    <span class="desc">កំណត់យុទ្ធសាស្ត្រតាមកម្រិតលទ្ធផល</span>
-                                </div>
-                                <i class="fa-solid fa-chevron-right arrow-icon"></i>
+                            <button type="button" class="settings-horiz-btn tab-btn" data-tab="tab-strategies" data-title="៧. យុទ្ធសាស្ត្រដោះស្រាយវិវាទ" data-desc="កំណត់យុទ្ធសាស្ត្រ និងអនុសាសន៍តាមកម្រិតលទ្ធផល" data-icon="fa-chess-knight" data-color="#10b981">
+                                <div class="icon-box"><i class="fa-solid fa-chess-knight"></i></div>
+                                <span>៧. យុទ្ធសាស្ត្រដោះស្រាយ</span>
                             </button>
                         </div>
 
-                        <!-- Right Column: Settings Content Panes -->
-                        <div class="card-panel settings-content-area" style="padding: 28px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); min-height: 520px;">
-                            
-                            <!-- TAB 1: ORG & CASE PREFIX CONFIG -->
-                            <div class="settings-tab-pane active" id="tab-org">
+                        <!-- Bottom Content Area: Settings Panes -->
+                        <div class="card-panel settings-content-area" id="main-settings-card" style="padding: 26px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); min-height: 520px; transition: all 0.3s ease;">
+                            <!-- Universal Settings Pane Header with Minimize Button -->
+                            <div class="settings-pane-header">
+                                <div style="display: flex; align-items: center; gap: 14px;">
+                                    <div id="settings-current-icon" style="width: 42px; height: 42px; border-radius: 12px; background: rgba(59, 130, 246, 0.15); color: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 20px;"><i class="fa-solid fa-building-flag"></i></div>
+                                    <div>
+                                        <h3 id="settings-current-title" style="margin: 0; font-size: 17.5px; font-weight: 800; color: var(--text-color);">១. កំណត់ស្ថាប័ន &amp; លេខកូដ</h3>
+                                        <p id="settings-current-desc" style="margin: 3px 0 0 0; font-size: 13px; color: var(--text-muted);">កំណត់ឈ្មោះស្ថាប័នសម្រាប់បោះពុម្ពរបាយការណ៍ និងក្បាលលេខកូដសំណុំរឿងស្វ័យប្រវត្តិ</p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <button type="button" id="btn-toggle-minimize-settings" class="btn-secondary" style="padding: 9px 16px; font-size: 13px; font-weight: 700; border-radius: 10px; display: flex; align-items: center; gap: 8px; background: var(--bg-main); border: 1.5px solid var(--border-color); cursor: pointer; color: var(--text-color); transition: all 0.2s;">
+                                        <i class="fa-solid fa-minus" id="minimize-settings-icon"></i> <span id="minimize-settings-text">បង្រួមផ្ទាំង (Minimize)</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div id="settings-panes-body" style="transition: all 0.3s ease;">
+                                <!-- TAB 1: ORG & CASE PREFIX CONFIG -->
+                                <div class="settings-tab-pane active" id="tab-org">
                                 <div class="mb-4" style="border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">
                                     <h4 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-color); display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-building-flag text-primary"></i> កំណត់ព័ត៌មានស្ថាប័ន និងទម្រង់លេខកូដសំណុំរឿង (Organization & Prefix Settings)</h4>
                                     <p style="font-size: 13px; color: var(--text-muted); margin: 6px 0 0 0;">កំណត់ឈ្មោះស្ថាប័នសម្រាប់បោះពុម្ពរបាយការណ៍ និងក្បាលលេខកូដសំណុំរឿងស្វ័យប្រវត្តិ</p>
@@ -1742,7 +1723,7 @@
                                     </div>
                                 </div>
                             </div>
-
+                            </div> <!-- END #settings-panes-body -->
                         </div>
                     </div>
                 </div>
