@@ -139,12 +139,22 @@ body {
 }
 
 .nav-section-title {
-    font-size: 11px;
-    font-weight: 600;
-    color: #64748b;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #93c5fd;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    margin: 16px 12px 8px;
+    letter-spacing: 0.8px;
+    margin: 20px 8px 10px;
+    padding-top: 14px;
+    border-top: 1px dashed rgba(255, 255, 255, 0.14);
+    display: flex;
+    align-items: center;
+}
+
+.sidebar-nav .nav-section-title:first-of-type {
+    border-top: none;
+    margin-top: 8px;
+    padding-top: 0;
 }
 
 .nav-item {

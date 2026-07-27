@@ -104,7 +104,7 @@
                         <small style="color: #93c5fd; font-size: 11px;">គ្រប់គ្រងគណនី &amp; រូបភាព</small>
                     </div>
                 </a>
-                <div class="nav-section-title" data-i18n="nav.main">មេនុយទូទៅ (MAIN)</div>
+                <div class="nav-section-title"><i class="fa-solid fa-folder-open" style="color: #60a5fa; margin-right: 6px;"></i> គ្រប់គ្រងសំណុំរឿង</div>
                 <a href="#entry-view" class="nav-item active" data-view="entry-view">
                     <i class="fa-solid fa-folder-plus"></i>
                     <span data-i18n="nav.entry">បញ្ចូលសំណុំរឿង</span>
@@ -113,31 +113,33 @@
                     <i class="fa-solid fa-table-list"></i>
                     <span data-i18n="nav.cases">បញ្ជីសំណុំរឿង</span>
                 </a>
+                <a href="#reports-view" class="nav-item" data-view="reports-view">
+                    <i class="fa-solid fa-file-invoice"></i>
+                    <span data-i18n="nav.reports">របាយការណ៍សំណុំរឿង</span>
+                </a>
+
+                <div class="nav-section-title"><i class="fa-solid fa-chart-line" style="color: #34d399; margin-right: 6px;"></i> ស្ថិតិ និងវាយតម្លៃ</div>
                 <a href="#dashboard-view" class="nav-item" data-view="dashboard-view">
                     <i class="fa-solid fa-chart-pie"></i>
-                    <span data-i18n="nav.dashboard">ផ្ទាំងស្ថិតិសង្ខេប</span>
+                    <span data-i18n="nav.dashboard">ស្ថិតិសំណុំរឿង</span>
                 </a>
                 <a href="#analytics-view" class="nav-item" data-view="analytics-view">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <span data-i18n="nav.analytics">វិភាគវាយតម្លៃចំណាត់ការ</span>
+                    <i class="fa-solid fa-chart-simple"></i>
+                    <span data-i18n="nav.analytics">វិភាគ វាយតម្លៃ</span>
                 </a>
                 <a href="#strategic-plan-view" class="nav-item" data-view="strategic-plan-view">
                     <i class="fa-solid fa-compass-drafting"></i>
                     <span>ផែនការយុទ្ធសាស្ត្រ</span>
                 </a>
 
-                <div class="nav-section-title" data-i18n="nav.admin">រដ្ឋបាល &amp; ទិន្នន័យ (ADMIN)</div>
-                <a href="#reports-view" class="nav-item" data-view="reports-view">
-                    <i class="fa-solid fa-file-invoice"></i>
-                    <span data-i18n="nav.reports">ផលិតរបាយការណ៍</span>
+                <div class="nav-section-title"><i class="fa-solid fa-gear" style="color: #f59e0b; margin-right: 6px;"></i> ការកំណត់</div>
+                <a href="#settings-view" class="nav-item" data-view="settings-view">
+                    <i class="fa-solid fa-gears"></i>
+                    <span data-i18n="nav.settings">ការកំណត់ប្រព័ន្ធ</span>
                 </a>
                 <a href="#data-mgmt-view" class="nav-item" data-view="data-mgmt-view">
                     <i class="fa-solid fa-database"></i>
                     <span data-i18n="nav.data">ទាញទិន្នន័យចូល &amp; បម្រុង</span>
-                </a>
-                <a href="#settings-view" class="nav-item" data-view="settings-view">
-                    <i class="fa-solid fa-gears"></i>
-                    <span data-i18n="nav.settings">ការកំណត់ប្រព័ន្ធ (Settings)</span>
                 </a>
             </nav>
 
@@ -204,7 +206,7 @@
             <section class="view-section" id="dashboard-view">
                 <div class="section-title-box">
                     <div>
-                        <h1 data-i18n="dashboard.title">ផ្ទាំងស្ថិតិសង្ខេបទូទៅ</h1>
+                        <h1 data-i18n="dashboard.title">ស្ថិតិសំណុំរឿង (Case Statistics Dashboard)</h1>
                         <p data-i18n="dashboard.subtitle">តាមដានស្ថានភាពសំណុំរឿង និងលំហូរដោះស្រាយវិវាទប្រចាំស្ថាប័ន</p>
                     </div>
                     <div class="section-actions">
@@ -791,7 +793,7 @@
             <section class="view-section" id="analytics-view">
                 <div class="section-title-box">
                     <div>
-                        <h1 data-i18n="analytics.title">វិភាគវាយតម្លៃចំណាត់ការសំណុំរឿង (Action Evaluation & Analytics)</h1>
+                        <h1 data-i18n="analytics.title">វិភាគ វាយតម្លៃចំណាត់ការសំណុំរឿង (Case Evaluation & Analytics)</h1>
                         <p data-i18n="analytics.subtitle">វាយតម្លៃអត្រាជោគជ័យនៃការផ្សះផ្សា និងប្រសិទ្ធភាពការងារសម្រុះសម្រួល</p>
                     </div>
                 </div>
@@ -1029,7 +1031,7 @@
             <section class="view-section" id="reports-view">
                 <div class="section-title-box">
                     <div>
-                        <h1 data-i18n="reports.title">ផលិតរបាយការណ៍ផ្លូវការ (Official Report Generator)</h1>
+                        <h1 data-i18n="reports.title">របាយការណ៍សំណុំរឿង (Case Report Generator)</h1>
                         <p data-i18n="reports.subtitle">បង្កើតរបាយការណ៍រដ្ឋបាល បោះពុម្ព (Print/PDF) និងបញ្ចេញឯកសារ Excel (.xlsx)</p>
                     </div>
                 </div>
@@ -1498,10 +1500,10 @@
                                             <div class="form-group">
                                                 <label style="font-size: 12.5px; font-weight: 700; margin-bottom: 6px; display: block; color: var(--text-color);">តួនាទី / កម្រិតសិទ្ធិ (Role & Permission) <span class="text-danger">*</span></label>
                                                 <select id="admin-role" class="form-control" style="font-size: 13px;">
-                                                    <option value="Super Admin (រដ្ឋបាលមេ)">Super Admin (រដ្ឋបាលមេ)</option>
-                                                    <option value="Case Officer (មន្ត្រីសម្រុះសម្រួល)">Case Officer (មន្ត្រីសម្រុះសម្រួល)</option>
-                                                    <option value="Data Entry (មន្ត្រីបញ្ចូលទិន្នន័យ)">Data Entry (មន្ត្រីបញ្ចូលទិន្នន័យ)</option>
-                                                    <option value="Viewer (អ្នកពិនិត្យរបាយការណ៍)">Viewer (អ្នកពិនិត្យរបាយការណ៍)</option>
+                                                    <option value="Super Admin (អ្នកគ្រប់គ្រងកម្មវិធី)">Super Admin (អ្នកគ្រប់គ្រងកម្មវិធី - សិទ្ធិពេញលេញ ១០០%)</option>
+                                                    <option value="Case Officer (មន្ត្រីសម្រុះសម្រួល)">Case Officer (មន្ត្រីសម្រុះសម្រួល - កម្រិតសិទ្ធិក្នុងការកំណត់)</option>
+                                                    <option value="Data Entry (មន្ត្រីបញ្ចូលទិន្នន័យ)">Data Entry (មន្ត្រីបញ្ចូលទិន្នន័យ - កម្រិតសិទ្ធិក្នុងការកំណត់)</option>
+                                                    <option value="Viewer (អ្នកពិនិត្យរបាយការណ៍)">Viewer (អ្នកពិនិត្យរបាយការណ៍ - កម្រិតសិទ្ធិក្នុងការកំណត់)</option>
                                                 </select>
                                             </div>
                                             <div class="form-group">

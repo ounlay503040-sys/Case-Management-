@@ -171,6 +171,7 @@ function switchView(viewId) {
     } else if (viewId === 'profile-view') {
         if (typeof renderProfileView === 'function') renderProfileView();
     } else if (viewId === 'settings-view') {
+        if (typeof applyRBAC === 'function') applyRBAC();
         const activeTabBtn = document.querySelector('#settings-view .tab-btn.active');
         if (activeTabBtn) activeTabBtn.click();
     } else if (viewId === 'strategic-plan-view') {
@@ -1845,6 +1846,50 @@ function updateSidebarUser(name, role) {
     if (roleEl) roleEl.textContent = role;
     if (headerNameEl) headerNameEl.textContent = name;
     if (typeof initUserProfile === 'function') initUserProfile();
+    if (typeof applyRBAC === 'function') applyRBAC();
+}
+
+/**
+ * Role-Based Access Control (RBAC) Enforcement
+ * Limits Officer accounts to only see and edit Evaluation Criteria and Strategies in Settings.
+ */
+function applyRBAC() {
+    const role = localStorage.getItem('nadr_auth_user_role') || sessionStorage.getItem('nadr_auth_user_role') || '';
+    const isAdmin = role.toLowerCase().includes('admin') || role.includes('រដ្ឋបាល') || role.includes('អ្នកគ្រប់គ្រង');
+    
+    // In Settings view, control tab visibility
+    const adminTabs = ['tab-org', 'tab-categories', 'tab-columns', 'tab-admins', 'tab-audit'];
+    adminTabs.forEach(tabId => {
+        const btn = document.querySelector(`#settings-view .tab-btn[data-tab="${tabId}"]`);
+        if (btn) {
+            btn.style.display = isAdmin ? 'flex' : 'none';
+        }
+    });
+
+    // Check if an officer is currently on a restricted tab or if no active tab is set
+    if (!isAdmin) {
+        const activeBtn = document.querySelector('#settings-view .tab-btn.active');
+        if (!activeBtn || adminTabs.includes(activeBtn.getAttribute('data-tab'))) {
+            const evalBtn = document.querySelector('#settings-view .tab-btn[data-tab="tab-eval-matrix"]');
+            if (evalBtn) evalBtn.click();
+        }
+    }
+
+    // Show/hide role notice banner in Settings view
+    let noticeEl = document.getElementById('rbac-officer-notice');
+    if (!noticeEl) {
+        const settingsCard = document.querySelector('#settings-view .settings-card');
+        if (settingsCard) {
+            noticeEl = document.createElement('div');
+            noticeEl.id = 'rbac-officer-notice';
+            noticeEl.style.cssText = 'background: #fffbeb; border-bottom: 1px solid #fef3c7; padding: 14px 20px; font-size: 13.5px; color: #b45309; display: none; align-items: center; gap: 12px; font-weight: 600;';
+            noticeEl.innerHTML = '<i class="fa-solid fa-lock" style="font-size: 18px; color: #f59e0b; flex-shrink: 0;"></i> <div><span style="display: block; font-weight: 800; font-size: 14px; margin-bottom: 2px;">ការកំណត់សិទ្ធិមន្ត្រី (Officer Access Control)</span><span>គណនីរបស់អ្នកជា "មន្ត្រី"៖ អ្នកមានសិទ្ធិចូលប្រើប្រាស់ និងកែសម្រួលបានតែមុខងារ "លក្ខណៈវិនិច្ឆ័យវាយតម្លៃ" និង "យុទ្ធសាស្ត្រ" ប៉ុណ្ណោះ។ មុខងាររដ្ឋបាលផ្សេងទៀតត្រូវបានកម្រិតសិទ្ធិ។</span></div>';
+            settingsCard.insertBefore(noticeEl, settingsCard.firstChild);
+        }
+    }
+    if (noticeEl) {
+        noticeEl.style.display = isAdmin ? 'none' : 'flex';
+    }
 }
 
 /**
@@ -2032,8 +2077,8 @@ function initLanguageSwitcher() {
  * Dynamic Admin User accounts loaded from localStorage
  */
 let ADMIN_USERS = JSON.parse(localStorage.getItem('nadr_admin_users')) || [
-    { username: 'admin', password: 'admin123', name: 'គណនីរដ្ឋបាល (Admin)', role: 'Super Admin (រដ្ឋបាលមេ)', status: 'Active' },
-    { username: 'nadr', password: 'nadr', name: 'មន្ត្រីជាន់ខ្ពស់ NADR', role: 'Super Admin (រដ្ឋបាលមេ)', status: 'Active' },
+    { username: 'admin', password: 'admin123', name: 'គណនីរដ្ឋបាល (Admin)', role: 'Super Admin (អ្នកគ្រប់គ្រងកម្មវិធី)', status: 'Active' },
+    { username: 'nadr', password: 'nadr', name: 'មន្ត្រីជាន់ខ្ពស់ NADR', role: 'Super Admin (អ្នកគ្រប់គ្រងកម្មវិធី)', status: 'Active' },
     { username: 'user', password: 'user', name: 'មន្ត្រីសម្របសម្រួល', role: 'Case Officer (មន្ត្រីសម្រុះសម្រួល)', status: 'Active' }
 ];
 
@@ -2067,6 +2112,16 @@ function initSettingsEvents() {
 
     tabs.forEach(tab => {
         tab.addEventListener('click', () => {
+            const paneId = tab.getAttribute('data-tab');
+            const role = localStorage.getItem('nadr_auth_user_role') || sessionStorage.getItem('nadr_auth_user_role') || '';
+            const isAdmin = role.toLowerCase().includes('admin') || role.includes('រដ្ឋបាល') || role.includes('អ្នកគ្រប់គ្រង');
+            const adminTabs = ['tab-org', 'tab-categories', 'tab-columns', 'tab-admins', 'tab-audit'];
+            
+            if (!isAdmin && adminTabs.includes(paneId)) {
+                showToast('ការពារសិទ្ធិ៖ មុខងារនេះសម្រាប់តែអ្នកគ្រប់គ្រងកម្មវិធី (Admin) ប៉ុណ្ណោះ!', 'warning');
+                return;
+            }
+
             tabs.forEach(t => {
                 t.classList.remove('active');
                 t.style.borderBottomColor = 'transparent';
@@ -2078,7 +2133,6 @@ function initSettingsEvents() {
             tab.style.color = 'var(--primary-color)';
             tab.style.fontWeight = '700';
 
-            const paneId = tab.getAttribute('data-tab');
             const panes = document.querySelectorAll('#settings-view .settings-tab-pane');
             panes.forEach(pane => {
                 pane.style.display = pane.id === paneId ? 'block' : 'none';
