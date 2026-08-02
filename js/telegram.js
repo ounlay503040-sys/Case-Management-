@@ -209,3 +209,8 @@ async function sendTelegramReport() {
         if (typeof showToast === 'function') showToast('មានបញ្ហាក្នុងការផ្ញើរបាយការណ៍!', 'error');
     }
 }
+
+async function notifyTelegramEventCancelled(caseNumber, eventName) {
+    const msg = `❌ <b>ការលុបចោលកម្មវិធីសំណុំរឿង</b>\n\n📁 <b>សំណុំរឿង៖</b> ${caseNumber}\nកម្មវិធី "<b>${eventName || 'មិនស្គាល់'}</b>" ត្រូវបានលុបចេញពីប្រតិទិន។`;
+    await sendTelegramMessage(msg);
+}

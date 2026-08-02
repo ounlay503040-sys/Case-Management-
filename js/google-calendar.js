@@ -228,4 +228,26 @@ async function syncAllEventsToGoogleCalendar() {
             showToast('មិនមានសំណុំរឿងណាដែលមានកម្មវិធីត្រូវបញ្ជូនទេ!', 'info');
         }
     }
+    }
+}
+
+/**
+ * Delete event from Google Calendar
+ */
+async function deleteFromGoogleCalendar(eventId) {
+    if (!gapiInited || !gapi.client || !gapi.client.getToken()) {
+        console.log('Google Calendar not authenticated, skipping delete.');
+        return;
+    }
+    if (!eventId) return;
+
+    try {
+        await gapi.client.calendar.events.delete({
+            'calendarId': 'primary',
+            'eventId': eventId
+        });
+        console.log('Event deleted from Google Calendar: ' + eventId);
+    } catch (e) {
+        console.error('Error deleting event from Google Calendar:', e);
+    }
 }

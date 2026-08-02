@@ -110,9 +110,60 @@ function renderAllViews() {
         initOrUpdateCharts();
     }
     renderAnalyticsView();
+    if (typeof renderUpcomingEventsTable === 'function') {
+        renderUpcomingEventsTable();
+    }
     if (typeof renderProfileView === 'function') {
         renderProfileView();
     }
+}
+
+/**
+ * Render Upcoming Events Table in Calendar View
+ */
+function renderUpcomingEventsTable() {
+    const tbody = document.getElementById('upcoming-events-tbody');
+    if (!tbody) return;
+
+    // Filter cases with events and sort by date ascending
+    const eventsList = casesData.filter(c => c.caseEvent && c.caseEventDate)
+        .sort((a, b) => {
+            const dateA = new Date(`${a.caseEventDate}T${a.caseEventTime || '00:00'}`);
+            const dateB = new Date(`${b.caseEventDate}T${b.caseEventTime || '00:00'}`);
+            return dateA - dateB;
+        });
+
+    if (eventsList.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted" style="padding: 20px;">មិនមានកម្មវិធីសំណុំរឿងទេ</td></tr>`;
+        return;
+    }
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    let html = '';
+
+    eventsList.forEach(c => {
+        let rowStyle = '';
+        let badgeStyle = 'background: #e2e8f0; color: #475569;';
+        
+        if (c.caseEventDate === todayStr) {
+            rowStyle = 'background: #eff6ff;';
+            badgeStyle = 'background: #dbeafe; color: #1d4ed8; font-weight: 700;';
+        } else if (c.caseEventDate < todayStr) {
+            rowStyle = 'opacity: 0.7; background: #f8fafc;';
+        }
+
+        let timeStr = c.caseEventTime ? `<br><small style="color: #64748b;"><i class="fa-regular fa-clock"></i> ម៉ោង ${c.caseEventTime}</small>` : '';
+        
+        html += `<tr style="${rowStyle}">
+            <td style="font-weight: 600;">${c.caseEventDate} ${timeStr}</td>
+            <td><span class="badge" style="${badgeStyle}">${c.caseNumber}</span></td>
+            <td style="font-weight: 600; color: #334155;">${c.caseEvent}</td>
+            <td>${c.partyA_name} <span class="text-muted" style="font-size:11px;">vs</span> ${c.partyB_name}</td>
+            <td><span class="text-muted" style="font-size: 13px;"><i class="fa-solid fa-location-dot"></i> ${c.disputeLocation || 'មិនមាន'}</span></td>
+        </tr>`;
+    });
+
+    tbody.innerHTML = html;
 }
 
 /**
@@ -737,10 +788,25 @@ function initModalEvents() {
             });
 
             if (id) {
+                const oldCase = getCaseById(id);
+                const hadEvent = oldCase && oldCase.caseEvent && oldCase.caseEventDate;
+                const oldGoogleEventId = oldCase ? oldCase.googleEventId : null;
+                const oldEventName = oldCase ? oldCase.caseEvent : '';
+                
                 const updatedCase = updateCase(id, payload);
-                if (updatedCase && updatedCase.caseEvent && updatedCase.caseEventDate) {
-                    if (typeof syncToGoogleCalendar === 'function') syncToGoogleCalendar(updatedCase);
-                    if (typeof notifyTelegramEventUpdate === 'function') notifyTelegramEventUpdate(updatedCase);
+                if (updatedCase) {
+                    if (updatedCase.caseEvent && updatedCase.caseEventDate) {
+                        if (typeof syncToGoogleCalendar === 'function') syncToGoogleCalendar(updatedCase);
+                        if (typeof notifyTelegramEventUpdate === 'function') notifyTelegramEventUpdate(updatedCase);
+                    } else if (hadEvent) {
+                        // Event was cleared
+                        if (oldGoogleEventId && typeof deleteFromGoogleCalendar === 'function') {
+                            deleteFromGoogleCalendar(oldGoogleEventId);
+                        }
+                        if (typeof notifyTelegramEventCancelled === 'function') {
+                            notifyTelegramEventCancelled(updatedCase.caseNumber, oldEventName);
+                        }
+                    }
                 }
                 if (typeof logAuditAction === 'function') logAuditAction('កែសម្រួលសំណុំរឿង', `បានកែសម្រួលសំណុំរឿងលេខកូដ "${payload.caseNumber}"`);
                 showToast('បានកែសម្រួលសំណុំរឿងដោយជោគជ័យ!', 'success');
@@ -4343,6 +4409,43 @@ document.getElementById('btn-save-calendar-event')?.addEventListener('click', ()
     }
 });
 
+document.getElementById('btn-clear-calendar-event')?.addEventListener('click', () => {
+    const caseId = document.getElementById('cal-modal-case').value;
+    if (!caseId) {
+        showToast('សូមជ្រើសរើសសំណុំរឿងដើម្បីលុបកម្មវិធី!', 'error');
+        return;
+    }
+
+    const c = getCaseById(caseId);
+    if (c) {
+        if (!c.caseEvent && !c.caseEventDate) {
+            showToast('សំណុំរឿងនេះមិនមានកម្មវិធីទេ!', 'warning');
+            return;
+        }
+        
+        const oldGoogleEventId = c.googleEventId;
+        const oldEventName = c.caseEvent;
+
+        c.caseEvent = '';
+        c.caseEventDate = '';
+        c.caseEventTime = '';
+        c.notifiedEventDate = '';
+        c.notifiedOneHour = false;
+        c.googleEventId = ''; // Clear ID
+
+        saveCases();
+        showToast('បានលុបកម្មវិធីចេញពីប្រតិទិនដោយជោគជ័យ!', 'success');
+        document.getElementById('calendar-event-modal').classList.remove('open');
+        renderAllViews();
+
+        if (oldGoogleEventId && typeof deleteFromGoogleCalendar === 'function') {
+            deleteFromGoogleCalendar(oldGoogleEventId);
+        }
+        if (typeof notifyTelegramEventCancelled === 'function') {
+            notifyTelegramEventCancelled(c.caseNumber, oldEventName);
+        }
+    }
+});
 // Initialize Calendar view hook
 document.querySelector('a[data-view="calendar-view"]')?.addEventListener('click', () => {
     setTimeout(renderCalendar, 100);

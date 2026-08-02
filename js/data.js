@@ -202,8 +202,19 @@ function updateCase(id, updatedFields) {
  * Delete case by id
  */
 function deleteCase(id) {
+    const c = getCaseById(id);
+    if (!c) return false;
+
+    // Call external APIs if necessary
+    if (c.googleEventId && typeof deleteFromGoogleCalendar === 'function') {
+        deleteFromGoogleCalendar(c.googleEventId);
+    }
+    if (c.caseEvent && typeof notifyTelegramEventCancelled === 'function') {
+        notifyTelegramEventCancelled(c.caseNumber, c.caseEvent);
+    }
+
     const initialLength = casesData.length;
-    casesData = casesData.filter(c => c.id !== id);
+    casesData = casesData.filter(caseObj => caseObj.id !== id);
     if (casesData.length !== initialLength) {
         saveCases();
         return true;
