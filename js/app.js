@@ -699,6 +699,7 @@ function initModalEvents() {
                 dateReceived: document.getElementById('case-date').value,
                 caseEvent: document.getElementById('case-event') ? document.getElementById('case-event').value : '',
                 caseEventDate: document.getElementById('case-event-date') ? document.getElementById('case-event-date').value : '',
+                caseEventTime: document.getElementById('case-event-time') ? document.getElementById('case-event-time').value : '',
                 category: document.getElementById('case-category').value,
                 disputeLocation: document.getElementById('case-dispute-location').value,
                 disputeAddress: document.getElementById('case-dispute-address') ? document.getElementById('case-dispute-address').value.trim() : '',
@@ -736,11 +737,19 @@ function initModalEvents() {
             });
 
             if (id) {
-                updateCase(id, payload);
+                const updatedCase = updateCase(id, payload);
+                if (updatedCase && updatedCase.caseEvent && updatedCase.caseEventDate) {
+                    if (typeof syncToGoogleCalendar === 'function') syncToGoogleCalendar(updatedCase);
+                    if (typeof notifyTelegramEventUpdate === 'function') notifyTelegramEventUpdate(updatedCase);
+                }
                 if (typeof logAuditAction === 'function') logAuditAction('កែសម្រួលសំណុំរឿង', `បានកែសម្រួលសំណុំរឿងលេខកូដ "${payload.caseNumber}"`);
                 showToast('បានកែសម្រួលសំណុំរឿងដោយជោគជ័យ!', 'success');
             } else {
-                addCase(payload);
+                const newCase = addCase(payload);
+                if (newCase && newCase.caseEvent && newCase.caseEventDate) {
+                    if (typeof syncToGoogleCalendar === 'function') syncToGoogleCalendar(newCase);
+                    if (typeof notifyTelegramEventUpdate === 'function') notifyTelegramEventUpdate(newCase);
+                }
                 if (typeof logAuditAction === 'function') logAuditAction('បង្កើតសំណុំរឿងថ្មី', `បានបញ្ចូលសំណុំរឿងថ្មីលេខកូដ "${payload.caseNumber}" (Full Form)`);
                 showToast('បានបង្កើតសំណុំរឿងថ្មីដោយជោគជ័យ!', 'success');
             }
@@ -775,6 +784,7 @@ function openEditModal(id) {
     if(document.getElementById('case-dispute-address')) document.getElementById('case-dispute-address').value = c.disputeAddress || '';
     if(document.getElementById('case-event')) document.getElementById('case-event').value = c.caseEvent || '';
     if(document.getElementById('case-event-date')) document.getElementById('case-event-date').value = c.caseEventDate || '';
+    if(document.getElementById('case-event-time')) document.getElementById('case-event-time').value = c.caseEventTime || '';
 
     document.getElementById('case-party-a-name').value = c.partyA_name || '';
     document.getElementById('case-party-a-gender').value = c.partyA_gender || 'ប្រុស';
@@ -2958,6 +2968,7 @@ function initDashboardQuickForm() {
                 dateReceived: document.getElementById('quick-case-date').value,
                 caseEvent: document.getElementById('quick-case-event') ? document.getElementById('quick-case-event').value : '',
                 caseEventDate: document.getElementById('quick-case-event-date') ? document.getElementById('quick-case-event-date').value : '',
+                caseEventTime: document.getElementById('quick-case-event-time') ? document.getElementById('quick-case-event-time').value : '',
                 category: document.getElementById('quick-case-category').value,
                 disputeLocation: document.getElementById('quick-case-dispute-location').value,
                 
@@ -4286,10 +4297,12 @@ function openCalendarEventModal(dateStr) {
     
     casesData.forEach(c => {
         // Only show active cases or all cases
-        caseSelect.innerHTML += `<option value="${c.id}">${c.caseNumber} - ${c.partyA_name} vs ${c.partyB_name}</option>`;
+        const shortStatus = c.status.split(' ')[0]; // e.g. "Active", "Settle"
+        caseSelect.innerHTML += `<option value="${c.id}">[${shortStatus}] លេខ ${c.caseNumber} - ${c.partyA_name} vs ${c.partyB_name}</option>`;
     });
 
     document.getElementById('cal-modal-event').value = '';
+    document.getElementById('cal-modal-time').value = '08:00'; // Default time
     document.getElementById('calendar-event-modal').classList.add('open');
 }
 
@@ -4302,11 +4315,12 @@ document.getElementById('btn-cancel-calendar-modal')?.addEventListener('click', 
 
 document.getElementById('btn-save-calendar-event')?.addEventListener('click', () => {
     const dateStr = document.getElementById('cal-modal-date').value;
+    const timeStr = document.getElementById('cal-modal-time').value;
     const caseId = document.getElementById('cal-modal-case').value;
     const eventType = document.getElementById('cal-modal-event').value;
 
-    if (!caseId || !eventType) {
-        showToast('សូមជ្រើសរើសសំណុំរឿង និងកម្មវិធី!', 'error');
+    if (!caseId || !eventType || !timeStr) {
+        showToast('សូមជ្រើសរើសសំណុំរឿង, កម្មវិធី និងម៉ោង!', 'error');
         return;
     }
 
@@ -4314,7 +4328,9 @@ document.getElementById('btn-save-calendar-event')?.addEventListener('click', ()
     if (c) {
         c.caseEvent = eventType;
         c.caseEventDate = dateStr;
+        c.caseEventTime = timeStr;
         c.notifiedEventDate = ''; // Reset notification flag when date changes
+        c.notifiedOneHour = false; // Reset 1 hour notification flag
         saveCases();
         showToast('បានកំណត់កម្មវិធីដោយជោគជ័យ!', 'success');
         document.getElementById('calendar-event-modal').classList.remove('open');

@@ -30,8 +30,9 @@ window.addEventListener('load', () => {
         if (document.getElementById('setting-tg-chatid')) {
             document.getElementById('setting-tg-chatid').value = set.chatid;
         }
-        // Check notifications on load
+        // Check notifications on load and every minute
         checkAndSendTelegramNotifications();
+        setInterval(checkAndSendTelegramNotifications, 60000);
     }, 1000);
 });
 
@@ -83,8 +84,10 @@ function checkAndSendTelegramNotifications() {
     const { token, chatid } = getTelegramSettings();
     if (!token || !chatid) return; // Not configured
 
-    // Get tomorrow's date string YYYY-MM-DD
-    const tomorrow = new Date();
+    const now = new Date();
+    
+    // Get tomorrow's date string YYYY-MM-DD for the 1-day notification
+    const tomorrow = new Date(now);
     tomorrow.setDate(tomorrow.getDate() + 1);
     const tomorrowStr = tomorrow.toISOString().split('T')[0];
 
@@ -92,25 +95,48 @@ function checkAndSendTelegramNotifications() {
 
     if (typeof casesData !== 'undefined') {
         casesData.forEach(c => {
-            // Check if there is an event tomorrow
-            if (c.caseEvent && c.caseEventDate === tomorrowStr) {
-                // Check if we already notified for THIS specific date
-                if (c.notifiedEventDate !== tomorrowStr) {
-                    
-                    const msg = `🔔 <b>ការរំលឹកកម្មវិធីសំណុំរឿង (ថ្ងៃស្អែក)</b>\n\n📁 <b>សំណុំរឿង៖</b> ${c.caseNumber}\n⚖️ <b>ប្រភេទវិវាទ៖</b> ${c.category}\n🗓 <b>កម្មវិធី៖</b> ${c.caseEvent}\n📍 <b>ទីតាំង៖</b> ${c.disputeLocation}\n\n🧑 <b>ភាគីក៖</b> ${c.partyA_name} (${c.partyA_phone || 'គ្មានលេខ'})\n🧑 <b>ភាគីខ៖</b> ${c.partyB_name} (${c.partyB_phone || 'គ្មានលេខ'})`;
+            if (!c.caseEvent || !c.caseEventDate) return;
 
+            // 1. Check for 1-DAY before notification
+            if (c.caseEventDate === tomorrowStr && c.notifiedEventDate !== tomorrowStr) {
+                let timeStr = c.caseEventTime ? ` (ម៉ោង ${c.caseEventTime})` : '';
+                const msg = `🔔 <b>ការរំលឹកកម្មវិធីសំណុំរឿង (ថ្ងៃស្អែក)</b>\n\n📁 <b>សំណុំរឿង៖</b> ${c.caseNumber}\n⚖️ <b>ប្រភេទវិវាទ៖</b> ${c.category}\n🗓 <b>កម្មវិធី៖</b> ${c.caseEvent} ${timeStr}\n📍 <b>ទីតាំង៖</b> ${c.disputeLocation}\n\n🧑 <b>ភាគីក៖</b> ${c.partyA_name} (${c.partyA_phone || 'គ្មានលេខ'})\n🧑 <b>ភាគីខ៖</b> ${c.partyB_name} (${c.partyB_phone || 'គ្មានលេខ'})`;
+
+                sendTelegramMessage(msg).then(success => {
+                    if (success) {
+                        c.notifiedEventDate = tomorrowStr;
+                        hasChanges = true;
+                        if (typeof saveCases === 'function') saveCases();
+                    }
+                });
+            }
+
+            // 2. Check for 1-HOUR before notification
+            if (c.caseEventTime && !c.notifiedOneHour) {
+                const eventDateTime = new Date(`${c.caseEventDate}T${c.caseEventTime}:00`);
+                const diffMs = eventDateTime - now;
+                const diffHours = diffMs / (1000 * 60 * 60);
+
+                // If event is in the future but less than 1 hour away
+                if (diffHours > 0 && diffHours <= 1) {
+                    const msg = `⏳ <b>ការរំលឹកបន្ទាន់ (១ ម៉ោងទៀត)</b>\n\nកម្មវិធីរបស់សំណុំរឿង <b>${c.caseNumber}</b> នឹងចាប់ផ្តើមក្នុងពេល ១ ម៉ោងទៀត!\n🗓 <b>កម្មវិធី៖</b> ${c.caseEvent} (ម៉ោង ${c.caseEventTime})\n📍 <b>ទីតាំង៖</b> ${c.disputeLocation}`;
+                    
                     sendTelegramMessage(msg).then(success => {
                         if (success) {
-                            c.notifiedEventDate = tomorrowStr;
+                            c.notifiedOneHour = true;
                             hasChanges = true;
-                            // Save periodically or after success
-                            if (typeof saveCases === 'function') {
-                                saveCases();
-                            }
+                            if (typeof saveCases === 'function') saveCases();
                         }
                     });
                 }
             }
         });
     }
+}
+
+async function notifyTelegramEventUpdate(c) {
+    if (!c.caseEvent || !c.caseEventDate) return;
+    let timeStr = c.caseEventTime ? ` (ម៉ោង ${c.caseEventTime})` : '';
+    const msg = `🔄 <b>មានការកែប្រែកម្មវិធីសំណុំរឿង</b>\n\n📁 <b>សំណុំរឿង៖</b> ${c.caseNumber}\n🗓 <b>កម្មវិធី៖</b> ${c.caseEvent} ${timeStr}\n📅 <b>ថ្ងៃទី៖</b> ${c.caseEventDate}\n📍 <b>ទីតាំង៖</b> ${c.disputeLocation}`;
+    await sendTelegramMessage(msg);
 }

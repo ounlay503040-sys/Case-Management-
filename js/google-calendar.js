@@ -133,34 +133,66 @@ async function syncToGoogleCalendar(c) {
     }
     if (!c.caseEvent || !c.caseEventDate) return;
 
-    // Calculate end date (+1 day for full day events in Google Calendar API)
-    const end = new Date(c.caseEventDate);
-    end.setDate(end.getDate() + 1);
-    const endDateStr = end.toISOString().split('T')[0];
+    // If we have a time, we use dateTime. Otherwise, full day event.
+    let start, end;
+    if (c.caseEventTime && c.caseEventTime !== '') {
+        const dateTimeStr = `${c.caseEventDate}T${c.caseEventTime}:00+07:00`; // Assuming Phnom Penh timezone
+        start = { 'dateTime': dateTimeStr, 'timeZone': 'Asia/Phnom_Penh' };
+        
+        // Assume 2 hours duration by default
+        const endDate = new Date(`${c.caseEventDate}T${c.caseEventTime}:00`);
+        endDate.setHours(endDate.getHours() + 2);
+        const endDateTimeStr = endDate.toISOString().replace('.000Z', '+00:00'); // Note: it will be in UTC, so let's format locally
+        
+        // Better way to format end time with offset manually or just rely on new Date
+        const endHour = String(endDate.getHours()).padStart(2, '0');
+        const endMin = String(endDate.getMinutes()).padStart(2, '0');
+        const endDateTimeStrLocal = `${c.caseEventDate}T${endHour}:${endMin}:00+07:00`;
+        
+        end = { 'dateTime': endDateTimeStrLocal, 'timeZone': 'Asia/Phnom_Penh' };
+    } else {
+        // Full day event
+        const endFull = new Date(c.caseEventDate);
+        endFull.setDate(endFull.getDate() + 1);
+        const endDateStr = endFull.toISOString().split('T')[0];
+        
+        start = { 'date': c.caseEventDate, 'timeZone': 'Asia/Phnom_Penh' };
+        end = { 'date': endDateStr, 'timeZone': 'Asia/Phnom_Penh' };
+    }
 
     const eventBody = {
         'summary': `NADR: ${c.caseEvent} (${c.caseNumber})`,
         'location': c.disputeLocation || '',
         'description': `សំណុំរឿង៖ ${c.caseNumber}\nភាគីក៖ ${c.partyA_name}\nភាគីខ៖ ${c.partyB_name}`,
-        'start': {
-            'date': c.caseEventDate,
-            'timeZone': 'Asia/Phnom_Penh'
-        },
-        'end': {
-            'date': endDateStr,
-            'timeZone': 'Asia/Phnom_Penh'
-        }
+        'start': start,
+        'end': end
     };
 
     try {
-        const request = await gapi.client.calendar.events.insert({
-            'calendarId': 'primary',
-            'resource': eventBody
-        });
-        console.log('Event created: ' + request.result.htmlLink);
-        if (typeof showToast === 'function') showToast('បានបញ្ជូនព្រឹត្តិការណ៍ទៅ Google Calendar រួចរាល់!', 'success');
+        let request;
+        if (c.googleEventId) {
+            // Update existing event
+            request = await gapi.client.calendar.events.update({
+                'calendarId': 'primary',
+                'eventId': c.googleEventId,
+                'resource': eventBody
+            });
+            console.log('Event updated: ' + request.result.htmlLink);
+            if (typeof showToast === 'function') showToast('បានកែប្រែព្រឹត្តិការណ៍ក្នុង Google Calendar រួចរាល់!', 'success');
+        } else {
+            // Insert new event
+            request = await gapi.client.calendar.events.insert({
+                'calendarId': 'primary',
+                'resource': eventBody
+            });
+            console.log('Event created: ' + request.result.htmlLink);
+            c.googleEventId = request.result.id;
+            // Save the ID to our local storage
+            if (typeof saveCases === 'function') saveCases();
+            if (typeof showToast === 'function') showToast('បានបញ្ជូនព្រឹត្តិការណ៍ទៅ Google Calendar រួចរាល់!', 'success');
+        }
     } catch (e) {
-        console.error('Error inserting event:', e);
+        console.error('Error with Google Calendar:', e);
         if (typeof showToast === 'function') showToast('មានបញ្ហាក្នុងការបញ្ជូនទៅ Google Calendar', 'error');
     }
 }

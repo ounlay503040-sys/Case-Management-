@@ -163,11 +163,16 @@ function addCase(newCase) {
         category: newCase.category || 'វិវាទកិច្ចសន្យា',
         disputeLocation: newCase.disputeLocation || 'ភ្នំពេញ',
         summary: newCase.summary || '',
+        caseEvent: newCase.caseEvent || '',
+        caseEventDate: newCase.caseEventDate || '',
+        caseEventTime: newCase.caseEventTime || '',
+        notifiedEventDate: newCase.notifiedEventDate || '',
+        notifiedOneHour: newCase.notifiedOneHour || false,
         meetingPartyA: newCase.meetingPartyA || 'មិនទាន់ប្រជុំ',
         meetingPartyB: newCase.meetingPartyB || 'មិនទាន់ប្រជុំ',
         mediationMeeting: newCase.mediationMeeting || 'មិនទាន់ប្រជុំ',
         status: newCase.status || 'Active (កំពុងសម្រុះសម្រួល)',
-                remarks: newCase.remarks || 'មិនទាន់បិទ',
+        remarks: newCase.remarks || 'មិនទាន់បិទ',
         createdAt: getTodayDateString(),
         updatedAt: getTodayDateString()
     };
