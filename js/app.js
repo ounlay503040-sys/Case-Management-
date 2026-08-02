@@ -424,15 +424,15 @@ function generateMasterCaseRowHTML(c, rowNum) {
                 <span style="font-size: 12px; font-weight: 600; color: #b91c1c;">${c.caseEventDate || '-'}</span>
             </td>
             <td>
-                <div class="party-box">
-                    <strong>${c.partyA_name} (${c.partyA_gender}, ថ្ងៃខែឆ្នាំកំណើត៖ ${c.partyA_age || '?'})</strong>
-                    <span><i class="fa-solid fa-phone"></i> ${c.partyA_phone || 'ពុំមាន'} | <i class="fa-solid fa-map-marker-alt"></i> ${c.partyA_location} ${c.partyA_address ? '- ' + c.partyA_address : ''}</span>
+                <div class="party-box" style="max-width: 250px;">
+                    <strong class="text-truncate-2" title="${c.partyA_name} (${c.partyA_gender}, ថ្ងៃខែឆ្នាំកំណើត៖ ${c.partyA_age || '?'})">${c.partyA_name} (${c.partyA_gender}, ថ្ងៃខែឆ្នាំកំណើត៖ ${c.partyA_age || '?'})</strong>
+                    <span class="text-truncate-2" title="${c.partyA_phone || 'ពុំមាន'} | ${c.partyA_location} ${c.partyA_address || ''}"><i class="fa-solid fa-phone"></i> ${c.partyA_phone || 'ពុំមាន'} | <i class="fa-solid fa-map-marker-alt"></i> ${c.partyA_location} ${c.partyA_address ? '- ' + c.partyA_address : ''}</span>
                 </div>
             </td>
             <td>
-                <div class="party-box">
-                    <strong>${c.partyB_name} (${c.partyB_gender}, ថ្ងៃខែឆ្នាំកំណើត៖ ${c.partyB_age || '?'})</strong>
-                    <span><i class="fa-solid fa-phone"></i> ${c.partyB_phone || 'ពុំមាន'} | <i class="fa-solid fa-map-marker-alt"></i> ${c.partyB_location} ${c.partyB_address ? '- ' + c.partyB_address : ''}</span>
+                <div class="party-box" style="max-width: 250px;">
+                    <strong class="text-truncate-2" title="${c.partyB_name} (${c.partyB_gender}, ថ្ងៃខែឆ្នាំកំណើត៖ ${c.partyB_age || '?'})">${c.partyB_name} (${c.partyB_gender}, ថ្ងៃខែឆ្នាំកំណើត៖ ${c.partyB_age || '?'})</strong>
+                    <span class="text-truncate-2" title="${c.partyB_phone || 'ពុំមាន'} | ${c.partyB_location} ${c.partyB_address || ''}"><i class="fa-solid fa-phone"></i> ${c.partyB_phone || 'ពុំមាន'} | <i class="fa-solid fa-map-marker-alt"></i> ${c.partyB_location} ${c.partyB_address ? '- ' + c.partyB_address : ''}</span>
                 </div>
             </td>
             <td><span style="font-weight: 600;">${c.category}</span></td>
@@ -4325,7 +4325,7 @@ function createCalendarCell(dayNum, isOtherMonth, isToday, events, dateStr) {
             evt.innerHTML = `<strong>${c.caseNumber}</strong><br>${c.caseEvent}`;
             evt.onclick = (e) => {
                 e.stopPropagation(); // prevent opening the general day modal
-                openEditModal(c.id);
+                openCalendarEventModal(dateStr, c.id);
             };
             div.appendChild(evt);
         });
@@ -4356,7 +4356,7 @@ renderAllViews = function() {
 };
 
 // Calendar Event Modal Logic
-function openCalendarEventModal(dateStr) {
+function openCalendarEventModal(dateStr, caseIdToSelect = null) {
     document.getElementById('cal-modal-date').value = dateStr;
     const caseSelect = document.getElementById('cal-modal-case');
     caseSelect.innerHTML = '<option value="">-- ជ្រើសរើសសំណុំរឿង --</option>';
@@ -4367,8 +4367,18 @@ function openCalendarEventModal(dateStr) {
         caseSelect.innerHTML += `<option value="${c.id}">[${shortStatus}] លេខ ${c.caseNumber} - ${c.partyA_name} vs ${c.partyB_name}</option>`;
     });
 
-    document.getElementById('cal-modal-event').value = '';
-    document.getElementById('cal-modal-time').value = '08:00'; // Default time
+    if (caseIdToSelect) {
+        caseSelect.value = caseIdToSelect;
+        const c = getCaseById(caseIdToSelect);
+        if (c) {
+            document.getElementById('cal-modal-event').value = c.caseEvent || '';
+            document.getElementById('cal-modal-time').value = c.caseEventTime || '08:00';
+        }
+    } else {
+        document.getElementById('cal-modal-event').value = '';
+        document.getElementById('cal-modal-time').value = '08:00'; // Default time
+    }
+
     document.getElementById('calendar-event-modal').classList.add('open');
 }
 
@@ -4475,12 +4485,11 @@ window.addEventListener('load', () => {
             maxBtn.style.marginLeft = '10px';
             
             maxBtn.onclick = function() {
-                const section = this.closest('.view-section');
-                if (section.classList.contains('fullscreen-view')) {
-                    section.classList.remove('fullscreen-view');
+                if (document.body.classList.contains('fullscreen-mode')) {
+                    document.body.classList.remove('fullscreen-mode');
                     this.innerHTML = '<i class="fa-solid fa-expand"></i> ពង្រីក (Maximize)';
                 } else {
-                    section.classList.add('fullscreen-view');
+                    document.body.classList.add('fullscreen-mode');
                     this.innerHTML = '<i class="fa-solid fa-compress"></i> បង្រួម (Minimize)';
                 }
             };
