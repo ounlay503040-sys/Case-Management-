@@ -4472,6 +4472,30 @@ document.querySelector('a[data-view="calendar-view"]')?.addEventListener('click'
 
 // Setup Maximize/Minimize functionality for all views
 window.addEventListener('load', () => {
+    // Inject fullscreen CSS dynamically to avoid cache issues
+    if (!document.getElementById('fullscreen-dynamic-style')) {
+        const style = document.createElement('style');
+        style.id = 'fullscreen-dynamic-style';
+        style.innerHTML = `
+            .fullscreen-overlay {
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                z-index: 999999 !important;
+                background: var(--bg-main, #f8fafc) !important;
+                overflow-y: auto !important;
+                padding: 24px !important;
+                margin: 0 !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+                display: block !important;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
     setTimeout(() => {
         const titleBoxes = document.querySelectorAll('.view-section .section-title-box');
         titleBoxes.forEach(box => {
