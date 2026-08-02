@@ -365,6 +365,13 @@ function generateMasterCaseRowHTML(c, rowNum) {
             <td class="text-center"><strong>${rowNum}</strong></td>
             <td><span class="case-number-tag">${c.caseNumber}</span></td>
             <td>${c.dateReceived}</td>
+            <td class="text-center">${getStatusBadgeHTML(c.status)}</td>
+            <td>
+                <span style="font-size: 12px; font-weight: 600; color: #1e40af;">${c.caseEvent || '-'}</span>
+            </td>
+            <td>
+                <span style="font-size: 12px; font-weight: 600; color: #b91c1c;">${c.caseEventDate || '-'}</span>
+            </td>
             <td>
                 <div class="party-box">
                     <strong>${c.partyA_name} (${c.partyA_gender}, ${c.partyA_age || '?'} ឆ្នាំ)</strong>
@@ -386,7 +393,6 @@ function generateMasterCaseRowHTML(c, rowNum) {
                     <div style="font-weight: 600; color: var(--primary-color);">⚖️ ផ្សះផ្សា៖ ${c.mediationMeeting}</div>
                 </div>
             </td>
-            <td class="text-center">${getStatusBadgeHTML(c.status)}</td>
             <td class="text-center">
                 <span class="badge ${c.remarks === 'បានបិទរួចរាល់' ? 'badge-settle' : 'badge-pending'}" style="font-size: 11px;">
                     ${c.remarks}
@@ -687,6 +693,8 @@ function initModalEvents() {
             const payload = {
                 caseNumber: document.getElementById('case-number').value.trim(),
                 dateReceived: document.getElementById('case-date').value,
+                caseEvent: document.getElementById('case-event') ? document.getElementById('case-event').value : '',
+                caseEventDate: document.getElementById('case-event-date') ? document.getElementById('case-event-date').value : '',
                 category: document.getElementById('case-category').value,
                 disputeLocation: document.getElementById('case-dispute-location').value,
                 
@@ -757,6 +765,8 @@ function openEditModal(id) {
     document.getElementById('case-date').value = c.dateReceived || '';
     document.getElementById('case-category').value = c.category || 'វិវាទកិច្ចសន្យា';
     document.getElementById('case-dispute-location').value = c.disputeLocation || 'ភ្នំពេញ';
+    if(document.getElementById('case-event')) document.getElementById('case-event').value = c.caseEvent || '';
+    if(document.getElementById('case-event-date')) document.getElementById('case-event-date').value = c.caseEventDate || '';
 
     document.getElementById('case-party-a-name').value = c.partyA_name || '';
     document.getElementById('case-party-a-gender').value = c.partyA_gender || 'ប្រុស';
@@ -2936,6 +2946,8 @@ function initDashboardQuickForm() {
             const payload = {
                 caseNumber: document.getElementById('quick-case-number').value.trim(),
                 dateReceived: document.getElementById('quick-case-date').value,
+                caseEvent: document.getElementById('quick-case-event') ? document.getElementById('quick-case-event').value : '',
+                caseEventDate: document.getElementById('quick-case-event-date') ? document.getElementById('quick-case-event-date').value : '',
                 category: document.getElementById('quick-case-category').value,
                 disputeLocation: document.getElementById('quick-case-dispute-location').value,
                 
@@ -4138,3 +4150,168 @@ if (document.readyState === 'loading') {
     setTimeout(initAllDraggableModals, 600);
 }
 window.addEventListener('load', function() { setTimeout(initAllDraggableModals, 300); });
+
+/* ==========================================================================
+   CALENDAR & SCHEDULE LOGIC
+   ========================================================================== */
+let currentCalDate = new Date();
+
+function renderCalendar() {
+    const grid = document.getElementById('calendar-grid');
+    const title = document.getElementById('calendar-month-year');
+    if (!grid || !title) return;
+
+    // Reset grid to just headers
+    grid.innerHTML = `
+        <div class="calendar-header-day">អាទិត្យ</div>
+        <div class="calendar-header-day">ច័ន្ទ</div>
+        <div class="calendar-header-day">អង្គារ</div>
+        <div class="calendar-header-day">ពុធ</div>
+        <div class="calendar-header-day">ព្រហស្បតិ៍</div>
+        <div class="calendar-header-day">សុក្រ</div>
+        <div class="calendar-header-day">សៅរ៍</div>
+    `;
+
+    const year = currentCalDate.getFullYear();
+    const month = currentCalDate.getMonth(); // 0-11
+    
+    // Khmer Month Names
+    const khmerMonths = ['មករា', 'កុម្ភៈ', 'មីនា', 'មេសា', 'ឧសភា', 'មិថុនា', 'កក្កដា', 'សីហា', 'កញ្ញា', 'តុលា', 'វិច្ឆិកា', 'ធ្នូ'];
+    title.innerText = `${khmerMonths[month]} ${year}`;
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+    // Map events by date (YYYY-MM-DD)
+    const eventsMap = {};
+    casesData.forEach(c => {
+        if (c.caseEvent && c.caseEventDate) {
+            if (!eventsMap[c.caseEventDate]) eventsMap[c.caseEventDate] = [];
+            eventsMap[c.caseEventDate].push(c);
+        }
+    });
+
+    const todayStr = getTodayDateString();
+
+    // Previous month filler days
+    for (let i = firstDay - 1; i >= 0; i--) {
+        const d = daysInPrevMonth - i;
+        const cell = createCalendarCell(d, true, false, null);
+        grid.appendChild(cell);
+    }
+
+    // Current month days
+    for (let i = 1; i <= daysInMonth; i++) {
+        const dStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+        const isToday = (dStr === todayStr);
+        const evts = eventsMap[dStr] || [];
+        const cell = createCalendarCell(i, false, isToday, evts, dStr);
+        grid.appendChild(cell);
+    }
+
+    // Next month filler days
+    const totalCellsRendered = firstDay + daysInMonth;
+    const remainingCells = 42 - totalCellsRendered; // 6 rows of 7
+    for (let i = 1; i <= remainingCells; i++) {
+        const cell = createCalendarCell(i, true, false, null);
+        grid.appendChild(cell);
+    }
+}
+
+function createCalendarCell(dayNum, isOtherMonth, isToday, events, dateStr) {
+    const div = document.createElement('div');
+    div.className = 'calendar-day' + (isOtherMonth ? ' other-month' : '') + (isToday ? ' today' : '');
+    
+    const numDiv = document.createElement('div');
+    numDiv.className = 'day-num';
+    numDiv.innerText = dayNum;
+    div.appendChild(numDiv);
+
+    if (events && events.length > 0) {
+        events.forEach(c => {
+            const evt = document.createElement('div');
+            evt.className = 'calendar-event-item';
+            if (c.caseEvent.includes('ទីតាំង')) evt.classList.add('evt-location');
+            if (c.caseEvent.includes('សម្រុះសម្រួល')) evt.classList.add('evt-mediation');
+            
+            evt.innerHTML = `<strong>${c.caseNumber}</strong><br>${c.caseEvent}`;
+            evt.onclick = (e) => {
+                e.stopPropagation(); // prevent opening the general day modal
+                openEditModal(c.id);
+            };
+            div.appendChild(evt);
+        });
+    }
+
+    if (!isOtherMonth && dateStr) {
+        div.onclick = () => openCalendarEventModal(dateStr);
+    }
+
+    return div;
+}
+
+// Calendar Navigation
+document.getElementById('btn-prev-month')?.addEventListener('click', () => {
+    currentCalDate.setMonth(currentCalDate.getMonth() - 1);
+    renderCalendar();
+});
+document.getElementById('btn-next-month')?.addEventListener('click', () => {
+    currentCalDate.setMonth(currentCalDate.getMonth() + 1);
+    renderCalendar();
+});
+
+// Sync renderAllViews to include calendar
+const originalRenderAllViewsCal = renderAllViews;
+renderAllViews = function() {
+    originalRenderAllViewsCal();
+    if (typeof renderCalendar === 'function') renderCalendar();
+};
+
+// Calendar Event Modal Logic
+function openCalendarEventModal(dateStr) {
+    document.getElementById('cal-modal-date').value = dateStr;
+    const caseSelect = document.getElementById('cal-modal-case');
+    caseSelect.innerHTML = '<option value="">-- ជ្រើសរើសសំណុំរឿង --</option>';
+    
+    casesData.forEach(c => {
+        // Only show active cases or all cases
+        caseSelect.innerHTML += `<option value="${c.id}">${c.caseNumber} - ${c.partyA_name} vs ${c.partyB_name}</option>`;
+    });
+
+    document.getElementById('cal-modal-event').value = '';
+    document.getElementById('calendar-event-modal').classList.add('open');
+}
+
+document.getElementById('btn-close-calendar-modal')?.addEventListener('click', () => {
+    document.getElementById('calendar-event-modal').classList.remove('open');
+});
+document.getElementById('btn-cancel-calendar-modal')?.addEventListener('click', () => {
+    document.getElementById('calendar-event-modal').classList.remove('open');
+});
+
+document.getElementById('btn-save-calendar-event')?.addEventListener('click', () => {
+    const dateStr = document.getElementById('cal-modal-date').value;
+    const caseId = document.getElementById('cal-modal-case').value;
+    const eventType = document.getElementById('cal-modal-event').value;
+
+    if (!caseId || !eventType) {
+        showToast('សូមជ្រើសរើសសំណុំរឿង និងកម្មវិធី!', 'error');
+        return;
+    }
+
+    const c = getCaseById(caseId);
+    if (c) {
+        c.caseEvent = eventType;
+        c.caseEventDate = dateStr;
+        saveCases();
+        showToast('បានកំណត់កម្មវិធីដោយជោគជ័យ!', 'success');
+        document.getElementById('calendar-event-modal').classList.remove('open');
+        renderAllViews();
+    }
+});
+
+// Initialize Calendar view hook
+document.querySelector('a[data-view="calendar-view"]')?.addEventListener('click', () => {
+    setTimeout(renderCalendar, 100);
+});

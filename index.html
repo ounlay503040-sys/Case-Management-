@@ -113,6 +113,10 @@
                     <i class="fa-solid fa-table-list"></i>
                     <span data-i18n="nav.cases">បញ្ជីសំណុំរឿង</span>
                 </a>
+                <a href="#calendar-view" class="nav-item" data-view="calendar-view">
+                    <i class="fa-regular fa-calendar-days"></i>
+                    <span>កាលវិភាគ</span>
+                </a>
                 <a href="#reports-view" class="nav-item" data-view="reports-view">
                     <i class="fa-solid fa-file-invoice"></i>
                     <span data-i18n="nav.reports">របាយការណ៍សំណុំរឿង</span>
@@ -581,6 +585,21 @@
                             </div>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                                 <div class="form-group mb-2">
+                                    <label style="font-size: 12px; font-weight: 600; margin-bottom: 4px; display: block;">កម្មវិធី (Event)</label>
+                                    <select id="quick-case-event" class="form-control" style="font-size: 13px; padding: 6px 10px; height: 38px;">
+                                        <option value="">-- ជ្រើសរើសកម្មវិធី --</option>
+                                        <option value="១. ប្រជុំផ្តល់ព័ត៌មាន">១. ប្រជុំផ្តល់ព័ត៌មាន</option>
+                                        <option value="២. ចុះពិនិត្យទីតាំង">២. ចុះពិនិត្យទីតាំង</option>
+                                        <option value="៣. ប្រជុំសម្រុះសម្រួល">៣. ប្រជុំសម្រុះសម្រួល</option>
+                                    </select>
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label style="font-size: 12px; font-weight: 600; margin-bottom: 4px; display: block;">កាលបរិច្ឆេទកម្មវិធី</label>
+                                    <input type="date" id="quick-case-event-date" class="form-control" style="font-size: 13px; padding: 8px 10px; height: 38px;">
+                                </div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                <div class="form-group mb-2">
                                     <label style="font-size: 12px; font-weight: 600; margin-bottom: 4px; display: block;">ឈ្មោះភាគី ក (ដើមបណ្តឹង) <span class="text-danger">*</span></label>
                                     <input type="text" id="quick-case-party-a-name" class="form-control" placeholder="ឈ្មោះភាគី ក..." required style="font-size: 13px; padding: 8px 10px; height: 38px;">
                                 </div>
@@ -763,12 +782,14 @@
                                     <th class="text-center" style="width: 50px;" data-i18n="table.no">ល.រ</th>
                                     <th style="width: 130px;" data-i18n="table.caseCode">លេខកូដសំណុំរឿង</th>
                                     <th style="width: 110px;" data-i18n="table.date">កាលបរិច្ឆេទ</th>
+                                    <th style="width: 140px;" class="text-center" data-i18n="table.status">លទ្ធផលសំណុំរឿង</th>
+                                    <th style="width: 150px;">កម្មវិធី (Event)</th>
+                                    <th style="width: 120px;">កាលបរិច្ឆេទកម្មវិធី</th>
                                     <th style="min-width: 180px;" data-i18n="table.partyA">ភាគី (ក) ដើមបណ្ដឹង</th>
                                     <th style="min-width: 180px;" data-i18n="table.partyB">ភាគី (ខ) ចុងបណ្ដឹង</th>
                                     <th style="width: 140px;" data-i18n="table.category">ប្រភេទវិវាទ</th>
                                     <th style="width: 120px;" data-i18n="table.location">ទីតាំងវិវាទ</th>
                                     <th style="min-width: 200px;" data-i18n="form.mediation">ចំណាត់ការសម្រុះសម្រួល</th>
-                                    <th style="width: 140px;" class="text-center" data-i18n="table.status">លទ្ធផលសំណុំរឿង</th>
                                     <th style="width: 110px;" class="text-center" data-i18n="table.remarks">កំណត់ចំណាំ</th>
                                     <th style="width: 120px;" class="text-center">ឯកសារ ដើម (PDF)</th>
                                     <th style="width: 120px;" class="text-center" data-i18n="table.actions">សកម្មភាព</th>
@@ -786,6 +807,49 @@
                     </div>
                     <!-- PAGINATION -->
                     <div class="pagination-wrapper" id="pagination-wrapper"></div>
+                </div>
+            </section>
+
+            <!-- VIEW: CALENDAR / SCHEDULE -->
+            <section class="view-section" id="calendar-view" style="display: none;">
+                <style>
+                    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+                    .calendar-header-day { text-align: center; font-weight: 700; padding: 10px; background: #f1f5f9; border-radius: 6px; color: #475569; }
+                    .calendar-day { min-height: 100px; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px; background: #fff; display: flex; flex-direction: column; cursor: pointer; transition: 0.2s; }
+                    .calendar-day:hover { border-color: #3b82f6; box-shadow: 0 2px 8px rgba(59,130,246,0.15); }
+                    .calendar-day .day-num { font-weight: 700; font-size: 14px; margin-bottom: 6px; color: #64748b; text-align: right; }
+                    .calendar-day.today { background: #eff6ff; border-color: #93c5fd; }
+                    .calendar-day.today .day-num { color: #2563eb; }
+                    .calendar-day.other-month { opacity: 0.4; pointer-events: none; }
+                    .calendar-event-item { font-size: 11px; padding: 4px 6px; border-radius: 4px; margin-bottom: 4px; background: #dbeafe; color: #1e40af; border-left: 3px solid #3b82f6; word-break: break-word; line-height: 1.4; display: block; text-decoration: none; }
+                    .calendar-event-item.evt-location { background: #fef3c7; color: #92400e; border-left-color: #f59e0b; }
+                    .calendar-event-item.evt-mediation { background: #dcfce3; color: #166534; border-left-color: #22c55e; }
+                    .calendar-event-item:hover { filter: brightness(0.95); }
+                </style>
+                <div class="section-title-box">
+                    <div>
+                        <h1><i class="fa-regular fa-calendar-days text-primary"></i> កាលវិភាគ និងកម្មវិធីសំណុំរឿង (Schedule)</h1>
+                        <p>តាមដាន និងរៀបចំកាលវិភាគចុះពិនិត្យទីតាំង ផ្តល់ព័ត៌មាន និងប្រជុំសម្រុះសម្រួល</p>
+                    </div>
+                </div>
+                
+                <div class="card-panel mt-4" style="padding: 24px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <button class="btn btn-outline" id="btn-prev-month"><i class="fa-solid fa-chevron-left"></i> ខែមុន</button>
+                        <h3 id="calendar-month-year" style="margin: 0; font-weight: 700; color: #1e3a8a;"></h3>
+                        <button class="btn btn-outline" id="btn-next-month">ខែបន្ទាប់ <i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                    
+                    <div class="calendar-grid" id="calendar-grid">
+                        <div class="calendar-header-day">អាទិត្យ</div>
+                        <div class="calendar-header-day">ច័ន្ទ</div>
+                        <div class="calendar-header-day">អង្គារ</div>
+                        <div class="calendar-header-day">ពុធ</div>
+                        <div class="calendar-header-day">ព្រហស្បតិ៍</div>
+                        <div class="calendar-header-day">សុក្រ</div>
+                        <div class="calendar-header-day">សៅរ៍</div>
+                        <!-- Days generated by JS -->
+                    </div>
                 </div>
             </section>
 
@@ -1932,12 +1996,25 @@
                             </select>
                         </div>
                     </div>
-                    <div class="form-grid-2 mt-2">
+                    <div class="form-grid-3 mt-2">
                         <div class="form-group">
                             <label>ទីតាំងវិវាទ (២៥ រាជធានី-ខេត្ត ជាមួយលេខកូដ) <span class="text-danger">*</span></label>
                             <select id="case-dispute-location" class="form-control" required>
                                 <!-- Will be populated by JS -->
                             </select>
+                        </div>
+                        <div class="form-group">
+                            <label>កម្មវិធី (Event)</label>
+                            <select id="case-event" class="form-control">
+                                <option value="">-- ជ្រើសរើសកម្មវិធី --</option>
+                                <option value="១. ប្រជុំផ្តល់ព័ត៌មាន">១. ប្រជុំផ្តល់ព័ត៌មាន</option>
+                                <option value="២. ចុះពិនិត្យទីតាំង">២. ចុះពិនិត្យទីតាំង</option>
+                                <option value="៣. ប្រជុំសម្រុះសម្រួល">៣. ប្រជុំសម្រុះសម្រួល</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>កាលបរិច្ឆេទកម្មវិធី (Event Date)</label>
+                            <input type="date" id="case-event-date" class="form-control">
                         </div>
                     </div>
 
@@ -2372,6 +2449,41 @@
     <input type="file" id="global-pdf-uploader" accept=".pdf" style="display: none;">
 
     <!-- TOAST NOTIFICATION CONTAINER -->
+    <!-- CALENDAR EVENT MODAL -->
+    <div id="calendar-event-modal" class="modal-overlay">
+        <div class="modal" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 style="margin: 0; font-size: 16px;"><i class="fa-regular fa-calendar-plus text-primary"></i> កំណត់កម្មវិធីតាមកាលវិភាគ</h3>
+                <button class="btn-close-modal" id="btn-close-calendar-modal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group mb-3">
+                    <label style="font-weight: 600; font-size: 13px;">កាលបរិច្ឆេទកម្មវិធី៖</label>
+                    <input type="date" id="cal-modal-date" class="form-control" readonly style="background: #f1f5f9; font-weight: 700; cursor: not-allowed;">
+                </div>
+                <div class="form-group mb-3">
+                    <label style="font-weight: 600; font-size: 13px;">ជ្រើសរើសសំណុំរឿង <span class="text-danger">*</span></label>
+                    <select id="cal-modal-case" class="form-control" required>
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
+                <div class="form-group mb-3">
+                    <label style="font-weight: 600; font-size: 13px;">កម្មវិធី (Event) <span class="text-danger">*</span></label>
+                    <select id="cal-modal-event" class="form-control" required>
+                        <option value="">-- ជ្រើសរើសកម្មវិធី --</option>
+                        <option value="១. ប្រជុំផ្តល់ព័ត៌មាន">១. ប្រជុំផ្តល់ព័ត៌មាន</option>
+                        <option value="២. ចុះពិនិត្យទីតាំង">២. ចុះពិនិត្យទីតាំង</option>
+                        <option value="៣. ប្រជុំសម្រុះសម្រួល">៣. ប្រជុំសម្រុះសម្រួល</option>
+                    </select>
+                </div>
+                <div style="text-align: right; margin-top: 20px;">
+                    <button type="button" class="btn btn-outline" id="btn-cancel-calendar-modal" style="margin-right: 8px;">បោះបង់</button>
+                    <button type="button" class="btn btn-primary" id="btn-save-calendar-event"><i class="fa-solid fa-floppy-disk"></i> រក្សាទុក</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="toast-container" class="toast-container"></div>
 
     <!-- ACTION PLAN MODAL (Request 5) -->
