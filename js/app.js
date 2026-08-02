@@ -374,18 +374,18 @@ function generateMasterCaseRowHTML(c, rowNum) {
             </td>
             <td>
                 <div class="party-box">
-                    <strong>${c.partyA_name} (${c.partyA_gender}, ${c.partyA_age || '?'} ឆ្នាំ)</strong>
-                    <span><i class="fa-solid fa-phone"></i> ${c.partyA_phone || 'ពុំមាន'} | <i class="fa-solid fa-map-marker-alt"></i> ${c.partyA_location}</span>
+                    <strong>${c.partyA_name} (${c.partyA_gender}, ថ្ងៃខែឆ្នាំកំណើត៖ ${c.partyA_age || '?'})</strong>
+                    <span><i class="fa-solid fa-phone"></i> ${c.partyA_phone || 'ពុំមាន'} | <i class="fa-solid fa-map-marker-alt"></i> ${c.partyA_location} ${c.partyA_address ? '- ' + c.partyA_address : ''}</span>
                 </div>
             </td>
             <td>
                 <div class="party-box">
-                    <strong>${c.partyB_name} (${c.partyB_gender}, ${c.partyB_age || '?'} ឆ្នាំ)</strong>
-                    <span><i class="fa-solid fa-phone"></i> ${c.partyB_phone || 'ពុំមាន'} | <i class="fa-solid fa-map-marker-alt"></i> ${c.partyB_location}</span>
+                    <strong>${c.partyB_name} (${c.partyB_gender}, ថ្ងៃខែឆ្នាំកំណើត៖ ${c.partyB_age || '?'})</strong>
+                    <span><i class="fa-solid fa-phone"></i> ${c.partyB_phone || 'ពុំមាន'} | <i class="fa-solid fa-map-marker-alt"></i> ${c.partyB_location} ${c.partyB_address ? '- ' + c.partyB_address : ''}</span>
                 </div>
             </td>
             <td><span style="font-weight: 600;">${c.category}</span></td>
-            <td><span class="badge" style="background: var(--border-color); color: var(--text-color);">${c.disputeLocation}</span></td>
+            <td><span class="badge" style="background: var(--border-color); color: var(--text-color);">${c.disputeLocation}</span><br><small style="color: #64748b;">${c.disputeAddress || ''}</small></td>
             <td>
                 <div style="font-size: 11px; line-height: 1.5;">
                     <div>🔹 ក៖ ${c.meetingPartyA}</div>
@@ -697,18 +697,21 @@ function initModalEvents() {
                 caseEventDate: document.getElementById('case-event-date') ? document.getElementById('case-event-date').value : '',
                 category: document.getElementById('case-category').value,
                 disputeLocation: document.getElementById('case-dispute-location').value,
+                disputeAddress: document.getElementById('case-dispute-address') ? document.getElementById('case-dispute-address').value.trim() : '',
                 
                 partyA_name: document.getElementById('case-party-a-name').value.trim(),
                 partyA_gender: document.getElementById('case-party-a-gender').value,
                 partyA_age: document.getElementById('case-party-a-age').value,
                 partyA_phone: document.getElementById('case-party-a-phone').value.trim(),
                 partyA_location: document.getElementById('case-party-a-location').value,
+                partyA_address: document.getElementById('case-party-a-address') ? document.getElementById('case-party-a-address').value.trim() : '',
 
                 partyB_name: document.getElementById('case-party-b-name').value.trim(),
                 partyB_gender: document.getElementById('case-party-b-gender').value,
                 partyB_age: document.getElementById('case-party-b-age').value,
                 partyB_phone: document.getElementById('case-party-b-phone').value.trim(),
                 partyB_location: document.getElementById('case-party-b-location').value,
+                partyB_address: document.getElementById('case-party-b-address') ? document.getElementById('case-party-b-address').value.trim() : '',
 
                 summary: document.getElementById('case-summary').value.trim(),
                 meetingPartyA: document.getElementById('case-meeting-a').value,
@@ -765,6 +768,7 @@ function openEditModal(id) {
     document.getElementById('case-date').value = c.dateReceived || '';
     document.getElementById('case-category').value = c.category || 'វិវាទកិច្ចសន្យា';
     document.getElementById('case-dispute-location').value = c.disputeLocation || 'ភ្នំពេញ';
+    if(document.getElementById('case-dispute-address')) document.getElementById('case-dispute-address').value = c.disputeAddress || '';
     if(document.getElementById('case-event')) document.getElementById('case-event').value = c.caseEvent || '';
     if(document.getElementById('case-event-date')) document.getElementById('case-event-date').value = c.caseEventDate || '';
 
@@ -773,12 +777,14 @@ function openEditModal(id) {
     document.getElementById('case-party-a-age').value = c.partyA_age || '';
     document.getElementById('case-party-a-phone').value = c.partyA_phone || '';
     document.getElementById('case-party-a-location').value = c.partyA_location || 'ភ្នំពេញ';
+    if(document.getElementById('case-party-a-address')) document.getElementById('case-party-a-address').value = c.partyA_address || '';
 
     document.getElementById('case-party-b-name').value = c.partyB_name || '';
     document.getElementById('case-party-b-gender').value = c.partyB_gender || 'ប្រុស';
     document.getElementById('case-party-b-age').value = c.partyB_age || '';
     document.getElementById('case-party-b-phone').value = c.partyB_phone || '';
     document.getElementById('case-party-b-location').value = c.partyB_location || 'ភ្នំពេញ';
+    if(document.getElementById('case-party-b-address')) document.getElementById('case-party-b-address').value = c.partyB_address || '';
 
     document.getElementById('case-summary').value = c.summary || '';
     document.getElementById('case-meeting-a').value = c.meetingPartyA || 'មិនទាន់ប្រជុំ';

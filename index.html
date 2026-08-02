@@ -811,7 +811,7 @@
             </section>
 
             <!-- VIEW: CALENDAR / SCHEDULE -->
-            <section class="view-section" id="calendar-view" style="display: none;">
+            <section class="view-section" id="calendar-view">
                 <style>
                     .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
                     .calendar-header-day { text-align: center; font-weight: 700; padding: 10px; background: #f1f5f9; border-radius: 6px; color: #475569; }
@@ -1996,12 +1996,16 @@
                             </select>
                         </div>
                     </div>
-                    <div class="form-grid-3 mt-2">
+                    <div class="form-grid-4 mt-2">
                         <div class="form-group">
-                            <label>ទីតាំងវិវាទ (២៥ រាជធានី-ខេត្ត ជាមួយលេខកូដ) <span class="text-danger">*</span></label>
+                            <label>ទីតាំងវិវាទ (រាជធានី-ខេត្ត) <span class="text-danger">*</span></label>
                             <select id="case-dispute-location" class="form-control" required>
                                 <!-- Will be populated by JS -->
                             </select>
+                        </div>
+                        <div class="form-group">
+                            <label>ទីតាំងវិវាទលម្អិត</label>
+                            <input type="text" id="case-dispute-address" class="form-control" placeholder="អាសយដ្ឋានជាក់ស្តែង...">
                         </div>
                         <div class="form-group">
                             <label>កម្មវិធី (Event)</label>
@@ -2035,20 +2039,24 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>អាយុ (Age)</label>
-                            <input type="number" id="case-party-a-age" class="form-control" placeholder="អាយុ">
+                            <label>ថ្ងៃខែឆ្នាំកំណើត (DOB)</label>
+                            <input type="date" id="case-party-a-age" class="form-control">
                         </div>
                     </div>
-                    <div class="form-grid-2 mt-2">
+                    <div class="form-grid-3 mt-2">
                         <div class="form-group">
                             <label>លេខទូរស័ព្ទ ភាគី (ក)</label>
                             <input type="text" id="case-party-a-phone" class="form-control" placeholder="លេខទូរស័ព្ទទំនាក់ទំនង">
                         </div>
                         <div class="form-group">
-                            <label>ទីតាំងភាគី (ក) (អាសយដ្ឋានខេត្ត/ក្រុង)</label>
+                            <label>រាជធានី-ខេត្ត ភាគី (ក)</label>
                             <select id="case-party-a-location" class="form-control">
                                 <!-- Will be populated by JS -->
                             </select>
+                        </div>
+                        <div class="form-group">
+                            <label>អាសយដ្ឋានភាគី (ក)</label>
+                            <input type="text" id="case-party-a-address" class="form-control" placeholder="អាសយដ្ឋានលម្អិត">
                         </div>
                     </div>
 
@@ -2069,20 +2077,24 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>អាយុ (Age)</label>
-                            <input type="number" id="case-party-b-age" class="form-control" placeholder="អាយុ">
+                            <label>ថ្ងៃខែឆ្នាំកំណើត (DOB)</label>
+                            <input type="date" id="case-party-b-age" class="form-control">
                         </div>
                     </div>
-                    <div class="form-grid-2 mt-2">
+                    <div class="form-grid-3 mt-2">
                         <div class="form-group">
                             <label>លេខទូរស័ព្ទ ភាគី (ខ)</label>
                             <input type="text" id="case-party-b-phone" class="form-control" placeholder="លេខទូរស័ព្ទទំនាក់ទំនង">
                         </div>
                         <div class="form-group">
-                            <label>ទីតាំងភាគី (ខ) (អាសយដ្ឋានខេត្ត/ក្រុង)</label>
+                            <label>រាជធានី-ខេត្ត ភាគី (ខ)</label>
                             <select id="case-party-b-location" class="form-control">
                                 <!-- Will be populated by JS -->
                             </select>
+                        </div>
+                        <div class="form-group">
+                            <label>អាសយដ្ឋានភាគី (ខ)</label>
+                            <input type="text" id="case-party-b-address" class="form-control" placeholder="អាសយដ្ឋានលម្អិត">
                         </div>
                     </div>
 
