@@ -740,8 +740,19 @@
                         <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px;">
                             <label style="font-size: 12.5px; font-weight: 700; color: #334155;"><i class="fa-solid fa-location-dot text-info"></i> ទីតាំងវិវាទ៖</label>
                             <select id="filter-location" class="form-control" style="font-size: 13px; padding: 6px 12px; height: 40px; border: 1px solid #cbd5e1; border-radius: 8px; background: white;">
-                                <option value="ALL">គ្រប់ទីតាំងទាំងអស់</option>
+                                <option value="ALL">គ្រប់ទីតាំងទាំងអស់ (All Locations)</option>
                                 <!-- Will be populated by JS -->
+                            </select>
+                        </div>
+                        <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px;">
+                            <label style="font-size: 12.5px; font-weight: 700; color: #334155;"><i class="fa-regular fa-calendar-check text-primary"></i> កម្មវិធី (Events)៖</label>
+                            <select id="filter-event" class="form-control" style="font-size: 13px; padding: 6px 12px; height: 40px; border: 1px solid #cbd5e1; border-radius: 8px; background: white;">
+                                <option value="ALL">ទាំងអស់ (All)</option>
+                                <option value="HAS_EVENT">មានកម្មវិធី (Has Event)</option>
+                                <option value="NO_EVENT">គ្មានកម្មវិធី (No Event)</option>
+                                <option value="១. ប្រជុំផ្តល់ព័ត៌មាន">១. ប្រជុំផ្តល់ព័ត៌មាន</option>
+                                <option value="២. ចុះពិនិត្យទីតាំង">២. ចុះពិនិត្យទីតាំង</option>
+                                <option value="៣. ប្រជុំសម្រុះសម្រួល">៣. ប្រជុំសម្រុះសម្រួល</option>
                             </select>
                         </div>
                         <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px;">

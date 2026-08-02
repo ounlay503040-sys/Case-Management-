@@ -442,9 +442,10 @@ function applyFiltersAndRenderMasterTable() {
     const cat = document.getElementById('filter-category')?.value || 'ALL';
     const st = document.getElementById('filter-status')?.value || 'ALL';
     const loc = document.getElementById('filter-location')?.value || 'ALL';
+    const evt = document.getElementById('filter-event')?.value || 'ALL';
     const sortBy = document.getElementById('sort-by')?.value || 'date-asc';
 
-    const filters = { search: q, category: cat, status: st, location: loc };
+    const filters = { search: q, category: cat, status: st, location: loc, event: evt };
     let filtered = filterCases(filters);
     filtered = sortCases(filtered, sortBy);
     filteredCasesCache = filtered;
@@ -536,6 +537,7 @@ function initFilterAndSearchEvents() {
     const catEl = document.getElementById('filter-category');
     const stEl = document.getElementById('filter-status');
     const locEl = document.getElementById('filter-location');
+    const evtEl = document.getElementById('filter-event');
     const sortEl = document.getElementById('sort-by');
     const resetBtn = document.getElementById('btn-reset-filters');
     const refreshBtn = document.getElementById('btn-refresh-data');
@@ -569,6 +571,7 @@ function initFilterAndSearchEvents() {
     if (catEl) catEl.addEventListener('change', triggerFilter);
     if (stEl) stEl.addEventListener('change', triggerFilter);
     if (locEl) locEl.addEventListener('change', triggerFilter);
+    if (evtEl) evtEl.addEventListener('change', triggerFilter);
     if (sortEl) sortEl.addEventListener('change', triggerFilter);
 
     if (resetBtn) {
@@ -578,6 +581,7 @@ function initFilterAndSearchEvents() {
             if (catEl) catEl.value = 'ALL';
             if (stEl) stEl.value = 'ALL';
             if (locEl) locEl.value = 'ALL';
+            if (evtEl) evtEl.value = 'ALL';
             if (sortEl) sortEl.value = 'date-desc';
             triggerFilter();
             showToast('បានកំណត់លក្ខខណ្ឌចម្រោះឡើងវិញ', 'info');

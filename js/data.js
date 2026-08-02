@@ -270,6 +270,16 @@ function filterCases(filters = {}) {
         if (filters.endDate && filters.endDate !== '') {
             if (c.dateReceived > filters.endDate) return false;
         }
+        // Event Filter
+        if (filters.event && filters.event !== 'ALL') {
+            if (filters.event === 'HAS_EVENT') {
+                if (!c.caseEvent || c.caseEvent === '') return false;
+            } else if (filters.event === 'NO_EVENT') {
+                if (c.caseEvent && c.caseEvent !== '') return false;
+            } else {
+                if (c.caseEvent !== filters.event) return false;
+            }
+        }
         return true;
     });
 }
