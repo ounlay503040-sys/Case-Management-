@@ -833,18 +833,30 @@
             <!-- VIEW: CALENDAR / SCHEDULE -->
             <section class="view-section" id="calendar-view">
                 <style>
-                    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
-                    .calendar-header-day { text-align: center; font-weight: 700; padding: 10px; background: #f1f5f9; border-radius: 6px; color: #475569; }
-                    .calendar-day { min-height: 100px; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px; background: #fff; display: flex; flex-direction: column; cursor: pointer; transition: 0.2s; }
-                    .calendar-day:hover { border-color: #3b82f6; box-shadow: 0 2px 8px rgba(59,130,246,0.15); }
-                    .calendar-day .day-num { font-weight: 700; font-size: 14px; margin-bottom: 6px; color: #64748b; text-align: right; }
-                    .calendar-day.today { background: #eff6ff; border-color: #93c5fd; }
-                    .calendar-day.today .day-num { color: #2563eb; }
-                    .calendar-day.other-month { opacity: 0.4; pointer-events: none; }
-                    .calendar-event-item { font-size: 11px; padding: 4px 6px; border-radius: 4px; margin-bottom: 4px; background: #dbeafe; color: #1e40af; border-left: 3px solid #3b82f6; word-break: break-word; line-height: 1.4; display: block; text-decoration: none; }
-                    .calendar-event-item.evt-location { background: #fef3c7; color: #92400e; border-left-color: #f59e0b; }
-                    .calendar-event-item.evt-mediation { background: #dcfce3; color: #166534; border-left-color: #22c55e; }
-                    .calendar-event-item:hover { filter: brightness(0.95); }
+                    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
+                    .calendar-header-day { text-align: center; font-weight: 700; padding: 12px; border-radius: 8px 8px 0 0; font-size: 14px; }
+                    .calendar-day { min-height: 110px; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px; background: #ffffff; display: flex; flex-direction: column; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; }
+                    .calendar-day:hover { border-color: #3b82f6; box-shadow: 0 4px 15px rgba(59,130,246,0.15); transform: translateY(-2px); z-index: 10; }
+                    .calendar-day .day-num { font-weight: 700; font-size: 14px; margin-bottom: 8px; color: #64748b; text-align: right; transition: 0.2s; }
+                    
+                    /* Today's style */
+                    .calendar-day.today { background: linear-gradient(135deg, #eff6ff 0%, #bfdbfe 100%); border-color: #3b82f6; box-shadow: inset 0 0 0 2px #3b82f6; }
+                    .calendar-day.today .day-num { color: #ffffff; background: #2563eb; padding: 2px 8px; border-radius: 12px; display: inline-block; float: right; }
+                    
+                    /* Has Events style */
+                    .calendar-day.has-events { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce3 100%); border-color: #22c55e; box-shadow: inset 0 0 0 1px #86efac; }
+                    .calendar-day.has-events .day-num { color: #ffffff; background: #16a34a; padding: 2px 8px; border-radius: 12px; display: inline-block; float: right; }
+                    
+                    /* Both Today and Has Events */
+                    .calendar-day.today.has-events { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-color: #f59e0b; box-shadow: inset 0 0 0 2px #f59e0b; }
+                    .calendar-day.today.has-events .day-num { color: #ffffff; background: #ea580c; }
+                    
+                    .calendar-day.other-month { opacity: 0.35; pointer-events: none; background: #f8fafc; }
+                    
+                    .calendar-event-item { font-size: 11.5px; padding: 6px 8px; border-radius: 6px; margin-bottom: 6px; background: #ffffff; color: #1e40af; border-left: 4px solid #3b82f6; box-shadow: 0 2px 4px rgba(0,0,0,0.05); word-break: break-word; line-height: 1.4; display: block; text-decoration: none; transition: 0.2s; font-weight: 500; }
+                    .calendar-event-item.evt-location { background: #ffffff; color: #92400e; border-left-color: #f59e0b; }
+                    .calendar-event-item.evt-mediation { background: #ffffff; color: #166534; border-left-color: #22c55e; }
+                    .calendar-event-item:hover { filter: brightness(0.95); transform: translateX(2px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
                 </style>
                 <div class="section-title-box">
                     <div>
@@ -2670,13 +2682,13 @@
     </script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://apis.google.com/js/api.js" async defer></script>
-    <script src="js/data.js?v=15.0"></script>
-    <script src="js/telegram.js?v=15.0"></script>
-    <script src="js/google-calendar.js?v=15.0"></script>
-    <script src="js/ai-assistant.js?v=15.0"></script>
-    <script src="js/docs.js?v=15.0"></script>
-    <script src="js/charts.js?v=15.0"></script>
-    <script src="js/reports.js?v=15.0"></script>
-    <script src="js/app.js?v=15.0"></script>
+    <script src="js/data.js?v=17.0"></script>
+    <script src="js/telegram.js?v=17.0"></script>
+    <script src="js/google-calendar.js?v=17.0"></script>
+    <script src="js/ai-assistant.js?v=17.0"></script>
+    <script src="js/docs.js?v=17.0"></script>
+    <script src="js/charts.js?v=17.0"></script>
+    <script src="js/reports.js?v=17.0"></script>
+    <script src="js/app.js?v=17.0"></script>
 </body>
 </html>

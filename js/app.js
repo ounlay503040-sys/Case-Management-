@@ -4251,15 +4251,15 @@ function renderCalendar() {
     const title = document.getElementById('calendar-month-year');
     if (!grid || !title) return;
 
-    // Reset grid to just headers
+    // Reset grid to just headers with distinct colors for each day
     grid.innerHTML = `
-        <div class="calendar-header-day">អាទិត្យ</div>
-        <div class="calendar-header-day">ច័ន្ទ</div>
-        <div class="calendar-header-day">អង្គារ</div>
-        <div class="calendar-header-day">ពុធ</div>
-        <div class="calendar-header-day">ព្រហស្បតិ៍</div>
-        <div class="calendar-header-day">សុក្រ</div>
-        <div class="calendar-header-day">សៅរ៍</div>
+        <div class="calendar-header-day" style="background: rgba(239, 68, 68, 0.1); color: #dc2626; border-bottom: 3px solid #ef4444;">អាទិត្យ</div>
+        <div class="calendar-header-day" style="background: rgba(245, 158, 11, 0.1); color: #d97706; border-bottom: 3px solid #f59e0b;">ច័ន្ទ</div>
+        <div class="calendar-header-day" style="background: rgba(168, 85, 247, 0.1); color: #9333ea; border-bottom: 3px solid #a855f7;">អង្គារ</div>
+        <div class="calendar-header-day" style="background: rgba(132, 204, 22, 0.1); color: #65a30d; border-bottom: 3px solid #84cc16;">ពុធ</div>
+        <div class="calendar-header-day" style="background: rgba(34, 197, 94, 0.1); color: #16a34a; border-bottom: 3px solid #22c55e;">ព្រហស្បតិ៍</div>
+        <div class="calendar-header-day" style="background: rgba(59, 130, 246, 0.1); color: #2563eb; border-bottom: 3px solid #3b82f6;">សុក្រ</div>
+        <div class="calendar-header-day" style="background: rgba(15, 23, 42, 0.1); color: #334155; border-bottom: 3px solid #475569;">សៅរ៍</div>
     `;
 
     const year = currentCalDate.getFullYear();
@@ -4311,7 +4311,8 @@ function renderCalendar() {
 
 function createCalendarCell(dayNum, isOtherMonth, isToday, events, dateStr) {
     const div = document.createElement('div');
-    div.className = 'calendar-day' + (isOtherMonth ? ' other-month' : '') + (isToday ? ' today' : '');
+    const hasEvents = events && events.length > 0;
+    div.className = 'calendar-day' + (isOtherMonth ? ' other-month' : '') + (isToday ? ' today' : '') + (hasEvents ? ' has-events' : '');
     
     const numDiv = document.createElement('div');
     numDiv.className = 'day-num';
