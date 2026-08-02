@@ -2967,12 +2967,14 @@ function renderMasterTableHeader() {
         <th class="text-center" style="width: 50px;" data-i18n="table.no">ល.រ</th>
         <th style="width: 130px;" data-i18n="table.caseCode">លេខកូដសំណុំរឿង</th>
         <th style="width: 110px;" data-i18n="table.date">កាលបរិច្ឆេទ</th>
+        <th style="width: 140px;" class="text-center" data-i18n="table.status">លទ្ធផលសំណុំរឿង</th>
+        <th style="width: 150px;">កម្មវិធី (Event)</th>
+        <th style="width: 120px;">កាលបរិច្ឆេទកម្មវិធី</th>
         <th style="min-width: 180px;" data-i18n="table.partyA">ភាគី (ក) ដើមបណ្ដឹង</th>
         <th style="min-width: 180px;" data-i18n="table.partyB">ភាគី (ខ) ចុងបណ្ដឹង</th>
         <th style="width: 140px;" data-i18n="table.category">ប្រភេទវិវាទ</th>
         <th style="width: 120px;" data-i18n="table.location">ទីតាំងវិវាទ</th>
         <th style="min-width: 200px;" data-i18n="form.mediation">ចំណាត់ការសម្រុះសម្រួល</th>
-        <th style="width: 140px;" class="text-center" data-i18n="table.status">លទ្ធផលសំណុំរឿង</th>
         <th style="width: 110px;" class="text-center" data-i18n="table.remarks">កំណត់ចំណាំ</th>
     `;
 
@@ -2980,6 +2982,7 @@ function renderMasterTableHeader() {
         html += `<th style="min-width: 120px;" class="text-center">${currentLang === 'km' ? col.labelKh : col.labelEn}</th>`;
     });
 
+    html += `<th style="width: 120px;" class="text-center">ឯកសារ ដើម (PDF)</th>`;
     html += `<th style="width: 120px;" class="text-center" data-i18n="table.actions">សកម្មភាព</th>`;
     thead.innerHTML = html;
 }
@@ -4485,11 +4488,14 @@ window.addEventListener('load', () => {
             maxBtn.style.marginLeft = '10px';
             
             maxBtn.onclick = function() {
-                if (document.body.classList.contains('fullscreen-mode')) {
-                    document.body.classList.remove('fullscreen-mode');
+                const section = this.closest('.view-section');
+                if (section.classList.contains('fullscreen-overlay')) {
+                    section.classList.remove('fullscreen-overlay');
+                    document.querySelector('.main-content').appendChild(section);
                     this.innerHTML = '<i class="fa-solid fa-expand"></i> ពង្រីក (Maximize)';
                 } else {
-                    document.body.classList.add('fullscreen-mode');
+                    section.classList.add('fullscreen-overlay');
+                    document.body.appendChild(section);
                     this.innerHTML = '<i class="fa-solid fa-compress"></i> បង្រួម (Minimize)';
                 }
             };
