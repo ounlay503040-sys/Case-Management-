@@ -4406,6 +4406,11 @@ document.getElementById('btn-save-calendar-event')?.addEventListener('click', ()
         if (typeof syncToGoogleCalendar === 'function') {
             syncToGoogleCalendar(c);
         }
+        // Trigger Telegram Notification
+        if (typeof notifyTelegramEventUpdate === 'function') {
+            notifyTelegramEventUpdate(c);
+            showToast('បានធ្វើបច្ចុប្បន្នភាពទៅកាន់ Telegram រួចរាល់', 'info');
+        }
     }
 });
 
@@ -4443,10 +4448,44 @@ document.getElementById('btn-clear-calendar-event')?.addEventListener('click', (
         }
         if (typeof notifyTelegramEventCancelled === 'function') {
             notifyTelegramEventCancelled(c.caseNumber, oldEventName);
+            showToast('បានធ្វើបច្ចុប្បន្នភាពការលុបទៅកាន់ Telegram', 'info');
         }
     }
 });
 // Initialize Calendar view hook
 document.querySelector('a[data-view="calendar-view"]')?.addEventListener('click', () => {
     setTimeout(renderCalendar, 100);
+});
+
+// Setup Maximize/Minimize functionality for all views
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        const titleBoxes = document.querySelectorAll('.view-section .section-title-box');
+        titleBoxes.forEach(box => {
+            let actionDiv = box.querySelector('.section-actions');
+            if (!actionDiv) {
+                actionDiv = document.createElement('div');
+                actionDiv.className = 'section-actions';
+                box.appendChild(actionDiv);
+            }
+            
+            const maxBtn = document.createElement('button');
+            maxBtn.className = 'btn btn-outline';
+            maxBtn.innerHTML = '<i class="fa-solid fa-expand"></i> ពង្រីក (Maximize)';
+            maxBtn.style.marginLeft = '10px';
+            
+            maxBtn.onclick = function() {
+                const section = this.closest('.view-section');
+                if (section.classList.contains('fullscreen-view')) {
+                    section.classList.remove('fullscreen-view');
+                    this.innerHTML = '<i class="fa-solid fa-expand"></i> ពង្រីក (Maximize)';
+                } else {
+                    section.classList.add('fullscreen-view');
+                    this.innerHTML = '<i class="fa-solid fa-compress"></i> បង្រួម (Minimize)';
+                }
+            };
+            
+            actionDiv.appendChild(maxBtn);
+        });
+    }, 500);
 });

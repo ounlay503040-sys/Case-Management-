@@ -1769,5 +1769,25 @@ body.dark-theme .badge-close { color: #cbd5e1; }
     100% {
         background-position: 0% 50%;
     }
+    }
 }
 
+/* Fullscreen View for Maximize feature */
+.fullscreen-view {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 9999 !important;
+    background: #f8fafc !important;
+    overflow-y: auto !important;
+    padding: 24px !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+.fullscreen-view .section-title-box {
+    margin-top: 0 !important;
+}
