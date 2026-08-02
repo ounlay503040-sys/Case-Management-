@@ -1777,7 +1777,7 @@ body.fullscreen-mode .sidebar {
     display: none !important;
 }
 
-body.fullscreen-mode .header {
+body.fullscreen-mode .top-header {
     display: none !important;
 }
 
