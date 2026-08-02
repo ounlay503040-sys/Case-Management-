@@ -140,3 +140,72 @@ async function notifyTelegramEventUpdate(c) {
     const msg = `🔄 <b>មានការកែប្រែកម្មវិធីសំណុំរឿង</b>\n\n📁 <b>សំណុំរឿង៖</b> ${c.caseNumber}\n🗓 <b>កម្មវិធី៖</b> ${c.caseEvent} ${timeStr}\n📅 <b>ថ្ងៃទី៖</b> ${c.caseEventDate}\n📍 <b>ទីតាំង៖</b> ${c.disputeLocation}`;
     await sendTelegramMessage(msg);
 }
+
+/**
+ * Send a summary report to Telegram
+ */
+async function sendTelegramReport() {
+    const { token, chatid } = getTelegramSettings();
+    if (!token || !chatid) {
+        if (typeof showToast === 'function') showToast('សូមភ្ជាប់ Telegram ជាមុនសិន (ចូលទៅការកំណត់)!', 'error');
+        return;
+    }
+    
+    if (typeof casesData === 'undefined' || !casesData || casesData.length === 0) {
+        if (typeof showToast === 'function') showToast('មិនមានទិន្នន័យសំណុំរឿងទេ!', 'warning');
+        return;
+    }
+
+    if (typeof showToast === 'function') showToast('កំពុងរៀបចំ និងផ្ញើរបាយការណ៍ទៅ Telegram...', 'info');
+
+    const now = new Date();
+    const todayStr = now.toISOString().split('T')[0];
+    
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().split('T')[0];
+
+    let todayEvents = [];
+    let tomorrowEvents = [];
+    let pastEvents = [];
+
+    casesData.forEach(c => {
+        if (!c.caseEvent || !c.caseEventDate) return;
+        
+        const eventStr = `${c.caseNumber} - ${c.caseEvent}`;
+        if (c.caseEventDate === todayStr) {
+            todayEvents.push(eventStr);
+        } else if (c.caseEventDate === tomorrowStr) {
+            tomorrowEvents.push(eventStr);
+        } else if (c.caseEventDate < todayStr) {
+            pastEvents.push(eventStr);
+        }
+    });
+
+    let msg = `📊 <b>របាយការណ៍កម្មវិធីសំណុំរឿងប្រចាំថ្ងៃ</b>\n📅 <b>កាលបរិច្ឆេទ៖</b> ${todayStr}\n\n`;
+    
+    msg += `📍 <b>កម្មវិធីថ្ងៃនេះ (${todayEvents.length})៖</b>\n`;
+    if (todayEvents.length > 0) {
+        todayEvents.forEach(e => msg += `• ${e}\n`);
+    } else {
+        msg += `• គ្មានកម្មវិធីទេ\n`;
+    }
+    msg += `\n`;
+
+    msg += `⏭ <b>កម្មវិធីថ្ងៃស្អែក (${tomorrowEvents.length})៖</b>\n`;
+    if (tomorrowEvents.length > 0) {
+        tomorrowEvents.forEach(e => msg += `• ${e}\n`);
+    } else {
+        msg += `• គ្មានកម្មវិធីទេ\n`;
+    }
+    msg += `\n`;
+
+    msg += `✅ <b>កម្មវិធីអនុវត្តរួចរាល់សរុប៖</b> ${pastEvents.length} កម្មវិធី`;
+
+    const success = await sendTelegramMessage(msg);
+    if (success) {
+        if (typeof showToast === 'function') showToast('បានផ្ញើរបាយការណ៍សរុបទៅ Telegram ជោគជ័យ!', 'success');
+    } else {
+        if (typeof showToast === 'function') showToast('មានបញ្ហាក្នុងការផ្ញើរបាយការណ៍!', 'error');
+    }
+}

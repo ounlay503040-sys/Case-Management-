@@ -699,7 +699,10 @@
                         <h1 data-i18n="cases.title">តារាងបញ្ជីសំណុំរឿង (Master Case Directory)</h1>
                         <p data-i18n="cases.subtitle">គ្រប់គ្រង ស្វែងរក និងចម្រោះទិន្នន័យសំណុំរឿងស្របតាមទម្រង់តារាង Excel គោល</p>
                     </div>
-                    <div class="section-actions">
+                    <div class="section-actions" style="display: flex; gap: 10px;">
+                        <button class="btn btn-outline" type="button" onclick="sendTelegramReport()" style="color: #0284c7; border-color: #0284c7;">
+                            <i class="fa-brands fa-telegram text-primary"></i> ផ្ញើរបាយការណ៍ទៅ Telegram
+                        </button>
                         <button class="btn btn-outline" id="btn-export-current-excel" onclick="exportReportToExcel()">
                             <i class="fa-solid fa-file-excel text-success"></i> ទាញយកជា Excel
                         </button>
@@ -1878,6 +1881,11 @@
                                     <button id="btn-google-signout" class="btn-secondary" type="button" onclick="handleSignoutClick()" style="display: none;">
                                         <i class="fa-solid fa-sign-out-alt"></i> ផ្តាច់គណនី (Sign Out)
                                     </button>
+                                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #cbd5e1;">
+                                        <button class="btn-outline" type="button" onclick="syncAllEventsToGoogleCalendar()" style="color: #0369a1; border-color: #0369a1;">
+                                            <i class="fa-solid fa-rotate"></i> ធ្វើបច្ចុប្បន្នភាពកម្មវិធីទាំងអស់ទៅ Google Calendar (Bulk Sync)
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                             </div> <!-- END #settings-panes-body -->

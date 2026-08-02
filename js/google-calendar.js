@@ -196,3 +196,36 @@ async function syncToGoogleCalendar(c) {
         if (typeof showToast === 'function') showToast('មានបញ្ហាក្នុងការបញ្ជូនទៅ Google Calendar', 'error');
     }
 }
+
+/**
+ * Sync all cases with events to Google Calendar
+ */
+async function syncAllEventsToGoogleCalendar() {
+    if (!gapiInited || !gapi.client || !gapi.client.getToken()) {
+        if (typeof showToast === 'function') showToast('សូមភ្ជាប់ Google Calendar ជាមុនសិន!', 'error');
+        return;
+    }
+    
+    if (typeof casesData === 'undefined' || !casesData || casesData.length === 0) {
+        if (typeof showToast === 'function') showToast('មិនមានទិន្នន័យសំណុំរឿងទេ!', 'warning');
+        return;
+    }
+
+    if (typeof showToast === 'function') showToast('កំពុងបញ្ជូនទិន្នន័យចាស់ៗទៅ Google Calendar...', 'info');
+
+    let count = 0;
+    for (let c of casesData) {
+        if (c.caseEvent && c.caseEventDate) {
+            await syncToGoogleCalendar(c);
+            count++;
+        }
+    }
+
+    if (typeof showToast === 'function') {
+        if (count > 0) {
+            showToast(`បានបញ្ជូនទិន្នន័យចំនួន ${count} ទៅ Google Calendar រួចរាល់!`, 'success');
+        } else {
+            showToast('មិនមានសំណុំរឿងណាដែលមានកម្មវិធីត្រូវបញ្ជូនទេ!', 'info');
+        }
+    }
+}
