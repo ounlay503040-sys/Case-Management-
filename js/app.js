@@ -4310,10 +4310,16 @@ document.getElementById('btn-save-calendar-event')?.addEventListener('click', ()
     if (c) {
         c.caseEvent = eventType;
         c.caseEventDate = dateStr;
+        c.notifiedEventDate = ''; // Reset notification flag when date changes
         saveCases();
         showToast('បានកំណត់កម្មវិធីដោយជោគជ័យ!', 'success');
         document.getElementById('calendar-event-modal').classList.remove('open');
         renderAllViews();
+        
+        // Trigger Google Calendar Sync
+        if (typeof syncToGoogleCalendar === 'function') {
+            syncToGoogleCalendar(c);
+        }
     }
 });
 
