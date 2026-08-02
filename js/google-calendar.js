@@ -228,7 +228,6 @@ async function syncAllEventsToGoogleCalendar() {
             showToast('មិនមានសំណុំរឿងណាដែលមានកម្មវិធីត្រូវបញ្ជូនទេ!', 'info');
         }
     }
-    }
 }
 
 /**
