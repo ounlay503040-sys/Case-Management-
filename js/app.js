@@ -438,10 +438,10 @@ function generateMasterCaseRowHTML(c, rowNum) {
             <td><span style="font-weight: 600;">${c.category}</span></td>
             <td><span class="badge" style="background: var(--border-color); color: var(--text-color);">${c.disputeLocation}</span><br><small style="color: #64748b;">${c.disputeAddress || ''}</small></td>
             <td>
-                <div style="font-size: 11px; line-height: 1.5;">
-                    <div>🔹 ក៖ ${c.meetingPartyA}</div>
-                    <div>🔸 ខ៖ ${c.meetingPartyB}</div>
-                    <div style="font-weight: 600; color: var(--primary-color);">⚖️ ផ្សះផ្សា៖ ${c.mediationMeeting}</div>
+                <div style="font-size: 11px; line-height: 1.5; max-width: 200px;">
+                    <div class="text-truncate-2" title="ក៖ ${c.meetingPartyA}">🔹 ក៖ ${c.meetingPartyA}</div>
+                    <div class="text-truncate-2" title="ខ៖ ${c.meetingPartyB}">🔸 ខ៖ ${c.meetingPartyB}</div>
+                    <div class="text-truncate-2" title="ផ្សះផ្សា៖ ${c.mediationMeeting}" style="font-weight: 600; color: var(--primary-color);">⚖️ ផ្សះផ្សា៖ ${c.mediationMeeting}</div>
                 </div>
             </td>
             <td class="text-center">
