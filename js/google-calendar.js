@@ -69,6 +69,9 @@ function initTokenClient() {
                 if (resp.error !== undefined) {
                     throw (resp);
                 }
+                // Important: Set the token for gapi client to use
+                gapi.client.setToken({ access_token: resp.access_token });
+                
                 document.getElementById('btn-google-signout').style.display = 'inline-block';
                 document.getElementById('btn-google-auth').innerHTML = '<i class="fa-brands fa-google"></i> បានភ្ជាប់ Google Calendar រួចរាល់';
                 if (typeof showToast === 'function') showToast('ភ្ជាប់ Google Calendar ជោគជ័យ!', 'success');
