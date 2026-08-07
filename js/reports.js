@@ -188,10 +188,12 @@ function renderMonthlyProgressReportHTML(dataArray) {
 
     let html = `
         <div style="font-family: inherit; margin-bottom: 20px; position: relative;">
-            <div style="text-align: center; margin-bottom: 15px;">
+            <div class="hide-on-export" style="text-align: center; margin-bottom: 15px;">
                 <h3 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif; font-size: 13pt; font-weight: normal; color: #1e3a8a; margin: 0 0 4px 0;">ព្រះរាជាណាចក្រកម្ពុជា</h3>
                 <h4 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif; font-size: 11pt; font-weight: normal; color: #1e3a8a; margin: 0 0 15px 0;">ជាតិ សាសនា ព្រះមហាក្សត្រ</h4>
                 <div style="font-family: inherit; font-size: 16pt; font-weight: normal; color: #ca8a04; margin-bottom: 15px;">❧</div>
+            </div>
+            <div style="text-align: center; margin-bottom: 15px;">
                 <h2 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif; font-size: 12.5pt; font-weight: normal; color: #0f172a; margin: 0 0 8px 0; line-height: 1.6;">របាយការណ៍វឌ្ឍនភាពចំណាត់ការសំណុំរឿងរបស់ ម.ស.វ. ឈ្មោះ <span contenteditable="true" style="color: #dc2626; font-weight: normal; border-bottom: 1px dashed #dc2626; padding: 0 4px;">${officerName}</span></h2>
                 <p style="font-size: 10.5pt; font-weight: 700; color: #334155; margin: 0;">ប្រចាំខែ <span style="color: #2563eb;">${monthStr}</span> <span style="font-weight: normal; color: #64748b;">( គិតត្រឹមថ្ងៃទី ${todayStr} )</span></p>
             </div>
@@ -600,7 +602,7 @@ function exportReportToExcel() {
     const clone = paper.cloneNode(true);
     
     // Remove elements that were dynamically hidden
-    const hiddens = clone.querySelectorAll('[style*="display: none"]');
+    const hiddens = clone.querySelectorAll('[style*="display: none"], .hide-on-export, .official-report-footer');
     hiddens.forEach(el => el.remove());
     
     // Format tables for Excel rendering
@@ -617,10 +619,14 @@ function exportReportToExcel() {
     const ths = clone.querySelectorAll('th');
     ths.forEach(th => {
         th.style.border = '1px solid #000000';
+        th.style.padding = '2px 4px';
+        th.style.fontSize = '9.5pt';
     });
     const tds = clone.querySelectorAll('td');
     tds.forEach(td => {
         td.style.border = '1px solid #000000';
+        td.style.padding = '2px 4px';
+        td.style.fontSize = '9.5pt';
     });
 
     const titleEl = document.getElementById('report-header-title');
@@ -636,8 +642,8 @@ function exportReportToExcel() {
                     margin: 0.5in 0.5in 0.5in 0.5in;
                 }
                 body { font-family: 'Khmer OS Battambang', sans-serif; font-size: 10pt; }
-                table { border-collapse: collapse; white-space: nowrap; }
-                td, th { white-space: nowrap; vertical-align: middle; }
+                table { border-collapse: collapse; }
+                td, th { vertical-align: middle; white-space: normal; }
                 h1, h2, h3, h4, th { font-family: 'Khmer OS Muol Light', serif; }
             </style>
         </head>
@@ -709,8 +715,8 @@ function exportReportToWord() {
     
     const clone = paper.cloneNode(true);
     
-    // Remove elements that were dynamically hidden
-    const hiddens = clone.querySelectorAll('[style*="display: none"]');
+    // Remove elements that were dynamically hidden or marked to hide
+    const hiddens = clone.querySelectorAll('[style*="display: none"], .hide-on-export, .official-report-footer');
     hiddens.forEach(el => el.remove());
     
     // Format tables for Word rendering
@@ -730,13 +736,15 @@ function exportReportToWord() {
         th.style.color = '#000000';
         th.style.fontWeight = 'bold';
         th.style.border = '1px solid #000000';
-        th.style.padding = '8px';
+        th.style.padding = '2px 4px';
+        th.style.fontSize = '9.5pt';
     });
 
     const tds = clone.querySelectorAll('td');
     tds.forEach(td => {
         td.style.border = '1px solid #000000';
-        td.style.padding = '6px';
+        td.style.padding = '2px 4px';
+        td.style.fontSize = '9.5pt';
     });
 
     const contentHTML = clone.innerHTML;
@@ -760,8 +768,8 @@ function exportReportToWord() {
                 div.WordSection1 { page: WordSection1; }
                 body {
                     font-family: 'Khmer OS Battambang', 'Khmer OS Content', 'Arial Unicode MS', sans-serif;
-                    font-size: 11pt;
-                    line-height: 1.6;
+                    font-size: 10pt;
+                    line-height: 1.4;
                     color: #0f172a;
                 }
                 h1, h2, h3, h4, th {
@@ -775,7 +783,7 @@ function exportReportToWord() {
                 }
                 th, td {
                     border: 1px solid #000000;
-                    padding: 6px 8px;
+                    padding: 2px 4px;
                 }
                 .official-report-header {
                     text-align: center;
