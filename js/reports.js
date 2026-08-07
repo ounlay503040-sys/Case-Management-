@@ -24,6 +24,11 @@ function initReportEvents() {
 
     if (btnPrint) {
         btnPrint.addEventListener('click', () => {
+            const paper = document.getElementById('report-content');
+            const printArea = document.getElementById('print-area');
+            if (paper && printArea) {
+                printArea.innerHTML = paper.innerHTML;
+            }
             window.print();
         });
     }
@@ -583,87 +588,70 @@ function renderByCategoryHTML(dataArray) {
 }
 
 /**
- * EXCEL EXPORT matching Master Table Spreadsheet structure 100%
+ * EXCEL EXPORT - Renders content to Excel (.xls) compatible HTML
  */
 function exportReportToExcel() {
-    if (typeof XLSX === 'undefined') {
-        showToast('បណ្ណាល័យ SheetJS ពុំត្រូវបានផ្ទុកទេ! សូមពិនិត្យការតភ្ជាប់អ៊ីនធឺណិត។', 'error');
+    const paper = document.getElementById('report-content');
+    if (!paper || paper.style.display === 'none') {
+        showToast('សូមបង្កើតរបាយការណ៍ជាមុនសិន មុននឹងទាញយកជា Excel!', 'warning');
         return;
     }
 
-    const dataToExport = currentReportData.length > 0 ? currentReportData : casesData;
-    if (dataToExport.length === 0) {
-        showToast('គ្មានទិន្នន័យដើម្បីបញ្ចេញជា Excel ទេ!', 'error');
-        return;
-    }
-
-    // Map each case object into exact Khmer column headers matching their Excel spreadsheet!
-    const excelRows = dataToExport.map((c, index) => ({
-        'ល.រ': index + 1,
-        'លេខកូដសំណុំរឿង': c.caseNumber,
-        'កាលបរិច្ឆេទ': c.dateReceived,
-        
-        'ឈ្មោះភាគី (ក)': c.partyA_name,
-        'ភេទភាគី (ក)': c.partyA_gender,
-        'អាយុភាគី (ក)': c.partyA_age,
-        'ទូរស័ព្ទភាគី (ក)': c.partyA_phone,
-        'ទីតាំងភាគី (ក)': c.partyA_location,
-
-        'ឈ្មោះភាគី (ខ)': c.partyB_name,
-        'ភេទភាគី (ខ)': c.partyB_gender,
-        'អាយុភាគី (ខ)': c.partyB_age,
-        'ទូរស័ព្ទភាគី (ខ)': c.partyB_phone,
-        'ទីតាំងភាគី (ខ)': c.partyB_location,
-
-        'ប្រភេទសំណុំរឿង': c.category,
-        'ទីតាំងវិវាទ': c.disputeLocation,
-        'សេចក្តីសង្ខេបវិវាទ': c.summary,
-
-        'ប្រជុំភាគី (ក)': c.meetingPartyA,
-        'ប្រជុំភាគី (ខ)': c.meetingPartyB,
-        'ប្រជុំសម្រុះសម្រួល': c.mediationMeeting,
-
-        'លទ្ធផលសំណុំរឿង': c.status,
-        'កំណត់ចំណាំ': c.remarks
-    }));
-
-    // Create workbook and worksheet
-    const worksheet = XLSX.utils.json_to_sheet(excelRows);
+    const clone = paper.cloneNode(true);
     
-    // Set auto column widths for neat display in Excel
-    const colWidths = [
-        { wch: 6 },  // ល.រ
-        { wch: 18 }, // លេខកូដ
-        { wch: 14 }, // កាលបរិច្ឆេទ
-        { wch: 22 }, // ឈ្មោះ ក
-        { wch: 10 }, // ភេទ ក
-        { wch: 10 }, // អាយុ ក
-        { wch: 16 }, // ទូរស័ព្ទ ក
-        { wch: 16 }, // ទីតាំង ក
-        { wch: 22 }, // ឈ្មោះ ខ
-        { wch: 10 }, // ភេទ ខ
-        { wch: 10 }, // អាយុ ខ
-        { wch: 16 }, // ទូរស័ព្ទ ខ
-        { wch: 16 }, // ទីតាំង ខ
-        { wch: 22 }, // ប្រភេទវិវាទ
-        { wch: 16 }, // ទីតាំងវិវាទ
-        { wch: 40 }, // សេចក្តីសង្ខេប
-        { wch: 25 }, // ប្រជុំ ក
-        { wch: 25 }, // ប្រជុំ ខ
-        { wch: 28 }, // ប្រជុំសម្រុះសម្រួល
-        { wch: 22 }, // លទ្ធផល
-        { wch: 16 }  // កំណត់ចំណាំ
-    ];
-    worksheet['!cols'] = colWidths;
+    // Format tables for Excel rendering
+    const tables = clone.querySelectorAll('table');
+    tables.forEach(table => {
+        table.setAttribute('border', '1');
+        table.setAttribute('cellpadding', '4');
+        table.setAttribute('cellspacing', '0');
+        table.style.width = '100%';
+        table.style.borderCollapse = 'collapse';
+        table.style.borderColor = '#000000';
+    });
 
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'បញ្ជីសំណុំរឿង');
+    const ths = clone.querySelectorAll('th');
+    ths.forEach(th => {
+        th.style.border = '1px solid #000000';
+    });
+    const tds = clone.querySelectorAll('td');
+    tds.forEach(td => {
+        td.style.border = '1px solid #000000';
+    });
 
-    // Generate Excel file download
-    const fileName = `NADR_Master_Case_List_${new Date().toISOString().slice(0, 10)}.xlsx`;
-    XLSX.writeFile(workbook, fileName);
+    const titleEl = document.getElementById('report-header-title');
+    const fileNameText = titleEl ? titleEl.innerText.replace(/[^a-zA-Z0-9ក-ឤ០-៩]/g, '_') : 'NADR_Report';
 
-    showToast(`បានទាញយកឯកសារ Excel (${fileName}) ស្របតាមទម្រង់ដើម ១០០% ដោយជោគជ័យ!`, 'success');
+    const excelHTML = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+        <head>
+            <meta charset="utf-8">
+            <style>
+                @page {
+                    mso-page-orientation: landscape;
+                    size: 297mm 210mm; /* A4 Landscape */
+                    margin: 0.5in 0.5in 0.5in 0.5in;
+                }
+                body { font-family: 'Khmer OS Battambang', sans-serif; font-size: 10pt; }
+                table { border-collapse: collapse; }
+                h1, h2, h3, h4, th { font-family: 'Khmer OS Muol Light', serif; }
+            </style>
+        </head>
+        <body>
+            ${clone.innerHTML}
+        </body>
+        </html>
+    `;
+
+    const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), excelHTML], { type: 'application/vnd.ms-excel;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${fileNameText}_${new Date().toISOString().slice(0, 10)}.xls`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    showToast('បានទាញយកទិន្នន័យជា Excel រួចរាល់!', 'success');
 }
 
 /**
