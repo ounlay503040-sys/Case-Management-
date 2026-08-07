@@ -155,7 +155,7 @@ function renderUpcomingEventsTable() {
 
         let timeStr = c.caseEventTime ? `<br><small style="color: #64748b;"><i class="fa-regular fa-clock"></i> ម៉ោង ${c.caseEventTime}</small>` : '';
         
-        html += `<tr style="${rowStyle}">
+        html += `<tr style="${rowStyle} cursor: pointer;" onclick="openViewModal('${c.id}')" title="ចុចដើម្បីមើលលម្អិត">
             <td style="font-weight: 600;">${c.caseEventDate} ${timeStr}</td>
             <td><span class="badge" style="${badgeStyle}">${c.caseNumber}</span></td>
             <td style="font-weight: 600; color: #334155;">${c.caseEvent}</td>

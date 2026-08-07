@@ -172,10 +172,6 @@
                     <button class="menu-toggle-btn" id="menu-toggle">
                         <i class="fa-solid fa-bars"></i>
                     </button>
-                    <div class="search-bar">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                        <input type="text" id="header-search-input" data-i18n="header.search" placeholder="ស្វែងរកលេខកូដសំណុំរឿង ឬឈ្មោះភាគី ក/ខ...">
-                    </div>
                 </div>
 
                 <div class="header-right">
@@ -724,7 +720,7 @@
                     <div class="filter-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; align-items: end;">
                         <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px;">
                             <label style="font-size: 12.5px; font-weight: 700; color: #334155;"><i class="fa-solid fa-magnifying-glass text-primary"></i> ស្វែងរកទូទៅ៖</label>
-                            <input type="text" id="filter-search" autocomplete="new-password" class="form-control" placeholder="លេខកូដ, ឈ្មោះភាគី ក/ខ..." style="font-size: 13px; padding: 8px 12px; height: 40px; border: 1px solid #cbd5e1; border-radius: 8px; background: white;">
+                            <input type="text" id="filter-search" readonly onfocus="this.removeAttribute('readonly');" class="form-control" placeholder="លេខកូដ, ឈ្មោះភាគី ក/ខ..." style="font-size: 13px; padding: 8px 12px; height: 40px; border: 1px solid #cbd5e1; border-radius: 8px; background: white;">
                         </div>
                         <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px;">
                             <label style="font-size: 12.5px; font-weight: 700; color: #334155;"><i class="fa-solid fa-tags text-success"></i> ប្រភេទវិវាទ (៨ ប្រភេទ)៖</label>
