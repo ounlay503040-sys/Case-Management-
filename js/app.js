@@ -59,6 +59,7 @@ function populateProvinceDropdowns() {
     if (dispLoc) dispLoc.innerHTML = optHTML;
     if (paLoc) paLoc.innerHTML = optHTML;
     if (pbLoc) pbLoc.innerHTML = optHTML;
+    if (document.getElementById('case-party-c-location')) document.getElementById('case-party-c-location').innerHTML = optHTML;
     if (quickLoc) quickLoc.innerHTML = optHTML;
 
     if (filterLoc) {
@@ -421,9 +422,10 @@ function generateMasterCaseRowHTML(c, rowNum) {
 
     const statusColor = getStatusColor(c.status);
     const rowNumHtml = `
-        <div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
-            <div style="width: 10px; height: 10px; border-radius: 50%; background-color: ${statusColor}; box-shadow: 0 0 4px ${statusColor}80;"></div>
-            <strong>${rowNum}</strong>
+        <div style="display: flex; align-items: center; justify-content: center;">
+            <div style="width: 24px; height: 24px; border-radius: 50%; background-color: ${statusColor}; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px; box-shadow: 0 0 4px ${statusColor}80;">
+                ${rowNum}
+            </div>
         </div>
     `;
 
@@ -782,6 +784,8 @@ function initModalEvents() {
                 partyA_phone: document.getElementById('case-party-a-phone').value.trim(),
                 partyA_location: document.getElementById('case-party-a-location').value,
                 partyA_address: document.getElementById('case-party-a-address') ? document.getElementById('case-party-a-address').value.trim() : '',
+                partyA_additional_names: document.getElementById('case-party-a-additional-names') ? document.getElementById('case-party-a-additional-names').value.trim() : '',
+                partyA_additional_addresses: document.getElementById('case-party-a-additional-addresses') ? document.getElementById('case-party-a-additional-addresses').value.trim() : '',
 
                 partyB_name: document.getElementById('case-party-b-name').value.trim(),
                 partyB_gender: document.getElementById('case-party-b-gender').value,
@@ -789,9 +793,17 @@ function initModalEvents() {
                 partyB_phone: document.getElementById('case-party-b-phone').value.trim(),
                 partyB_location: document.getElementById('case-party-b-location').value,
                 partyB_address: document.getElementById('case-party-b-address') ? document.getElementById('case-party-b-address').value.trim() : '',
+                partyB_additional_names: document.getElementById('case-party-b-additional-names') ? document.getElementById('case-party-b-additional-names').value.trim() : '',
+                partyB_additional_addresses: document.getElementById('case-party-b-additional-addresses') ? document.getElementById('case-party-b-additional-addresses').value.trim() : '',
 
                 partyC_name: document.getElementById('case-party-c-name') ? document.getElementById('case-party-c-name').value.trim() : '',
+                partyC_gender: document.getElementById('case-party-c-gender') ? document.getElementById('case-party-c-gender').value : 'ប្រុស',
+                partyC_age: document.getElementById('case-party-c-age') ? document.getElementById('case-party-c-age').value : '',
                 partyC_phone: document.getElementById('case-party-c-phone') ? document.getElementById('case-party-c-phone').value.trim() : '',
+                partyC_location: document.getElementById('case-party-c-location') ? document.getElementById('case-party-c-location').value : 'ភ្នំពេញ',
+                partyC_address: document.getElementById('case-party-c-address') ? document.getElementById('case-party-c-address').value.trim() : '',
+                partyC_additional_names: document.getElementById('case-party-c-additional-names') ? document.getElementById('case-party-c-additional-names').value.trim() : '',
+                partyC_additional_addresses: document.getElementById('case-party-c-additional-addresses') ? document.getElementById('case-party-c-additional-addresses').value.trim() : '',
 
                 summary: document.getElementById('case-summary').value.trim(),
                 meetingPartyA: document.getElementById('case-meeting-a').value,
@@ -882,6 +894,8 @@ function openEditModal(id) {
     document.getElementById('case-party-a-phone').value = c.partyA_phone || '';
     document.getElementById('case-party-a-location').value = c.partyA_location || 'ភ្នំពេញ';
     if(document.getElementById('case-party-a-address')) document.getElementById('case-party-a-address').value = c.partyA_address || '';
+    if(document.getElementById('case-party-a-additional-names')) document.getElementById('case-party-a-additional-names').value = c.partyA_additional_names || '';
+    if(document.getElementById('case-party-a-additional-addresses')) document.getElementById('case-party-a-additional-addresses').value = c.partyA_additional_addresses || '';
 
     document.getElementById('case-party-b-name').value = c.partyB_name || '';
     document.getElementById('case-party-b-gender').value = c.partyB_gender || 'ប្រុស';
@@ -889,9 +903,17 @@ function openEditModal(id) {
     document.getElementById('case-party-b-phone').value = c.partyB_phone || '';
     document.getElementById('case-party-b-location').value = c.partyB_location || 'ភ្នំពេញ';
     if(document.getElementById('case-party-b-address')) document.getElementById('case-party-b-address').value = c.partyB_address || '';
+    if(document.getElementById('case-party-b-additional-names')) document.getElementById('case-party-b-additional-names').value = c.partyB_additional_names || '';
+    if(document.getElementById('case-party-b-additional-addresses')) document.getElementById('case-party-b-additional-addresses').value = c.partyB_additional_addresses || '';
     
     if(document.getElementById('case-party-c-name')) document.getElementById('case-party-c-name').value = c.partyC_name || '';
+    if(document.getElementById('case-party-c-gender')) document.getElementById('case-party-c-gender').value = c.partyC_gender || 'ប្រុស';
+    if(document.getElementById('case-party-c-age')) document.getElementById('case-party-c-age').value = c.partyC_age || '';
     if(document.getElementById('case-party-c-phone')) document.getElementById('case-party-c-phone').value = c.partyC_phone || '';
+    if(document.getElementById('case-party-c-location')) document.getElementById('case-party-c-location').value = c.partyC_location || 'ភ្នំពេញ';
+    if(document.getElementById('case-party-c-address')) document.getElementById('case-party-c-address').value = c.partyC_address || '';
+    if(document.getElementById('case-party-c-additional-names')) document.getElementById('case-party-c-additional-names').value = c.partyC_additional_names || '';
+    if(document.getElementById('case-party-c-additional-addresses')) document.getElementById('case-party-c-additional-addresses').value = c.partyC_additional_addresses || '';
 
     document.getElementById('case-summary').value = c.summary || '';
     document.getElementById('case-meeting-a').value = c.meetingPartyA || 'មិនទាន់ប្រជុំ';
@@ -977,7 +999,9 @@ function openViewModal(id) {
                 <span class="d-val">${c.partyA_name} (${c.partyA_gender}, ${c.partyA_age || '?'} ឆ្នាំ)</span>
                 <div style="font-size: 13px; margin-top: 6px; color: #334155;">
                     <div>📞 ទូរស័ព្ទ៖ <strong>${c.partyA_phone || 'ពុំមាន'}</strong></div>
-                    <div>📍 អាសយដ្ឋាន៖ <strong>${c.partyA_location}</strong></div>
+                    <div>📍 អាសយដ្ឋាន៖ <strong>${c.partyA_location} ${c.partyA_address ? ' - ' + c.partyA_address : ''}</strong></div>
+                    ${c.partyA_additional_names ? `<div class="mt-1" style="padding-top:4px; border-top:1px dashed #cbd5e1;">👥 ភាគីបន្ថែម៖ <strong>${c.partyA_additional_names}</strong></div>` : ''}
+                    ${c.partyA_additional_addresses ? `<div>🏠 អាសយដ្ឋានភាគីបន្ថែម៖ <strong>${c.partyA_additional_addresses}</strong></div>` : ''}
                 </div>
             </div>
 
@@ -986,9 +1010,24 @@ function openViewModal(id) {
                 <span class="d-val">${c.partyB_name} (${c.partyB_gender}, ${c.partyB_age || '?'} ឆ្នាំ)</span>
                 <div style="font-size: 13px; margin-top: 6px; color: #334155;">
                     <div>📞 ទូរស័ព្ទ៖ <strong>${c.partyB_phone || 'ពុំមាន'}</strong></div>
-                    <div>📍 អាសយដ្ឋាន៖ <strong>${c.partyB_location}</strong></div>
+                    <div>📍 អាសយដ្ឋាន៖ <strong>${c.partyB_location} ${c.partyB_address ? ' - ' + c.partyB_address : ''}</strong></div>
+                    ${c.partyB_additional_names ? `<div class="mt-1" style="padding-top:4px; border-top:1px dashed #cbd5e1;">👥 ភាគីបន្ថែម៖ <strong>${c.partyB_additional_names}</strong></div>` : ''}
+                    ${c.partyB_additional_addresses ? `<div>🏠 អាសយដ្ឋានភាគីបន្ថែម៖ <strong>${c.partyB_additional_addresses}</strong></div>` : ''}
                 </div>
             </div>
+
+            ${c.partyC_name ? `
+            <div class="dossier-item full-width" style="grid-column: span 2; background: #f8fafc; border-color: #e2e8f0;">
+                <span class="d-label" style="color: #475569;"><i class="fa-solid fa-users"></i> អ្នកពាក់ព័ន្ធ / តតិយជន ភាគី (គ)</span>
+                <span class="d-val">${c.partyC_name} (${c.partyC_gender || 'ប្រុស'}, ${c.partyC_age || '?'} ឆ្នាំ)</span>
+                <div style="font-size: 13px; margin-top: 6px; color: #334155;">
+                    <div>📞 ទូរស័ព្ទ៖ <strong>${c.partyC_phone || 'ពុំមាន'}</strong></div>
+                    <div>📍 អាសយដ្ឋាន៖ <strong>${c.partyC_location || ''} ${c.partyC_address ? ' - ' + c.partyC_address : ''}</strong></div>
+                    ${c.partyC_additional_names ? `<div class="mt-1" style="padding-top:4px; border-top:1px dashed #cbd5e1;">👥 ភាគីបន្ថែម៖ <strong>${c.partyC_additional_names}</strong></div>` : ''}
+                    ${c.partyC_additional_addresses ? `<div>🏠 អាសយដ្ឋានភាគីបន្ថែម៖ <strong>${c.partyC_additional_addresses}</strong></div>` : ''}
+                </div>
+            </div>
+            ` : ''}
 
             <div class="dossier-item">
                 <span class="d-label">ប្រភេទសំណុំរឿង (Category)</span>

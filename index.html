@@ -724,7 +724,7 @@
                     <div class="filter-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; align-items: end;">
                         <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px;">
                             <label style="font-size: 12.5px; font-weight: 700; color: #334155;"><i class="fa-solid fa-magnifying-glass text-primary"></i> ស្វែងរកទូទៅ៖</label>
-                            <input type="text" id="filter-search" autocomplete="off" class="form-control" placeholder="លេខកូដ, ឈ្មោះភាគី ក/ខ..." style="font-size: 13px; padding: 8px 12px; height: 40px; border: 1px solid #cbd5e1; border-radius: 8px; background: white;">
+                            <input type="text" id="filter-search" autocomplete="new-password" class="form-control" placeholder="លេខកូដ, ឈ្មោះភាគី ក/ខ..." style="font-size: 13px; padding: 8px 12px; height: 40px; border: 1px solid #cbd5e1; border-radius: 8px; background: white;">
                         </div>
                         <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px;">
                             <label style="font-size: 12.5px; font-weight: 700; color: #334155;"><i class="fa-solid fa-tags text-success"></i> ប្រភេទវិវាទ (៨ ប្រភេទ)៖</label>
@@ -2143,7 +2143,7 @@
 
                     <!-- SECTION 2: PARTY A INFO -->
                     <div class="form-section-banner mt-4" style="background: #e0f2fe; color: #0369a1; border-color: #bae6fd;">
-                        <i class="fa-solid fa-user-check"></i> ២. ព័ត៌មានភាគី "ក" (ដើមបណ្ដឹង / អ្នកប្ដឹង)
+                        <i class="fa-solid fa-user-check"></i> ២. ព័ត៌មានភាគី "ក" (ភាគីស្នើសុំ / ដើមបណ្ដឹង)
                     </div>
                     <div class="form-grid-4">
                         <div class="form-group" style="grid-column: span 2;">
@@ -2178,10 +2178,20 @@
                             <input type="text" id="case-party-a-address" class="form-control" placeholder="អាសយដ្ឋានលម្អិត">
                         </div>
                     </div>
+                    <div class="form-grid-2 mt-2">
+                        <div class="form-group">
+                            <label>ឈ្មោះភាគីបន្ថែម (បើមាន ២ ឬ ៣ នាក់)</label>
+                            <input type="text" id="case-party-a-additional-names" class="form-control" placeholder="វាយបញ្ចូលឈ្មោះបន្ថែម...">
+                        </div>
+                        <div class="form-group">
+                            <label>អាសយដ្ឋានភាគីបន្ថែម</label>
+                            <input type="text" id="case-party-a-additional-addresses" class="form-control" placeholder="វាយបញ្ចូលអាសយដ្ឋានបន្ថែម...">
+                        </div>
+                    </div>
 
                     <!-- SECTION 3: PARTY B INFO -->
                     <div class="form-section-banner mt-4" style="background: #fee2e2; color: #991b1b; border-color: #fecaca;">
-                        <i class="fa-solid fa-user-xmark"></i> ៣. ព័ត៌មានភាគី "ខ" (ចុងបណ្ដឹង / ភាគីតវ៉ា)
+                        <i class="fa-solid fa-user-xmark"></i> ៣. ព័ត៌មានភាគី "ខ" (ភាគីម្ខាងទៀត / ចុងបណ្ដឹង)
                     </div>
                     <div class="form-grid-4">
                         <div class="form-group" style="grid-column: span 2;">
@@ -2216,25 +2226,68 @@
                             <input type="text" id="case-party-b-address" class="form-control" placeholder="អាសយដ្ឋានលម្អិត">
                         </div>
                     </div>
+                    <div class="form-grid-2 mt-2">
+                        <div class="form-group">
+                            <label>ឈ្មោះភាគីបន្ថែម (បើមាន ២ ឬ ៣ នាក់)</label>
+                            <input type="text" id="case-party-b-additional-names" class="form-control" placeholder="វាយបញ្ចូលឈ្មោះបន្ថែម...">
+                        </div>
+                        <div class="form-group">
+                            <label>អាសយដ្ឋានភាគីបន្ថែម</label>
+                            <input type="text" id="case-party-b-additional-addresses" class="form-control" placeholder="វាយបញ្ចូលអាសយដ្ឋានបន្ថែម...">
+                        </div>
+                    </div>
 
                     <!-- SECTION 3.5: PARTY C INFO -->
                     <div class="form-section-banner mt-4" style="background: #f3f4f6; color: #475569; border-color: #e2e8f0;">
-                        <i class="fa-solid fa-users"></i> ភាគី "គ" (អ្នកពាក់ព័ន្ធ / តតិយជន) បើមាន
+                        <i class="fa-solid fa-users"></i> ៤. ព័ត៌មានភាគី "គ" (អ្នកពាក់ព័ន្ធ / តតិយជន) បើមាន
                     </div>
-                    <div class="form-grid-3">
+                    <div class="form-grid-4">
                         <div class="form-group" style="grid-column: span 2;">
                             <label>ឈ្មោះភាគី (គ)</label>
                             <input type="text" id="case-party-c-name" class="form-control" placeholder="ឈ្មោះអ្នកពាក់ព័ន្ធ...">
                         </div>
                         <div class="form-group">
-                            <label>លេខទូរស័ព្ទ / អាសយដ្ឋាន</label>
-                            <input type="text" id="case-party-c-phone" class="form-control" placeholder="ព័ត៌មានទំនាក់ទំនងភាគី គ">
+                            <label>ភេទ (Gender)</label>
+                            <select id="case-party-c-gender" class="form-control">
+                                <option value="ប្រុស">ប្រុស</option>
+                                <option value="ស្រី">ស្រី</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>ថ្ងៃខែឆ្នាំកំណើត (DOB)</label>
+                            <input type="date" id="case-party-c-age" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-grid-3 mt-2">
+                        <div class="form-group">
+                            <label>លេខទូរស័ព្ទ ភាគី (គ)</label>
+                            <input type="text" id="case-party-c-phone" class="form-control" placeholder="លេខទូរស័ព្ទទំនាក់ទំនង">
+                        </div>
+                        <div class="form-group">
+                            <label>រាជធានី-ខេត្ត ភាគី (គ)</label>
+                            <select id="case-party-c-location" class="form-control">
+                                <!-- Will be populated by JS -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>អាសយដ្ឋានភាគី (គ)</label>
+                            <input type="text" id="case-party-c-address" class="form-control" placeholder="អាសយដ្ឋានលម្អិត">
+                        </div>
+                    </div>
+                    <div class="form-grid-2 mt-2">
+                        <div class="form-group">
+                            <label>ឈ្មោះភាគីបន្ថែម (បើមាន)</label>
+                            <input type="text" id="case-party-c-additional-names" class="form-control" placeholder="វាយបញ្ចូលឈ្មោះបន្ថែម...">
+                        </div>
+                        <div class="form-group">
+                            <label>អាសយដ្ឋានភាគីបន្ថែម</label>
+                            <input type="text" id="case-party-c-additional-addresses" class="form-control" placeholder="វាយបញ្ចូលអាសយដ្ឋានបន្ថែម...">
                         </div>
                     </div>
 
                     <!-- SECTION 4: ACTIONS AND RESULTS -->
                     <div class="form-section-banner mt-4" style="background: #fef3c7; color: #92400e; border-color: #fde68a;">
-                        <i class="fa-solid fa-gavel"></i> ៤. អង្គហេតុ ចំណាត់ការនីតិវិធី និងលទ្ធផល
+                        <i class="fa-solid fa-gavel"></i> ៥. អង្គហេតុ ចំណាត់ការនីតិវិធី និងលទ្ធផល
                     </div>
                     <div class="form-group">
                         <label>សេចក្ដីសង្ខេបវិវាទ (Dispute Summary / Facts)</label>
