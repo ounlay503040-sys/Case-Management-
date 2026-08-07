@@ -183,7 +183,7 @@ function renderMonthlyProgressReportHTML(dataArray) {
                 <h3 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif; font-size: 13pt; font-weight: normal; color: #1e3a8a; margin: 0 0 4px 0;">ព្រះរាជាណាចក្រកម្ពុជា</h3>
                 <h4 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif; font-size: 11pt; font-weight: normal; color: #1e3a8a; margin: 0 0 15px 0;">ជាតិ សាសនា ព្រះមហាក្សត្រ</h4>
                 <div style="font-family: inherit; font-size: 16pt; font-weight: normal; color: #ca8a04; margin-bottom: 15px;">❧</div>
-                <h2 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif; font-size: 12.5pt; font-weight: normal; color: #0f172a; margin: 0 0 8px 0; line-height: 1.6;">របាយការណ៍វឌ្ឍនភាពចំណាត់ការសំណុំរឿងរបស់ ម.ស.វ. ឈ្មោះ <span style="color: #dc2626; font-weight: normal;">${officerName}</span></h2>
+                <h2 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif; font-size: 12.5pt; font-weight: normal; color: #0f172a; margin: 0 0 8px 0; line-height: 1.6;">របាយការណ៍វឌ្ឍនភាពចំណាត់ការសំណុំរឿងរបស់ ម.ស.វ. ឈ្មោះ <span contenteditable="true" style="color: #dc2626; font-weight: normal; border-bottom: 1px dashed #dc2626; padding: 0 4px;">${officerName}</span></h2>
                 <p style="font-size: 10.5pt; font-weight: 700; color: #334155; margin: 0;">ប្រចាំខែ <span style="color: #2563eb;">${monthStr}</span> <span style="font-weight: normal; color: #64748b;">( គិតត្រឹមថ្ងៃទី ${todayStr} )</span></p>
             </div>
 
@@ -219,7 +219,8 @@ function renderMonthlyProgressReportHTML(dataArray) {
                     <th rowspan="2" style="padding: 8px 6px; width: 170px; border: 1px solid #ca8a04; vertical-align: middle;">ព័ត៌មានភាគីដាក់ពាក្យ</th>
                     <th rowspan="2" style="padding: 8px 6px; width: 170px; border: 1px solid #ca8a04; vertical-align: middle;">ព័ត៌មានភាគីម្ខាងទៀត</th>
                     <th rowspan="2" style="padding: 8px 6px; width: 110px; border: 1px solid #ca8a04; vertical-align: middle;">កម្មវត្ថុ និងទីតាំងវិវាទ</th>
-                    <th colspan="4" style="padding: 6px; border: 1px solid #ca8a04; background: #facc15;">អំពីចំណាត់ការសំណុំរឿង</th>
+                    <th colspan="3" style="padding: 6px; border: 1px solid #ca8a04; background: #facc15;">អំពីចំណាត់ការសំណុំរឿង</th>
+                    <th rowspan="2" style="padding: 8px 6px; width: 70px; border: 1px solid #ca8a04; vertical-align: middle;">មសវ អម<br>(តាមលិខិតចាត់តាំង)</th>
                     <th rowspan="2" style="padding: 8px 6px; width: 85px; border: 1px solid #ca8a04; vertical-align: middle;">កត់ចំណាំ/បញ្ហា<br>ប្រឈម/សំណូមពរ</th>
                 </tr>
                 <tr style="background: #fef08a; color: #0f172a; text-align: center; font-weight: 700; border: 1px solid #ca8a04;">
@@ -228,7 +229,6 @@ function renderMonthlyProgressReportHTML(dataArray) {
                     <th style="padding: 6px; width: 105px; border: 1px solid #ca8a04;">កិច្ចប្រជុំប្រមូលព័ត៌មាន<br>ភាគី "ក"</th>
                     <th style="padding: 6px; width: 105px; border: 1px solid #ca8a04;">កិច្ចប្រជុំប្រមូលព័ត៌មាន<br>ភាគី "ខ"</th>
                     <th style="padding: 6px; width: 115px; border: 1px solid #ca8a04;">កិច្ចប្រជុំសម្រុះសម្រួល</th>
-                    <th style="padding: 6px; width: 70px; border: 1px solid #ca8a04;">មសវ អម<br>(តាមលិខិតចាត់តាំង)</th>
                 </tr>
             </thead>
             <tbody>
@@ -263,17 +263,15 @@ function renderMonthlyProgressReportHTML(dataArray) {
                 <td style="padding: 6px; text-align: center; font-weight: 700; color: #1e3a8a; border: 1px solid #cbd5e1;">${statusText}</td>
                 <td style="padding: 6px; text-align: center; font-weight: 700; color: #1d4ed8; border: 1px solid #cbd5e1;">${c.caseNumber}</td>
                 <td style="padding: 6px; text-align: center; border: 1px solid #cbd5e1;">${c.dateReceived}</td>
-                <td style="padding: 6px; border: 1px solid #cbd5e1;">
-                    <strong style="color: #0f172a;">${c.partyA_name}</strong> (${c.partyA_gender || 'ប្រុស'}, ${c.partyA_age || '?'} ឆ្នាំ)<br>
-                    <span style="font-size: 8.5pt; color: #475569;">${c.partyA_phone || 'ពុំមាន'}<br>${c.partyA_location || '-'}</span>
+                <td style="padding: 6px; border: 1px solid #cbd5e1; font-weight: 700; color: #0f172a;">
+                    ${c.partyA_name}
                 </td>
-                <td style="padding: 6px; border: 1px solid #cbd5e1;">
-                    <strong style="color: #0f172a;">${c.partyB_name}</strong> (${c.partyB_gender || 'ប្រុស'}, ${c.partyB_age || '?'} ឆ្នាំ)<br>
-                    <span style="font-size: 8.5pt; color: #475569;">${c.partyB_phone || 'ពុំមាន'}<br>${c.partyB_location || '-'}</span>
+                <td style="padding: 6px; border: 1px solid #cbd5e1; font-weight: 700; color: #0f172a;">
+                    ${c.partyB_name}
                 </td>
                 <td style="padding: 6px; border: 1px solid #cbd5e1;">
                     <strong style="color: #1e3a8a;">${c.category}</strong><br>
-                    <span style="font-size: 8.5pt; color: #475569;">📍 ${c.disputeLocation}</span>
+                    <span style="font-size: 8.5pt; color: #475569;">${c.disputeLocation || '-'}</span>
                 </td>
                 <td style="padding: 6px; font-size: 8.5pt; border: 1px solid #cbd5e1;">${c.meetingPartyA || 'បានប្រមូលព័ត៌មានភាគីសន្និដ្ឋានរួចរាល់'}</td>
                 <td style="padding: 6px; font-size: 8.5pt; border: 1px solid #cbd5e1;">${c.meetingPartyB || 'បានប្រមូលព័ត៌មានភាគីម្ខាងទៀតរួចរាល់'}</td>
