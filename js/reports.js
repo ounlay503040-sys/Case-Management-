@@ -182,7 +182,7 @@ function renderMonthlyProgressReportHTML(dataArray) {
             <div style="text-align: center; margin-bottom: 15px;">
                 <h3 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif; font-size: 13pt; font-weight: normal; color: #1e3a8a; margin: 0 0 4px 0;">ព្រះរាជាណាចក្រកម្ពុជា</h3>
                 <h4 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif; font-size: 11pt; font-weight: normal; color: #1e3a8a; margin: 0 0 15px 0;">ជាតិ សាសនា ព្រះមហាក្សត្រ</h4>
-                <div style="font-family: 'Tacteing', 'Khmer OS Tacteing', 'Moul Light', serif; font-size: 16pt; font-weight: normal; color: #ca8a04; margin-bottom: 15px;">3</div>
+                <div style="font-family: inherit; font-size: 16pt; font-weight: normal; color: #ca8a04; margin-bottom: 15px;">❧</div>
                 <h2 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif; font-size: 12.5pt; font-weight: normal; color: #0f172a; margin: 0 0 8px 0; line-height: 1.6;">របាយការណ៍វឌ្ឍនភាពចំណាត់ការសំណុំរឿងរបស់ ម.ស.វ. ឈ្មោះ <span style="color: #dc2626; font-weight: normal;">${officerName}</span></h2>
                 <p style="font-size: 10.5pt; font-weight: 700; color: #334155; margin: 0;">ប្រចាំខែ <span style="color: #2563eb;">${monthStr}</span> <span style="font-weight: normal; color: #64748b;">( គិតត្រឹមថ្ងៃទី ${todayStr} )</span></p>
             </div>
@@ -216,8 +216,8 @@ function renderMonthlyProgressReportHTML(dataArray) {
                     <th rowspan="2" style="padding: 8px 4px; width: 30px; border: 1px solid #ca8a04; vertical-align: middle;">ល.រ</th>
                     <th rowspan="2" style="padding: 8px 6px; width: 95px; border: 1px solid #ca8a04; vertical-align: middle;">បច្ចុប្បន្នភាព</th>
                     <th colspan="2" style="padding: 6px; border: 1px solid #ca8a04; background: #fef08a;">ព័ត៌មានសំណុំរឿង</th>
-                    <th rowspan="2" style="padding: 8px 6px; border: 1px solid #ca8a04; vertical-align: middle;">ព័ត៌មានភាគីដាក់ពាក្យ</th>
-                    <th rowspan="2" style="padding: 8px 6px; border: 1px solid #ca8a04; vertical-align: middle;">ព័ត៌មានភាគីម្ខាងទៀត</th>
+                    <th rowspan="2" style="padding: 8px 6px; width: 170px; border: 1px solid #ca8a04; vertical-align: middle;">ព័ត៌មានភាគីដាក់ពាក្យ</th>
+                    <th rowspan="2" style="padding: 8px 6px; width: 170px; border: 1px solid #ca8a04; vertical-align: middle;">ព័ត៌មានភាគីម្ខាងទៀត</th>
                     <th rowspan="2" style="padding: 8px 6px; width: 110px; border: 1px solid #ca8a04; vertical-align: middle;">កម្មវត្ថុ និងទីតាំងវិវាទ</th>
                     <th colspan="4" style="padding: 6px; border: 1px solid #ca8a04; background: #facc15;">អំពីចំណាត់ការសំណុំរឿង</th>
                     <th rowspan="2" style="padding: 8px 6px; width: 85px; border: 1px solid #ca8a04; vertical-align: middle;">កត់ចំណាំ/បញ្ហា<br>ប្រឈម/សំណូមពរ</th>
@@ -265,11 +265,11 @@ function renderMonthlyProgressReportHTML(dataArray) {
                 <td style="padding: 6px; text-align: center; border: 1px solid #cbd5e1;">${c.dateReceived}</td>
                 <td style="padding: 6px; border: 1px solid #cbd5e1;">
                     <strong style="color: #0f172a;">${c.partyA_name}</strong> (${c.partyA_gender || 'ប្រុស'}, ${c.partyA_age || '?'} ឆ្នាំ)<br>
-                    <span style="font-size: 8.5pt; color: #475569;">📞 ${c.partyA_phone || 'ពុំមាន'}<br>📍 ${c.partyA_location || '-'}</span>
+                    <span style="font-size: 8.5pt; color: #475569;">${c.partyA_phone || 'ពុំមាន'}<br>${c.partyA_location || '-'}</span>
                 </td>
                 <td style="padding: 6px; border: 1px solid #cbd5e1;">
                     <strong style="color: #0f172a;">${c.partyB_name}</strong> (${c.partyB_gender || 'ប្រុស'}, ${c.partyB_age || '?'} ឆ្នាំ)<br>
-                    <span style="font-size: 8.5pt; color: #475569;">📞 ${c.partyB_phone || 'ពុំមាន'}<br>📍 ${c.partyB_location || '-'}</span>
+                    <span style="font-size: 8.5pt; color: #475569;">${c.partyB_phone || 'ពុំមាន'}<br>${c.partyB_location || '-'}</span>
                 </td>
                 <td style="padding: 6px; border: 1px solid #cbd5e1;">
                     <strong style="color: #1e3a8a;">${c.category}</strong><br>
@@ -311,7 +311,7 @@ function renderOfficialTrackingReportHTML(dataArray) {
         <div style="text-align: center; margin-bottom: 20px; font-family: inherit;">
             <h3 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif; font-size: 14pt; font-weight: normal; color: #1e3a8a; margin: 0 0 4px 0;">ព្រះរាជាណាចក្រកម្ពុជា</h3>
             <h4 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif; font-size: 12pt; font-weight: normal; color: #1e3a8a; margin: 0 0 10px 0;">ជាតិ សាសនា ព្រះមហាក្សត្រ</h4>
-            <div style="font-family: 'Tacteing', 'Khmer OS Tacteing', 'Moul Light', serif; font-size: 16pt; font-weight: normal; color: #ca8a04; margin-bottom: 15px;">3</div>
+            <div style="font-family: inherit; font-size: 16pt; font-weight: normal; color: #ca8a04; margin-bottom: 15px;">❧</div>
             <h2 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif; font-size: 13pt; font-weight: normal; color: #0f172a; margin: 0 0 6px 0;">តារាងតាមដានលទ្ធផលនៃការដោះស្រាយវិវាទ (Official Case Tracking & Outcome Report)</h2>
             <p style="font-size: 10pt; color: #475569; margin: 0;">អាជ្ញាធរជាតិដោះស្រាយវិវាទ - អគ្គលេខាធិការដ្ឋាន</p>
         </div>

@@ -1430,49 +1430,43 @@
                     }
                     </style>
 
-                    <div class="settings-horizontal-container" style="display: flex; flex-direction: column; gap: 20px; padding: 24px; background: var(--bg-main);">
-                        <!-- Top Menu: 2 Equal Rows without label -->
-                        <div class="card-panel settings-top-menu" style="padding: 18px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 14px; width: 100%;">
-                            <div class="settings-top-menu-rows" style="display: flex; flex-direction: column; gap: 14px; width: 100%;">
-                                <!-- Row 1: 4 Tabs -->
-                                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;">
-                                    <button type="button" class="settings-horiz-btn tab-btn active" data-tab="tab-org" data-title="១. កំណត់ស្ថាប័ន &amp; លេខកូដ" data-desc="កំណត់ឈ្មោះស្ថាប័នសម្រាប់បោះពុម្ពរបាយការណ៍ និងក្បាលលេខកូដសំណុំរឿងស្វ័យប្រវត្តិ" data-icon="fa-building-flag" data-color="#3b82f6" style="--btn-color: #3b82f6; --btn-bg: rgba(59, 130, 246, 0.08);">
-                                        <div class="icon-box"><i class="fa-solid fa-building-flag"></i></div>
-                                        <span>១. ស្ថាប័ន &amp; លេខកូដ</span>
-                                    </button>
-                                    <button type="button" class="settings-horiz-btn tab-btn" data-tab="tab-categories" data-title="២. ប្រភេទវិវាទទាំង ៨" data-desc="បន្ថែម ឬកែសម្រួលប្រភេទវិវាទក្នុងប្រព័ន្ធ" data-icon="fa-tags" data-color="#10b981" style="--btn-color: #10b981; --btn-bg: rgba(16, 185, 129, 0.08);">
-                                        <div class="icon-box"><i class="fa-solid fa-tags"></i></div>
-                                        <span>២. ប្រភេទវិវាទ (៨)</span>
-                                    </button>
-                                    <button type="button" class="settings-horiz-btn tab-btn" data-tab="tab-columns" data-title="៣. បន្ថែមកូឡោនសំណុំរឿង" data-desc="កំណត់បង្ហាញ/លាក់ជួរឈរតារាងបញ្ជីសំណុំរឿង" data-icon="fa-table-columns" data-color="#8b5cf6" style="--btn-color: #8b5cf6; --btn-bg: rgba(139, 92, 246, 0.08);">
-                                        <div class="icon-box"><i class="fa-solid fa-table-columns"></i></div>
-                                        <span>៣. កូឡោនតារាង</span>
-                                    </button>
-                                    <button type="button" class="settings-horiz-btn tab-btn" data-tab="tab-admins" data-title="៤. គ្រប់គ្រងគណនីរដ្ឋបាល" data-desc="គ្រប់គ្រងសិទ្ធិចូលប្រព័ន្ធ និងគណនីមន្ត្រី" data-icon="fa-user-shield" data-color="#f59e0b" style="--btn-color: #f59e0b; --btn-bg: rgba(245, 158, 11, 0.08);">
-                                        <div class="icon-box"><i class="fa-solid fa-user-shield"></i></div>
-                                        <span>៤. គណនីរដ្ឋបាល</span>
-                                    </button>
-                                </div>
-                                <!-- Row 2: 3 Tabs (aligned with 4 columns) -->
-                                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;">
-                                    <button type="button" class="settings-horiz-btn tab-btn" data-tab="tab-audit" data-title="៥. កំណត់ហេតុសកម្មភាព (Audit Logs)" data-desc="ប្រវត្តិសកម្មភាព និងកត់ត្រាការប្រើប្រាស់ក្នុងប្រព័ន្ធ" data-icon="fa-clipboard-list" data-color="#ef4444" style="--btn-color: #ef4444; --btn-bg: rgba(239, 68, 68, 0.08);">
-                                        <div class="icon-box"><i class="fa-solid fa-clipboard-list"></i></div>
-                                        <span>៥. កំណត់ហេតុ (Audit)</span>
-                                    </button>
-                                    <button type="button" class="settings-horiz-btn tab-btn" data-tab="tab-eval-matrix" data-title="៦. លក្ខណៈវិនិច្ឆ័យវាយតម្លៃចំណាត់ការ" data-desc="តារាងស្ដង់ដារកម្រិតវិវាទ និងគោលការណ៍វាយតម្លៃ" data-icon="fa-scale-balanced" data-color="#0ea5e9" style="--btn-color: #0ea5e9; --btn-bg: rgba(14, 165, 233, 0.08);">
-                                        <div class="icon-box"><i class="fa-solid fa-scale-balanced"></i></div>
-                                        <span>៦. លក្ខណៈវិនិច្ឆ័យ</span>
-                                    </button>
-                                    <button type="button" class="settings-horiz-btn tab-btn" data-tab="tab-strategies" data-title="៧. យុទ្ធសាស្ត្រដោះស្រាយវិវាទ" data-desc="កំណត់យុទ្ធសាស្ត្រ និងអនុសាសន៍តាមកម្រិតលទ្ធផល" data-icon="fa-chess-knight" data-color="#ec4899" style="--btn-color: #ec4899; --btn-bg: rgba(236, 72, 153, 0.08);">
-                                        <div class="icon-box"><i class="fa-solid fa-chess-knight"></i></div>
-                                        <span>៧. យុទ្ធសាស្ត្រដោះស្រាយ</span>
-                                    </button>
-                                    <button type="button" class="settings-horiz-btn tab-btn" data-tab="tab-integrations" data-title="៨. ការភ្ជាប់ប្រព័ន្ធ (Integrations)" data-desc="ការជូនដំណឹងតាម Telegram និង Google Calendar" data-icon="fa-plug" data-color="#6366f1" style="--btn-color: #6366f1; --btn-bg: rgba(99, 102, 241, 0.08);">
-                                        <div class="icon-box"><i class="fa-solid fa-plug"></i></div>
-                                        <span>៨. ភ្ជាប់ប្រព័ន្ធ</span>
-                                    </button>
-                                </div>
-                            </div>
+                    <div class="settings-vertical-container" style="display: grid; grid-template-columns: 280px 1fr; gap: 24px; padding: 24px; background: var(--bg-main); align-items: start;">
+                        <!-- Left Menu: Vertical Stack -->
+                        <div class="card-panel settings-left-menu" style="padding: 16px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 10px;">
+                            <h4 style="margin: 0 0 10px 8px; font-size: 14px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">ម៉ឺនុយការកំណត់</h4>
+                            
+                            <button type="button" class="settings-horiz-btn tab-btn active" data-tab="tab-org" data-title="១. កំណត់ស្ថាប័ន &amp; លេខកូដ" data-desc="កំណត់ឈ្មោះស្ថាប័នសម្រាប់បោះពុម្ពរបាយការណ៍ និងក្បាលលេខកូដសំណុំរឿងស្វ័យប្រវត្តិ" data-icon="fa-building-flag" data-color="#3b82f6" style="--btn-color: #3b82f6; --btn-bg: rgba(59, 130, 246, 0.08);">
+                                <div class="icon-box"><i class="fa-solid fa-building-flag"></i></div>
+                                <span>១. ស្ថាប័ន &amp; លេខកូដ</span>
+                            </button>
+                            <button type="button" class="settings-horiz-btn tab-btn" data-tab="tab-categories" data-title="២. ប្រភេទវិវាទទាំង ៨" data-desc="បន្ថែម ឬកែសម្រួលប្រភេទវិវាទក្នុងប្រព័ន្ធ" data-icon="fa-tags" data-color="#10b981" style="--btn-color: #10b981; --btn-bg: rgba(16, 185, 129, 0.08);">
+                                <div class="icon-box"><i class="fa-solid fa-tags"></i></div>
+                                <span>២. ប្រភេទវិវាទ (៨)</span>
+                            </button>
+                            <button type="button" class="settings-horiz-btn tab-btn" data-tab="tab-columns" data-title="៣. បន្ថែមកូឡោនសំណុំរឿង" data-desc="កំណត់បង្ហាញ/លាក់ជួរឈរតារាងបញ្ជីសំណុំរឿង" data-icon="fa-table-columns" data-color="#8b5cf6" style="--btn-color: #8b5cf6; --btn-bg: rgba(139, 92, 246, 0.08);">
+                                <div class="icon-box"><i class="fa-solid fa-table-columns"></i></div>
+                                <span>៣. កូឡោនតារាង</span>
+                            </button>
+                            <button type="button" class="settings-horiz-btn tab-btn" data-tab="tab-admins" data-title="៤. គ្រប់គ្រងគណនីរដ្ឋបាល" data-desc="គ្រប់គ្រងសិទ្ធិចូលប្រព័ន្ធ និងគណនីមន្ត្រី" data-icon="fa-user-shield" data-color="#f59e0b" style="--btn-color: #f59e0b; --btn-bg: rgba(245, 158, 11, 0.08);">
+                                <div class="icon-box"><i class="fa-solid fa-user-shield"></i></div>
+                                <span>៤. គណនីរដ្ឋបាល</span>
+                            </button>
+                            <button type="button" class="settings-horiz-btn tab-btn" data-tab="tab-audit" data-title="៥. កំណត់ហេតុសកម្មភាព (Audit Logs)" data-desc="ប្រវត្តិសកម្មភាព និងកត់ត្រាការប្រើប្រាស់ក្នុងប្រព័ន្ធ" data-icon="fa-clipboard-list" data-color="#ef4444" style="--btn-color: #ef4444; --btn-bg: rgba(239, 68, 68, 0.08);">
+                                <div class="icon-box"><i class="fa-solid fa-clipboard-list"></i></div>
+                                <span>៥. កំណត់ហេតុ (Audit)</span>
+                            </button>
+                            <button type="button" class="settings-horiz-btn tab-btn" data-tab="tab-eval-matrix" data-title="៦. លក្ខណៈវិនិច្ឆ័យវាយតម្លៃចំណាត់ការ" data-desc="តារាងស្ដង់ដារកម្រិតវិវាទ និងគោលការណ៍វាយតម្លៃ" data-icon="fa-scale-balanced" data-color="#0ea5e9" style="--btn-color: #0ea5e9; --btn-bg: rgba(14, 165, 233, 0.08);">
+                                <div class="icon-box"><i class="fa-solid fa-scale-balanced"></i></div>
+                                <span>៦. លក្ខណៈវិនិច្ឆ័យ</span>
+                            </button>
+                            <button type="button" class="settings-horiz-btn tab-btn" data-tab="tab-strategies" data-title="៧. យុទ្ធសាស្ត្រដោះស្រាយវិវាទ" data-desc="កំណត់យុទ្ធសាស្ត្រ និងអនុសាសន៍តាមកម្រិតលទ្ធផល" data-icon="fa-chess-knight" data-color="#ec4899" style="--btn-color: #ec4899; --btn-bg: rgba(236, 72, 153, 0.08);">
+                                <div class="icon-box"><i class="fa-solid fa-chess-knight"></i></div>
+                                <span>៧. យុទ្ធសាស្ត្រដោះស្រាយ</span>
+                            </button>
+                            <button type="button" class="settings-horiz-btn tab-btn" data-tab="tab-integrations" data-title="៨. ការភ្ជាប់ប្រព័ន្ធ (Integrations)" data-desc="ការជូនដំណឹងតាម Telegram និង Google Calendar" data-icon="fa-plug" data-color="#6366f1" style="--btn-color: #6366f1; --btn-bg: rgba(99, 102, 241, 0.08);">
+                                <div class="icon-box"><i class="fa-solid fa-plug"></i></div>
+                                <span>៨. ភ្ជាប់ប្រព័ន្ធ</span>
+                            </button>
                         </div>
 
                         <!-- Bottom Content Area: Settings Panes -->
