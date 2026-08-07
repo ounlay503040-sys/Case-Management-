@@ -195,7 +195,7 @@ function renderMonthlyProgressReportHTML(dataArray) {
             <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
                 <table style="border-collapse: collapse; font-size: 9.5pt; text-align: center; border: 2px solid #0f172a; background: #fff;" border="1">
                     <thead>
-                        <tr style="background: #fde047; font-weight: 800; color: #0f172a;">
+                        <tr style="background: #ffedd5; font-weight: 800; color: #0f172a;">
                             <th style="padding: 6px 12px; border: 1px solid #0f172a;">សំណុំរឿងសរុប</th>
                             <th style="padding: 6px 12px; border: 1px solid #0f172a;">បញ្ចប់ព្រមព្រៀង</th>
                             <th style="padding: 6px 12px; border: 1px solid #0f172a;">សើបអង្កេត/បិទ</th>
@@ -216,18 +216,18 @@ function renderMonthlyProgressReportHTML(dataArray) {
 
         <table style="width: 100%; border-collapse: collapse; font-size: 9pt; font-family: inherit;" border="1">
             <thead>
-                <tr style="background: #fde047; color: #0f172a; text-align: center; font-weight: 800; border: 1px solid #ca8a04;">
+                <tr style="background: #fcd34d; color: #0f172a; text-align: center; font-weight: 800; border: 1px solid #ca8a04;">
                     <th rowspan="2" style="padding: 8px 4px; width: 30px; border: 1px solid #ca8a04; vertical-align: middle;">ល.រ</th>
                     <th rowspan="2" style="padding: 8px 6px; width: 95px; border: 1px solid #ca8a04; vertical-align: middle;">បច្ចុប្បន្នភាព</th>
-                    <th colspan="2" style="padding: 6px; border: 1px solid #ca8a04; background: #fef08a;">ព័ត៌មានសំណុំរឿង</th>
+                    <th colspan="2" style="padding: 6px; border: 1px solid #ca8a04; background: #fcd34d;">ព័ត៌មានសំណុំរឿង</th>
                     <th rowspan="2" style="padding: 8px 6px; width: 170px; border: 1px solid #ca8a04; vertical-align: middle;">ព័ត៌មានភាគីដាក់ពាក្យ</th>
                     <th rowspan="2" style="padding: 8px 6px; width: 170px; border: 1px solid #ca8a04; vertical-align: middle;">ព័ត៌មានភាគីម្ខាងទៀត</th>
                     <th rowspan="2" style="padding: 8px 6px; width: 110px; border: 1px solid #ca8a04; vertical-align: middle;">កម្មវត្ថុ និងទីតាំងវិវាទ</th>
-                    <th colspan="3" style="padding: 6px; border: 1px solid #ca8a04; background: #facc15;">អំពីចំណាត់ការសំណុំរឿង</th>
+                    <th colspan="3" style="padding: 6px; border: 1px solid #ca8a04; background: #fcd34d;">អំពីចំណាត់ការសំណុំរឿង</th>
                     <th rowspan="2" style="padding: 8px 6px; width: 70px; border: 1px solid #ca8a04; vertical-align: middle;">មសវ អម<br>(តាមលិខិតចាត់តាំង)</th>
                     <th rowspan="2" style="padding: 8px 6px; width: 85px; border: 1px solid #ca8a04; vertical-align: middle;">កត់ចំណាំ/បញ្ហា<br>ប្រឈម/សំណូមពរ</th>
                 </tr>
-                <tr style="background: #fef08a; color: #0f172a; text-align: center; font-weight: 700; border: 1px solid #ca8a04;">
+                <tr style="background: #fcd34d; color: #0f172a; text-align: center; font-weight: 700; border: 1px solid #ca8a04;">
                     <th style="padding: 6px; width: 65px; border: 1px solid #ca8a04;">លេខចុះបញ្ជី</th>
                     <th style="padding: 6px; width: 75px; border: 1px solid #ca8a04;">កាលបរិច្ឆេទ<br>ចុះបញ្ជី</th>
                     <th style="padding: 6px; width: 105px; border: 1px solid #ca8a04;">កិច្ចប្រជុំប្រមូលព័ត៌មាន<br>ភាគី "ក"</th>
@@ -239,7 +239,7 @@ function renderMonthlyProgressReportHTML(dataArray) {
                 <!-- Section A: Directly Responsible Cases -->
                 <tr style="background: #e0f2fe; color: #0369a1; font-weight: 800; font-size: 10.5pt; border: 1px solid #0284c7;">
                     <td colspan="12" style="padding: 10px 12px; text-align: left; border: 1px solid #0284c7;">
-                        <i class="fa-solid fa-folder-open" style="margin-right: 6px;"></i> ក. សំណុំរឿងទទួលបន្ទុកផ្ទាល់ (Directly Responsible Cases - សរុប៖ <span style="color: #d97706;">${dataArray.length}</span> ករណី)
+                        ក. សំណុំរឿងទទួលបន្ទុកផ្ទាល់
                     </td>
                 </tr>
     `;
@@ -288,15 +288,19 @@ function renderMonthlyProgressReportHTML(dataArray) {
 
     html += `
                 <!-- Section B: Assisting Officer Cases -->
-                <tr style="background: #fef08a; color: #854d0e; font-weight: 800; font-size: 10.5pt; border: 1px solid #ca8a04;">
+                <tr style="background: #fcd34d; color: #854d0e; font-weight: 800; font-size: 10.5pt; border: 1px solid #ca8a04;">
                     <td colspan="12" style="padding: 10px 12px; text-align: left; border: 1px solid #ca8a04;">
-                        <i class="fa-solid fa-user-group" style="margin-right: 6px;"></i> ខ. សំណុំរឿងអមជាមួយថ្នាក់ដឹកនាំ និងឬជាមួយ ម.ស.វ. (Assisting Leaders / NADR Officers Cases)
+                        ខ. សំណុំរឿងអមជាមួយថ្នាក់ដឹកនាំ និងឬជាមួយ ម.ស.វ.
                     </td>
                 </tr>
-                <tr style="background: #ffffff;">
-                    <td colspan="12" style="padding: 16px; text-align: center; color: #64748b; font-style: italic; border: 1px solid #cbd5e1;">
-                        ពុំមានសំណុំរឿងអមជាមួយថ្នាក់ដឹកនាំក្នុងខែនេះឡើយ (គ្មាន)
-                    </td>
+                <tr style="background: #ffffff; height: 40px;">
+                    <td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td>
+                </tr>
+                <tr style="background: #ffffff; height: 40px;">
+                    <td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td>
+                </tr>
+                <tr style="background: #ffffff; height: 40px;">
+                    <td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td>
                 </tr>
             </tbody>
         </table>
