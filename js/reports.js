@@ -748,22 +748,33 @@ function exportReportToWord() {
         th.style.padding = '2px 4px';
         th.style.fontSize = '9pt';
         th.style.fontFamily = '"Khmer OS Niroth", serif';
+        th.style.verticalAlign = '';
         th.querySelectorAll('*').forEach(child => {
             child.style.fontWeight = 'normal';
             child.style.fontSize = '9pt';
             child.style.fontFamily = '"Khmer OS Niroth", serif';
+            child.style.margin = '0';
         });
+    });
+
+    const trs = clone.querySelectorAll('tr');
+    trs.forEach(tr => {
+        tr.style.verticalAlign = ''; // Fix Word height bug
+        tr.style.height = 'auto';
     });
 
     const tds = clone.querySelectorAll('td');
     tds.forEach(td => {
         td.style.border = '1px solid #000000';
         td.style.padding = '2px 4px';
-        td.style.fontSize = '9pt';
+        td.style.fontSize = '8pt';
         td.style.fontFamily = '"Khmer OS Siemreap", sans-serif';
+        td.style.lineHeight = '1.2';
         td.querySelectorAll('*').forEach(child => {
-            child.style.fontSize = '9pt';
+            child.style.fontSize = '8pt';
             child.style.fontFamily = '"Khmer OS Siemreap", sans-serif';
+            child.style.lineHeight = '1.2';
+            child.style.margin = '0';
         });
     });
 
