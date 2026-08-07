@@ -172,9 +172,13 @@ function renderMonthlyProgressReportHTML(dataArray) {
     let invCount = 0;
 
     dataArray.forEach(c => {
-        if (c.status.startsWith('Settle') || c.status.includes('ព្រមព្រៀង')) settleCount++;
-        else if (c.status.startsWith('Active') || c.status.includes('កំពុង')) activeCount++;
-        else invCount++;
+        if (c.status.startsWith('Settle') || (c.status.includes('ព្រមព្រៀង') && !c.status.includes('មិនព្រមព្រៀង'))) {
+            settleCount++;
+        } else if (c.status.startsWith('Active') || c.status.includes('កំពុង')) {
+            activeCount++;
+        } else {
+            invCount++;
+        }
     });
 
     let html = `
@@ -243,18 +247,18 @@ function renderMonthlyProgressReportHTML(dataArray) {
     dataArray.forEach((c, idx) => {
         let statusText = c.status;
         let rowBg = '#ffffff';
-        if (c.status.startsWith('Settle') || c.status.includes('ព្រមព្រៀង')) {
+        if (c.status.startsWith('Settle') || (c.status.includes('ព្រមព្រៀង') && !c.status.includes('មិនព្រមព្រៀង'))) {
             statusText = 'ព្រមព្រៀងបញ្ចប់វិវាទ';
             rowBg = '#dcfce7'; // Pastel Green
-        } else if (c.status.startsWith('Close') || c.status.includes('បិទ')) {
+        } else if (c.status.startsWith('Close') || c.status.includes('បិទ') || c.status.includes('មិនព្រមព្រៀង')) {
             statusText = 'បិទសំណុំរឿង';
             rowBg = '#ffedd5'; // Light peach/orange matching PDF row 1
         } else if (c.status.startsWith('Active') || c.status.includes('កំពុង')) {
-            statusText = 'កំពុងសម្រុះសម្រួល / កំរង';
-            rowBg = '#dbeafe'; // Light blue matching PDF row 10
+            statusText = 'កំពុងសម្រុះសម្រួល';
+            rowBg = '#93c5fd'; // Solid blue matching Image 1
         } else {
             statusText = 'សើបអង្កេត / តម្កល់';
-            rowBg = '#f1f5f9';
+            rowBg = '#f1f5f9'; // Gray
         }
 
         html += `
@@ -355,16 +359,16 @@ function renderOfficialTrackingReportHTML(dataArray) {
 
             catCases.forEach((c) => {
                 overallIndex++;
-                if (c.status.startsWith('Settle') || c.status.includes('ព្រមព្រៀង')) totSettle++;
+                if (c.status.startsWith('Settle') || (c.status.includes('ព្រមព្រៀង') && !c.status.includes('មិនព្រមព្រៀង'))) totSettle++;
                 else if (c.status.startsWith('Active') || c.status.includes('កំពុង')) totActive++;
                 else if (c.status.startsWith('Pending') || c.status.includes('តម្កល់')) totPending++;
                 else totClose++;
 
                 let rowBg = '#ffffff';
-                if (c.status.startsWith('Settle') || c.status.includes('ព្រមព្រៀង')) rowBg = '#dcfce7';
-                else if (c.status.startsWith('Active') || c.status.includes('កំពុង')) rowBg = '#eff6ff';
+                if (c.status.startsWith('Settle') || (c.status.includes('ព្រមព្រៀង') && !c.status.includes('មិនព្រមព្រៀង'))) rowBg = '#dcfce7';
+                else if (c.status.startsWith('Active') || c.status.includes('កំពុង')) rowBg = '#93c5fd';
                 else if (c.status.startsWith('Pending') || c.status.includes('តម្កល់')) rowBg = '#ffedd5';
-                else if (c.status.startsWith('Close') || c.status.includes('បិទ')) rowBg = '#f1f5f9';
+                else if (c.status.startsWith('Close') || c.status.includes('បិទ') || c.status.includes('មិនព្រមព្រៀង')) rowBg = '#ffedd5';
                 else if (overallIndex % 2 === 1) rowBg = '#fef9c3';
 
                 html += `

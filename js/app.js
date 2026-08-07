@@ -312,7 +312,7 @@ function renderDashboardExtendedStats(stats) {
         CASE_CATEGORIES.forEach((cat, idx) => {
             const count = stats.byCategory[cat] || 0;
             const pct = ((count / totalSys) * 100).toFixed(1);
-            const settleCount = casesData.filter(c => c.category === cat && (c.status.startsWith('Settle') || c.status.includes('ព្រមព្រៀង'))).length;
+            const settleCount = casesData.filter(c => c.category === cat && (c.status.startsWith('Settle') || (c.status.includes('ព្រមព្រៀង') && !c.status.includes('មិនព្រមព្រៀង')))).length;
             const activeCount = casesData.filter(c => c.category === cat && (c.status.startsWith('Active') || c.status.includes('កំពុង'))).length;
             
             catHtml += `
@@ -346,7 +346,7 @@ function renderDashboardExtendedStats(stats) {
             }
             if (!yearMap[yr]) yearMap[yr] = { total: 0, settle: 0, active: 0, other: 0 };
             yearMap[yr].total++;
-            if (c && (c.status.startsWith('Settle') || c.status.includes('ព្រមព្រៀង'))) yearMap[yr].settle++;
+            if (c && (c.status.startsWith('Settle') || (c.status.includes('ព្រមព្រៀង') && !c.status.includes('មិនព្រមព្រៀង')))) yearMap[yr].settle++;
             else if (c && (c.status.startsWith('Active') || c.status.includes('កំពុង'))) yearMap[yr].active++;
             else yearMap[yr].other++;
         });
@@ -1256,7 +1256,7 @@ function renderAnalyticsTables(stats) {
             const sysPct = ((catLen / totalSys) * 100).toFixed(0);
             
             const actCount = catCases.filter(c => c.status.startsWith('Active') || c.status.includes('កំពុង')).length;
-            const setCount = catCases.filter(c => c.status.startsWith('Settle') || c.status.includes('ព្រមព្រៀង')).length;
+            const setCount = catCases.filter(c => c.status.startsWith('Settle') || (c.status.includes('ព្រមព្រៀង') && !c.status.includes('មិនព្រមព្រៀង'))).length;
             const noSetCount = catCases.filter(c => c.status.startsWith('Close') || c.status.includes('បិទ') || (c.mediationMeeting && c.mediationMeeting.includes('មិនព្រមព្រៀង'))).length;
             const penCount = catCases.filter(c => c.status.startsWith('Pending') || c.status.includes('តម្កល់') || c.status.includes('ផ្អាក')).length;
             
