@@ -599,6 +599,10 @@ function exportReportToExcel() {
 
     const clone = paper.cloneNode(true);
     
+    // Remove elements that were dynamically hidden
+    const hiddens = clone.querySelectorAll('[style*="display: none"]');
+    hiddens.forEach(el => el.remove());
+    
     // Format tables for Excel rendering
     const tables = clone.querySelectorAll('table');
     tables.forEach(table => {
@@ -629,11 +633,11 @@ function exportReportToExcel() {
             <style>
                 @page {
                     mso-page-orientation: landscape;
-                    size: 297mm 210mm; /* A4 Landscape */
                     margin: 0.5in 0.5in 0.5in 0.5in;
                 }
                 body { font-family: 'Khmer OS Battambang', sans-serif; font-size: 10pt; }
-                table { border-collapse: collapse; }
+                table { border-collapse: collapse; white-space: nowrap; }
+                td, th { white-space: nowrap; vertical-align: middle; }
                 h1, h2, h3, h4, th { font-family: 'Khmer OS Muol Light', serif; }
             </style>
         </head>
@@ -705,6 +709,10 @@ function exportReportToWord() {
     
     const clone = paper.cloneNode(true);
     
+    // Remove elements that were dynamically hidden
+    const hiddens = clone.querySelectorAll('[style*="display: none"]');
+    hiddens.forEach(el => el.remove());
+    
     // Format tables for Word rendering
     const tables = clone.querySelectorAll('table');
     tables.forEach(table => {
@@ -718,7 +726,7 @@ function exportReportToWord() {
 
     const ths = clone.querySelectorAll('th');
     ths.forEach(th => {
-        th.style.backgroundColor = '#fde047';
+        th.style.backgroundColor = '#fcd34d';
         th.style.color = '#000000';
         th.style.fontWeight = 'bold';
         th.style.border = '1px solid #000000';
@@ -741,10 +749,15 @@ function exportReportToWord() {
             <meta charset='utf-8'>
             <title>${titleEl ? titleEl.innerText : 'របាយការណ៍'}</title>
             <style>
-                @page {
-                    size: A4 landscape;
-                    margin: 1.5cm;
+                @page WordSection1 {
+                    size: 841.9pt 595.3pt; /* A4 Landscape */
+                    mso-page-orientation: landscape;
+                    margin: 0.5in 0.5in 0.5in 0.5in;
+                    mso-header-margin: 0.5in;
+                    mso-footer-margin: 0.5in;
+                    mso-paper-source: 0;
                 }
+                div.WordSection1 { page: WordSection1; }
                 body {
                     font-family: 'Khmer OS Battambang', 'Khmer OS Content', 'Arial Unicode MS', sans-serif;
                     font-size: 11pt;
@@ -763,11 +776,6 @@ function exportReportToWord() {
                 th, td {
                     border: 1px solid #000000;
                     padding: 6px 8px;
-                }
-                th {
-                    background-color: #fde047;
-                    font-weight: bold;
-                    text-align: center;
                 }
                 .official-report-header {
                     text-align: center;
@@ -823,7 +831,9 @@ function exportReportToWord() {
             </style>
         </head>
         <body>
-            ${contentHTML}
+            <div class="WordSection1">
+                ${contentHTML}
+            </div>
         </body>
         </html>
     `;
