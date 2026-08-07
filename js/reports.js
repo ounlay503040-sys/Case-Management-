@@ -602,7 +602,7 @@ function exportReportToExcel() {
     const clone = paper.cloneNode(true);
     
     // Remove elements that were dynamically hidden
-    const hiddens = clone.querySelectorAll('[style*="display: none"], .hide-on-export, .official-report-footer');
+    const hiddens = clone.querySelectorAll('[style*="display: none"], .official-report-footer');
     hiddens.forEach(el => el.remove());
     
     // Format tables for Excel rendering
@@ -716,7 +716,7 @@ function exportReportToWord() {
     const clone = paper.cloneNode(true);
     
     // Remove elements that were dynamically hidden or marked to hide
-    const hiddens = clone.querySelectorAll('[style*="display: none"], .hide-on-export, .official-report-footer');
+    const hiddens = clone.querySelectorAll('[style*="display: none"], .official-report-footer');
     hiddens.forEach(el => el.remove());
     
     // Format tables for Word rendering
@@ -730,21 +730,41 @@ function exportReportToWord() {
         table.style.borderColor = '#000000';
     });
 
+    // Prevent thead repeating on every page in Word
+    const theads = clone.querySelectorAll('thead');
+    theads.forEach(thead => {
+        const tbody = document.createElement('tbody');
+        tbody.innerHTML = thead.innerHTML;
+        Array.from(thead.attributes).forEach(attr => tbody.setAttribute(attr.name, attr.value));
+        thead.parentNode.replaceChild(tbody, thead);
+    });
+
     const ths = clone.querySelectorAll('th');
     ths.forEach(th => {
         th.style.backgroundColor = '#fcd34d';
         th.style.color = '#000000';
-        th.style.fontWeight = 'bold';
+        th.style.fontWeight = 'normal';
         th.style.border = '1px solid #000000';
         th.style.padding = '2px 4px';
-        th.style.fontSize = '9.5pt';
+        th.style.fontSize = '9pt';
+        th.style.fontFamily = '"Khmer OS Niroth", serif';
+        th.querySelectorAll('*').forEach(child => {
+            child.style.fontWeight = 'normal';
+            child.style.fontSize = '9pt';
+            child.style.fontFamily = '"Khmer OS Niroth", serif';
+        });
     });
 
     const tds = clone.querySelectorAll('td');
     tds.forEach(td => {
         td.style.border = '1px solid #000000';
         td.style.padding = '2px 4px';
-        td.style.fontSize = '9.5pt';
+        td.style.fontSize = '9pt';
+        td.style.fontFamily = '"Khmer OS Siemreap", sans-serif';
+        td.querySelectorAll('*').forEach(child => {
+            child.style.fontSize = '9pt';
+            child.style.fontFamily = '"Khmer OS Siemreap", sans-serif';
+        });
     });
 
     const contentHTML = clone.innerHTML;

@@ -1329,14 +1329,15 @@ body.dark-theme .badge-close { color: #cbd5e1; }
         visibility: visible !important;
     }
     #print-area .official-report-header,
-    #print-area .official-report-footer,
-    #print-area .kingdom-title,
-    #print-area .hide-on-export {
+    #print-area .official-report-footer {
         display: none !important;
     }
     #print-area table {
         width: 100%;
         table-layout: auto;
+    }
+    #print-area thead {
+        display: table-row-group; /* Prevent header repeating on every page */
     }
     #print-area td, #print-area th {
         padding: 4px !important;
