@@ -798,15 +798,11 @@ function applyLanguage(lang) {
     const btnEn = document.getElementById('btn-lang-en');
     if (btnKm && btnEn) {
         if (currentLang === 'km') {
-            btnKm.style.background = '#1e3a8a';
-            btnKm.style.color = '#fff';
-            btnEn.style.background = 'transparent';
-            btnEn.style.color = '';
+            btnKm.classList.add('active');
+            btnEn.classList.remove('active');
         } else {
-            btnEn.style.background = '#1e3a8a';
-            btnEn.style.color = '#fff';
-            btnKm.style.background = 'transparent';
-            btnKm.style.color = '';
+            btnEn.classList.add('active');
+            btnKm.classList.remove('active');
         }
     }
 }

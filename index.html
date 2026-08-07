@@ -175,9 +175,13 @@
                 </div>
 
                 <div class="header-right">
-                    <div class="lang-switcher" style="display: flex; align-items: center; background: var(--bg-main); padding: 4px; border-radius: 20px; border: 1px solid var(--border-color); gap: 4px;">
-                        <button type="button" class="btn-lang active" id="btn-lang-km" style="border: none; background: #3b82f6; color: #fff; padding: 4px 10px; border-radius: 16px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;">🇰🇭 ខ្មែរ</button>
-                        <button type="button" class="btn-lang" id="btn-lang-en" style="border: none; background: transparent; color: var(--text-main); padding: 4px 10px; border-radius: 16px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;">🇺🇸 EN</button>
+                    <div class="lang-switcher">
+                        <button type="button" class="btn-lang active" id="btn-lang-km">
+                            <span class="lang-code">KH</span> ខ្មែរ
+                        </button>
+                        <button type="button" class="btn-lang" id="btn-lang-en">
+                            <span class="lang-code">US</span> EN
+                        </button>
                     </div>
 
                     <div class="current-time-badge" id="current-time-display">
@@ -1886,10 +1890,10 @@
                                     </div>
                                 </div>
                                 <div style="margin-top: 10px; margin-bottom: 24px;">
-                                    <button class="btn-primary" type="button" onclick="saveTelegramSettings()">
+                                    <button class="btn btn-primary" type="button" onclick="saveTelegramSettings()">
                                         <i class="fa-solid fa-save"></i> រក្សាទុកការកំណត់ Telegram
                                     </button>
-                                    <button class="btn-secondary" type="button" onclick="testTelegramNotification()">
+                                    <button class="btn btn-secondary" type="button" onclick="testTelegramNotification()">
                                         <i class="fa-solid fa-paper-plane"></i> សាកល្បងផ្ញើសារ (Test)
                                     </button>
                                 </div>
@@ -1903,18 +1907,18 @@
                                     <small style="color: var(--text-muted);">ត្រូវការ Client ID ដើម្បីភ្ជាប់បាន។ រក្សាទុកវានៅក្នុង LocalStorage។</small>
                                 </div>
                                 <div style="margin-top: 10px; margin-bottom: 24px;">
-                                    <button class="btn-primary" type="button" onclick="saveGoogleSettings()" style="margin-bottom: 10px; margin-right: 8px;">
+                                    <button class="btn btn-primary" type="button" onclick="saveGoogleSettings()" style="margin-bottom: 10px; margin-right: 8px;">
                                         <i class="fa-solid fa-save"></i> រក្សាទុក Client ID
                                     </button>
                                     <br>
-                                    <button id="btn-google-auth" class="btn-secondary" type="button" onclick="handleAuthClick()">
+                                    <button id="btn-google-auth" class="btn btn-secondary" type="button" onclick="handleAuthClick()">
                                         <i class="fa-brands fa-google"></i> ភ្ជាប់ជាមួយ Google Calendar
                                     </button>
-                                    <button id="btn-google-signout" class="btn-secondary" type="button" onclick="handleSignoutClick()" style="display: none;">
+                                    <button id="btn-google-signout" class="btn btn-secondary" type="button" onclick="handleSignoutClick()" style="display: none;">
                                         <i class="fa-solid fa-sign-out-alt"></i> ផ្តាច់គណនី (Sign Out)
                                     </button>
                                     <div style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #cbd5e1;">
-                                        <button class="btn-outline" type="button" onclick="syncAllEventsToGoogleCalendar()" style="color: #0369a1; border-color: #0369a1;">
+                                        <button class="btn btn-outline" type="button" onclick="syncAllEventsToGoogleCalendar()" style="color: #0369a1; border-color: #0369a1;">
                                             <i class="fa-solid fa-rotate"></i> ធ្វើបច្ចុប្បន្នភាពកម្មវិធីទាំងអស់ទៅ Google Calendar (Bulk Sync)
                                         </button>
                                     </div>
