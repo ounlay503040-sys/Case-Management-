@@ -1836,25 +1836,6 @@ body.dark-theme .badge-close { color: #cbd5e1; }
     }
 }
 
-/* Background animation for login overlay */
-.login-overlay {
-    background: linear-gradient(-45deg, #090d16 0%, #0f172a 35%, #1e293b 70%, #090d16 100%) !important;
-    background-size: 400% 400% !important;
-    animation: gradientBG 12s ease infinite !important;
-}
-
-@keyframes gradientBG {
-    0% {
-        background-position: 0% 50%;
-    }
-    50% {
-        background-position: 100% 50%;
-    }
-    100% {
-        background-position: 0% 50%;
-    }
-    }
-}
 
 /* Fullscreen View for Maximize feature */
 /* Fullscreen Overlay for Maximize feature */
