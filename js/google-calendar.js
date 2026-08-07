@@ -72,6 +72,10 @@ function initTokenClient() {
                 // Important: Set the token for gapi client to use
                 gapi.client.setToken({ access_token: resp.access_token });
                 
+                // Save to local storage for persistence
+                localStorage.setItem('nadr_gcal_token', resp.access_token);
+                localStorage.setItem('nadr_gcal_token_expires', Date.now() + (resp.expires_in * 1000));
+                
                 document.getElementById('btn-google-signout').style.display = 'inline-block';
                 document.getElementById('btn-google-auth').innerHTML = '<i class="fa-brands fa-google"></i> បានភ្ជាប់ Google Calendar រួចរាល់';
                 if (typeof showToast === 'function') showToast('ភ្ជាប់ Google Calendar ជោគជ័យ!', 'success');
@@ -86,7 +90,15 @@ function initTokenClient() {
 
 function maybeEnableButtons() {
     if (gapiInited && gisInited) {
-        // Ready
+        // Check for persistent token
+        const storedToken = localStorage.getItem('nadr_gcal_token');
+        const storedExpiry = localStorage.getItem('nadr_gcal_token_expires');
+        
+        if (storedToken && storedExpiry && Date.now() < parseInt(storedExpiry)) {
+            gapi.client.setToken({ access_token: storedToken });
+            document.getElementById('btn-google-signout').style.display = 'inline-block';
+            document.getElementById('btn-google-auth').innerHTML = '<i class="fa-brands fa-google"></i> បានភ្ជាប់ Google Calendar រួចរាល់';
+        }
     }
 }
 
@@ -116,6 +128,8 @@ function handleSignoutClick() {
     if (token !== null) {
         google.accounts.oauth2.revoke(token.access_token, () => {
             gapi.client.setToken('');
+            localStorage.removeItem('nadr_gcal_token');
+            localStorage.removeItem('nadr_gcal_token_expires');
             document.getElementById('btn-google-signout').style.display = 'none';
             document.getElementById('btn-google-auth').innerHTML = '<i class="fa-brands fa-google"></i> ភ្ជាប់ជាមួយ Google Calendar';
             if (typeof showToast === 'function') showToast('បានផ្តាច់គណនី Google Calendar', 'info');

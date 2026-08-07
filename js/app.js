@@ -399,6 +399,14 @@ function filterByStatusQuick(statusStr) {
 
 
 
+function getStatusColor(statusStr) {
+    if (!statusStr) return '#94a3b8';
+    if (statusStr.startsWith('Settle')) return '#22c55e'; // green
+    if (statusStr.startsWith('Close') || statusStr.includes('មិនព្រមព្រៀង')) return '#ef4444'; // red
+    if (statusStr.startsWith('Pending')) return '#f59e0b'; // yellow
+    return '#3b82f6'; // blue for active
+}
+
 /**
  * Shared Helper: Generate exact 12-column Master Table Row HTML
  */
@@ -411,9 +419,17 @@ function generateMasterCaseRowHTML(c, rowNum) {
         });
     }
 
+    const statusColor = getStatusColor(c.status);
+    const rowNumHtml = `
+        <div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+            <div style="width: 10px; height: 10px; border-radius: 50%; background-color: ${statusColor}; box-shadow: 0 0 4px ${statusColor}80;"></div>
+            <strong>${rowNum}</strong>
+        </div>
+    `;
+
     return `
         <tr>
-            <td class="text-center"><strong>${rowNum}</strong></td>
+            <td class="text-center">${rowNumHtml}</td>
             <td><span class="case-number-tag">${c.caseNumber}</span></td>
             <td>${c.dateReceived}</td>
             <td class="text-center">${getStatusBadgeHTML(c.status)}</td>
@@ -425,14 +441,19 @@ function generateMasterCaseRowHTML(c, rowNum) {
             </td>
             <td>
                 <div class="party-box" style="max-width: 250px;">
-                    <strong class="text-truncate-2" title="${c.partyA_name} (${c.partyA_gender}, ថ្ងៃខែឆ្នាំកំណើត៖ ${c.partyA_age || '?'})">${c.partyA_name} (${c.partyA_gender}, ថ្ងៃខែឆ្នាំកំណើត៖ ${c.partyA_age || '?'})</strong>
-                    <span class="text-truncate-2" title="${c.partyA_phone || 'ពុំមាន'} | ${c.partyA_location} ${c.partyA_address || ''}"><i class="fa-solid fa-phone"></i> ${c.partyA_phone || 'ពុំមាន'} | <i class="fa-solid fa-map-marker-alt"></i> ${c.partyA_location} ${c.partyA_address ? '- ' + c.partyA_address : ''}</span>
+                    <strong class="text-truncate-2" title="${c.partyA_name}">${c.partyA_name}</strong>
+                    <span class="text-truncate-2"><i class="fa-solid fa-map-marker-alt"></i> ${c.partyA_location}</span>
                 </div>
             </td>
             <td>
                 <div class="party-box" style="max-width: 250px;">
-                    <strong class="text-truncate-2" title="${c.partyB_name} (${c.partyB_gender}, ថ្ងៃខែឆ្នាំកំណើត៖ ${c.partyB_age || '?'})">${c.partyB_name} (${c.partyB_gender}, ថ្ងៃខែឆ្នាំកំណើត៖ ${c.partyB_age || '?'})</strong>
-                    <span class="text-truncate-2" title="${c.partyB_phone || 'ពុំមាន'} | ${c.partyB_location} ${c.partyB_address || ''}"><i class="fa-solid fa-phone"></i> ${c.partyB_phone || 'ពុំមាន'} | <i class="fa-solid fa-map-marker-alt"></i> ${c.partyB_location} ${c.partyB_address ? '- ' + c.partyB_address : ''}</span>
+                    <strong class="text-truncate-2" title="${c.partyB_name}">${c.partyB_name}</strong>
+                    <span class="text-truncate-2"><i class="fa-solid fa-map-marker-alt"></i> ${c.partyB_location}</span>
+                </div>
+            </td>
+            <td>
+                <div class="party-box" style="max-width: 250px;">
+                    <strong class="text-truncate-2" title="${c.partyC_name || ''}">${c.partyC_name || '-'}</strong>
                 </div>
             </td>
             <td><span style="font-weight: 600;">${c.category}</span></td>
@@ -769,6 +790,9 @@ function initModalEvents() {
                 partyB_location: document.getElementById('case-party-b-location').value,
                 partyB_address: document.getElementById('case-party-b-address') ? document.getElementById('case-party-b-address').value.trim() : '',
 
+                partyC_name: document.getElementById('case-party-c-name') ? document.getElementById('case-party-c-name').value.trim() : '',
+                partyC_phone: document.getElementById('case-party-c-phone') ? document.getElementById('case-party-c-phone').value.trim() : '',
+
                 summary: document.getElementById('case-summary').value.trim(),
                 meetingPartyA: document.getElementById('case-meeting-a').value,
                 meetingPartyB: document.getElementById('case-meeting-b').value,
@@ -865,6 +889,9 @@ function openEditModal(id) {
     document.getElementById('case-party-b-phone').value = c.partyB_phone || '';
     document.getElementById('case-party-b-location').value = c.partyB_location || 'ភ្នំពេញ';
     if(document.getElementById('case-party-b-address')) document.getElementById('case-party-b-address').value = c.partyB_address || '';
+    
+    if(document.getElementById('case-party-c-name')) document.getElementById('case-party-c-name').value = c.partyC_name || '';
+    if(document.getElementById('case-party-c-phone')) document.getElementById('case-party-c-phone').value = c.partyC_phone || '';
 
     document.getElementById('case-summary').value = c.summary || '';
     document.getElementById('case-meeting-a').value = c.meetingPartyA || 'មិនទាន់ប្រជុំ';
@@ -2964,7 +2991,7 @@ function renderMasterTableHeader() {
     if (!thead) return;
 
     let html = `
-        <th class="text-center" style="width: 50px;" data-i18n="table.no">ល.រ</th>
+        <th class="text-center" style="width: 90px;" data-i18n="table.no">ល.រ. ក្នុងបញ្ជី</th>
         <th style="width: 130px;" data-i18n="table.caseCode">លេខកូដសំណុំរឿង</th>
         <th style="width: 110px;" data-i18n="table.date">កាលបរិច្ឆេទ</th>
         <th style="width: 140px;" class="text-center" data-i18n="table.status">លទ្ធផលសំណុំរឿង</th>
@@ -2972,6 +2999,7 @@ function renderMasterTableHeader() {
         <th style="width: 120px;">កាលបរិច្ឆេទកម្មវិធី</th>
         <th style="min-width: 180px;" data-i18n="table.partyA">ភាគី (ក) ដើមបណ្ដឹង</th>
         <th style="min-width: 180px;" data-i18n="table.partyB">ភាគី (ខ) ចុងបណ្ដឹង</th>
+        <th style="min-width: 180px;">ភាគី (គ) អ្នកពាក់ព័ន្ធ</th>
         <th style="width: 140px;" data-i18n="table.category">ប្រភេទវិវាទ</th>
         <th style="width: 120px;" data-i18n="table.location">ទីតាំងវិវាទ</th>
         <th style="min-width: 200px;" data-i18n="form.mediation">ចំណាត់ការសម្រុះសម្រួល</th>
@@ -3052,6 +3080,8 @@ function initDashboardQuickForm() {
                 partyB_age: '',
                 partyB_phone: '',
                 partyB_location: document.getElementById('quick-case-dispute-location').value,
+
+                partyC_name: document.getElementById('quick-case-party-c-name') ? document.getElementById('quick-case-party-c-name').value.trim() : '',
 
                 summary: document.getElementById('quick-case-summary')?.value.trim() || 'បញ្ចូលរហ័សតាម Dashboard',
                 meetingPartyA: 'មិនទាន់ប្រជុំ',
@@ -4320,13 +4350,24 @@ function createCalendarCell(dayNum, isOtherMonth, isToday, events, dateStr) {
     div.appendChild(numDiv);
 
     if (events && events.length > 0) {
+        const today = getTodayDateString();
         events.forEach(c => {
             const evt = document.createElement('div');
             evt.className = 'calendar-event-item';
-            if (c.caseEvent.includes('ទីតាំង')) evt.classList.add('evt-location');
-            if (c.caseEvent.includes('សម្រុះសម្រួល')) evt.classList.add('evt-mediation');
             
-            evt.innerHTML = `<strong>${c.caseNumber}</strong><br>${c.caseEvent}`;
+            if (dateStr < today) {
+                // Past event
+                evt.style.backgroundColor = '#f1f5f9';
+                evt.style.color = '#64748b';
+                evt.style.borderLeft = '3px solid #cbd5e1';
+                evt.innerHTML = `<strong>${c.caseNumber}</strong><br><span style="text-decoration: line-through;">${c.caseEvent}</span> <i class="fa-solid fa-check-circle text-success" style="float:right;"></i>`;
+            } else {
+                // Future or today event
+                if (c.caseEvent.includes('ទីតាំង')) evt.classList.add('evt-location');
+                if (c.caseEvent.includes('សម្រុះសម្រួល')) evt.classList.add('evt-mediation');
+                evt.innerHTML = `<strong>${c.caseNumber}</strong><br>${c.caseEvent}`;
+            }
+            
             evt.onclick = (e) => {
                 e.stopPropagation(); // prevent opening the general day modal
                 openCalendarEventModal(dateStr, c.id);
@@ -4442,28 +4483,30 @@ document.getElementById('btn-clear-calendar-event')?.addEventListener('click', (
             return;
         }
         
-        const oldGoogleEventId = c.googleEventId;
-        const oldEventName = c.caseEvent;
+        customConfirm('បញ្ជាក់ការលុបកម្មវិធី', 'តើលោកអ្នកពិតជាចង់លុបកម្មវិធីនេះមែនទេ?', () => {
+            const oldGoogleEventId = c.googleEventId;
+            const oldEventName = c.caseEvent;
 
-        c.caseEvent = '';
-        c.caseEventDate = '';
-        c.caseEventTime = '';
-        c.notifiedEventDate = '';
-        c.notifiedOneHour = false;
-        c.googleEventId = ''; // Clear ID
+            c.caseEvent = '';
+            c.caseEventDate = '';
+            c.caseEventTime = '';
+            c.notifiedEventDate = '';
+            c.notifiedOneHour = false;
+            c.googleEventId = ''; // Clear ID
 
-        saveCases();
-        showToast('បានលុបកម្មវិធីចេញពីប្រតិទិនដោយជោគជ័យ!', 'success');
-        document.getElementById('calendar-event-modal').classList.remove('open');
-        renderAllViews();
+            saveCases();
+            showToast('បានលុបកម្មវិធីចេញពីប្រតិទិនដោយជោគជ័យ!', 'success');
+            document.getElementById('calendar-event-modal').classList.remove('open');
+            renderAllViews();
 
-        if (oldGoogleEventId && typeof deleteFromGoogleCalendar === 'function') {
-            deleteFromGoogleCalendar(oldGoogleEventId);
-        }
-        if (typeof notifyTelegramEventCancelled === 'function') {
-            notifyTelegramEventCancelled(c.caseNumber, oldEventName);
-            showToast('បានធ្វើបច្ចុប្បន្នភាពការលុបទៅកាន់ Telegram', 'info');
-        }
+            if (oldGoogleEventId && typeof deleteFromGoogleCalendar === 'function') {
+                deleteFromGoogleCalendar(oldGoogleEventId);
+            }
+            if (typeof notifyTelegramEventCancelled === 'function') {
+                notifyTelegramEventCancelled(c.caseNumber, oldEventName);
+                showToast('បានធ្វើបច្ចុប្បន្នភាពការលុបទៅកាន់ Telegram', 'info');
+            }
+        });
     }
 });
 // Initialize Calendar view hook
