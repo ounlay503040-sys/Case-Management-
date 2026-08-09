@@ -205,6 +205,22 @@
                 </div>
             </header>
 
+            <!-- BREADCRUMB BAR -->
+            <div class="breadcrumb-bar" id="breadcrumb-bar">
+                <div class="breadcrumb-nav-btns">
+                    <button class="breadcrumb-btn" id="btn-nav-back" title="ត្រឡប់ក្រោយ (Back)" disabled>
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <button class="breadcrumb-btn" id="btn-nav-forward" title="ទៅមុខ (Forward)" disabled>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+                <div class="breadcrumb-text" id="breadcrumb-text">
+                    <i class="fa-solid fa-house"></i>
+                    <span id="breadcrumb-path">ទំព័រដើម > ស្ថិតិសំណុំរឿង (Dashboard)</span>
+                </div>
+            </div>
+
             <!-- SCROLLABLE CONTENT AREA -->
             <div class="content-scroll-area" id="main-scroll-area">
 
@@ -1979,6 +1995,14 @@
                 <div class="modal-body">
                     <input type="hidden" id="case-id">
                     
+                    <div class="form-toolbar-ur" id="ur-toolbar-case">
+                        <button type="button" class="btn-ur btn-undo" title="ត្រឡប់ក្រោយ (Undo)" disabled>
+                            <i class="fa-solid fa-rotate-left"></i> Undo
+                        </button>
+                        <button type="button" class="btn-ur btn-redo" title="ទៅមុខ (Redo)" disabled>
+                            <i class="fa-solid fa-rotate-right"></i> Redo
+                        </button>
+                    </div>
                     <!-- AI AUTO-FILL SECTION -->
                     <div class="ai-autofill-box mb-4" style="background: linear-gradient(135deg, #eff6ff, #f0fdf4); border: 1px solid #bfdbfe; padding: 16px; border-radius: 12px;">
                         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
@@ -2634,6 +2658,14 @@
                 <button class="btn-close-modal" id="btn-close-calendar-modal"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="modal-body">
+                <div class="form-toolbar-ur" id="ur-toolbar-cal">
+                    <button type="button" class="btn-ur btn-undo" title="ត្រឡប់ក្រោយ (Undo)" disabled>
+                        <i class="fa-solid fa-rotate-left"></i> Undo
+                    </button>
+                    <button type="button" class="btn-ur btn-redo" title="ទៅមុខ (Redo)" disabled>
+                        <i class="fa-solid fa-rotate-right"></i> Redo
+                    </button>
+                </div>
                 <div class="form-grid-2 mb-3">
                     <div class="form-group">
                         <label style="font-weight: 600; font-size: 13px;">កាលបរិច្ឆេទកម្មវិធី៖</label>

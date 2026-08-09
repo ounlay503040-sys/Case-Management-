@@ -318,7 +318,7 @@ body {
 /* MAIN CONTENT — Starts after the sidebar, scrolls natively with browser window */
 .main-content {
     margin-left: 270px !important;
-    padding-top: 72px !important; /* Exactly the height of the fixed top header */
+    padding-top: 118px !important; /* 70px header + 48px breadcrumb */
     width: calc(100% - 270px) !important;
     min-height: 100vh;
     background-color: var(--bg-main);
@@ -328,11 +328,11 @@ body {
 
 /* HEADER — Pinned at top right, next to sidebar */
 .top-header {
-    height: 72px;
-    min-height: 72px;
-    background-color: var(--bg-card);
-    border-bottom: 1px solid var(--border-color);
-    padding: 0 48px;
+    height: 70px;
+    min-height: 70px;
+    background: linear-gradient(135deg, #1e3a8a, #4338ca);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding: 0 40px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -342,8 +342,158 @@ body {
     right: 0 !important;
     width: calc(100% - 270px) !important;
     z-index: 95;
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
     transition: var(--transition);
+    color: #ffffff;
+}
+
+[data-theme="dark"] .top-header {
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.top-header .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* Make elements inside colorful header stand out */
+.top-header .current-time-badge,
+.top-header .zoom-controls,
+.top-header .header-user-badge,
+.top-header .theme-toggle-btn {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+    backdrop-filter: blur(10px);
+}
+
+.top-header .current-time-badge i,
+.top-header .theme-toggle-btn i,
+.top-header .zoom-controls button {
+    color: #ffffff !important;
+}
+
+.top-header #header-user-name {
+    color: #ffffff !important;
+}
+
+.top-header .btn-lang {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.top-header .btn-lang.active {
+    background: #ffffff;
+    color: #1e3a8a;
+    font-weight: bold;
+}
+[data-theme="dark"] .top-header .btn-lang.active {
+    background: #3b82f6;
+    color: #ffffff;
+}
+
+.breadcrumb-bar {
+    position: fixed;
+    top: 70px;
+    left: 270px;
+    right: 0;
+    width: calc(100% - 270px);
+    height: 48px;
+    background: rgba(255, 255, 255, 0.95);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    z-index: 94;
+    display: flex;
+    align-items: center;
+    padding: 0 40px;
+    backdrop-filter: blur(8px);
+    transition: var(--transition);
+}
+
+[data-theme="dark"] .breadcrumb-bar {
+    background: rgba(15, 23, 42, 0.95);
+}
+
+.breadcrumb-nav-btns {
+    display: flex;
+    gap: 8px;
+    margin-right: 16px;
+    padding-right: 16px;
+    border-right: 1px solid var(--border-color);
+}
+
+.breadcrumb-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.breadcrumb-btn:hover {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.breadcrumb-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.breadcrumb-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.breadcrumb-text i {
+    color: var(--primary-color);
+}
+
+.form-toolbar-ur {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+    padding: 8px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.btn-ur {
+    background: var(--bg-main);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+.btn-ur:hover:not(:disabled) {
+    background: #e0f2fe;
+    color: #0284c7;
+    border-color: #7dd3fc;
+}
+.btn-ur:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .header-left {

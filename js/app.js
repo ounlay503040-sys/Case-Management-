@@ -1,4 +1,4 @@
-/* ==========================================================================
+﻿/* ==========================================================================
    KHMER CASE MANAGEMENT SYSTEM - MAIN APPLICATION LOGIC (js/app.js)
    Handles UI Events, 25 Province Dropdowns, Master Table Rendering,
    Dossier Detail Modal, Excel Import Engine (SheetJS), and Analytics View.
@@ -791,6 +791,7 @@ function initModalEvents() {
         currentModalCaseFiles = [];
         renderModalCaseFilesGrid();
         modal.classList.add('open');
+        setTimeout(() => { if (typeof caseFormStateManager !== 'undefined' && caseFormStateManager) caseFormStateManager.reset(); }, 100);
     };
 
     const checkUnsavedAndClose = () => {
@@ -1057,6 +1058,7 @@ function openEditModal(id) {
     }
     renderModalCaseFilesGrid();
     modal.classList.add('open');
+    setTimeout(() => { if (typeof caseFormStateManager !== 'undefined' && caseFormStateManager) caseFormStateManager.reset(); }, 100);
 }
 
 /**
@@ -4414,6 +4416,7 @@ function openCalendarEventModal(dateStr, caseIdToSelect = null) {
     }
 
     document.getElementById('calendar-event-modal').classList.add('open');
+    setTimeout(() => { if (typeof calFormStateManager !== 'undefined' && calFormStateManager) calFormStateManager.reset(); }, 100);
 }
 
 document.getElementById('btn-close-calendar-modal')?.addEventListener('click', () => {
@@ -4604,4 +4607,149 @@ function zoomOut() {
 // Initialize zoom on load
 document.addEventListener('DOMContentLoaded', () => {
     applyZoom();
+});
+
+let navigationHistory = [];
+let currentHistoryIndex = -1;
+let isNavigatingHistory = false;
+
+function updateBreadcrumb(viewId) {
+    const breadcrumbPath = document.getElementById('breadcrumb-path');
+    if (!breadcrumbPath) return;
+    const targetNav = document.querySelector('.sidebar-nav .nav-item[data-view="' + viewId + '"]');
+    let title = 'ទំព័រដើម';
+    if (targetNav) title = targetNav.innerText.trim();
+    breadcrumbPath.innerText = 'ទំព័រដើម > ' + title;
+}
+
+function updateNavButtons() {
+    const btnBack = document.getElementById('btn-nav-back');
+    const btnForward = document.getElementById('btn-nav-forward');
+    if(btnBack) btnBack.disabled = currentHistoryIndex <= 0;
+    if(btnForward) btnForward.disabled = currentHistoryIndex >= navigationHistory.length - 1;
+}
+
+function navigateBack() {
+    if (currentHistoryIndex > 0) {
+        currentHistoryIndex--;
+        isNavigatingHistory = true;
+        switchView(navigationHistory[currentHistoryIndex], false);
+        isNavigatingHistory = false;
+        updateNavButtons();
+    }
+}
+
+function navigateForward() {
+    if (currentHistoryIndex < navigationHistory.length - 1) {
+        currentHistoryIndex++;
+        isNavigatingHistory = true;
+        switchView(navigationHistory[currentHistoryIndex], false);
+        isNavigatingHistory = false;
+        updateNavButtons();
+    }
+}
+
+class FormStateManager {
+    constructor(formId, toolbarId) {
+        this.form = document.getElementById(formId);
+        this.toolbar = document.getElementById(toolbarId);
+        this.history = [];
+        this.currentIndex = -1;
+        this.isRestoring = false;
+        
+        if (!this.form || !this.toolbar) return;
+        
+        this.btnUndo = this.toolbar.querySelector('.btn-undo');
+        this.btnRedo = this.toolbar.querySelector('.btn-redo');
+        
+        if (this.btnUndo) this.btnUndo.addEventListener('click', () => this.undo());
+        if (this.btnRedo) this.btnRedo.addEventListener('click', () => this.redo());
+        
+        this.form.addEventListener('input', this.debounce(() => this.saveState(), 500));
+        this.form.addEventListener('change', () => this.saveState());
+        
+        this.saveState();
+    }
+    
+    debounce(func, wait) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), wait);
+        };
+    }
+
+    saveState() {
+        if (this.isRestoring) return;
+        const state = {};
+        const inputs = this.form.querySelectorAll('input, textarea, select');
+        inputs.forEach(el => {
+            if (el.id || el.name) {
+                const key = el.id || el.name;
+                if (el.type === 'checkbox' || el.type === 'radio') {
+                    state[key] = el.checked;
+                } else {
+                    state[key] = el.value;
+                }
+            }
+        });
+        const stateStr = JSON.stringify(state);
+        if (this.currentIndex >= 0 && this.history[this.currentIndex] === stateStr) return;
+        if (this.currentIndex < this.history.length - 1) {
+            this.history = this.history.slice(0, this.currentIndex + 1);
+        }
+        this.history.push(stateStr);
+        this.currentIndex++;
+        this.updateButtons();
+    }
+    
+    restoreState(index) {
+        if (index < 0 || index >= this.history.length) return;
+        this.isRestoring = true;
+        const state = JSON.parse(this.history[index]);
+        const inputs = this.form.querySelectorAll('input, textarea, select');
+        inputs.forEach(el => {
+            if (el.id || el.name) {
+                const key = el.id || el.name;
+                if (state.hasOwnProperty(key)) {
+                    if (el.type === 'checkbox' || el.type === 'radio') {
+                        el.checked = state[key];
+                    } else {
+                        el.value = state[key];
+                    }
+                }
+            }
+        });
+        this.currentIndex = index;
+        this.updateButtons();
+        setTimeout(() => { this.isRestoring = false; }, 100);
+    }
+    
+    undo() { if (this.currentIndex > 0) this.restoreState(this.currentIndex - 1); }
+    
+    redo() { if (this.currentIndex < this.history.length - 1) this.restoreState(this.currentIndex + 1); }
+    
+    updateButtons() {
+        if (this.btnUndo) this.btnUndo.disabled = this.currentIndex <= 0;
+        if (this.btnRedo) this.btnRedo.disabled = this.currentIndex >= this.history.length - 1;
+    }
+    
+    reset() {
+        this.history = [];
+        this.currentIndex = -1;
+        this.saveState();
+    }
+}
+
+let caseFormStateManager;
+let calFormStateManager;
+
+document.addEventListener('DOMContentLoaded', () => {
+    caseFormStateManager = new FormStateManager('case-form', 'ur-toolbar-case');
+    calFormStateManager = new FormStateManager('calendar-event-modal', 'ur-toolbar-cal');
+    
+    const btnBack = document.getElementById('btn-nav-back');
+    const btnForward = document.getElementById('btn-nav-forward');
+    if (btnBack) btnBack.addEventListener('click', navigateBack);
+    if (btnForward) btnForward.addEventListener('click', navigateForward);
 });
