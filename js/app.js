@@ -135,7 +135,9 @@ function renderUpcomingEventsTable() {
         });
 
     if (eventsList.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted" style="padding: 20px;">មិនមានកម្មវិធីសំណុំរឿងទេ</td></tr>`;
+        tbody.innerHTML = currentLang === 'en' ? 
+            `<tr><td colspan="5" class="text-center text-muted" style="padding: 20px;">No case events scheduled</td></tr>` : 
+            `<tr><td colspan="5" class="text-center text-muted" style="padding: 20px;">មិនមានកម្មវិធីសំណុំរឿងទេ</td></tr>`;
         return;
     }
 
@@ -512,7 +514,9 @@ function renderEntryCasesTable() {
     if (countBadge) countBadge.innerText = `សរុប៖ ${sorted.length} ករណី`;
 
     if (sorted.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="12" class="text-center text-muted py-4">គ្មានទិន្នន័យសំណុំរឿងឡើយ</td></tr>`;
+        tbody.innerHTML = currentLang === 'en' ? 
+            `<tr><td colspan="12" class="text-center text-muted py-4">No case data available</td></tr>` : 
+            `<tr><td colspan="12" class="text-center text-muted py-4">គ្មានទិន្នន័យសំណុំរឿងឡើយ</td></tr>`;
         return;
     }
 
@@ -781,7 +785,9 @@ function initModalEvents() {
     const openAdd = () => {
         form.reset();
         document.getElementById('case-id').value = '';
-        document.getElementById('modal-title').innerHTML = `<i class="fa-solid fa-folder-plus"></i> បញ្ចូលព័ត៌មានសំណុំរឿងគោលថ្មី`;
+        document.getElementById('modal-title').innerHTML = currentLang === 'en' ? 
+            `<i class="fa-solid fa-folder-plus"></i> Add New Primary Case Info` : 
+            `<i class="fa-solid fa-folder-plus"></i> បញ្ចូលព័ត៌មានសំណុំរឿងគោលថ្មី`;
         const nextListNo = casesData.length > 0 ? Math.max(...casesData.map(c => c.originalListNo || 0)) + 1 : 1;
         document.getElementById('case-list-no').value = nextListNo;
         document.getElementById('case-number').value = generateNextCaseNumber();
@@ -944,7 +950,9 @@ function openEditModal(id) {
     if (!c) return;
 
     const modal = document.getElementById('case-modal');
-    document.getElementById('modal-title').innerHTML = `<i class="fa-solid fa-pen-to-square"></i> កែសម្រួលព័ត៌មានសំណុំរឿង៖ ${c.caseNumber}`;
+    document.getElementById('modal-title').innerHTML = currentLang === 'en' ? 
+        `<i class="fa-solid fa-pen-to-square"></i> Edit Case Info: ${c.caseNumber}` : 
+        `<i class="fa-solid fa-pen-to-square"></i> កែសម្រួលព័ត៌មានសំណុំរឿង៖ ${c.caseNumber}`;
     document.getElementById('case-id').value = c.id;
     
     const listNoEl = document.getElementById('case-list-no');
@@ -1312,11 +1320,17 @@ function renderAnalyticsView() {
     if (concEl) {
         const rateNum = parseFloat(stats.settleRate);
         if (rateNum >= 60) {
-            concEl.innerHTML = `អត្រាផ្សះផ្សាជោគជ័យបច្ចុប្បន្នគឺ <strong>${stats.settleRate}%</strong> ដែលស្ថិតក្នុងកម្រិត <strong>"ខ្ពស់ប្រសើរណាស់ (Excellent)"</strong> បង្ហាញពីប្រសិទ្ធភាពខ្ពស់នៃយន្តការដោះស្រាយវិវាទក្រៅប្រព័ន្ធតុលាការរបស់ស្ថាប័ន NADR។`;
+            concEl.innerHTML = currentLang === 'en' ?
+                `The current settlement rate is <strong>${stats.settleRate}%</strong>, which is <strong>"Excellent"</strong>, indicating high efficiency in NADR's extrajudicial dispute resolution mechanism.` :
+                `អត្រាផ្សះផ្សាជោគជ័យបច្ចុប្បន្នគឺ <strong>${stats.settleRate}%</strong> ដែលស្ថិតក្នុងកម្រិត <strong>"ខ្ពស់ប្រសើរណាស់ (Excellent)"</strong> បង្ហាញពីប្រសិទ្ធភាពខ្ពស់នៃយន្តការដោះស្រាយវិវាទក្រៅប្រព័ន្ធតុលាការរបស់ស្ថាប័ន NADR។`;
         } else if (rateNum >= 40) {
-            concEl.innerHTML = `អត្រាផ្សះផ្សាជោគជ័យបច្ចុប្បន្នគឺ <strong>${stats.settleRate}%</strong> ដែលស្ថិតក្នុងកម្រិត <strong>"មធ្យមល្អ (Good)"</strong>។ ស្ថាប័នគួរពង្រឹងកិច្ចប្រជុំប្រមូលព័ត៌មានពីភាគីទាំងពីរឱ្យបានលម្អិតបន្ថែមទៀតមុនពេលប្រជុំសម្រុះសម្រួល។`;
+            concEl.innerHTML = currentLang === 'en' ?
+                `The current settlement rate is <strong>${stats.settleRate}%</strong>, which is <strong>"Good"</strong>. The institution should strengthen information gathering meetings before proceeding to mediation.` :
+                `អត្រាផ្សះផ្សាជោគជ័យបច្ចុប្បន្នគឺ <strong>${stats.settleRate}%</strong> ដែលស្ថិតក្នុងកម្រិត <strong>"មធ្យមល្អ (Good)"</strong>។ ស្ថាប័នគួរពង្រឹងកិច្ចប្រជុំប្រមូលព័ត៌មានពីភាគីទាំងពីរឱ្យបានលម្អិតបន្ថែមទៀតមុនពេលប្រជុំសម្រុះសម្រួល។`;
         } else {
-            concEl.innerHTML = `អត្រាផ្សះផ្សាជោគជ័យបច្ចុប្បន្នគឺ <strong>${stats.settleRate}%</strong>។ ភាគច្រើននៃករណីកំពុងស្ថិតក្នុងការចាត់ការបន្ត (Active) ឬតម្កល់។`;
+            concEl.innerHTML = currentLang === 'en' ?
+                `The current settlement rate is <strong>${stats.settleRate}%</strong>. Most cases are currently in Active or Pending status.` :
+                `អត្រាផ្សះផ្សាជោគជ័យបច្ចុប្បន្នគឺ <strong>${stats.settleRate}%</strong>។ ភាគច្រើននៃករណីកំពុងស្ថិតក្នុងការចាត់ការបន្ត (Active) ឬតម្កល់។`;
         }
     }
 
@@ -1704,7 +1718,9 @@ function renderActionPlans() {
 
     const plans = getActionPlans();
     if (plans.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 24px; color: #64748b;">ពុំទាន់មានផែនការសកម្មភាពនៅឡើយ សូមចុចប៊ូតុង «បន្ថែមផែនការថ្មី»</td></tr>`;
+        tbody.innerHTML = currentLang === 'en' ? 
+            `<tr><td colspan="6" style="text-align: center; padding: 24px; color: #64748b;">No action plans yet. Please click "Add New Plan"</td></tr>` : 
+            `<tr><td colspan="6" style="text-align: center; padding: 24px; color: #64748b;">ពុំទាន់មានផែនការសកម្មភាពនៅឡើយ សូមចុចប៊ូតុង «បន្ថែមផែនការថ្មី»</td></tr>`;
         return;
     }
 
@@ -2026,7 +2042,8 @@ function initAuth() {
                 isValid = true;
             } else {
                 if (errorMsg) {
-                    errorMsg.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> <span>ពាក្យសម្ងាត់មិនត្រឹមត្រូវទេ! សូមពិនិត្យម្តងទៀត។</span>';
+                    const errMsg = currentLang === 'en' ? 'Incorrect password! Please try again.' : 'ពាក្យសម្ងាត់មិនត្រឹមត្រូវទេ! សូមពិនិត្យម្តងទៀត។';
+                    errorMsg.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> <span>${errMsg}</span>`;
                     errorMsg.classList.remove('d-none');
                 }
                 return;
@@ -2127,7 +2144,10 @@ function applyRBAC() {
             noticeEl = document.createElement('div');
             noticeEl.id = 'rbac-officer-notice';
             noticeEl.style.cssText = 'background: #fffbeb; border-bottom: 1px solid #fef3c7; padding: 14px 20px; font-size: 13.5px; color: #b45309; display: none; align-items: center; gap: 12px; font-weight: 600;';
-            noticeEl.innerHTML = '<i class="fa-solid fa-lock" style="font-size: 18px; color: #f59e0b; flex-shrink: 0;"></i> <div><span style="display: block; font-weight: 800; font-size: 14px; margin-bottom: 2px;">ការកំណត់សិទ្ធិមន្ត្រី (Officer Access Control)</span><span>គណនីរបស់អ្នកជា "មន្ត្រី"៖ អ្នកមានសិទ្ធិចូលប្រើប្រាស់ និងកែសម្រួលបានតែមុខងារ "លក្ខណៈវិនិច្ឆ័យវាយតម្លៃ" និង "យុទ្ធសាស្ត្រ" ប៉ុណ្ណោះ។ មុខងាររដ្ឋបាលផ្សេងទៀតត្រូវបានកម្រិតសិទ្ធិ។</span></div>';
+            const noticeMsg = currentLang === 'en' ? 
+                '<span style="display: block; font-weight: 800; font-size: 14px; margin-bottom: 2px;">Officer Access Control</span><span>Your account is an "Officer" role. You have access to "Evaluation Criteria" and "Strategies". Other administrative functions are restricted.</span>' : 
+                '<span style="display: block; font-weight: 800; font-size: 14px; margin-bottom: 2px;">ការកំណត់សិទ្ធិមន្ត្រី (Officer Access Control)</span><span>គណនីរបស់អ្នកជា "មន្ត្រី"៖ អ្នកមានសិទ្ធិចូលប្រើប្រាស់ និងកែសម្រួលបានតែមុខងារ "លក្ខណៈវិនិច្ឆ័យវាយតម្លៃ" និង "យុទ្ធសាស្ត្រ" ប៉ុណ្ណោះ។ មុខងាររដ្ឋបាលផ្សេងទៀតត្រូវបានកម្រិតសិទ្ធិ។</span>';
+            noticeEl.innerHTML = `<i class="fa-solid fa-lock" style="font-size: 18px; color: #f59e0b; flex-shrink: 0;"></i> <div>${noticeMsg}</div>`;
             settingsCard.insertBefore(noticeEl, settingsCard.firstChild);
         }
     }
@@ -3503,7 +3523,9 @@ function openPdfViewerModal(caseId) {
         type: 'application/pdf',
         category: 'ឯកសារដើម (Main Case File)',
         caseId: caseId,
-        infoText: `ដើមបណ្តឹង៖ <strong>${c.partyA_name}</strong> | ចុងបណ្តឹង៖ <strong>${c.partyB_name}</strong>`,
+        infoText: currentLang === 'en' ? 
+            `Party A: <strong>${c.partyA_name || ''}</strong> | Party B: <strong>${c.partyB_name || ''}</strong>` : 
+            `ដើមបណ្តឹង៖ <strong>${c.partyA_name || ''}</strong> | ចុងបណ្តឹង៖ <strong>${c.partyB_name || ''}</strong>`,
         canReplace: true,
         canDelete: true
     });
@@ -3596,7 +3618,9 @@ function previewCurrentFormPdf() {
         base64: base64,
         type: type,
         category: 'ឯកសារជ្រើសរើស (ទម្រង់បច្ចុប្បន្ន)',
-        infoText: `ឯកសារជ្រើសរើសបច្ចុប្បន្នសម្រាប់សំណុំរឿង <strong>${caseNum}</strong> (ពុំទាន់រក្សាទុកចូលបញ្ជី)`,
+        infoText: currentLang === 'en' ? 
+            `Current selected file for case <strong>${caseNum}</strong> (Not saved yet)` : 
+            `ឯកសារជ្រើសរើសបច្ចុប្បន្នសម្រាប់សំណុំរឿង <strong>${caseNum}</strong> (ពុំទាន់រក្សាទុកចូលបញ្ជី)`,
         canReplace: false,
         canDelete: false
     });
@@ -3951,7 +3975,9 @@ function previewFolderFile(f) {
             type: f.type || '',
             category: f.category || 'ឯកសារក្នុង Folder',
             size: f.size || '',
-            infoText: `ឈ្មោះ៖ <strong>${f.name}</strong> | ចំណាត់ថ្នាក់៖ <span class="badge" style="background:#e2e8f0;color:#334155;">${f.category || 'ឯកសារ'}</span>`,
+            infoText: currentLang === 'en' ? 
+                `Name: <strong>${f.name}</strong> | Category: <span class="badge" style="background:#e2e8f0;color:#334155;">${f.category || 'Document'}</span>` : 
+                `ឈ្មោះ៖ <strong>${f.name}</strong> | ចំណាត់ថ្នាក់៖ <span class="badge" style="background:#e2e8f0;color:#334155;">${f.category || 'ឯកសារ'}</span>`,
             canReplace: false,
             canDelete: false
         });
@@ -3983,7 +4009,9 @@ function openCaseFolderModal(caseId) {
     if (!c) return;
     const modal = document.getElementById('case-folder-modal');
     const title = document.getElementById('case-folder-title');
-    if (title) title.innerHTML = `<i class="fa-solid fa-folder-open text-warning"></i> <span>Folder ឯកសារសំណុំរឿង៖ <strong style="color:#60a5fa;">${c.caseNumber}</strong></span>`;
+    if (title) title.innerHTML = currentLang === 'en' ? 
+        `<i class="fa-solid fa-folder-open text-warning"></i> <span>Case Folder: <strong style="color:#60a5fa;">${c.caseNumber}</strong></span>` :
+        `<i class="fa-solid fa-folder-open text-warning"></i> <span>Folder ឯកសារសំណុំរឿង៖ <strong style="color:#60a5fa;">${c.caseNumber}</strong></span>`;
     renderFolderModalGrid(c);
     if (modal) modal.classList.add('open');
 }
@@ -4004,7 +4032,9 @@ function renderFolderModalGrid(c) {
         grid.innerHTML = `
             <div class="text-center text-muted" style="grid-column: 1 / -1; padding: 25px; font-style: italic; background: white; border-radius: 8px; border: 1px dashed #cbd5e1;">
                 <i class="fa-solid fa-folder-open mb-2" style="font-size: 28px; color: #cbd5e1; display: block;"></i>
-                ពុំទាន់មានឯកសារ ឬរូបភាពនៅក្នុង Folder សំណុំរឿង "${c.caseNumber}" នេះឡើយ។<br>សូមជ្រើសរើសឯកសារនៅរបារខាងលើ ដើម្បីបញ្ចូលចូលក្នុង Folder នេះ!
+                ${currentLang === 'en' ? 
+                `No documents or images in case folder "${c.caseNumber}" yet.<br>Please select documents from the top bar to import into this folder!` : 
+                `ពុំទាន់មានឯកសារ ឬរូបភាពនៅក្នុង Folder សំណុំរឿង "${c.caseNumber}" នេះឡើយ។<br>សូមជ្រើសរើសឯកសារនៅរបារខាងលើ ដើម្បីបញ្ចូលចូលក្នុង Folder នេះ!`}
             </div>
         `;
         return;

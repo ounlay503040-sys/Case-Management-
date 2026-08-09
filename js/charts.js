@@ -24,51 +24,45 @@ function initOrUpdateCharts() {
     // 1. Status Doughnut Chart (4 Statuses)
     const ctxStatus = document.getElementById('statusChart')?.getContext('2d');
     if (ctxStatus) {
+        const chartData = {
+            labels: currentLang === 'en' ? ['Active (Mediating)', 'Settle (Agreed)', 'Close (Closed)', 'Pending (On Hold)'] : ['Active (កំពុងចាត់ការ)', 'Settle (ព្រមព្រៀង)', 'Close (បិទ)', 'Pending (តម្កល់)'],
+            datasets: [{
+                data: [stats.active || 0, stats.settle || 0, stats.close || 0, stats.pending || 0],
+                backgroundColor: ['#3b82f6', '#10b981', '#64748b', '#f59e0b'],
+                borderWidth: 0,
+                hoverOffset: 4
+            }]
+        };
+
         if (statusChartInstance) statusChartInstance.destroy();
 
         statusChartInstance = new Chart(ctxStatus, {
             type: 'doughnut',
-            data: {
-                labels: ['Active (កំពុងចាត់ការ)', 'Settle (ព្រមព្រៀង)', 'Close (បិទ)', 'Pending (តម្កល់)'],
-                datasets: [{
-                    data: [stats.active, stats.settle, stats.close, stats.pending],
-                    backgroundColor: [
-                        '#3b82f6', // Active - Blue
-                        '#10b981', // Settle - Green
-                        '#64748b', // Close - Slate
-                        '#f59e0b'  // Pending - Amber
-                    ],
-                    borderWidth: 2,
-                    borderColor: isDark ? '#111827' : '#ffffff',
-                    hoverOffset: 6
-                }]
-            },
+            data: chartData,
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                cutout: '65%',
                 plugins: {
                     legend: {
-                        position: 'bottom',
+                        position: 'right',
                         labels: {
-                            color: textColor,
-                            font: { family: "'Kantumruy Pro', 'Battambang', sans-serif", size: 12, weight: '600' },
-                            padding: 14,
-                            usePointStyle: true
+                            usePointStyle: true,
+                            padding: 20,
+                            font: { size: 12, family: "'Kantumruy Pro', 'Inter', sans-serif" }
                         }
                     },
                     tooltip: {
-                        bodyFont: { family: "'Kantumruy Pro', 'Battambang', sans-serif", size: 13 },
                         callbacks: {
-                            label: function(context) {
+                            label: (context) => {
                                 const val = context.raw;
-                                const tot = stats.total || 1;
-                                const pct = ((val / tot) * 100).toFixed(1);
-                                return ` ${context.label}: ${val} ករណី (${pct}%)`;
+                                const total = context.chart._metasets[context.datasetIndex].total;
+                                const pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
+                                return currentLang === 'en' ? ` ${context.label}: ${val} cases (${pct}%)` : ` ${context.label}: ${val} ករណី (${pct}%)`;
                             }
                         }
                     }
-                },
-                cutout: '68%'
+                }
             }
         });
     }
@@ -86,7 +80,7 @@ function initOrUpdateCharts() {
             data: {
                 labels: catLabels,
                 datasets: [{
-                    label: 'ចំនួនសំណុំរឿង',
+                    label: currentLang === 'en' ? 'Number of Cases' : 'ចំនួនសំណុំរឿង',
                     data: catData,
                     backgroundColor: 'rgba(37, 99, 235, 0.85)',
                     borderColor: '#2563eb',
@@ -104,7 +98,7 @@ function initOrUpdateCharts() {
                     tooltip: {
                         bodyFont: { family: "'Kantumruy Pro', 'Battambang', sans-serif", size: 13 },
                         callbacks: {
-                            label: (ctx) => ` ចំនួន៖ ${ctx.raw} ករណី`
+                            label: (ctx) => currentLang === 'en' ? ` Count: ${ctx.raw} cases` : ` ចំនួន៖ ${ctx.raw} ករណី`
                         }
                     }
                 },
@@ -153,7 +147,7 @@ function renderDashboardLocationChart(byLocObj, ctx) {
         data: {
             labels: labels,
             datasets: [{
-                label: 'ចំនួនសំណុំរឿងតាមខេត្ត/រាជធានី',
+                label: currentLang === 'en' ? 'Number of Cases by Province/Capital' : 'ចំនួនសំណុំរឿងតាមខេត្ត/រាជធានី',
                 data: data,
                 backgroundColor: [
                     'rgba(239, 68, 68, 0.85)',
@@ -175,7 +169,7 @@ function renderDashboardLocationChart(byLocObj, ctx) {
                 tooltip: {
                     bodyFont: { family: "'Kantumruy Pro', 'Battambang', sans-serif", size: 13 },
                     callbacks: {
-                        label: (ctx) => ` ចំនួន៖ ${ctx.raw} ករណី`
+                        label: (ctx) => currentLang === 'en' ? ` Count: ${ctx.raw} cases` : ` ចំនួន៖ ${ctx.raw} ករណី`
                     }
                 }
             },
@@ -220,7 +214,7 @@ function renderLocationChart(byLocationObj) {
         data: {
             labels: labels.length > 0 ? labels : ['គ្មានទិន្នន័យ'],
             datasets: [{
-                label: 'ចំនួនសំណុំរឿង',
+                label: currentLang === 'en' ? 'Number of Cases' : 'ចំនួនសំណុំរឿង',
                 data: data.length > 0 ? data : [0],
                 backgroundColor: [
                     'rgba(16, 185, 129, 0.85)',
@@ -242,7 +236,7 @@ function renderLocationChart(byLocationObj) {
                 tooltip: {
                     bodyFont: { family: "'Kantumruy Pro', 'Battambang', sans-serif", size: 13 },
                     callbacks: {
-                        label: (ctx) => ` ចំនួន៖ ${ctx.raw} ករណី`
+                        label: (ctx) => currentLang === 'en' ? ` Count: ${ctx.raw} cases` : ` ចំនួន៖ ${ctx.raw} ករណី`
                     }
                 }
             },
