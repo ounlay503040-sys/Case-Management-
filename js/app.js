@@ -230,6 +230,13 @@ function switchView(viewId) {
     } else if (viewId === 'strategic-plan-view') {
         if (typeof renderStrategicPlanView === 'function') renderStrategicPlanView();
     }
+    if (window.innerWidth <= 768) { const sidebar = document.getElementById('sidebar'); if (sidebar) sidebar.classList.remove('open'); }
+    if (typeof isNavigatingHistory !== 'undefined' && !isNavigatingHistory) {
+        if (currentHistoryIndex < navigationHistory.length - 1) { navigationHistory = navigationHistory.slice(0, currentHistoryIndex + 1); }
+        if (navigationHistory[currentHistoryIndex] !== viewId) { navigationHistory.push(viewId); currentHistoryIndex++; }
+    }
+    if (typeof updateBreadcrumb === 'function') updateBreadcrumb(viewId);
+    if (typeof updateNavButtons === 'function') updateNavButtons();
 }
 
 /**
@@ -4741,6 +4748,19 @@ class FormStateManager {
         this.saveState();
     }
 }
+
+let caseFormStateManager;
+let calFormStateManager;
+
+document.addEventListener('DOMContentLoaded', () => {
+    caseFormStateManager = new FormStateManager('case-form', 'ur-toolbar-case');
+    calFormStateManager = new FormStateManager('calendar-event-modal', 'ur-toolbar-cal');
+    
+    const btnBack = document.getElementById('btn-nav-back');
+    const btnForward = document.getElementById('btn-nav-forward');
+    if (btnBack) btnBack.addEventListener('click', navigateBack);
+    if (btnForward) btnForward.addEventListener('click', navigateForward);
+});
 
 let caseFormStateManager;
 let calFormStateManager;
