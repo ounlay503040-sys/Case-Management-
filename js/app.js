@@ -496,10 +496,10 @@ function generateMasterCaseRowHTML(c, rowNum) {
             <td class="text-center">${renderTableFileCell(c)}</td>
             <td class="text-center">
                 <div class="action-btns">
-                    <button class="btn-icon" onclick="openViewModal('${c.id}')" title="មើលប័ណ្ណ"><i class="fa-solid fa-eye"></i></button>
-                    <button class="btn-icon text-success" onclick="if(typeof openLegalDocModal === 'function') openLegalDocModal('${c.id}')" title="ផលិតលិខិតគតិយុត្ត"><i class="fa-solid fa-file-signature"></i></button>
-                    <button class="btn-icon" onclick="openEditModal('${c.id}')" title="កែសម្រួល"><i class="fa-solid fa-pen"></i></button>
-                    <button class="btn-icon delete-btn" onclick="confirmDeleteCase('${c.id}')" title="លុប"><i class="fa-solid fa-trash"></i></button>
+                    <button class="btn-icon" onclick="event.stopPropagation(); openViewModal('${c.id}')" title="មើលប័ណ្ណ"><i class="fa-solid fa-eye"></i></button>
+                    <button class="btn-icon text-success" onclick="event.stopPropagation(); if(typeof openLegalDocModal === 'function') openLegalDocModal('${c.id}')" title="ផលិតលិខិតគតិយុត្ត"><i class="fa-solid fa-file-signature"></i></button>
+                    <button class="btn-icon" onclick="event.stopPropagation(); openEditModal('${c.id}')" title="កែសម្រួល"><i class="fa-solid fa-pen"></i></button>
+                    <button class="btn-icon delete-btn" onclick="event.stopPropagation(); confirmDeleteCase('${c.id}')" title="លុប"><i class="fa-solid fa-trash"></i></button>
                 </div>
             </td>
         </tr>
