@@ -4499,12 +4499,10 @@ function applyZoom() {
     localStorage.setItem('nadr_app_zoom', currentZoom);
     updateZoomDisplay();
     
-    // If running in Electron
-    if (window.electronAPI && typeof window.electronAPI.setZoom === 'function') {
-        window.electronAPI.setZoom(currentZoom);
-    } else {
-        // Fallback for standard web browser
-        document.body.style.zoom = currentZoom;
+    // Always apply zoom to the scroll area ONLY, so the sidebar and top header remain at 100%
+    const scrollArea = document.getElementById('main-scroll-area');
+    if (scrollArea) {
+        scrollArea.style.zoom = currentZoom;
     }
 }
 
