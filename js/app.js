@@ -398,7 +398,18 @@ function filterByStatusQuick(statusStr) {
     }
 }
 
-
+function formatExcelDate(d) {
+    if (!d) return '-';
+    if (!isNaN(d) && parseFloat(d) > 20000 && parseFloat(d) < 90000) {
+        const serial = parseFloat(d);
+        const utc_days = Math.floor(serial - 25569);
+        const date_info = new Date(utc_days * 86400 * 1000);
+        return String(date_info.getDate()).padStart(2, '0') + '/' + 
+               String(date_info.getMonth() + 1).padStart(2, '0') + '/' + 
+               date_info.getFullYear();
+    }
+    return d;
+}
 
 function getStatusColor(statusStr) {
     if (!statusStr) return '#94a3b8';
@@ -433,7 +444,7 @@ function generateMasterCaseRowHTML(c, rowNum) {
         <tr>
             <td class="text-center">${rowNumHtml}</td>
             <td><span class="case-number-tag">${c.caseNumber}</span></td>
-            <td>${c.dateReceived}</td>
+            <td>${formatExcelDate(c.dateReceived)}</td>
             <td class="text-center">${getStatusBadgeHTML(c.status)}</td>
             <td>
                 <span style="font-size: 12px; font-weight: 600; color: #1e40af;">${c.caseEvent || '-'}</span>
@@ -1752,7 +1763,7 @@ function initDataManagementEvents() {
                     const workbook = XLSX.read(data, { type: 'array' });
                     const firstSheetName = workbook.SheetNames[0];
                     const worksheet = workbook.Sheets[firstSheetName];
-                    const jsonRows = XLSX.utils.sheet_to_json(worksheet);
+                    const jsonRows = XLSX.utils.sheet_to_json(worksheet, { raw: false });
 
                     if (jsonRows && jsonRows.length > 0) {
                         importFromExcelRows(jsonRows);
@@ -1923,7 +1934,6 @@ function initAuth() {
     if (loginForm) {
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const username = document.getElementById('login-username').value.trim();
             const password = document.getElementById('login-password').value.trim();
             const remember = document.getElementById('login-remember').checked;
 
@@ -1931,31 +1941,24 @@ function initAuth() {
 
             // Valid accounts checklist
             let isValid = false;
-            let uName = 'មន្ត្រីសម្របសម្រួល';
-            let uRole = 'ការិយាល័យរដ្ឋបាល NADR';
+            let uName = 'Admin';
+            let uRole = 'អ្នកគ្រប់គ្រងប្រព័ន្ធ';
 
-            const matchedUser = ADMIN_USERS.find(u => 
-                u.username.toLowerCase() === username.toLowerCase() && 
-                (u.password === password || (username.toLowerCase() === 'admin' && (password === 'admin123' || password === '123' || password === 'admin')))
-            );
-            if (matchedUser) {
-                if (matchedUser.status === 'Locked' || matchedUser.status === 'មិនអនុញ្ញាតឱ្យចូលប្រព័ន្ធ') {
-                    if (errorMsg) {
-                        errorMsg.innerHTML = '<i class="fa-solid fa-ban"></i> គណនីនេះត្រូវបានបិទ/មិនអនុញ្ញាតឱ្យចូលប្រព័ន្ធទេ! សូមទាក់ទងរដ្ឋបាល។';
-                        errorMsg.classList.remove('d-none');
-                    }
-                    return;
-                }
+            if (password === 'admin' || password === '123' || password === 'admin123' || password === 'nadr2026') {
                 isValid = true;
-                uName = matchedUser.name;
-                uRole = matchedUser.role;
+            } else {
+                if (errorMsg) {
+                    errorMsg.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> <span>ពាក្យសម្ងាត់មិនត្រឹមត្រូវទេ! សូមពិនិត្យម្តងទៀត។</span>';
+                    errorMsg.classList.remove('d-none');
+                }
+                return;
             }
 
             if (isValid) {
                 // Save state
                 const storage = remember ? localStorage : sessionStorage;
                 storage.setItem('nadr_auth_logged_in', 'true');
-                storage.setItem('nadr_auth_username', matchedUser ? matchedUser.username : (username.toLowerCase() === 'admin' ? 'admin' : 'user'));
+                storage.setItem('nadr_auth_username', 'admin');
                 storage.setItem('nadr_auth_user_name', uName);
                 storage.setItem('nadr_auth_user_role', uRole);
 
@@ -2426,8 +2429,6 @@ function initSettingsEvents() {
                 if (typeof loadEvalThresholds === 'function') loadEvalThresholds();
             } else if (paneId === 'tab-strategies') {
                 if (typeof loadResolutionStrategies === 'function') loadResolutionStrategies();
-            } else if (paneId === 'tab-admins') {
-                renderSettingsAdmins();
             } else if (paneId === 'tab-categories') {
                 renderSettingsCategories();
             } else if (paneId === 'tab-columns') {
@@ -2504,65 +2505,12 @@ function initSettingsEvents() {
         };
     }
 
-    // User Account Management Inline Form
-    const btnToggleUserForm = document.getElementById('btn-toggle-user-form');
-    const userFormCard = document.getElementById('user-account-form-card');
-    const userForm = document.getElementById('settings-user-form');
-    const btnCancelUserForm = document.getElementById('btn-cancel-user-form');
 
-    if (btnToggleUserForm && userFormCard) {
-        btnToggleUserForm.onclick = () => {
-            userFormCard.style.display = 'block';
-            document.getElementById('user-form-title').innerText = 'បញ្ចូលព័ត៌មានគណនីថ្មី (New User Account)';
-            document.getElementById('edit-user-index').value = '-1';
-            if (userForm) userForm.reset();
-        };
-    }
-    if (btnCancelUserForm && userFormCard) {
-        btnCancelUserForm.onclick = () => {
-            userFormCard.style.display = 'none';
-            if (userForm) userForm.reset();
-        };
-    }
-    if (userForm) {
-        userForm.onsubmit = (e) => {
-            e.preventDefault();
-            const idx = parseInt(document.getElementById('edit-user-index').value, 10);
-            const username = document.getElementById('admin-username').value.trim();
-            const dispName = document.getElementById('admin-dispname').value.trim();
-            const password = document.getElementById('admin-password').value.trim();
-            const role = document.getElementById('admin-role').value;
-            const status = document.getElementById('admin-status').value;
-            const phoneEl = document.getElementById('admin-phone');
-            const emailEl = document.getElementById('admin-email');
-            const phone = phoneEl ? phoneEl.value.trim() : '012 345 678';
-            const email = emailEl ? emailEl.value.trim() : 'user@nadr.gov.kh';
-
-            if (idx >= 0 && ADMIN_USERS[idx]) {
-                ADMIN_USERS[idx] = { ...ADMIN_USERS[idx], username, name: dispName, password, role, status, phone, email };
-                showToast('បានកែសម្រួលព័ត៌មានគណនីរួចរាល់!', 'success');
-            } else {
-                if (ADMIN_USERS.some(u => u.username.toLowerCase() === username.toLowerCase())) {
-                    showToast('ឈ្មោះគណនីនេះ (Username) មានរួចហើយ!', 'error');
-                    return;
-                }
-                ADMIN_USERS.push({ username, password, name: dispName, role, status, phone, email });
-                showToast('បានបង្កើតគណនីថ្មីដោយជោគជ័យ!', 'success');
-            }
-            localStorage.setItem('nadr_admin_users', JSON.stringify(ADMIN_USERS));
-            userFormCard.style.display = 'none';
-            userForm.reset();
-            renderSettingsAdmins();
-            if (typeof initUserProfile === 'function') initUserProfile();
-            if (typeof renderProfileView === 'function') renderProfileView();
-        };
-    }
 
     // Initial renders
     renderSettingsProvinces();
     renderSettingsCategories();
     renderSettingsColumns();
-    renderSettingsAdmins();
     renderAuditLogs();
     renderSettingsEvalMatrix();
     initOrgSettings();
@@ -2651,83 +2599,6 @@ window.deleteColumnSetting = function(index) {
         renderSettingsColumns();
         renderAllViews();
         showToast('បានលុបកូឡោនដោយជោគជ័យ!', 'success');
-    });
-};
-
-function renderSettingsAdmins() {
-    const tbody = document.getElementById('settings-admins-tbody');
-    if (!tbody) return;
-    let html = '';
-    ADMIN_USERS.forEach((user, index) => {
-        const isLocked = user.status === 'Locked';
-        const statusBadge = isLocked 
-            ? `<span class="badge" style="background: #fee2e2; color: #b91c1c; padding: 5px 10px; font-weight: 700;"><i class="fa-solid fa-ban"></i> មិនអនុញ្ញាតឱ្យចូល (Locked)</span>`
-            : `<span class="badge" style="background: #dcfce7; color: #15803d; padding: 5px 10px; font-weight: 700;"><i class="fa-solid fa-check-circle"></i> អនុញ្ញាតឱ្យចូល (Active)</span>`;
-        const pPhone = user.phone || '012 345 678';
-        const pEmail = user.email || `${user.username}@nadr.gov.kh`;
-
-        html += `
-            <tr style="${isLocked ? 'background: #fef2f2; opacity: 0.85;' : ''}">
-                <td>${index + 1}</td>
-                <td><strong style="color: #1e293b;">${user.username}</strong></td>
-                <td>${user.name}</td>
-                <td><span class="badge badge-active" style="font-size: 11px; background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc;">${user.role}</span></td>
-                <td style="font-size: 12px; line-height: 1.5;"><i class="fa-solid fa-phone text-success"></i> ${pPhone}<br><i class="fa-solid fa-envelope text-primary"></i> ${pEmail}</td>
-                <td><code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">${user.password}</code></td>
-                <td>${statusBadge}</td>
-                <td class="text-center" style="white-space: nowrap;">
-                    <button class="btn-icon text-primary" onclick="editAdminSetting(${index})" title="កែសម្រួលគណនី (Edit)"><i class="fa-solid fa-pen-to-square"></i></button>
-                    <button class="btn-icon ${isLocked ? 'text-success' : 'text-warning'}" onclick="toggleLockAdminSetting(${index})" title="${isLocked ? 'អនុញ្ញាតឱ្យចូលប្រព័ន្ធវិញ (Allow Login)' : 'បិទមិនអនុញ្ញាតឱ្យចូលប្រព័ន្ធ (Block Login)'}" ${user.username === 'admin' ? 'disabled style="opacity:0.3;cursor:not-allowed;"' : ''}><i class="fa-solid ${isLocked ? 'fa-lock-open' : 'fa-ban'}"></i></button>
-                    <button class="btn-icon text-danger" onclick="deleteAdminSetting(${index})" title="លុបគណនី (Delete)" ${user.username === 'admin' ? 'disabled style="opacity:0.3;cursor:not-allowed;"' : ''}><i class="fa-solid fa-trash"></i></button>
-                </td>
-            </tr>
-        `;
-    });
-    tbody.innerHTML = html;
-}
-
-window.editAdminSetting = function(index) {
-    const user = ADMIN_USERS[index];
-    if (!user) return;
-    const userFormCard = document.getElementById('user-account-form-card');
-    if (userFormCard) {
-        userFormCard.style.display = 'block';
-        document.getElementById('user-form-title').innerText = `កែសម្រួលគណនី៖ ${user.username} (Edit Account)`;
-        document.getElementById('edit-user-index').value = index;
-        document.getElementById('admin-username').value = user.username;
-        document.getElementById('admin-dispname').value = user.name;
-        document.getElementById('admin-password').value = user.password;
-        document.getElementById('admin-role').value = user.role || 'Case Officer (មន្ត្រីសម្រុះសម្រួល)';
-        document.getElementById('admin-status').value = user.status || 'Active';
-        if (document.getElementById('admin-phone')) document.getElementById('admin-phone').value = user.phone || '';
-        if (document.getElementById('admin-email')) document.getElementById('admin-email').value = user.email || '';
-        userFormCard.scrollIntoView({ behavior: 'smooth' });
-    }
-};
-
-window.toggleLockAdminSetting = function(index) {
-    const user = ADMIN_USERS[index];
-    if (!user || user.username === 'admin') {
-        showToast('មិនអាចផ្អាកសិទ្ធិគណនីរដ្ឋបាលមេ (admin) បានទេ!', 'error');
-        return;
-    }
-    user.status = user.status === 'Locked' ? 'Active' : 'Locked';
-    localStorage.setItem('nadr_admin_users', JSON.stringify(ADMIN_USERS));
-    renderSettingsAdmins();
-    showToast(`គណនី "${user.username}" ត្រូវបាន ${user.status === 'Locked' ? 'បិទមិនអនុញ្ញាតឱ្យចូលប្រព័ន្ធ (Locked)' : 'អនុញ្ញាតឱ្យចូលប្រព័ន្ធវិញ (Active)'}!`, user.status === 'Locked' ? 'warning' : 'success');
-};
-
-window.deleteAdminSetting = function(index) {
-    const user = ADMIN_USERS[index];
-    if (user.username === 'admin') {
-        showToast('មិនអាចលុបគណនីរដ្ឋបាលមេ (admin) បានទេ!', 'error');
-        return;
-    }
-    customConfirm('បញ្ជាក់ការលុបគណនី', `តើអ្នកពិតជាចង់លុបគណនី "${user.username}" មែនទេ?`, () => {
-        ADMIN_USERS.splice(index, 1);
-        localStorage.setItem('nadr_admin_users', JSON.stringify(ADMIN_USERS));
-        renderSettingsAdmins();
-        showToast('បានលុបគណនីដោយជោគជ័យ!', 'success');
     });
 };
 

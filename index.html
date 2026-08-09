@@ -46,10 +46,7 @@
             </div>
 
             <form id="login-form" class="login-form">
-                <div class="form-group" style="margin-bottom: 22px;">
-                    <label style="font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 8px; display: block;"><i class="fa-solid fa-user text-primary" style="margin-right: 6px;"></i> ឈ្មោះគណនី (Username / ID) <span class="text-danger">*</span></label>
-                    <input type="text" id="login-username" class="form-control" placeholder="វាយឈ្មោះគណនីរបស់អ្នក..." required autocomplete="username" style="height: 50px; font-size: 15px; padding: 10px 16px; border-radius: 10px; border: 1.5px solid #cbd5e1; background: #f8fafc; transition: all 0.2s ease;">
-                </div>
+
                 <div class="form-group" style="margin-bottom: 24px;">
                     <label style="font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 8px; display: block;"><i class="fa-solid fa-lock text-primary" style="margin-right: 6px;"></i> ពាក្យសម្ងាត់ (Password) <span class="text-danger">*</span></label>
                     <div class="password-input-group" style="position: relative; display: flex; align-items: center;">
@@ -1596,92 +1593,7 @@
                                 </div>
                             </div>
 
-                            <!-- TAB 4: ADMIN ACCOUNTS CONFIG -->
-                            <div class="settings-tab-pane" id="tab-admins" style="display: none;">
-                                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">
-                                    <div>
-                                        <h4 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-color); display: flex; align-items: center; gap: 10px;"><i class="fa-solid fa-user-shield text-primary"></i> គ្រប់គ្រងគណនី និងសិទ្ធិអ្នកប្រើប្រាស់ប្រព័ន្ធ (User Accounts & Role Management)</h4>
-                                        <p style="font-size: 13px; color: var(--text-muted); margin: 6px 0 0 0;">បង្កើត កែសម្រួល បិទ/បើកសិទ្ធិ និងគ្រប់គ្រងគណនីមន្ត្រីសម្រុះសម្រួលក្នុងប្រព័ន្ធ</p>
-                                    </div>
-                                    <button type="button" class="btn btn-sm btn-primary" id="btn-toggle-user-form" style="padding: 10px 18px; font-size: 13px; font-weight: 700; border-radius: 8px;">
-                                        <i class="fa-solid fa-user-plus"></i> + បង្កើតគណនីថ្មី (Create Account)
-                                    </button>
-                                </div>
 
-                                <!-- INLINE USER CREATION / EDITING FORM -->
-                                <div id="user-account-form-card" style="display: none; background: var(--bg-main); padding: 20px; border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 20px; box-shadow: var(--shadow-sm);">
-                                    <h5 style="margin-top: 0; margin-bottom: 15px; font-size: 14px; font-weight: 700; color: var(--text-color);"><i class="fa-solid fa-user-pen text-primary"></i> <span id="user-form-title">បញ្ចូលព័ត៌មានគណនីថ្មី (New User Account)</span></h5>
-                                    <form id="settings-user-form">
-                                        <input type="hidden" id="edit-user-index" value="-1">
-                                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
-                                            <div class="form-group">
-                                                <label style="font-size: 12.5px; font-weight: 700; margin-bottom: 6px; display: block; color: var(--text-color);">Username (ឈ្មោះគណនី) <span class="text-danger">*</span></label>
-                                                <input type="text" id="admin-username" class="form-control" placeholder="ឧ. lay.oun" required style="font-size: 13px;">
-                                            </div>
-                                            <div class="form-group">
-                                                <label style="font-size: 12.5px; font-weight: 700; margin-bottom: 6px; display: block; color: var(--text-color);">ឈ្មោះពិត (Full Display Name) <span class="text-danger">*</span></label>
-                                                <input type="text" id="admin-dispname" class="form-control" placeholder="ឧ. លោក ឡាយ អូន" required style="font-size: 13px;">
-                                            </div>
-                                            <div class="form-group">
-                                                <label style="font-size: 12.5px; font-weight: 700; margin-bottom: 6px; display: block; color: var(--text-color);">ពាក្យសម្ងាត់ (Password) <span class="text-danger">*</span></label>
-                                                <input type="text" id="admin-password" class="form-control" placeholder="ឧ. nadr@2026" required style="font-size: 13px;">
-                                            </div>
-                                            <div class="form-group">
-                                                <label style="font-size: 12.5px; font-weight: 700; margin-bottom: 6px; display: block; color: var(--text-color);">លេខទូរស័ព្ទ (Phone)</label>
-                                                <input type="text" id="admin-phone" class="form-control" placeholder="ឧ. 012 345 678" style="font-size: 13px;">
-                                            </div>
-                                            <div class="form-group">
-                                                <label style="font-size: 12.5px; font-weight: 700; margin-bottom: 6px; display: block; color: var(--text-color);">អ៊ីមែល (Email)</label>
-                                                <input type="text" id="admin-email" class="form-control" placeholder="ឧ. user@nadr.gov.kh" style="font-size: 13px;">
-                                            </div>
-                                            <div class="form-group">
-                                                <label style="font-size: 12.5px; font-weight: 700; margin-bottom: 6px; display: block; color: var(--text-color);">តួនាទី / កម្រិតសិទ្ធិ (Role & Permission) <span class="text-danger">*</span></label>
-                                                <select id="admin-role" class="form-control" style="font-size: 13px;">
-                                                    <option value="Super Admin (អ្នកគ្រប់គ្រងកម្មវិធី)">Super Admin (អ្នកគ្រប់គ្រងកម្មវិធី - សិទ្ធិពេញលេញ ១០០%)</option>
-                                                    <option value="Case Officer (មន្ត្រីសម្រុះសម្រួល)">Case Officer (មន្ត្រីសម្រុះសម្រួល - កម្រិតសិទ្ធិក្នុងការកំណត់)</option>
-                                                    <option value="Data Entry (មន្ត្រីបញ្ចូលទិន្នន័យ)">Data Entry (មន្ត្រីបញ្ចូលទិន្នន័យ - កម្រិតសិទ្ធិក្នុងការកំណត់)</option>
-                                                    <option value="Viewer (អ្នកពិនិត្យរបាយការណ៍)">Viewer (អ្នកពិនិត្យរបាយការណ៍ - កម្រិតសិទ្ធិក្នុងការកំណត់)</option>
-                                                </select>
-                                            </div>
-                                            <div class="form-group">
-                                                <label style="font-size: 12.5px; font-weight: 700; margin-bottom: 6px; display: block; color: var(--text-color);">សិទ្ធិចូលប្រព័ន្ធ (Login Access Control)</label>
-                                                <select id="admin-status" class="form-control" style="font-size: 13px;">
-                                                    <option value="Active">Active (អនុញ្ញាតឱ្យចូលប្រព័ន្ធ)</option>
-                                                    <option value="Locked">Locked (មិនអនុញ្ញាតឱ្យចូលប្រព័ន្ធ - ផ្អាក)</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div style="display: flex; gap: 10px;">
-                                            <button type="submit" class="btn btn-primary" style="padding: 8px 18px; font-weight: 700; font-size: 13px;">
-                                                <i class="fa-solid fa-save"></i> រក្សាទុកគណនី (Save Account)
-                                            </button>
-                                            <button type="button" class="btn btn-secondary" id="btn-cancel-user-form" style="padding: 8px 18px; font-size: 13px;">
-                                                បោះបង់ (Cancel)
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-
-                                <div class="table-responsive">
-                                    <table class="data-table text-center" style="font-size: 13px; width: 100%;">
-                                        <thead>
-                                            <tr>
-                                                <th style="width: 50px;">ល.រ</th>
-                                                <th>ឈ្មោះគណនី (Username)</th>
-                                                <th>ឈ្មោះពិត (Display Name)</th>
-                                                <th>តួនាទី / កម្រិតសិទ្ធិ (Role)</th>
-                                                <th>លេខទូរស័ព្ទ / អ៊ីមែល</th>
-                                                <th>ពាក្យសម្ងាត់</th>
-                                                <th>ស្ថានភាព (Status)</th>
-                                                <th class="text-center" style="width: 150px;">សកម្មភាព (Actions)</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="settings-admins-tbody">
-                                            <!-- Rendered dynamically -->
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
 
                             <!-- TAB 5: AUDIT LOGS -->
                             <div class="settings-tab-pane" id="tab-audit" style="display: none;">
