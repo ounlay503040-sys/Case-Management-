@@ -2902,7 +2902,8 @@ function renderMasterTableHeader() {
     if (!thead) return;
 
     let html = `
-        <th class="text-center" style="width: 90px;" data-i18n="table.no">ល.រ. ក្នុងបញ្ជី</th>
+        <th class="text-center" style="width: 50px;" data-i18n="table.no">ល.រ</th>
+        <th class="text-center" style="width: 60px;">ល.រ ក្នុងបញ្ជី</th>
         <th style="width: 130px;" data-i18n="table.caseCode">លេខកូដសំណុំរឿង</th>
         <th style="width: 110px;" data-i18n="table.date">កាលបរិច្ឆេទ</th>
         <th style="width: 140px;" class="text-center" data-i18n="table.status">លទ្ធផលសំណុំរឿង</th>
