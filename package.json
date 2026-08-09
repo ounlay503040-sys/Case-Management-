@@ -1,0 +1,41 @@
+{
+  "name": "nadr-cms-pro",
+  "version": "1.0.0",
+  "description": "NADR Master Case Management System Desktop App",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "keywords": [
+    "cms",
+    "electron"
+  ],
+  "author": "Lay Oun",
+  "license": "ISC",
+  "build": {
+    "appId": "com.nadr.cmspro",
+    "productName": "NADR CMS Pro",
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "ounlay503040-sys",
+        "repo": "Case-Management-"
+      }
+    ]
+  },
+  "devDependencies": {
+    "electron": "^43.3.0",
+    "electron-builder": "^26.15.3",
+    "electron-updater": "^6.8.9"
+  }
+}

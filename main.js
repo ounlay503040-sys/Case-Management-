@@ -1,0 +1,81 @@
+const { app, BrowserWindow, dialog } = require('electron');
+const path = require('path');
+const { autoUpdater } = require('electron-updater');
+
+let mainWindow;
+
+function createWindow() {
+  mainWindow = new BrowserWindow({
+    width: 1280,
+    height: 800,
+    minWidth: 1024,
+    minHeight: 768,
+    icon: path.join(__dirname, 'favicon.ico'),
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      // allow localStorage to persist properly
+    },
+    show: false, // Wait until ready-to-show to prevent visual flash
+    backgroundColor: '#0a1128'
+  });
+
+  // Remove default menu bar for a cleaner app look
+  mainWindow.setMenuBarVisibility(false);
+
+  // Load the app's index.html
+  mainWindow.loadFile('index.html');
+
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show();
+  });
+
+  mainWindow.on('closed', function () {
+    mainWindow = null;
+  });
+}
+
+app.whenReady().then(() => {
+  createWindow();
+
+  // Check for updates
+  autoUpdater.checkForUpdatesAndNotify();
+
+  app.on('activate', function () {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+  });
+});
+
+app.on('window-all-closed', function () {
+  if (process.platform !== 'darwin') app.quit();
+});
+
+// Auto Updater Events
+autoUpdater.on('update-available', () => {
+  dialog.showMessageBox({
+    type: 'info',
+    title: 'មានកំណែថ្មី (Update Available)',
+    message: 'កំណែថ្មីនៃកម្មវិធីត្រូវបានរកឃើញ។ តើអ្នកចង់ទាញយកវាឥឡូវនេះទេ?',
+    buttons: ['យល់ព្រម (Yes)', 'ពេលក្រោយ (Later)']
+  }).then(result => {
+    if (result.response === 0) {
+      // User clicked Yes, start downloading
+      autoUpdater.downloadUpdate();
+    }
+  });
+});
+
+autoUpdater.on('update-downloaded', () => {
+  dialog.showMessageBox({
+    type: 'info',
+    title: 'ទាញយករួចរាល់ (Update Ready)',
+    message: 'កំណែថ្មីត្រូវបានទាញយករួចរាល់ហើយ។ កម្មវិធីនឹងចាប់ផ្តើមឡើងវិញដើម្បីដំឡើងកំណែថ្មីនេះ។',
+    buttons: ['ចាប់ផ្តើមឡើងវិញឥឡូវនេះ (Restart Now)']
+  }).then(() => {
+    autoUpdater.quitAndInstall(false, true);
+  });
+});
+
+autoUpdater.on('error', (err) => {
+  console.error('Error in auto-updater. ' + err);
+});
