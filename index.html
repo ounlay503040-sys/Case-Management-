@@ -188,6 +188,11 @@
                         <i class="fa-regular fa-clock"></i>
                         <span>កំពុងផ្ទុក...</span>
                     </div>
+                    <div class="zoom-controls" style="display: flex; align-items: center; gap: 4px; background: var(--bg-main); padding: 4px 8px; border-radius: 20px; border: 1px solid var(--border-color);">
+                        <button type="button" onclick="zoomOut()" title="បង្រួម (Zoom Out)" style="background: transparent; border: none; cursor: pointer; color: var(--text-muted); width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%;"><i class="fa-solid fa-minus"></i></button>
+                        <span id="zoom-level-display" style="font-size: 13px; font-weight: 600; color: var(--text-main); min-width: 36px; text-align: center;">80%</span>
+                        <button type="button" onclick="zoomIn()" title="ពង្រីក (Zoom In)" style="background: transparent; border: none; cursor: pointer; color: var(--text-muted); width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%;"><i class="fa-solid fa-plus"></i></button>
+                    </div>
                     
                     <button class="theme-toggle-btn" id="theme-toggle" title="ប្តូរពណ៌ Dark/Light Mode">
                         <i class="fa-solid fa-moon"></i>

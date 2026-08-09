@@ -1,4 +1,4 @@
-const { app, BrowserWindow, dialog } = require('electron');
+const { app, BrowserWindow, dialog, ipcMain } = require('electron');
 const path = require('path');
 const { autoUpdater } = require('electron-updater');
 
@@ -14,7 +14,7 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      // allow localStorage to persist properly
+      preload: path.join(__dirname, 'preload.js')
     },
     show: false, // Wait until ready-to-show to prevent visual flash
     backgroundColor: '#0a1128'
@@ -22,6 +22,9 @@ function createWindow() {
 
   // Remove default menu bar for a cleaner app look
   mainWindow.setMenuBarVisibility(false);
+
+  // Set initial zoom factor to 80%
+  mainWindow.webContents.setZoomFactor(0.8);
 
   // Load the app's index.html
   mainWindow.loadFile('index.html');
@@ -40,6 +43,20 @@ app.whenReady().then(() => {
 
   // Check for updates
   autoUpdater.checkForUpdatesAndNotify();
+
+  // Zoom handlers
+  ipcMain.on('set-zoom', (event, level) => {
+    if (mainWindow && mainWindow.webContents) {
+      mainWindow.webContents.setZoomFactor(level);
+    }
+  });
+
+  ipcMain.handle('get-zoom', (event) => {
+    if (mainWindow && mainWindow.webContents) {
+      return mainWindow.webContents.getZoomFactor();
+    }
+    return 1;
+  });
 
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();

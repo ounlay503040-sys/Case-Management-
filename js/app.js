@@ -4611,3 +4611,49 @@ window.addEventListener('load', () => {
         });
     }, 500);
 });
+
+// --- ZOOM CONTROLS ---
+let currentZoom = parseFloat(localStorage.getItem('nadr_app_zoom')) || 0.8;
+
+function updateZoomDisplay() {
+    const display = document.getElementById('zoom-level-display');
+    if (display) {
+        display.innerText = Math.round(currentZoom * 100) + '%';
+    }
+}
+
+function applyZoom() {
+    localStorage.setItem('nadr_app_zoom', currentZoom);
+    updateZoomDisplay();
+    
+    // If running in Electron
+    if (window.electronAPI && typeof window.electronAPI.setZoom === 'function') {
+        window.electronAPI.setZoom(currentZoom);
+    } else {
+        // Fallback for standard web browser
+        document.body.style.zoom = currentZoom;
+    }
+}
+
+function zoomIn() {
+    if (currentZoom < 1.5) {
+        currentZoom += 0.1;
+        // Fix floating point math
+        currentZoom = Math.round(currentZoom * 10) / 10;
+        applyZoom();
+    }
+}
+
+function zoomOut() {
+    if (currentZoom > 0.5) {
+        currentZoom -= 0.1;
+        // Fix floating point math
+        currentZoom = Math.round(currentZoom * 10) / 10;
+        applyZoom();
+    }
+}
+
+// Initialize zoom on load
+document.addEventListener('DOMContentLoaded', () => {
+    applyZoom();
+});
