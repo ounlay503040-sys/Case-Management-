@@ -449,7 +449,7 @@ function generateMasterCaseRowHTML(c, rowNum) {
     `;
 
     return `
-        <tr ondblclick="openEditModal('${c.id}')" style="cursor: pointer;" title="ចុចពីរដង ដើម្បីកែសម្រួល">
+        <tr ondblclick="openViewModal('${c.id}')" style="cursor: pointer;" title="ចុចពីរដង ដើម្បីមើលប័ណ្ណ">
             <td class="text-center" style="font-weight: bold; color: #64748b;">${rowNum}</td>
             <td class="text-center">${rowNumHtml}</td>
             <td><span class="case-number-tag">${c.caseNumber}</span></td>
