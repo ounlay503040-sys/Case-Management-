@@ -1,4 +1,4 @@
-﻿/* ==========================================================================
+/* ==========================================================================
    KHMER CASE MANAGEMENT SYSTEM - MAIN APPLICATION LOGIC (js/app.js)
    Handles UI Events, 25 Province Dropdowns, Master Table Rendering,
    Dossier Detail Modal, Excel Import Engine (SheetJS), and Analytics View.
@@ -449,7 +449,7 @@ function generateMasterCaseRowHTML(c, rowNum) {
     `;
 
     return `
-        <tr>
+        <tr ondblclick="openEditModal('${c.id}')" style="cursor: pointer;" title="ចុចពីរដង ដើម្បីកែសម្រួល">
             <td class="text-center" style="font-weight: bold; color: #64748b;">${rowNum}</td>
             <td class="text-center">${rowNumHtml}</td>
             <td><span class="case-number-tag">${c.caseNumber}</span></td>
@@ -4761,61 +4761,3 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnBack) btnBack.addEventListener('click', navigateBack);
     if (btnForward) btnForward.addEventListener('click', navigateForward);
 });
-
-let caseFormStateManager;
-let calFormStateManager;
-
-document.addEventListener('DOMContentLoaded', () => {
-    caseFormStateManager = new FormStateManager('case-form', 'ur-toolbar-case');
-    calFormStateManager = new FormStateManager('calendar-event-modal', 'ur-toolbar-cal');
-    
-    const btnBack = document.getElementById('btn-nav-back');
-    const btnForward = document.getElementById('btn-nav-forward');
-    if (btnBack) btnBack.addEventListener('click', navigateBack);
-    if (btnForward) btnForward.addEventListener('click', navigateForward);
-});
-// OVERRIDE switchView to support history
-function switchView(viewId) {
-    document.querySelectorAll('.sidebar-nav .nav-item').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-
-    const targetNav = document.querySelector('.sidebar-nav .nav-item[data-view="' + viewId + '"]');
-    if (targetNav) targetNav.classList.add('active');
-
-    const targetSection = document.getElementById(viewId);
-    if (targetSection) targetSection.classList.add('active');
-
-    if (viewId === 'dashboard-view') {
-        renderDashboardStats();
-        if (typeof initOrUpdateCharts === 'function') initOrUpdateCharts();
-    } else if (viewId === 'analytics-view') {
-        renderAnalyticsView();
-        if (typeof initOrUpdateCharts === 'function') initOrUpdateCharts();
-    } else if (viewId === 'cases-view') {
-        if (typeof populateFilters === 'function') populateFilters();
-    } else if (viewId === 'calendar-view') {
-        if (typeof renderCalendar === 'function') renderCalendar();
-    } else if (viewId === 'reports-view') {
-        renderReportsView();
-    } else if (viewId === 'settings-view') {
-        if (typeof renderSettingsCategories === 'function') renderSettingsCategories();
-    }
-
-    if (window.innerWidth <= 768) {
-        const sidebar = document.getElementById('sidebar');
-        if (sidebar) sidebar.classList.remove('open');
-    }
-
-    // HISTORY TRACKING
-    if (typeof isNavigatingHistory !== 'undefined' && !isNavigatingHistory) {
-        if (currentHistoryIndex < navigationHistory.length - 1) {
-            navigationHistory = navigationHistory.slice(0, currentHistoryIndex + 1);
-        }
-        if (navigationHistory[currentHistoryIndex] !== viewId) {
-            navigationHistory.push(viewId);
-            currentHistoryIndex++;
-        }
-    }
-    if (typeof updateBreadcrumb === 'function') updateBreadcrumb(viewId);
-    if (typeof updateNavButtons === 'function') updateNavButtons();
-}
