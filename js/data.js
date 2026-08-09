@@ -135,6 +135,17 @@ function loadCases() {
                     needsSave = true;
                 }
             });
+
+            // Assign permanent list number to older cases if missing
+            let currentNo = 1;
+            for (let i = casesData.length - 1; i >= 0; i--) {
+                if (!casesData[i].originalListNo) {
+                    casesData[i].originalListNo = currentNo;
+                    needsSave = true;
+                }
+                currentNo = Math.max(currentNo, casesData[i].originalListNo) + 1;
+            }
+
             if (needsSave) saveCases();
             
         } else {
@@ -162,7 +173,9 @@ function saveCases() {
  * Add a new case
  */
 function addCase(newCase) {
+    const nextListNo = casesData.length > 0 ? Math.max(...casesData.map(c => c.originalListNo || 0)) + 1 : 1;
     const caseObj = {
+        originalListNo: nextListNo,
         id: 'case-nadr-' + Date.now() + '-' + Math.floor(Math.random()*1000),
         caseNumber: newCase.caseNumber || generateNextCaseNumber(),
         dateReceived: newCase.dateReceived || getTodayDateString(),
@@ -323,6 +336,8 @@ function sortCases(casesArray, sortBy = 'date-asc') {
     const sorted = [...casesArray];
     sorted.sort((a, b) => {
         switch (sortBy) {
+            case 'default':
+                return (a.originalListNo || 0) - (b.originalListNo || 0);
             case 'date-asc':
                 return a.dateReceived.localeCompare(b.dateReceived) || a.caseNumber.localeCompare(b.caseNumber, undefined, {numeric: true});
             case 'date-desc':
@@ -492,7 +507,9 @@ function importFromExcelRows(excelRows) {
         // Check if caseNumber already exists to avoid exact duplicates
         const exists = casesData.some(c => c.caseNumber === caseNum);
         if (!exists) {
+            const nextListNo = casesData.length > 0 ? Math.max(...casesData.map(c => c.originalListNo || 0)) + 1 : 1;
             casesData.unshift({
+                originalListNo: nextListNo,
                 id: 'case-nadr-import-' + Date.now() + '-' + Math.floor(Math.random()*10000),
                 caseNumber: String(caseNum),
                 dateReceived: String(dateRec).substring(0, 10),

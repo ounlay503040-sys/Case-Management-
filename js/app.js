@@ -435,13 +435,14 @@ function generateMasterCaseRowHTML(c, rowNum) {
     const rowNumHtml = `
         <div style="display: flex; align-items: center; justify-content: center;">
             <div style="width: 24px; height: 24px; border-radius: 50%; background-color: ${statusColor}; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px; box-shadow: 0 0 4px ${statusColor}80;">
-                ${rowNum}
+                ${c.originalListNo || '-'}
             </div>
         </div>
     `;
 
     return `
         <tr>
+            <td class="text-center" style="font-weight: bold; color: #64748b;">${rowNum}</td>
             <td class="text-center">${rowNumHtml}</td>
             <td><span class="case-number-tag">${c.caseNumber}</span></td>
             <td>${formatExcelDate(c.dateReceived)}</td>
@@ -507,7 +508,7 @@ function renderEntryCasesTable() {
     if (!tbody) return;
 
     // Sort from 1 to N (oldest/first entered to newest/last entered, matching master list)
-    const sorted = sortCases(casesData, 'date-asc');
+    const sorted = sortCases(casesData, 'default');
     if (countBadge) countBadge.innerText = `សរុប៖ ${sorted.length} ករណី`;
 
     if (sorted.length === 0) {
@@ -528,7 +529,7 @@ function applyFiltersAndRenderMasterTable() {
     const st = document.getElementById('filter-status')?.value || 'ALL';
     const loc = document.getElementById('filter-location')?.value || 'ALL';
     const evt = document.getElementById('filter-event')?.value || 'ALL';
-    const sortBy = document.getElementById('sort-by')?.value || 'date-asc';
+    const sortBy = document.getElementById('sort-by')?.value || 'default';
 
     const filters = { search: q, category: cat, status: st, location: loc, event: evt };
     let filtered = filterCases(filters);

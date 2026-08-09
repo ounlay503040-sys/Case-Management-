@@ -676,18 +676,21 @@
                         <table class="data-table" style="width: 100%; font-size: 13px;">
                             <thead>
                                 <tr>
-                                    <th class="text-center" style="width: 50px;">ល.រ</th>
-                                    <th style="width: 130px;">លេខកូដសំណុំរឿង</th>
-                                    <th style="width: 110px;">កាលបរិច្ឆេទ</th>
-                                    <th style="min-width: 180px;">ភាគី (ក) ដើមបណ្ដឹង</th>
-                                    <th style="min-width: 180px;">ភាគី (ខ) ចុងបណ្ដឹង</th>
-                                    <th style="width: 140px;">ប្រភេទវិវាទ</th>
-                                    <th style="width: 120px;">ទីតាំងវិវាទ</th>
-                                    <th style="min-width: 200px;">ចំណាត់ការសម្រុះសម្រួល</th>
-                                    <th style="width: 140px;" class="text-center">លទ្ធផលសំណុំរឿង</th>
-                                    <th style="width: 110px;" class="text-center">កំណត់ចំណាំ</th>
+                                    <th class="text-center" style="width: 50px;" data-i18n="table.no">ល.រ</th>
+                                    <th class="text-center" style="width: 60px;">ល.រ ក្នុងបញ្ជី</th>
+                                    <th style="width: 130px;" data-i18n="table.caseCode">លេខកូដសំណុំរឿង</th>
+                                    <th style="width: 110px;" data-i18n="table.date">កាលបរិច្ឆេទ</th>
+                                    <th style="width: 140px;" class="text-center" data-i18n="table.status">លទ្ធផលសំណុំរឿង</th>
+                                    <th style="width: 150px;">កម្មវិធី (Event)</th>
+                                    <th style="width: 120px;">កាលបរិច្ឆេទកម្មវិធី</th>
+                                    <th style="min-width: 180px;" data-i18n="table.partyA">ភាគី (ក) ដើមបណ្ដឹង</th>
+                                    <th style="min-width: 180px;" data-i18n="table.partyB">ភាគី (ខ) ចុងបណ្ដឹង</th>
+                                    <th style="width: 140px;" data-i18n="table.category">ប្រភេទវិវាទ</th>
+                                    <th style="width: 120px;" data-i18n="table.location">ទីតាំងវិវាទ</th>
+                                    <th style="min-width: 200px;" data-i18n="form.mediation">ចំណាត់ការសម្រុះសម្រួល</th>
+                                    <th style="width: 110px;" class="text-center" data-i18n="table.remarks">កំណត់ចំណាំ</th>
                                     <th style="width: 120px;" class="text-center">ឯកសារ ដើម (PDF)</th>
-                                    <th style="width: 120px;" class="text-center">សកម្មភាព</th>
+                                    <th style="width: 120px;" class="text-center" data-i18n="table.actions">សកម្មភាព</th>
                                 </tr>
                             </thead>
                             <tbody id="entry-cases-tbody">
@@ -773,6 +776,7 @@
                         <div class="filter-group" style="display: flex; flex-direction: column; gap: 6px;">
                             <label style="font-size: 12.5px; font-weight: 700; color: #334155;"><i class="fa-solid fa-arrow-up-z-a text-warning"></i> តម្រៀបតាម៖</label>
                             <select id="sort-by" class="form-control" style="font-size: 13px; padding: 6px 12px; height: 40px; border: 1px solid #cbd5e1; border-radius: 8px; background: white;">
+                                <option value="default">បញ្ចូលមុន-ក្រោយ (Default)</option>
                                 <option value="date-asc">កាលបរិច្ឆេទចាស់ -> ថ្មី</option>
                                 <option value="date-desc">កាលបរិច្ឆេទថ្មី -> ចាស់</option>
                                 <option value="number-asc">លេខកូដ A -> Z</option>
@@ -806,6 +810,7 @@
                             <thead>
                                 <tr>
                                     <th class="text-center" style="width: 50px;" data-i18n="table.no">ល.រ</th>
+                                    <th class="text-center" style="width: 60px;">ល.រ ក្នុងបញ្ជី</th>
                                     <th style="width: 130px;" data-i18n="table.caseCode">លេខកូដសំណុំរឿង</th>
                                     <th style="width: 110px;" data-i18n="table.date">កាលបរិច្ឆេទ</th>
                                     <th style="width: 140px;" class="text-center" data-i18n="table.status">លទ្ធផលសំណុំរឿង</th>
