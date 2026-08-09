@@ -832,6 +832,76 @@ function t(key) {
 }
 
 /**
+ * Data Values Dictionary (for translating dynamic saved data like statuses, provinces, categories)
+ */
+const DATA_I18N = {
+    // Provinces/Locations
+    'ភ្នំពេញ': 'Phnom Penh', 'កណ្តាល': 'Kandal', 'តាកែវ': 'Takeo', 'កំពង់ចាម': 'Kampong Cham', 'សៀមរាប': 'Siem Reap', 'បាត់ដំបង': 'Battambang', 
+    'បន្ទាយមានជ័យ': 'Banteay Meanchey', 'កំពង់ធំ': 'Kampong Thom', 'កំពង់ឆ្នាំង': 'Kampong Chhnang', 'ពោធិ៍សាត់': 'Pursat', 
+    'ព្រៃវែង': 'Prey Veng', 'ស្វាយរៀង': 'Svay Rieng', 'កំពត': 'Kampot', 'កែប': 'Kep', 'ព្រះសីហនុ': 'Preah Sihanouk', 
+    'កោះកុង': 'Koh Kong', 'កំពង់ស្ពឺ': 'Kampong Speu', 'ត្បូងឃ្មុំ': 'Tboung Khmum', 'ក្រចេះ': 'Kratie', 'ស្ទឹងត្រែង': 'Stung Treng', 
+    'រតនគិរី': 'Ratanakiri', 'មណ្ឌលគិរី': 'Mondulkiri', 'ព្រះវិហារ': 'Preah Vihear', 'ឧត្តរមានជ័យ': 'Oddar Meanchey', 'ប៉ៃលិន': 'Pailin',
+    
+    // Categories
+    'វិវាទដីធ្លី': 'Land Dispute',
+    'វិវាទគ្រួសារ': 'Family Dispute',
+    'វិវាទហិរញ្ញវត្ថុ': 'Financial Dispute',
+    'វិវាទព្រហ្មទណ្ឌ': 'Criminal Dispute',
+    'វិវាទការងារ': 'Labor Dispute',
+    'វិវាទផ្សេងៗ': 'Other Dispute',
+    
+    // Gender
+    'ប្រុស': 'Male',
+    'ស្រី': 'Female',
+
+    // Statuses
+    'Active (កំពុងសម្រុះសម្រួល)': 'Active (Mediating)',
+    'Pending (តម្កល់)': 'Pending (On Hold)',
+    'Settle (ព្រមព្រៀង)': 'Settle (Agreed)',
+    'No Settle (មិនព្រមព្រៀង)': 'No Settle (Disagreed)',
+
+    // Action Groups
+    'Active - សំណុំរឿងកំពុងចាត់ការ': 'Active - Case Processing',
+    'Closed - សំណុំរឿងបានចាត់ការរួច': 'Closed - Case Concluded',
+
+    // Meeting Statuses
+    'មិនទាន់ប្រជុំ': 'Not yet met',
+    'ភាគីមិនចូលរួម': 'Party did not attend',
+    'បានប្រមូលព័ត៌មានភាគីម្ខាងទៀតរួចរាល់': 'Gathered info from other party',
+    'បានប្រជុំប្រមូលព័ត៌មានភាគីរួច': 'Meeting and Info Gathering completed',
+    'បានប្រជុំសម្រុះសម្រួល (កំពុងបន្ត)': 'Mediation Meeting (Ongoing)',
+    'បានប្រជុំសម្រុះសម្រួលរួចរាល់ (ព្រមព្រៀង)': 'Mediation Meeting Completed (Agreed)',
+    'បានប្រជុំសម្រុះសម្រួលរួចរាល់ (មិនព្រមព្រៀង)': 'Mediation Meeting Completed (Disagreed)',
+    'បានធ្វើរបាយការបិទសំណុំរឿងជាស្ថាពរ': 'Final Closing Report Submitted',
+
+    // Remarks
+    'ភាគីដកពាក្យបណ្តឹង': 'Party Withdrew Complaint',
+    'ភាគីមិនចូលរួម ឬមិនបន្តការសម្រុះសម្រួល': 'Party did not attend or continue mediation',
+    'កំពុងពិនិត្យ និងដោះស្រាយ (មិនទាន់បិទ)': 'Reviewing & Processing (Not Closed)',
+    'តម្កល់រង់ចាំនីតិវិធីបន្ត (មិនទាន់បិទ)': 'Pending for further procedure (Not Closed)',
+    'សម្រុះសម្រួលព្រមព្រៀងជោគជ័យ (បានបិទរួចរាល់)': 'Mediation Successful (Closed)'
+};
+
+/**
+ * Translate dynamic saved data values if English is selected
+ * @param {string} val - The dynamic value saved in Khmer
+ * @returns {string} - English translated value or original Khmer
+ */
+function t_val(val) {
+    if (!val) return val;
+    if (currentLang === 'en') {
+        // Find exact match
+        if (DATA_I18N[val]) return DATA_I18N[val];
+        
+        // Handle fallback for partial matches (like Active - ...)
+        for (const [km, en] of Object.entries(DATA_I18N)) {
+            if (val === km) return en;
+        }
+    }
+    return val;
+}
+
+/**
  * Apply translations to all elements with data-i18n attribute
  */
 function applyLanguage(lang) {

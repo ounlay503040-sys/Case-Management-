@@ -461,23 +461,23 @@ function renderMasterTableHTML(dataArray) {
                 <td style="padding: 6px; font-weight: 700; color: #2563eb; text-align: center;">${c.caseNumber}</td>
                 <td style="padding: 6px; text-align: center;">${c.dateReceived}</td>
                 <td style="padding: 6px;">
-                    <strong>${c.partyA_name}</strong> (${c.partyA_gender}, ${c.partyA_age || '?'} ឆ្នាំ)<br>
-                    <span style="font-size: 9pt; color: #555;">📞 ${c.partyA_phone || 'ពុំមាន'} | 📍 ${c.partyA_location}</span>
+                    <strong>${c.partyA_name}</strong> (${t_val(c.partyA_gender)}, ${c.partyA_age || '?'} ឆ្នាំ)<br>
+                    <span style="font-size: 9pt; color: #555;">📞 ${c.partyA_phone || 'ពុំមាន'} | 📍 ${t_val(c.partyA_location)}</span>
                 </td>
                 <td style="padding: 6px;">
-                    <strong>${c.partyB_name}</strong> (${c.partyB_gender}, ${c.partyB_age || '?'} ឆ្នាំ)<br>
-                    <span style="font-size: 9pt; color: #555;">📞 ${c.partyB_phone || 'ពុំមាន'} | 📍 ${c.partyB_location}</span>
+                    <strong>${c.partyB_name}</strong> (${t_val(c.partyB_gender)}, ${c.partyB_age || '?'} ឆ្នាំ)<br>
+                    <span style="font-size: 9pt; color: #555;">📞 ${c.partyB_phone || 'ពុំមាន'} | 📍 ${t_val(c.partyB_location)}</span>
                 </td>
-                <td style="padding: 6px;">${c.category}</td>
-                <td style="padding: 6px; text-align: center;">${c.disputeLocation}</td>
+                <td style="padding: 6px;">${t_val(c.category)}</td>
+                <td style="padding: 6px; text-align: center;">${t_val(c.disputeLocation)}</td>
                 <td style="padding: 6px; font-size: 9pt;">
-                    <div>🔹 ក៖ ${c.meetingPartyA}</div>
-                    <div>🔸 ខ៖ ${c.meetingPartyB}</div>
-                    <div style="font-weight: 700; color: #2563eb; margin-top: 2px;">⚖️ ${c.mediationMeeting}</div>
+                    <div>🔹 ក៖ ${t_val(c.meetingPartyA)}</div>
+                    <div>🔸 ខ៖ ${t_val(c.meetingPartyB)}</div>
+                    <div style="font-weight: 700; color: #2563eb; margin-top: 2px;">⚖️ ${t_val(c.mediationMeeting)}</div>
                 </td>
                 <td style="padding: 6px; font-size: 9pt;">${officialsStr || '-'}</td>
-                <td style="padding: 6px; text-align: center; font-weight: 700; color: ${c.status.startsWith('Settle') ? '#10b981' : (c.status.startsWith('Active') ? '#2563eb' : '#64748b')};">${c.status}</td>
-                <td style="padding: 6px; text-align: center; font-size: 9.5pt;">${c.remarks}</td>
+                <td style="padding: 6px; text-align: center; font-weight: 700; color: ${c.status.startsWith('Settle') ? '#10b981' : (c.status.startsWith('Active') ? '#2563eb' : '#64748b')};">${t_val(c.status)}</td>
+                <td style="padding: 6px; text-align: center; font-size: 9.5pt;">${t_val(c.remarks)}</td>
             </tr>
         `;
     });

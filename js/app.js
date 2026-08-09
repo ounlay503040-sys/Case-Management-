@@ -470,13 +470,13 @@ function generateMasterCaseRowHTML(c, rowNum) {
                     <strong class="text-truncate-2" title="${c.partyC_name || ''}">${c.partyC_name || '-'}</strong>
                 </div>
             </td>
-            <td><span style="font-weight: 600;">${c.category}</span></td>
-            <td><span class="badge" style="background: var(--border-color); color: var(--text-color);">${c.disputeLocation}</span><br><small style="color: #64748b;">${c.disputeAddress || ''}</small></td>
+            <td><span style="font-weight: 600;">${t_val(c.category)}</span></td>
+            <td><span class="badge" style="background: var(--border-color); color: var(--text-color);">${t_val(c.disputeLocation)}</span><br><small style="color: #64748b;">${c.disputeAddress || ''}</small></td>
             <td>
                 <div style="font-size: 11px; line-height: 1.5; max-width: 200px;">
-                    <div class="text-truncate-2" title="ក៖ ${c.meetingPartyA}">🔹 ក៖ ${c.meetingPartyA}</div>
-                    <div class="text-truncate-2" title="ខ៖ ${c.meetingPartyB}">🔸 ខ៖ ${c.meetingPartyB}</div>
-                    <div class="text-truncate-2" title="ផ្សះផ្សា៖ ${c.mediationMeeting}" style="font-weight: 600; color: var(--primary-color);">⚖️ ផ្សះផ្សា៖ ${c.mediationMeeting}</div>
+                    <div class="text-truncate-2" title="ក៖ ${t_val(c.meetingPartyA)}">🔹 ក៖ ${t_val(c.meetingPartyA)}</div>
+                    <div class="text-truncate-2" title="ខ៖ ${t_val(c.meetingPartyB)}">🔸 ខ៖ ${t_val(c.meetingPartyB)}</div>
+                    <div class="text-truncate-2" title="ផ្សះផ្សា៖ ${t_val(c.mediationMeeting)}" style="font-weight: 600; color: var(--primary-color);">⚖️ ផ្សះផ្សា៖ ${t_val(c.mediationMeeting)}</div>
                 </div>
             </td>
             <td class="text-center">
@@ -611,7 +611,7 @@ function getStatusBadgeHTML(statusStr) {
         badgeClass = 'badge-pending';
         icon = 'fa-solid fa-clock-rotate-left';
     }
-    return `<span class="badge ${badgeClass}"><i "${icon}"></i> ${statusStr}</span>`;
+    return `<span class="badge ${badgeClass}"><i class="${icon}"></i> ${t_val(statusStr)}</span>`;
 }
 
 /**
