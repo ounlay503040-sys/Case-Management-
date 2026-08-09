@@ -436,17 +436,17 @@ function renderMasterTableHTML(dataArray) {
         <table style="width: 100%; border-collapse: collapse; font-size: 10pt; margin-top: 15px;" border="1">
             <thead>
                 <tr style="background-color: #f1f5f9; text-align: center; font-weight: 700;">
-                    <th style="padding: 8px 4px; width: 30px;">ល.រ</th>
-                    <th style="padding: 8px 6px; width: 110px;">លេខកូដសំណុំរឿង</th>
-                    <th style="padding: 8px 6px; width: 80px;">កាលបរិច្ឆេទ</th>
-                    <th style="padding: 8px 6px;">ដើមបណ្ដឹង ភាគី (ក)</th>
-                    <th style="padding: 8px 6px;">ចុងបណ្ដឹង ភាគី (ខ)</th>
-                    <th style="padding: 8px 6px; width: 110px;">ប្រភេទវិវាទ</th>
-                    <th style="padding: 8px 6px; width: 80px;">ទីតាំង</th>
-                    <th style="padding: 8px 6px;">ចំណាត់ការសម្រុះសម្រួល</th>
-                    <th style="padding: 8px 6px;">មសវ អម (តាមលិខិតចាត់តាំង)</th>
-                    <th style="padding: 8px 6px; width: 100px;">លទ្ធផល</th>
-                    <th style="padding: 8px 6px; width: 80px;">កំណត់ចំណាំ</th>
+                    <th style="padding: 8px 4px; width: 30px;">${t('table.no')}</th>
+                    <th style="padding: 8px 6px; width: 110px;">${t('table.caseCode')}</th>
+                    <th style="padding: 8px 6px; width: 80px;">${t('table.date')}</th>
+                    <th style="padding: 8px 6px;">${t('table.partyA')}</th>
+                    <th style="padding: 8px 6px;">${t('table.partyB')}</th>
+                    <th style="padding: 8px 6px; width: 110px;">${t('table.category')}</th>
+                    <th style="padding: 8px 6px; width: 80px;">${t('table.location')}</th>
+                    <th style="padding: 8px 6px;">${t('form.mediation')}</th>
+                    <th style="padding: 8px 6px;">${t('table.officials')}</th>
+                    <th style="padding: 8px 6px; width: 100px;">${t('table.status')}</th>
+                    <th style="padding: 8px 6px; width: 80px;">${t('table.remarks')}</th>
                 </tr>
             </thead>
             <tbody>

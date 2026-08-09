@@ -738,6 +738,46 @@ function initModalEvents() {
 
     if (statusSelect) statusSelect.addEventListener('change', handleStatusChange);
 
+    // Meeting dynamic fields logic
+    const meetingA = document.getElementById('case-meeting-a');
+    const meetingB = document.getElementById('case-meeting-b');
+    const mediation = document.getElementById('case-mediation-meeting');
+
+    const handleMeetingChange = (el, prefix) => {
+        if (!el) return;
+        const val = el.value;
+        const dateWrap = document.getElementById(`${prefix}-date-wrap`);
+        const countWrap = document.getElementById(`${prefix}-count-wrap`);
+        
+        if (dateWrap) dateWrap.classList.add('d-none');
+        if (countWrap) countWrap.classList.add('d-none');
+
+        if (prefix === 'meeting-a' || prefix === 'meeting-b') {
+            if (val === 'ភាគីមិនចូលរួម') {
+                if (dateWrap) dateWrap.classList.remove('d-none');
+            } else if (val === 'បានប្រជុំប្រមូលព័ត៌មានភាគីរួច') {
+                if (dateWrap) dateWrap.classList.remove('d-none');
+                if (countWrap) countWrap.classList.remove('d-none');
+            }
+        } else if (prefix === 'mediation') {
+            if (val === 'ភាគីមិនចូលរួម') {
+                if (dateWrap) dateWrap.classList.remove('d-none');
+            } else if (val === 'បានប្រជុំសម្រុះសម្រួល (កំពុងបន្ត)') {
+                if (dateWrap) dateWrap.classList.remove('d-none');
+                if (countWrap) countWrap.classList.remove('d-none');
+            } else if (val === 'បានប្រជុំសម្រុះសម្រួលរួចរាល់ (ព្រមព្រៀង)' || 
+                       val === 'បានប្រជុំសម្រុះសម្រួលរួចរាល់ (មិនព្រមព្រៀង)' || 
+                       val === 'បានធ្វើរបាយការបិទសំណុំរឿងជាស្ថាពរ') {
+                if (dateWrap) dateWrap.classList.remove('d-none');
+            }
+        }
+    };
+
+    if (meetingA) meetingA.addEventListener('change', () => handleMeetingChange(meetingA, 'meeting-a'));
+    if (meetingB) meetingB.addEventListener('change', () => handleMeetingChange(meetingB, 'meeting-b'));
+    if (mediation) mediation.addEventListener('change', () => handleMeetingChange(mediation, 'mediation'));
+
+
     const openAdd = () => {
         form.reset();
         document.getElementById('case-id').value = '';
@@ -829,8 +869,14 @@ function initModalEvents() {
 
                 summary: document.getElementById('case-summary').value.trim(),
                 meetingPartyA: document.getElementById('case-meeting-a').value,
+                meetingPartyADate: document.getElementById('case-meeting-a-date') ? document.getElementById('case-meeting-a-date').value : '',
+                meetingPartyACount: document.getElementById('case-meeting-a-count') ? document.getElementById('case-meeting-a-count').value : '1',
                 meetingPartyB: document.getElementById('case-meeting-b').value,
+                meetingPartyBDate: document.getElementById('case-meeting-b-date') ? document.getElementById('case-meeting-b-date').value : '',
+                meetingPartyBCount: document.getElementById('case-meeting-b-count') ? document.getElementById('case-meeting-b-count').value : '1',
                 mediationMeeting: document.getElementById('case-mediation-meeting').value,
+                mediationMeetingDate: document.getElementById('case-mediation-date') ? document.getElementById('case-mediation-date').value : '',
+                mediationMeetingCount: document.getElementById('case-mediation-count') ? document.getElementById('case-mediation-count').value : '1',
                 status: statusVal,
                 remarks: remarksVal,
                 caseFiles: currentModalCaseFiles,
@@ -947,8 +993,21 @@ function openEditModal(id) {
 
     document.getElementById('case-summary').value = c.summary || '';
     document.getElementById('case-meeting-a').value = c.meetingPartyA || 'មិនទាន់ប្រជុំ';
+    if(document.getElementById('case-meeting-a-date')) document.getElementById('case-meeting-a-date').value = c.meetingPartyADate || '';
+    if(document.getElementById('case-meeting-a-count')) document.getElementById('case-meeting-a-count').value = c.meetingPartyACount || '1';
+
     document.getElementById('case-meeting-b').value = c.meetingPartyB || 'មិនទាន់ប្រជុំ';
+    if(document.getElementById('case-meeting-b-date')) document.getElementById('case-meeting-b-date').value = c.meetingPartyBDate || '';
+    if(document.getElementById('case-meeting-b-count')) document.getElementById('case-meeting-b-count').value = c.meetingPartyBCount || '1';
+
     document.getElementById('case-mediation-meeting').value = c.mediationMeeting || 'មិនទាន់ប្រជុំ';
+    if(document.getElementById('case-mediation-date')) document.getElementById('case-mediation-date').value = c.mediationMeetingDate || '';
+    if(document.getElementById('case-mediation-count')) document.getElementById('case-mediation-count').value = c.mediationMeetingCount || '1';
+    
+    // Trigger the visibility of dynamic fields
+    handleMeetingChange(document.getElementById('case-meeting-a'), 'meeting-a');
+    handleMeetingChange(document.getElementById('case-meeting-b'), 'meeting-b');
+    handleMeetingChange(document.getElementById('case-mediation-meeting'), 'mediation');
     document.getElementById('case-status').value = c.status || 'Active (កំពុងសម្រុះសម្រួល)';
     
     // Trigger action group and remarks update

@@ -722,9 +722,9 @@ const I18N = {
     'form.phone': { km: 'ទូរស័ព្ទ', en: 'Phone' },
     'form.address': { km: 'អាសយដ្ឋាន', en: 'Address' },
     'form.summary': { km: 'សេចក្តីសង្ខេបសំណុំរឿង', en: 'Case Summary' },
-    'form.meetingA': { km: 'ប្រជុំភាគី ក', en: 'Meeting Party A' },
-    'form.meetingB': { km: 'ប្រជុំភាគី ខ', en: 'Meeting Party B' },
-    'form.mediation': { km: 'ប្រជុំសម្រុះសម្រួល (ដោះស្រាយវិវាទ)', en: 'Mediation Meeting' },
+    'form.meetingA': { km: '៧.១ កិច្ចប្រជុំប្រមូលព័ត៌មាន ភាគី "ក"', en: '7.1 Meeting Party A' },
+    'form.meetingB': { km: '៧.២ កិច្ចប្រជុំប្រមូលព័ត៌មាន ភាគី "ខ"', en: '7.2 Meeting Party B' },
+    'form.mediation': { km: '៧.៣ ប្រជុំសម្រុះសម្រួល', en: '7.3 Mediation Meeting' },
     'form.actionGroup': { km: 'ចំណាត់ការរួម (Action Group)', en: 'Action Group' },
     'form.status': { km: 'លទ្ធផលសំណុំរឿង (៤ ស្ថានភាព)', en: 'Case Status (4 Types)' },
     'form.remarks': { km: 'កំណត់ចំណាំ / មូលហេតុ (Remarks / Sub-reason)', en: 'Remarks / Sub-reason' },
@@ -789,6 +789,35 @@ const I18N = {
     'common.no': { km: 'ទេ', en: 'No' },
     'sidebar.officer': { km: 'មន្ត្រីសម្របសម្រួល', en: 'Mediation Officer' },
     'sidebar.office': { km: 'ការិយាល័យរដ្ឋបាល NADR', en: 'NADR Admin Office' },
+
+    // ------------ Form Dynamic Keys ------------
+    'form.section6': { km: '៦. អង្គហេតុ (Dispute Summary / Facts)', en: '6. Dispute Summary & Facts' },
+    'form.section7': { km: '៧. ចំណាត់ការនីតិវិធី និងលទ្ធផល', en: '7. Procedures and Results' },
+    'form.section8': { km: '៨. បញ្ចូលឯកសារពាក់ព័ន្ធនឹងសំណុំរឿង (Case Documents & Evidence)', en: '8. Case Documents & Evidence Folder' },
+    'form.date': { km: 'កាលបរិច្ឆេទ៖', en: 'Date:' },
+    'form.count': { km: 'ចំនួនលើកនៃកិច្ចប្រជុំ៖', en: 'Number of Meetings:' },
+
+    // ------------ Table & Report Headers ------------
+    'table.no': { km: 'ល.រ', en: 'No.' },
+    'table.caseCode': { km: 'លេខកូដសំណុំរឿង', en: 'Case Code' },
+    'table.date': { km: 'កាលបរិច្ឆេទ', en: 'Date' },
+    'table.status': { km: 'លទ្ធផលសំណុំរឿង', en: 'Status' },
+    'table.partyA': { km: 'ភាគី (ក) ដើមបណ្ដឹង', en: 'Party A (Complainant)' },
+    'table.partyB': { km: 'ភាគី (ខ) ចុងបណ្ដឹង', en: 'Party B (Respondent)' },
+    'table.category': { km: 'ប្រភេទវិវាទ', en: 'Category' },
+    'table.location': { km: 'ទីតាំងវិវាទ', en: 'Location' },
+    'table.remarks': { km: 'កំណត់ចំណាំ', en: 'Remarks' },
+    'table.actions': { km: 'សកម្មភាព', en: 'Actions' },
+    'table.officials': { km: 'មសវ អម (តាមលិខិតចាត់តាំង)', en: 'Assisting Officials' },
+
+    // ------------ Sidebar Missing Keys ------------
+    'nav.profileTitle': { km: 'ប្រវត្តិរូបមន្ត្រី (My Profile)', en: 'My Profile' },
+    'nav.profileSub': { km: 'គ្រប់គ្រងគណនី & រូបភាព', en: 'Manage Account & Avatar' },
+    'nav.groupCases': { km: 'គ្រប់គ្រងសំណុំរឿង', en: 'Case Management' },
+    'nav.groupAnalytics': { km: 'ស្ថិតិ និងវាយតម្លៃ', en: 'Statistics & Analytics' },
+    'nav.groupSettings': { km: 'ការកំណត់', en: 'Settings' },
+    'nav.calendar': { km: 'កាលវិភាគ', en: 'Calendar & Schedule' },
+    'nav.strategic': { km: 'ផែនការយុទ្ធសាស្ត្រ', en: 'Strategic Plan' }
 };
 
 /**
