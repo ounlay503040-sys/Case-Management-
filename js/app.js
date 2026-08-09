@@ -742,6 +742,8 @@ function initModalEvents() {
         form.reset();
         document.getElementById('case-id').value = '';
         document.getElementById('modal-title').innerHTML = `<i class="fa-solid fa-folder-plus"></i> បញ្ចូលព័ត៌មានសំណុំរឿងគោលថ្មី`;
+        const nextListNo = casesData.length > 0 ? Math.max(...casesData.map(c => c.originalListNo || 0)) + 1 : 1;
+        document.getElementById('case-list-no').value = nextListNo;
         document.getElementById('case-number').value = generateNextCaseNumber();
         document.getElementById('case-date').value = getTodayDateString();
         handleStatusChange();
@@ -780,7 +782,9 @@ function initModalEvents() {
                                 ? document.getElementById('case-remarks-select').value 
                                 : document.getElementById('case-remarks').value;
 
+            const listNoVal = document.getElementById('case-list-no') ? document.getElementById('case-list-no').value : '';
             const payload = {
+                originalListNo: listNoVal ? parseInt(listNoVal) : null,
                 caseNumber: document.getElementById('case-number').value.trim(),
                 dateReceived: document.getElementById('case-date').value,
                 caseEvent: document.getElementById('case-event') ? document.getElementById('case-event').value : '',
@@ -891,6 +895,8 @@ function openEditModal(id) {
     document.getElementById('modal-title').innerHTML = `<i class="fa-solid fa-pen-to-square"></i> កែសម្រួលព័ត៌មានសំណុំរឿង៖ ${c.caseNumber}`;
     document.getElementById('case-id').value = c.id;
     
+    const listNoEl = document.getElementById('case-list-no');
+    if (listNoEl) listNoEl.value = c.originalListNo || '';
     document.getElementById('case-number').value = c.caseNumber || '';
     document.getElementById('case-date').value = c.dateReceived || '';
     document.getElementById('case-category').value = c.category || 'វិវាទកិច្ចសន្យា';

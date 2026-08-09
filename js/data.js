@@ -136,29 +136,15 @@ function loadCases() {
                 }
             });
 
-            // Re-calculate permanent list number based on chronological order (to fix reversed Excel import)
-            let sortedForId = [...casesData].sort((a, b) => {
-                let da = (a.dateReceived || '').split('/');
-                let db = (b.dateReceived || '').split('/');
-                let dateA = da.length === 3 ? new Date(`${da[2]}-${da[1]}-${da[0]}`).getTime() : 0;
-                let dateB = db.length === 3 ? new Date(`${db[2]}-${db[1]}-${db[0]}`).getTime() : 0;
-                
-                if (dateA !== dateB) {
-                    return dateA - dateB;
-                }
-                // Fallback to case number
-                return parseInt(a.caseNumber || '0') - parseInt(b.caseNumber || '0');
-            });
-            
-            sortedForId.forEach((c, index) => {
-                const correctListNo = index + 1;
-                // Find original case in casesData and update it
-                const actualCase = casesData.find(caseItem => caseItem.id === c.id);
-                if (actualCase && actualCase.originalListNo !== correctListNo) {
-                    actualCase.originalListNo = correctListNo;
+            // Assign permanent list number to older cases ONLY IF missing
+            let currentNo = 1;
+            for (let i = casesData.length - 1; i >= 0; i--) {
+                if (!casesData[i].originalListNo) {
+                    casesData[i].originalListNo = currentNo;
                     needsSave = true;
                 }
-            });
+                currentNo = Math.max(currentNo, casesData[i].originalListNo || 0) + 1;
+            }
 
             if (needsSave) saveCases();
             
@@ -189,7 +175,7 @@ function saveCases() {
 function addCase(newCase) {
     const nextListNo = casesData.length > 0 ? Math.max(...casesData.map(c => c.originalListNo || 0)) + 1 : 1;
     const caseObj = {
-        originalListNo: nextListNo,
+        originalListNo: newCase.originalListNo ? parseInt(newCase.originalListNo) : nextListNo,
         id: 'case-nadr-' + Date.now() + '-' + Math.floor(Math.random()*1000),
         caseNumber: newCase.caseNumber || generateNextCaseNumber(),
         dateReceived: newCase.dateReceived || getTodayDateString(),
