@@ -444,6 +444,7 @@ function renderMasterTableHTML(dataArray) {
                     <th style="padding: 8px 6px; width: 110px;">ប្រភេទវិវាទ</th>
                     <th style="padding: 8px 6px; width: 80px;">ទីតាំង</th>
                     <th style="padding: 8px 6px;">ចំណាត់ការសម្រុះសម្រួល</th>
+                    <th style="padding: 8px 6px;">មសវ អម (តាមលិខិតចាត់តាំង)</th>
                     <th style="padding: 8px 6px; width: 100px;">លទ្ធផល</th>
                     <th style="padding: 8px 6px; width: 80px;">កំណត់ចំណាំ</th>
                 </tr>
@@ -452,6 +453,8 @@ function renderMasterTableHTML(dataArray) {
     `;
 
     dataArray.forEach((c, index) => {
+        let officialsStr = [c.official1, c.official2, c.official3, c.official4, c.official5].filter(x => x).join('<br>');
+        
         html += `
             <tr style="vertical-align: top;">
                 <td style="padding: 6px; text-align: center;">${index + 1}</td>
@@ -472,6 +475,7 @@ function renderMasterTableHTML(dataArray) {
                     <div>🔸 ខ៖ ${c.meetingPartyB}</div>
                     <div style="font-weight: 700; color: #2563eb; margin-top: 2px;">⚖️ ${c.mediationMeeting}</div>
                 </td>
+                <td style="padding: 6px; font-size: 9pt;">${officialsStr || '-'}</td>
                 <td style="padding: 6px; text-align: center; font-weight: 700; color: ${c.status.startsWith('Settle') ? '#10b981' : (c.status.startsWith('Active') ? '#2563eb' : '#64748b')};">${c.status}</td>
                 <td style="padding: 6px; text-align: center; font-size: 9.5pt;">${c.remarks}</td>
             </tr>

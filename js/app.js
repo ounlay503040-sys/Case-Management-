@@ -821,6 +821,12 @@ function initModalEvents() {
                 partyC_additional_names: document.getElementById('case-party-c-additional-names') ? document.getElementById('case-party-c-additional-names').value.trim() : '',
                 partyC_additional_addresses: document.getElementById('case-party-c-additional-addresses') ? document.getElementById('case-party-c-additional-addresses').value.trim() : '',
 
+                official1: document.getElementById('case-official-1') ? document.getElementById('case-official-1').value.trim() : '',
+                official2: document.getElementById('case-official-2') ? document.getElementById('case-official-2').value.trim() : '',
+                official3: document.getElementById('case-official-3') ? document.getElementById('case-official-3').value.trim() : '',
+                official4: document.getElementById('case-official-4') ? document.getElementById('case-official-4').value.trim() : '',
+                official5: document.getElementById('case-official-5') ? document.getElementById('case-official-5').value.trim() : '',
+
                 summary: document.getElementById('case-summary').value.trim(),
                 meetingPartyA: document.getElementById('case-meeting-a').value,
                 meetingPartyB: document.getElementById('case-meeting-b').value,
@@ -932,6 +938,12 @@ function openEditModal(id) {
     if(document.getElementById('case-party-c-address')) document.getElementById('case-party-c-address').value = c.partyC_address || '';
     if(document.getElementById('case-party-c-additional-names')) document.getElementById('case-party-c-additional-names').value = c.partyC_additional_names || '';
     if(document.getElementById('case-party-c-additional-addresses')) document.getElementById('case-party-c-additional-addresses').value = c.partyC_additional_addresses || '';
+
+    if(document.getElementById('case-official-1')) document.getElementById('case-official-1').value = c.official1 || '';
+    if(document.getElementById('case-official-2')) document.getElementById('case-official-2').value = c.official2 || '';
+    if(document.getElementById('case-official-3')) document.getElementById('case-official-3').value = c.official3 || '';
+    if(document.getElementById('case-official-4')) document.getElementById('case-official-4').value = c.official4 || '';
+    if(document.getElementById('case-official-5')) document.getElementById('case-official-5').value = c.official5 || '';
 
     document.getElementById('case-summary').value = c.summary || '';
     document.getElementById('case-meeting-a').value = c.meetingPartyA || 'មិនទាន់ប្រជុំ';
