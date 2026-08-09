@@ -121,6 +121,22 @@ function loadCases() {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
             casesData = JSON.parse(stored);
+            
+            // Auto-fix corrupted Excel serial dates in existing data
+            let needsSave = false;
+            casesData.forEach(c => {
+                if (c.dateReceived && !isNaN(c.dateReceived) && parseFloat(c.dateReceived) > 20000 && parseFloat(c.dateReceived) < 90000) {
+                    const serial = parseFloat(c.dateReceived);
+                    const utc_days = Math.floor(serial - 25569);
+                    const date_info = new Date(utc_days * 86400 * 1000);
+                    c.dateReceived = String(date_info.getDate()).padStart(2, '0') + '/' + 
+                                     String(date_info.getMonth() + 1).padStart(2, '0') + '/' + 
+                                     date_info.getFullYear();
+                    needsSave = true;
+                }
+            });
+            if (needsSave) saveCases();
+            
         } else {
             casesData = [...mockCasesData];
             saveCases();
