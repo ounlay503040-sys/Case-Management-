@@ -125,6 +125,7 @@ function renderAllViews() {
  */
 function renderUpcomingEventsTable() {
     const tbody = document.getElementById('upcoming-events-tbody');
+    const summaryContainer = document.getElementById('upcoming-events-summary');
     if (!tbody) return;
 
     // Filter cases with events and sort by date ascending
@@ -136,36 +137,65 @@ function renderUpcomingEventsTable() {
         });
 
     if (eventsList.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted" style="padding: 20px;">មិនមានកម្មវិធីសំណុំរឿងទេ</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted" style="padding: 24px;">មិនទាន់មានកម្មវិធីសំណុំរឿងត្រូវបានកំណត់នៅឡើយទេ</td></tr>`;
+        if (summaryContainer) summaryContainer.innerHTML = '';
         return;
     }
 
     const todayStr = new Date().toISOString().split('T')[0];
+    let todayCount = 0;
+    let upcomingCount = 0;
+    let pastCount = 0;
     let html = '';
 
     eventsList.forEach(c => {
-        let rowStyle = '';
-        let badgeStyle = 'background: #e2e8f0; color: #475569;';
-        
+        let rowClass = '';
+        let statusBadgeHTML = '';
+
         if (c.caseEventDate === todayStr) {
-            rowStyle = 'background: #eff6ff;';
-            badgeStyle = 'background: #dbeafe; color: #1d4ed8; font-weight: 700;';
-        } else if (c.caseEventDate < todayStr) {
-            rowStyle = 'opacity: 0.7; background: #f8fafc;';
+            todayCount++;
+            rowClass = 'event-row-today';
+            statusBadgeHTML = `<span class="event-badge event-badge-today"><span class="pulse-dot"></span> ដល់ថ្ងៃប្រជុំ</span>`;
+        } else if (c.caseEventDate > todayStr) {
+            upcomingCount++;
+            rowClass = 'event-row-upcoming';
+            statusBadgeHTML = `<span class="event-badge event-badge-upcoming"><i class="fa-regular fa-calendar-check"></i> បានរៀបចំ</span>`;
+        } else {
+            pastCount++;
+            rowClass = 'event-row-past';
+            statusBadgeHTML = `<span class="event-badge event-badge-past"><i class="fa-solid fa-clock-rotate-left"></i> ផុតថ្ងៃ</span>`;
         }
 
-        let timeStr = c.caseEventTime ? `<br><small style="color: #64748b;"><i class="fa-regular fa-clock"></i> ម៉ោង ${c.caseEventTime}</small>` : '';
-        
-        html += `<tr style="${rowStyle} cursor: pointer;" onclick="openViewModal('${c.id}')" title="ចុចដើម្បីមើលលម្អិត">
-            <td style="font-weight: 600;">${c.caseEventDate} ${timeStr}</td>
-            <td><span class="badge" style="${badgeStyle}">${c.caseNumber}</span></td>
-            <td style="font-weight: 600; color: #334155;">${c.caseEvent}</td>
-            <td>${c.partyA_name} <span class="text-muted" style="font-size:11px;">vs</span> ${c.partyB_name}</td>
-            <td><span class="text-muted" style="font-size: 13px;"><i class="fa-solid fa-location-dot"></i> ${c.disputeLocation || 'មិនមាន'}</span></td>
+        let timeStr = c.caseEventTime ? `<br><small style="color: #64748b; font-weight: 500;"><i class="fa-regular fa-clock"></i> ម៉ោង ${c.caseEventTime}</small>` : '';
+
+        html += `<tr class="${rowClass}" style="cursor: pointer;" onclick="openViewModal('${c.id}')" title="ចុចដើម្បីមើលលម្អិត">
+            <td style="font-weight: 600;">
+                <i class="fa-regular fa-calendar-days text-primary"></i> ${c.caseEventDate}${timeStr}
+            </td>
+            <td><span class="case-number-tag">${c.caseNumber}</span></td>
+            <td style="font-weight: 600; color: var(--text-color);">${c.caseEvent}</td>
+            <td>
+                <div style="font-size: 13px;">
+                    <strong style="color: #1e40af;">${c.partyA_name}</strong>
+                    <span style="color: #94a3b8; font-weight: bold; margin: 0 4px;">vs</span>
+                    <strong style="color: #b91c1c;">${c.partyB_name}</strong>
+                </div>
+            </td>
+            <td><span style="font-size: 13px; color: #475569;"><i class="fa-solid fa-location-dot text-danger"></i> ${c.disputeLocation || 'មិនមាន'}</span></td>
+            <td class="text-center">${statusBadgeHTML}</td>
         </tr>`;
     });
 
     tbody.innerHTML = html;
+
+    if (summaryContainer) {
+        summaryContainer.innerHTML = `
+            <span style="background: #dcfce7; color: #15803d; padding: 4px 10px; border-radius: 12px; border: 1px solid #86efac; font-weight: 700;">🟢 ដល់ថ្ងៃប្រជុំ៖ ${todayCount}</span>
+            <span style="background: #eff6ff; color: #1d4ed8; padding: 4px 10px; border-radius: 12px; border: 1px solid #93c5fd; font-weight: 700;">🔵 បានរៀបចំ៖ ${upcomingCount}</span>
+            <span style="background: #fff1f2; color: #be123c; padding: 4px 10px; border-radius: 12px; border: 1px solid #fca5a5; font-weight: 700;">🔴 ផុតថ្ងៃ៖ ${pastCount}</span>
+            <span style="background: #f1f5f9; color: #475569; padding: 4px 10px; border-radius: 12px; border: 1px solid #cbd5e1; font-weight: 700;">សរុប៖ ${eventsList.length}</span>
+        `;
+    }
 }
 
 /**
@@ -494,12 +524,12 @@ function generateMasterCaseRowHTML(c, rowNum) {
             </td>
             ${customCells}
             <td class="text-center">${renderTableFileCell(c)}</td>
-            <td class="text-center">
-                <div class="action-btns">
-                    <button class="btn-icon" onclick="event.stopPropagation(); openViewModal('${c.id}')" title="មើលប័ណ្ណ"><i class="fa-solid fa-eye"></i></button>
-                    <button class="btn-icon text-success" onclick="event.stopPropagation(); if(typeof openLegalDocModal === 'function') openLegalDocModal('${c.id}')" title="ផលិតលិខិតគតិយុត្ត"><i class="fa-solid fa-file-signature"></i></button>
-                    <button class="btn-icon" onclick="event.stopPropagation(); openEditModal('${c.id}')" title="កែសម្រួល"><i class="fa-solid fa-pen"></i></button>
-                    <button class="btn-icon delete-btn" onclick="event.stopPropagation(); confirmDeleteCase('${c.id}')" title="លុប"><i class="fa-solid fa-trash"></i></button>
+            <td class="text-center" onclick="event.stopPropagation();" ondblclick="event.stopPropagation();">
+                <div class="action-btns" onclick="event.stopPropagation();" ondblclick="event.stopPropagation();">
+                    <button class="btn-icon" onclick="event.stopPropagation(); openViewModal('${c.id}')" ondblclick="event.stopPropagation(); openViewModal('${c.id}')" title="មើលប័ណ្ណ"><i class="fa-solid fa-eye" style="pointer-events: none;"></i></button>
+                    <button class="btn-icon text-success" onclick="event.stopPropagation(); if(typeof openLegalDocModal === 'function') openLegalDocModal('${c.id}')" ondblclick="event.stopPropagation(); if(typeof openLegalDocModal === 'function') openLegalDocModal('${c.id}')" title="ផលិតលិខិតគតិយុត្ត"><i class="fa-solid fa-file-signature" style="pointer-events: none;"></i></button>
+                    <button class="btn-icon" onclick="event.stopPropagation(); openEditModal('${c.id}')" ondblclick="event.stopPropagation(); openEditModal('${c.id}')" title="កែសម្រួល"><i class="fa-solid fa-pen" style="pointer-events: none;"></i></button>
+                    <button class="btn-icon delete-btn" onclick="event.stopPropagation(); confirmDeleteCase('${c.id}')" ondblclick="event.stopPropagation(); confirmDeleteCase('${c.id}')" title="លុប"><i class="fa-solid fa-trash" style="pointer-events: none;"></i></button>
                 </div>
             </td>
         </tr>

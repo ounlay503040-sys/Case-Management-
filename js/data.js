@@ -816,7 +816,7 @@ const I18N = {
     'nav.groupCases': { km: 'គ្រប់គ្រងសំណុំរឿង', en: 'Case Management' },
     'nav.groupAnalytics': { km: 'ស្ថិតិ និងវាយតម្លៃ', en: 'Statistics & Analytics' },
     'nav.groupSettings': { km: 'ការកំណត់', en: 'Settings' },
-    'nav.calendar': { km: 'កាលវិភាគ', en: 'Calendar & Schedule' },
+    'nav.calendar': { km: 'កម្មវិធីសំណុំរឿង', en: 'Case Schedule' },
     'nav.strategic': { km: 'ផែនការយុទ្ធសាស្ត្រ', en: 'Strategic Plan' }
 };
 

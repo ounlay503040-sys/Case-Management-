@@ -109,7 +109,7 @@
                 </a>
                 <a href="#calendar-view" class="nav-item" data-view="calendar-view">
                     <i class="fa-regular fa-calendar-days"></i>
-                    <span data-i18n="nav.calendar">កាលវិភាគ</span>
+                    <span data-i18n="nav.calendar">កម្មវិធីសំណុំរឿង</span>
                 </a>
                 <a href="#reports-view" class="nav-item" data-view="reports-view">
                     <i class="fa-solid fa-file-invoice"></i>
@@ -878,8 +878,8 @@
                 </style>
                 <div class="section-title-box">
                     <div>
-                        <h1><i class="fa-regular fa-calendar-days text-primary"></i> កាលវិភាគ និងកម្មវិធីសំណុំរឿង (Schedule)</h1>
-                        <p>តាមដាន និងរៀបចំកាលវិភាគចុះពិនិត្យទីតាំង ផ្តល់ព័ត៌មាន និងប្រជុំសម្រុះសម្រួល</p>
+                        <h1><i class="fa-regular fa-calendar-days text-primary"></i> កម្មវិធីសំណុំរឿង (Case Schedule)</h1>
+                        <p>តាមដាន និងរៀបចំកម្មវិធីសំណុំរឿង ចុះពិនិត្យទីតាំង ផ្តល់ព័ត៌មាន និងប្រជុំសម្រុះសម្រួល</p>
                     </div>
                 </div>
                 
@@ -903,25 +903,31 @@
                 </div>
 
                 <!-- UPCOMING EVENTS TABLE -->
-                <div class="card-panel mt-4" style="padding: 24px; border-top: 4px solid #3b82f6;">
-                    <h3 style="color: #1e3a8a; font-weight: 700; font-size: 16px; margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px;">
-                        <i class="fa-solid fa-list-check text-primary"></i> បញ្ជីកម្មវិធីសំណុំរឿង (Upcoming Events)
-                    </h3>
+                <div class="card-panel mt-4" style="padding: 24px; border-top: 4px solid var(--primary-hover); border-radius: var(--radius-md); box-shadow: var(--shadow-md);">
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+                        <h3 style="color: var(--primary-color); font-weight: 700; font-size: 17px; margin: 0; display: flex; align-items: center; gap: 10px;">
+                            <i class="fa-solid fa-calendar-check text-primary" style="font-size: 20px;"></i>
+                            <span>បញ្ជីកម្មវិធីសំណុំរឿង (Upcoming Events)</span>
+                        </h3>
+                        <div id="upcoming-events-summary" style="display: flex; gap: 8px; flex-wrap: wrap; font-size: 12px; font-weight: 600;">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
                     <div class="table-container">
-                        <table class="data-table">
+                        <table class="data-table upcoming-events-table">
                             <thead>
                                 <tr>
-                                    <th style="width: 15%;">កាលបរិច្ឆេទ</th>
-                                    <th style="width: 15%;">លេខសំណុំរឿង</th>
-                                    <th style="width: 25%;">កម្មវិធី</th>
-                                    <th style="width: 25%;">ឈ្មោះភាគី</th>
-                                    <th style="width: 20%;">ទីតាំង</th>
+                                    <th style="width: 16%;">កាលបរិច្ឆេទ & ម៉ោង</th>
+                                    <th style="width: 12%;">លេខសំណុំរឿង</th>
+                                    <th style="width: 22%;">កម្មវិធីសំណុំរឿង</th>
+                                    <th style="width: 23%;">ឈ្មោះភាគី</th>
+                                    <th style="width: 15%;">ទីតាំង</th>
+                                    <th style="width: 12%; text-align: center;">ស្ថានភាព</th>
                                 </tr>
                             </thead>
                             <tbody id="upcoming-events-tbody">
-                                <!-- Populated by JS -->
                                 <tr>
-                                    <td colspan="5" class="text-center text-muted">កំពុងទាញយកទិន្នន័យ...</td>
+                                    <td colspan="6" class="text-center text-muted">កំពុងទាញយកទិន្នន័យ...</td>
                                 </tr>
                             </tbody>
                         </table>
