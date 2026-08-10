@@ -524,12 +524,12 @@ function generateMasterCaseRowHTML(c, rowNum) {
             </td>
             ${customCells}
             <td class="text-center">${renderTableFileCell(c)}</td>
-            <td class="text-center" onclick="event.stopPropagation();" ondblclick="event.stopPropagation();">
-                <div class="action-btns" onclick="event.stopPropagation();" ondblclick="event.stopPropagation();">
-                    <button class="btn-icon" onclick="event.stopPropagation(); openViewModal('${c.id}')" ondblclick="event.stopPropagation(); openViewModal('${c.id}')" title="មើលប័ណ្ណ"><i class="fa-solid fa-eye" style="pointer-events: none;"></i></button>
-                    <button class="btn-icon text-success" onclick="event.stopPropagation(); if(typeof openLegalDocModal === 'function') openLegalDocModal('${c.id}')" ondblclick="event.stopPropagation(); if(typeof openLegalDocModal === 'function') openLegalDocModal('${c.id}')" title="ផលិតលិខិតគតិយុត្ត"><i class="fa-solid fa-file-signature" style="pointer-events: none;"></i></button>
-                    <button class="btn-icon" onclick="event.stopPropagation(); openEditModal('${c.id}')" ondblclick="event.stopPropagation(); openEditModal('${c.id}')" title="កែសម្រួល"><i class="fa-solid fa-pen" style="pointer-events: none;"></i></button>
-                    <button class="btn-icon delete-btn" onclick="event.stopPropagation(); confirmDeleteCase('${c.id}')" ondblclick="event.stopPropagation(); confirmDeleteCase('${c.id}')" title="លុប"><i class="fa-solid fa-trash" style="pointer-events: none;"></i></button>
+            <td class="text-center" onclick="if(window.event) window.event.stopPropagation();" ondblclick="if(window.event) window.event.stopPropagation();">
+                <div class="action-btns">
+                    <button class="btn-icon" onclick="openViewModal('${c.id}')" title="មើលប័ណ្ណ"><i class="fa-solid fa-eye"></i></button>
+                    <button class="btn-icon text-success" onclick="if(typeof openLegalDocModal === 'function') openLegalDocModal('${c.id}')" title="ផលិតលិខិតគតិយុត្ត"><i class="fa-solid fa-file-signature"></i></button>
+                    <button class="btn-icon" onclick="openEditModal('${c.id}')" title="កែសម្រួល"><i class="fa-solid fa-pen"></i></button>
+                    <button class="btn-icon delete-btn" onclick="confirmDeleteCase('${c.id}')" title="លុប"><i class="fa-solid fa-trash"></i></button>
                 </div>
             </td>
         </tr>
@@ -4023,7 +4023,7 @@ function openCaseFolderModal(caseId) {
     if (!c) return;
     const modal = document.getElementById('case-folder-modal');
     const title = document.getElementById('case-folder-title');
-    if (title) title.innerHTML = `<i class="fa-solid fa-folder-open text-warning"></i> <span>Folder ឯកសារសំណុំរឿង៖ <strong style="color:#60a5fa;">${c.caseNumber}</strong></span>`;
+    if (title) title.innerHTML = `<div style="background: rgba(255,255,255,0.2); width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1);"><i class="fa-solid fa-folder-open" style="color: #fbbf24; font-size: 20px;"></i></div> <span>Folder ឯកសារសំណុំរឿង៖ <strong style="color:#bfdbfe;">${c.caseNumber}</strong></span>`;
     renderFolderModalGrid(c);
     if (modal) modal.classList.add('open');
 }
@@ -4042,9 +4042,12 @@ function renderFolderModalGrid(c) {
     if (!grid) return;
     if (files.length === 0) {
         grid.innerHTML = `
-            <div class="text-center text-muted" style="grid-column: 1 / -1; padding: 25px; font-style: italic; background: white; border-radius: 8px; border: 1px dashed #cbd5e1;">
-                <i class="fa-solid fa-folder-open mb-2" style="font-size: 28px; color: #cbd5e1; display: block;"></i>
-                ពុំទាន់មានឯកសារ ឬរូបភាពនៅក្នុង Folder សំណុំរឿង "${c.caseNumber}" នេះឡើយ។<br>សូមជ្រើសរើសឯកសារនៅរបារខាងលើ ដើម្បីបញ្ចូលចូលក្នុង Folder នេះ!
+            <div class="text-center text-muted" style="grid-column: 1 / -1; padding: 40px 20px; font-style: italic; background: #ffffff; border-radius: 16px; border: 1px dashed #cbd5e1; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 250px;">
+                <div style="background: #f1f5f9; width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+                    <i class="fa-solid fa-folder-open" style="font-size: 30px; color: #94a3b8;"></i>
+                </div>
+                <h5 style="color: #475569; font-weight: 700; font-size: 15px; margin-bottom: 8px;">ពុំទាន់មានឯកសារ ឬរូបភាពនៅក្នុង Folder សំណុំរឿង "${c.caseNumber}" នេះឡើយ។</h5>
+                <p style="color: #94a3b8; font-size: 13px;">សូមជ្រើសរើសឯកសារនៅរបារខាងលើ ដើម្បីបញ្ចូលចូលក្នុង Folder នេះ!</p>
             </div>
         `;
         return;
