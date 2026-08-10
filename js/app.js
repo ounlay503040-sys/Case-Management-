@@ -524,12 +524,12 @@ function generateMasterCaseRowHTML(c, rowNum) {
             </td>
             ${customCells}
             <td class="text-center">${renderTableFileCell(c)}</td>
-            <td class="text-center" onclick="if(window.event) window.event.stopPropagation();" ondblclick="if(window.event) window.event.stopPropagation();">
+            <td class="text-center" onclick="if(event) event.stopPropagation();" ondblclick="if(event) event.stopPropagation();">
                 <div class="action-btns">
-                    <button class="btn-icon" onclick="openViewModal('${c.id}')" title="មើលប័ណ្ណ"><i class="fa-solid fa-eye"></i></button>
-                    <button class="btn-icon text-success" onclick="if(typeof openLegalDocModal === 'function') openLegalDocModal('${c.id}')" title="ផលិតលិខិតគតិយុត្ត"><i class="fa-solid fa-file-signature"></i></button>
-                    <button class="btn-icon" onclick="openEditModal('${c.id}')" title="កែសម្រួល"><i class="fa-solid fa-pen"></i></button>
-                    <button class="btn-icon delete-btn" onclick="confirmDeleteCase('${c.id}')" title="លុប"><i class="fa-solid fa-trash"></i></button>
+                    <button type="button" class="btn-icon" onmousedown="if(event) event.stopPropagation();" onclick="if(event) event.stopPropagation(); openViewModal('${c.id}');" title="មើលប័ណ្ណ"><i class="fa-solid fa-eye" style="pointer-events: none;"></i></button>
+                    <button type="button" class="btn-icon text-success" onmousedown="if(event) event.stopPropagation();" onclick="if(event) event.stopPropagation(); if(typeof openLegalDocModal === 'function') openLegalDocModal('${c.id}');" title="ផលិតលិខិតគតិយុត្ត"><i class="fa-solid fa-file-signature" style="pointer-events: none;"></i></button>
+                    <button type="button" class="btn-icon" onmousedown="if(event) event.stopPropagation();" onclick="if(event) event.stopPropagation(); openEditModal('${c.id}');" title="កែសម្រួល"><i class="fa-solid fa-pen" style="pointer-events: none;"></i></button>
+                    <button type="button" class="btn-icon delete-btn" onmousedown="if(event) event.stopPropagation();" onclick="if(event) event.stopPropagation(); confirmDeleteCase('${c.id}');" title="លុប"><i class="fa-solid fa-trash" style="pointer-events: none;"></i></button>
                 </div>
             </td>
         </tr>
