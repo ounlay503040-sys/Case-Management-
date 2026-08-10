@@ -804,7 +804,7 @@ function initModalEvents() {
     const meetingB = document.getElementById('case-meeting-b');
     const mediation = document.getElementById('case-mediation-meeting');
 
-    const handleMeetingChange = (el, prefix) => {
+    window.handleMeetingChange = (el, prefix) => {
         if (!el) return;
         const val = el.value;
         const dateWrap = document.getElementById(`${prefix}-date-wrap`);

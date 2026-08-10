@@ -60,7 +60,7 @@ function openLegalDocModal(id) {
     // Populate modal header subtitle
     const subtitleEl = document.getElementById('doc-modal-case-subtitle');
     if (subtitleEl) {
-        subtitleEl.innerHTML = `លេខសំណុំរឿង៖ <b>${caseItem.caseNumber}</b> | ភាគី៖ <b>${caseItem.partyA.name}</b> និង <b>${caseItem.partyB.name}</b>`;
+        subtitleEl.innerHTML = `លេខសំណុំរឿង៖ <b>${caseItem.caseNumber}</b> | ភាគី៖ <b>${caseItem.partyA_name || ''}</b> និង <b>${caseItem.partyB_name || ''}</b>`;
     }
 
     // Default dates and fields
