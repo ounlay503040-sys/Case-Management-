@@ -524,17 +524,40 @@ function generateMasterCaseRowHTML(c, rowNum) {
             </td>
             ${customCells}
             <td class="text-center">${renderTableFileCell(c)}</td>
-            <td class="text-center" onclick="if(event) event.stopPropagation();" ondblclick="if(event) event.stopPropagation();">
+            <td class="text-center" style="position: relative; z-index: 10;">
                 <div class="action-btns">
-                    <button type="button" class="btn-icon" onmousedown="if(event) event.stopPropagation();" onclick="if(event) event.stopPropagation(); openViewModal('${c.id}');" title="មើលប័ណ្ណ"><i class="fa-solid fa-eye" style="pointer-events: none;"></i></button>
-                    <button type="button" class="btn-icon text-success" onmousedown="if(event) event.stopPropagation();" onclick="if(event) event.stopPropagation(); if(typeof openLegalDocModal === 'function') openLegalDocModal('${c.id}');" title="ផលិតលិខិតគតិយុត្ត"><i class="fa-solid fa-file-signature" style="pointer-events: none;"></i></button>
-                    <button type="button" class="btn-icon" onmousedown="if(event) event.stopPropagation();" onclick="if(event) event.stopPropagation(); openEditModal('${c.id}');" title="កែសម្រួល"><i class="fa-solid fa-pen" style="pointer-events: none;"></i></button>
-                    <button type="button" class="btn-icon delete-btn" onmousedown="if(event) event.stopPropagation();" onclick="if(event) event.stopPropagation(); confirmDeleteCase('${c.id}');" title="លុប"><i class="fa-solid fa-trash" style="pointer-events: none;"></i></button>
+                    <button type="button" class="btn-icon system-action-btn" data-action="view" data-id="${c.id}" title="មើលប័ណ្ណ"><i class="fa-solid fa-eye" style="pointer-events: none;"></i></button>
+                    <button type="button" class="btn-icon text-success system-action-btn" data-action="legal" data-id="${c.id}" title="ផលិតលិខិតគតិយុត្ត"><i class="fa-solid fa-file-signature" style="pointer-events: none;"></i></button>
+                    <button type="button" class="btn-icon system-action-btn" data-action="edit" data-id="${c.id}" title="កែសម្រួល"><i class="fa-solid fa-pen" style="pointer-events: none;"></i></button>
+                    <button type="button" class="btn-icon delete-btn system-action-btn" data-action="delete" data-id="${c.id}" title="លុប"><i class="fa-solid fa-trash" style="pointer-events: none;"></i></button>
                 </div>
             </td>
         </tr>
     `;
 }
+
+// BULLETPROOF EVENT DELEGATION FOR ACTION BUTTONS
+document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.system-action-btn');
+    if (!btn) return;
+    
+    // Completely stop this click from bubbling to the row's ondblclick or anything else
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const action = btn.getAttribute('data-action');
+    const id = btn.getAttribute('data-id');
+    
+    if (action === 'view') {
+        if(typeof openViewModal === 'function') openViewModal(id);
+    } else if (action === 'legal') {
+        if(typeof openLegalDocModal === 'function') openLegalDocModal(id);
+    } else if (action === 'edit') {
+        if(typeof openEditModal === 'function') openEditModal(id);
+    } else if (action === 'delete') {
+        if(typeof confirmDeleteCase === 'function') confirmDeleteCase(id);
+    }
+}, true); // Use capture phase to intercept before any other listener (like row listeners) can act on it!
 
 /**
  * Render All Cases Table in Case Entry View (#entry-view)
