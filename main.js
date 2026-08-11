@@ -70,10 +70,15 @@ app.whenReady().then(() => {
         }
       });
 
-      printWindow.loadURL("data:text/html;charset=utf-8," + encodeURIComponent(htmlContent));
+      printWindow.loadFile(path.join(__dirname, 'print.html'));
 
       printWindow.webContents.on('did-finish-load', async () => {
         try {
+          // Inject the content directly into the print-content div
+          // We must escape the htmlContent properly for executeJavaScript
+          const escapedHtml = htmlContent.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/'/g, "\\'").replace(/\n/g, '\\n').replace(/\r/g, '\\r');
+          await printWindow.webContents.executeJavaScript(`document.getElementById('print-content').innerHTML = '${escapedHtml}';`);
+          
           const pdfBuffer = await printWindow.webContents.printToPDF({
             landscape: true,
             printBackground: true,
@@ -85,8 +90,10 @@ app.whenReady().then(() => {
           printWindow = null;
           resolve(pdfBuffer);
         } catch (error) {
-          printWindow.close();
-          printWindow = null;
+          if (printWindow) {
+             printWindow.close();
+             printWindow = null;
+          }
           reject(error);
         }
       });

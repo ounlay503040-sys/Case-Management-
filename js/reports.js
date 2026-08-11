@@ -72,7 +72,7 @@ window.shareMasterTableToTelegramBot = async function() {
     styledHTML = styledHTML.replace(/<th/g, '<th style="border: 1px solid #000000; padding: 2px 4px; font-size: 9.5pt;"');
     styledHTML = styledHTML.replace(/<td/g, '<td style="border: 1px solid #000000; padding: 2px 4px; font-size: 9.5pt;"');
 
-    const fileNameText = 'បញ្ជីសំណុំរឿងសរុប_NADR';
+    const fileNameText = 'Master_Case_List_NADR';
     
     const excelHTML = `
         <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
@@ -125,29 +125,9 @@ window.shareMasterTableToTelegramBot = async function() {
 
     if (window.electronAPI && window.electronAPI.generatePDF) {
         // --- NATIVE ELECTRON PDF GENERATION (PERFECT KHMER RENDERING) ---
-        const fullPdfHtml = `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="utf-8">
-                <style>
-                    @page { size: A4 landscape; margin: 10mm; }
-                    body { font-family: 'Khmer OS Battambang', sans-serif; }
-                    table { page-break-inside: auto; }
-                    tr { page-break-inside: avoid; page-break-after: auto; }
-                    thead { display: table-header-group; }
-                    tfoot { display: table-footer-group; }
-                </style>
-            </head>
-            <body>
-                <h2 style="font-family: 'Khmer OS Muol Light', serif; text-align: center; color: #1e3a8a; margin-bottom: 20px; font-size: 14pt;">តារាងបញ្ជីសំណុំរឿង (Master Case Directory)</h2>
-                ${pdfStyledHTML}
-            </body>
-            </html>
-        `;
-
         try {
-            const pdfBuffer = await window.electronAPI.generatePDF(fullPdfHtml);
+            // We only pass the table HTML, because main.js injects it into print.html
+            const pdfBuffer = await window.electronAPI.generatePDF(pdfStyledHTML);
             const pdfBlob = new Blob([pdfBuffer], { type: 'application/pdf' });
             const successPdf = await sendTelegramDocument(pdfBlob, pdfFilename, captionPdf);
             if (successPdf) {
