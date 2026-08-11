@@ -126,8 +126,21 @@ window.shareMasterTableToTelegramBot = async function() {
     if (window.electronAPI && window.electronAPI.generatePDF) {
         // --- NATIVE ELECTRON PDF GENERATION (PERFECT KHMER RENDERING) ---
         try {
-            // We only pass the table HTML, because main.js injects it into print.html
-            const pdfBuffer = await window.electronAPI.generatePDF(pdfStyledHTML);
+            // Populate the hidden print-area with our table
+            const printArea = document.getElementById('print-area');
+            if (printArea) {
+                printArea.innerHTML = `
+                    <h2 style="font-family: 'Khmer OS Muol Light', serif; text-align: center; color: #1e3a8a; margin-bottom: 20px; font-size: 14pt;">តារាងបញ្ជីសំណុំរឿង (Master Case Directory)</h2>
+                    ${pdfStyledHTML}
+                `;
+            }
+
+            // Call generatePDF which will print the current window
+            const pdfBuffer = await window.electronAPI.generatePDF();
+            
+            // Clear print-area
+            if (printArea) printArea.innerHTML = '';
+
             const pdfBlob = new Blob([pdfBuffer], { type: 'application/pdf' });
             const successPdf = await sendTelegramDocument(pdfBlob, pdfFilename, captionPdf);
             if (successPdf) {
@@ -138,6 +151,10 @@ window.shareMasterTableToTelegramBot = async function() {
         } catch (error) {
             console.error('Native PDF Generation Error:', error);
             if (typeof showToast === 'function') showToast('មានបញ្ហាក្នុងការបង្កើតឯកសារ PDF!', 'error');
+            
+            // Clear print-area on error
+            const printArea = document.getElementById('print-area');
+            if (printArea) printArea.innerHTML = '';
         }
     } else if (typeof html2pdf !== 'undefined') {
         // --- FALLBACK TO HTML2PDF (WEB MODE) ---

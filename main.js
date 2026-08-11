@@ -58,46 +58,20 @@ app.whenReady().then(() => {
     return 1;
   });
 
-  // Native PDF Generation Handler
-  ipcMain.handle('generate-pdf', async (event, htmlContent) => {
-    return new Promise((resolve, reject) => {
-      // Create a hidden, off-screen window
-      let printWindow = new BrowserWindow({
-        show: false,
-        webPreferences: {
-          nodeIntegration: false,
-          contextIsolation: true
-        }
+  // Native PDF Generation Handler (Prints the current window to PDF, ensuring all fonts are loaded)
+  ipcMain.handle('generate-pdf', async (event) => {
+    try {
+      const pdfBuffer = await event.sender.printToPDF({
+        landscape: true,
+        printBackground: true,
+        pageSize: 'A4',
+        margins: { marginType: 'printableArea' }
       });
-
-      printWindow.loadFile(path.join(__dirname, 'print.html'));
-
-      printWindow.webContents.on('did-finish-load', async () => {
-        try {
-          // Inject the content directly into the print-content div
-          // We must escape the htmlContent properly for executeJavaScript
-          const escapedHtml = htmlContent.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/'/g, "\\'").replace(/\n/g, '\\n').replace(/\r/g, '\\r');
-          await printWindow.webContents.executeJavaScript(`document.getElementById('print-content').innerHTML = '${escapedHtml}';`);
-          
-          const pdfBuffer = await printWindow.webContents.printToPDF({
-            landscape: true,
-            printBackground: true,
-            pageSize: 'A4',
-            margins: { marginType: 'printableArea' }
-          });
-          
-          printWindow.close();
-          printWindow = null;
-          resolve(pdfBuffer);
-        } catch (error) {
-          if (printWindow) {
-             printWindow.close();
-             printWindow = null;
-          }
-          reject(error);
-        }
-      });
-    });
+      return pdfBuffer;
+    } catch (error) {
+      console.error('Failed to generate PDF:', error);
+      throw error;
+    }
   });
 
   app.on('activate', function () {
