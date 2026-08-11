@@ -61,6 +61,33 @@ async function sendTelegramMessage(message) {
     }
 }
 
+async function sendTelegramDocument(fileBlob, filename, caption = '') {
+    const { token, chatid } = getTelegramSettings();
+    if (!token || !chatid) return false;
+
+    const url = `https://api.telegram.org/bot${token}/sendDocument`;
+    
+    const formData = new FormData();
+    formData.append('chat_id', chatid);
+    formData.append('document', fileBlob, filename);
+    if (caption) {
+        formData.append('caption', caption);
+        formData.append('parse_mode', 'HTML');
+    }
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+        return data.ok;
+    } catch (e) {
+        console.error('Telegram API Error:', e);
+        return false;
+    }
+}
+
 async function testTelegramNotification() {
     const { token, chatid } = getTelegramSettings();
     if (!token || !chatid) {

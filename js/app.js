@@ -1285,14 +1285,14 @@ function openViewModal(id) {
 }
 
 /**
- * Share Case to Telegram via t.me/share/url scheme
+ * Share Case to Telegram via Bot API
  */
-window.shareCaseToTelegram = function(id) {
+window.shareCaseToTelegram = async function(id) {
     const c = getCaseById(id);
     if (!c) return;
 
-    let text = `📂 *ព័ត៌មានសំណុំរឿង NADR*\n`;
-    text += `🔹 លេខសំណុំរឿង៖ ${c.caseNumber}\n`;
+    let text = `📂 <b>ព័ត៌មានសំណុំរឿង NADR</b>\n\n`;
+    text += `🔹 លេខសំណុំរឿង៖ <b>${c.caseNumber}</b>\n`;
     text += `🔹 កាលបរិច្ឆេទ៖ ${c.dateReceived}\n`;
     text += `🔹 ប្រភេទ៖ ${t_val(c.category)}\n`;
     text += `🔹 ភាគី (ក)៖ ${c.partyA_name || ''}\n`;
@@ -1301,34 +1301,85 @@ window.shareCaseToTelegram = function(id) {
     text += `🔹 ស្ថានភាព៖ ${t_val(c.status)}\n\n`;
     
     if (c.summary) {
-        text += `📝 *សេចក្តីសង្ខេប៖*\n${c.summary}\n`;
+        text += `📝 <b>សេចក្តីសង្ខេប៖</b>\n<i>${c.summary}</i>\n`;
     }
 
-    const url = `https://t.me/share/url?url=&text=${encodeURIComponent(text)}`;
-    window.open(url, '_blank');
+    if (typeof sendTelegramMessage === 'function') {
+        const success = await sendTelegramMessage(text);
+        if (success) {
+            if (typeof showToast === 'function') showToast('បានផ្ញើព័ត៌មានសំណុំរឿងនេះទៅ Telegram ជោគជ័យ!', 'success');
+        } else {
+            if (typeof showToast === 'function') showToast('ការបញ្ជូនទៅ Telegram បរាជ័យ! សូមពិនិត្យមើលការកំណត់ Bot Token។', 'error');
+        }
+    } else {
+        if (typeof showToast === 'function') showToast('ប្រព័ន្ធ Telegram មិនត្រូវបានភ្ជាប់ទេ។', 'error');
+    }
 };
 
 /**
  * Share Statistics to Telegram
  */
-window.shareStatsToTelegram = function() {
+window.shareStatsToTelegram = async function() {
     const total = casesData.length;
     const settle = casesData.filter(c => c.status && c.status.startsWith('Settle')).length;
     const active = casesData.filter(c => c.status && c.status.startsWith('Active')).length;
     const close = casesData.filter(c => c.status && c.status.startsWith('Close')).length;
     const pending = casesData.filter(c => c.status && c.status.startsWith('Pending')).length;
 
-    let text = `📊 *របាយការណ៍ស្ថិតិសំណុំរឿង NADR*\n`;
-    text += `📅 កាលបរិច្ឆេទ៖ ${getTodayDateString()}\n\n`;
-    text += `🔹 សំណុំរឿងសរុប៖ ${total} ករណី\n`;
-    text += `🔹 បានដោះស្រាយ (Settle)៖ ${settle} ករណី\n`;
-    text += `🔹 កំពុងចាត់ការ (Active)៖ ${active} ករណី\n`;
-    text += `🔹 បានបិទបញ្ចុះ (Close)៖ ${close} ករណី\n`;
-    text += `🔹 បានតម្កល់ (Pending)៖ ${pending} ករណី\n\n`;
-    text += `✨ បញ្ជូនពីប្រព័ន្ធ CMS Pro`;
+    // 1. & 2. Overview & Breakdown
+    let text = `📊 <b>របាយការណ៍ស្ថិតិសំណុំរឿង NADR</b>\n`;
+    text += `📅 <b>កាលបរិច្ឆេទ៖</b> ${getTodayDateString()}\n\n`;
+    
+    text += `📑 <b>១. ស្ថិតិសង្ខេប និងលទ្ធផលចំណាត់ការ</b>\n`;
+    text += `• សំណុំរឿងសរុប៖ <b>${total}</b> ករណី\n`;
+    text += `• កំពុងចាត់ការ (Active)៖ <b>${active}</b> ករណី\n`;
+    text += `• បានដោះស្រាយ (Settle)៖ <b>${settle}</b> ករណី\n`;
+    text += `• បានបិទបញ្ចុះ (Close)៖ <b>${close}</b> ករណី\n`;
+    text += `• បានតម្កល់ (Pending)៖ <b>${pending}</b> ករណី\n\n`;
 
-    const url = `https://t.me/share/url?url=&text=${encodeURIComponent(text)}`;
-    window.open(url, '_blank');
+    // 3. & 4. Categories breakdown
+    text += `📋 <b>២. ស្ថិតិតាមប្រភេទវិវាទ</b>\n`;
+    let categories = {};
+    casesData.forEach(c => {
+        let cat = t_val(c.category) || 'ផ្សេងៗ';
+        categories[cat] = (categories[cat] || 0) + 1;
+    });
+    
+    // Sort categories by count
+    const sortedCats = Object.keys(categories).sort((a,b) => categories[b] - categories[a]);
+    sortedCats.forEach(cat => {
+        const count = categories[cat];
+        const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+        text += `• ${cat}៖ ${count} (${pct}%)\n`;
+    });
+    text += `\n`;
+
+    // 5. Provinces breakdown
+    text += `🗺 <b>៣. ស្ថិតិតាមទីតាំង (ខេត្ត/រាជធានី)</b>\n`;
+    let provinces = {};
+    casesData.forEach(c => {
+        let loc = t_val(c.disputeLocation) || 'ផ្សេងៗ';
+        provinces[loc] = (provinces[loc] || 0) + 1;
+    });
+    
+    const sortedProvinces = Object.keys(provinces).sort((a,b) => provinces[b] - provinces[a]);
+    sortedProvinces.slice(0, 5).forEach(loc => { // Top 5
+        const count = provinces[loc];
+        text += `• ${loc}៖ ${count} ករណី\n`;
+    });
+    
+    text += `\n<i>✨ បញ្ជូនពីប្រព័ន្ធ CMS Pro (Telegram Bot Integration)</i>`;
+
+    if (typeof sendTelegramMessage === 'function') {
+        const success = await sendTelegramMessage(text);
+        if (success) {
+            if (typeof showToast === 'function') showToast('បានផ្ញើរបាយការណ៍ស្ថិតិទៅ Telegram ជោគជ័យ!', 'success');
+        } else {
+            if (typeof showToast === 'function') showToast('ការបញ្ជូនទៅ Telegram បរាជ័យ! សូមពិនិត្យមើលការកំណត់ Bot Token។', 'error');
+        }
+    } else {
+        if (typeof showToast === 'function') showToast('ប្រព័ន្ធ Telegram មិនត្រូវបានភ្ជាប់ទេ។', 'error');
+    }
 };
 
 /**

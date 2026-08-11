@@ -15,6 +15,7 @@ function initReportEvents() {
     const btnPrint = document.getElementById('btn-print-report');
     const btnExcel = document.getElementById('btn-export-excel');
     const btnWord = document.getElementById('btn-export-word');
+    const btnTelegram = document.getElementById('btn-share-report-telegram');
 
     if (btnGen) {
         btnGen.addEventListener('click', () => {
@@ -43,6 +44,87 @@ function initReportEvents() {
         btnWord.addEventListener('click', () => {
             exportReportToWord();
         });
+    }
+
+    if (btnTelegram) {
+        btnTelegram.addEventListener('click', () => {
+            shareFilteredCasesToTelegram();
+        });
+    }
+}
+
+/**
+ * Share filtered master table report via Telegram Bot Document Upload
+ */
+async function shareFilteredCasesToTelegram() {
+    const paper = document.getElementById('report-content');
+    if (!paper || paper.style.display === 'none') {
+        if (typeof showToast === 'function') showToast('សូមបង្កើតរបាយការណ៍ជាមុនសិន!', 'warning');
+        return;
+    }
+
+    const clone = paper.cloneNode(true);
+    const hiddens = clone.querySelectorAll('[style*="display: none"], .official-report-footer');
+    hiddens.forEach(el => el.remove());
+    
+    const tables = clone.querySelectorAll('table');
+    tables.forEach(table => {
+        table.setAttribute('border', '1');
+        table.setAttribute('cellpadding', '4');
+        table.setAttribute('cellspacing', '0');
+        table.style.width = '100%';
+        table.style.borderCollapse = 'collapse';
+        table.style.borderColor = '#000000';
+    });
+
+    const ths = clone.querySelectorAll('th');
+    ths.forEach(th => {
+        th.style.border = '1px solid #000000';
+        th.style.padding = '2px 4px';
+        th.style.fontSize = '9.5pt';
+    });
+    const tds = clone.querySelectorAll('td');
+    tds.forEach(td => {
+        td.style.border = '1px solid #000000';
+        td.style.padding = '2px 4px';
+        td.style.fontSize = '9.5pt';
+    });
+
+    const titleEl = document.getElementById('report-header-title');
+    const fileNameText = titleEl ? titleEl.innerText.replace(/[^a-zA-Z0-9ក-ឤ០-៩]/g, '_') : 'NADR_Report';
+
+    const excelHTML = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+        <head>
+            <meta charset="utf-8">
+            <style>
+                @page { mso-page-orientation: landscape; margin: 0.5in; }
+                body { font-family: 'Khmer OS Battambang', sans-serif; font-size: 10pt; }
+                table { border-collapse: collapse; }
+                td, th { vertical-align: middle; white-space: normal; }
+                h1, h2, h3, h4, th { font-family: 'Khmer OS Muol Light', serif; }
+            </style>
+        </head>
+        <body>${clone.innerHTML}</body>
+        </html>
+    `;
+
+    const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), excelHTML], { type: 'application/vnd.ms-excel;charset=utf-8' });
+    const filename = `${fileNameText}_${new Date().toISOString().slice(0, 10)}.xls`;
+    
+    const caption = `📊 <b>ឯកសាររបាយការណ៍បញ្ជីសំណុំរឿង</b>\nចំនួន៖ ${currentReportData.length} ករណី\nបញ្ជូនពីប្រព័ន្ធ CMS Pro`;
+
+    if (typeof showToast === 'function') showToast('កំពុងបញ្ជូនឯកសារទៅ Telegram...', 'info');
+
+    if (typeof sendTelegramDocument === 'function') {
+        const success = await sendTelegramDocument(blob, filename, caption);
+        if (success) {
+            if (typeof showToast === 'function') showToast('បានផ្ញើឯកសាររបាយការណ៍ទៅ Telegram ជោគជ័យ!', 'success');
+        } else {
+            if (typeof showToast === 'function') showToast('ការបញ្ជូនឯកសារបរាជ័យ! សូមពិនិត្យមើលការកំណត់ Bot Token។', 'error');
+        }
+    } else {
+        if (typeof showToast === 'function') showToast('ប្រព័ន្ធ Telegram មិនត្រូវបានភ្ជាប់ទេ។', 'error');
     }
 }
 
