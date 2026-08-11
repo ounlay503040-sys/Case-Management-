@@ -96,17 +96,60 @@ window.shareMasterTableToTelegramBot = async function() {
     const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), excelHTML], { type: 'application/vnd.ms-excel;charset=utf-8' });
     const filename = `${fileNameText}_${new Date().toISOString().slice(0, 10)}.xls`;
     
-    const caption = `📊 <b>ឯកសារបញ្ជីសំណុំរឿង</b>\nចំនួន៖ ${filteredCasesCache.length} ករណី\nបញ្ជូនពីប្រព័ន្ធ CMS Pro`;
+    const captionExcel = `📊 <b>ឯកសារបញ្ជីសំណុំរឿង (Excel)</b>\nចំនួន៖ ${filteredCasesCache.length} ករណី\nបញ្ជូនពីប្រព័ន្ធ CMS Pro`;
 
-    if (typeof sendTelegramDocument === 'function') {
-        const success = await sendTelegramDocument(blob, filename, caption);
-        if (success) {
-            if (typeof showToast === 'function') showToast('បានផ្ញើបញ្ជីសំណុំរឿងទៅ Telegram ជោគជ័យ!', 'success');
-        } else {
-            if (typeof showToast === 'function') showToast('ការបញ្ជូនឯកសារបរាជ័យ! សូមពិនិត្យមើលការកំណត់ Bot Token។', 'error');
+    if (typeof sendTelegramDocument !== 'function') {
+        if (typeof showToast === 'function') showToast('ប្រព័ន្ធ Telegram មិនត្រូវបានភ្ជាប់ទេ។', 'error');
+        return;
+    }
+
+    // 1. Send Excel File
+    const successExcel = await sendTelegramDocument(blob, filename, captionExcel);
+    if (!successExcel) {
+        if (typeof showToast === 'function') showToast('ការបញ្ជូនឯកសារ Excel បរាជ័យ! សូមពិនិត្យមើលការកំណត់ Bot Token។', 'error');
+        return;
+    }
+
+    // 2. Generate and Send PDF File
+    if (typeof html2pdf !== 'undefined') {
+        if (typeof showToast === 'function') showToast('កំពុងរៀបចំ និងបញ្ជូនឯកសារ PDF បន្ថែមទៀត...', 'info');
+        
+        // Create a temporary container for PDF rendering
+        const tempContainer = document.createElement('div');
+        tempContainer.innerHTML = `
+            <div style="font-family: 'Khmer OS Battambang', sans-serif; padding: 20px;">
+                <h2 style="font-family: 'Khmer OS Muol Light', serif; text-align: center; color: #1e3a8a; margin-bottom: 20px;">តារាងបញ្ជីសំណុំរឿង (Master Case Directory)</h2>
+                ${styledHTML}
+            </div>
+        `;
+        
+        // Use html2pdf to generate blob
+        const pdfOpt = {
+            margin:       10,
+            filename:     `${fileNameText}_${new Date().toISOString().slice(0, 10)}.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        };
+
+        try {
+            const pdfBlob = await html2pdf().set(pdfOpt).from(tempContainer).outputPdf('blob');
+            const pdfFilename = `${fileNameText}_${new Date().toISOString().slice(0, 10)}.pdf`;
+            const captionPdf = `📄 <b>ឯកសារបញ្ជីសំណុំរឿង (PDF)</b>\nចំនួន៖ ${filteredCasesCache.length} ករណី\nបញ្ជូនពីប្រព័ន្ធ CMS Pro`;
+            
+            const successPdf = await sendTelegramDocument(pdfBlob, pdfFilename, captionPdf);
+            
+            if (successPdf) {
+                if (typeof showToast === 'function') showToast('បានផ្ញើឯកសារ Excel និង PDF ទៅ Telegram ជោគជ័យ!', 'success');
+            } else {
+                if (typeof showToast === 'function') showToast('ការបញ្ជូនឯកសារ PDF បរាជ័យ!', 'error');
+            }
+        } catch (error) {
+            console.error('PDF Generation Error:', error);
+            if (typeof showToast === 'function') showToast('មានបញ្ហាក្នុងការបង្កើតឯកសារ PDF!', 'error');
         }
     } else {
-        if (typeof showToast === 'function') showToast('ប្រព័ន្ធ Telegram មិនត្រូវបានភ្ជាប់ទេ។', 'error');
+        if (typeof showToast === 'function') showToast('បានផ្ញើឯកសារ Excel ជោគជ័យ (មុខងារ PDF មិនទាន់ដំណើរការ)។', 'success');
     }
 }
 
