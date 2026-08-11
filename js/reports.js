@@ -130,8 +130,10 @@ window.shareMasterTableToTelegramBot = async function() {
             const printArea = document.getElementById('print-area');
             if (printArea) {
                 printArea.innerHTML = `
-                    <h2 style="font-family: 'Khmer OS Muol Light', serif; text-align: center; color: #1e3a8a; margin-bottom: 20px; font-size: 14pt;">តារាងបញ្ជីសំណុំរឿង (Master Case Directory)</h2>
-                    ${pdfStyledHTML}
+                    <div style="font-family: 'Kantumruy Pro', 'Battambang', sans-serif;">
+                        <h2 style="font-family: 'Khmer OS Muol Light', Moul, serif; text-align: center; color: #1e3a8a; margin-bottom: 20px; font-size: 14pt;">តារាងបញ្ជីសំណុំរឿង (Master Case Directory)</h2>
+                        ${pdfStyledHTML}
+                    </div>
                 `;
             }
 
@@ -160,8 +162,8 @@ window.shareMasterTableToTelegramBot = async function() {
         // --- FALLBACK TO HTML2PDF (WEB MODE) ---
         const tempContainer = document.createElement('div');
         tempContainer.innerHTML = `
-            <div style="font-family: 'Khmer OS Battambang', sans-serif; padding: 10px; width: 1100px;">
-                <h2 style="font-family: 'Khmer OS Muol Light', serif; text-align: center; color: #1e3a8a; margin-bottom: 10px; font-size: 14pt;">តារាងបញ្ជីសំណុំរឿង (Master Case Directory)</h2>
+            <div style="font-family: 'Kantumruy Pro', 'Battambang', sans-serif; padding: 10px; width: 1100px;">
+                <h2 style="font-family: 'Khmer OS Muol Light', Moul, serif; text-align: center; color: #1e3a8a; margin-bottom: 10px; font-size: 14pt;">តារាងបញ្ជីសំណុំរឿង (Master Case Directory)</h2>
                 ${pdfStyledHTML}
             </div>
         `;
