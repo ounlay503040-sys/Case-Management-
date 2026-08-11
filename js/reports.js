@@ -54,7 +54,64 @@ function initReportEvents() {
 }
 
 /**
- * Share filtered master table report via Telegram Bot Document Upload
+ * Share filtered master table directly from cases-view via Telegram Bot Document Upload
+ */
+window.shareMasterTableToTelegramBot = async function() {
+    if (typeof filteredCasesCache === 'undefined' || filteredCasesCache.length === 0) {
+        if (typeof showToast === 'function') showToast('ពុំមានទិន្នន័យដើម្បីបញ្ជូនទេ!', 'warning');
+        return;
+    }
+
+    if (typeof showToast === 'function') showToast('កំពុងរៀបចំទិន្នន័យបញ្ជូនទៅ Telegram...', 'info');
+
+    // Use renderMasterTableHTML which is already defined to generate the table HTML
+    const tableHTML = renderMasterTableHTML(filteredCasesCache);
+    
+    // Add border to table for Excel
+    let styledHTML = tableHTML.replace(/<table/g, '<table border="1" cellpadding="4" cellspacing="0" style="width: 100%; border-collapse: collapse; border-color: #000000;"');
+    styledHTML = styledHTML.replace(/<th/g, '<th style="border: 1px solid #000000; padding: 2px 4px; font-size: 9.5pt;"');
+    styledHTML = styledHTML.replace(/<td/g, '<td style="border: 1px solid #000000; padding: 2px 4px; font-size: 9.5pt;"');
+
+    const fileNameText = 'បញ្ជីសំណុំរឿងសរុប_NADR';
+    
+    const excelHTML = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+        <head>
+            <meta charset="utf-8">
+            <style>
+                @page { mso-page-orientation: landscape; margin: 0.5in; }
+                body { font-family: 'Khmer OS Battambang', sans-serif; font-size: 10pt; }
+                table { border-collapse: collapse; }
+                td, th { vertical-align: middle; white-space: normal; }
+                h1, h2, h3, h4, th { font-family: 'Khmer OS Muol Light', serif; }
+            </style>
+        </head>
+        <body>
+            <h2 style="font-family: 'Khmer OS Muol Light', serif;">តារាងបញ្ជីសំណុំរឿង (Master Case Directory)</h2>
+            ${styledHTML}
+        </body>
+        </html>
+    `;
+
+    const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), excelHTML], { type: 'application/vnd.ms-excel;charset=utf-8' });
+    const filename = `${fileNameText}_${new Date().toISOString().slice(0, 10)}.xls`;
+    
+    const caption = `📊 <b>ឯកសារបញ្ជីសំណុំរឿង</b>\nចំនួន៖ ${filteredCasesCache.length} ករណី\nបញ្ជូនពីប្រព័ន្ធ CMS Pro`;
+
+    if (typeof sendTelegramDocument === 'function') {
+        const success = await sendTelegramDocument(blob, filename, caption);
+        if (success) {
+            if (typeof showToast === 'function') showToast('បានផ្ញើបញ្ជីសំណុំរឿងទៅ Telegram ជោគជ័យ!', 'success');
+        } else {
+            if (typeof showToast === 'function') showToast('ការបញ្ជូនឯកសារបរាជ័យ! សូមពិនិត្យមើលការកំណត់ Bot Token។', 'error');
+        }
+    } else {
+        if (typeof showToast === 'function') showToast('ប្រព័ន្ធ Telegram មិនត្រូវបានភ្ជាប់ទេ។', 'error');
+    }
+}
+
+/**
+ * Share filtered report (from reports-view) via Telegram Bot Document Upload
  */
 async function shareFilteredCasesToTelegram() {
     const paper = document.getElementById('report-content');
