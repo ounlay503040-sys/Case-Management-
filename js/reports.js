@@ -114,12 +114,17 @@ window.shareMasterTableToTelegramBot = async function() {
     if (typeof html2pdf !== 'undefined') {
         if (typeof showToast === 'function') showToast('កំពុងរៀបចំ និងបញ្ជូនឯកសារ PDF បន្ថែមទៀត...', 'info');
         
+        // Create a separate styled HTML for PDF to make it fit nicely (font-size 6pt, compact padding)
+        let pdfStyledHTML = tableHTML.replace(/<table/g, '<table border="1" cellpadding="2" cellspacing="0" style="width: 100%; border-collapse: collapse; border-color: #000000;"');
+        pdfStyledHTML = pdfStyledHTML.replace(/<th/g, '<th style="border: 1px solid #000000; padding: 1px 2px; font-size: 6pt; word-wrap: break-word;"');
+        pdfStyledHTML = pdfStyledHTML.replace(/<td/g, '<td style="border: 1px solid #000000; padding: 1px 2px; font-size: 6pt; word-wrap: break-word;"');
+
         // Create a temporary container for PDF rendering
         const tempContainer = document.createElement('div');
         tempContainer.innerHTML = `
-            <div style="font-family: 'Khmer OS Battambang', sans-serif; padding: 20px;">
-                <h2 style="font-family: 'Khmer OS Muol Light', serif; text-align: center; color: #1e3a8a; margin-bottom: 20px;">តារាងបញ្ជីសំណុំរឿង (Master Case Directory)</h2>
-                ${styledHTML}
+            <div style="font-family: 'Khmer OS Battambang', sans-serif; padding: 10px; width: 1100px;">
+                <h2 style="font-family: 'Khmer OS Muol Light', serif; text-align: center; color: #1e3a8a; margin-bottom: 10px; font-size: 14pt;">តារាងបញ្ជីសំណុំរឿង (Master Case Directory)</h2>
+                ${pdfStyledHTML}
             </div>
         `;
         
