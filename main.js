@@ -58,6 +58,41 @@ app.whenReady().then(() => {
     return 1;
   });
 
+  // Native PDF Generation Handler
+  ipcMain.handle('generate-pdf', async (event, htmlContent) => {
+    return new Promise((resolve, reject) => {
+      // Create a hidden, off-screen window
+      let printWindow = new BrowserWindow({
+        show: false,
+        webPreferences: {
+          nodeIntegration: false,
+          contextIsolation: true
+        }
+      });
+
+      printWindow.loadURL("data:text/html;charset=utf-8," + encodeURIComponent(htmlContent));
+
+      printWindow.webContents.on('did-finish-load', async () => {
+        try {
+          const pdfBuffer = await printWindow.webContents.printToPDF({
+            landscape: true,
+            printBackground: true,
+            pageSize: 'A4',
+            margins: { marginType: 'printableArea' }
+          });
+          
+          printWindow.close();
+          printWindow = null;
+          resolve(pdfBuffer);
+        } catch (error) {
+          printWindow.close();
+          printWindow = null;
+          reject(error);
+        }
+      });
+    });
+  });
+
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });

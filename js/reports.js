@@ -111,15 +111,56 @@ window.shareMasterTableToTelegramBot = async function() {
     }
 
     // 2. Generate and Send PDF File
-    if (typeof html2pdf !== 'undefined') {
-        if (typeof showToast === 'function') showToast('កំពុងរៀបចំ និងបញ្ជូនឯកសារ PDF បន្ថែមទៀត...', 'info');
-        
-        // Create a separate styled HTML for PDF to make it fit nicely (font-size 6pt, compact padding)
-        let pdfStyledHTML = tableHTML.replace(/<table/g, '<table border="1" cellpadding="2" cellspacing="0" style="width: 100%; border-collapse: collapse; border-color: #000000;"');
-        pdfStyledHTML = pdfStyledHTML.replace(/<th/g, '<th style="border: 1px solid #000000; padding: 1px 2px; font-size: 6pt; word-wrap: break-word;"');
-        pdfStyledHTML = pdfStyledHTML.replace(/<td/g, '<td style="border: 1px solid #000000; padding: 1px 2px; font-size: 6pt; word-wrap: break-word;"');
+    if (typeof showToast === 'function') showToast('កំពុងរៀបចំ និងបញ្ជូនឯកសារ PDF បន្ថែមទៀត...', 'info');
+    
+    // Create a separate styled HTML for PDF to make it fit nicely (font-size 8pt, compact padding)
+    let pdfStyledHTML = tableHTML.replace(/<table/g, '<table border="1" cellpadding="2" cellspacing="0" style="width: 100%; border-collapse: collapse; border-color: #000000;"');
+    pdfStyledHTML = pdfStyledHTML.replace(/<th/g, '<th style="border: 1px solid #000000; padding: 2px 4px; font-size: 8pt; word-wrap: break-word;"');
+    pdfStyledHTML = pdfStyledHTML.replace(/<td/g, '<td style="border: 1px solid #000000; padding: 2px 4px; font-size: 8pt; word-wrap: break-word;"');
+    // Prevent table rows from breaking across pages
+    pdfStyledHTML = pdfStyledHTML.replace(/<tr/g, '<tr style="page-break-inside: avoid;"');
 
-        // Create a temporary container for PDF rendering
+    const pdfFilename = `${fileNameText}_${new Date().toISOString().slice(0, 10)}.pdf`;
+    const captionPdf = `📄 <b>ឯកសារបញ្ជីសំណុំរឿង (PDF)</b>\nចំនួន៖ ${filteredCasesCache.length} ករណី\nបញ្ជូនពីប្រព័ន្ធ CMS Pro`;
+
+    if (window.electronAPI && window.electronAPI.generatePDF) {
+        // --- NATIVE ELECTRON PDF GENERATION (PERFECT KHMER RENDERING) ---
+        const fullPdfHtml = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <style>
+                    @page { size: A4 landscape; margin: 10mm; }
+                    body { font-family: 'Khmer OS Battambang', sans-serif; }
+                    table { page-break-inside: auto; }
+                    tr { page-break-inside: avoid; page-break-after: auto; }
+                    thead { display: table-header-group; }
+                    tfoot { display: table-footer-group; }
+                </style>
+            </head>
+            <body>
+                <h2 style="font-family: 'Khmer OS Muol Light', serif; text-align: center; color: #1e3a8a; margin-bottom: 20px; font-size: 14pt;">តារាងបញ្ជីសំណុំរឿង (Master Case Directory)</h2>
+                ${pdfStyledHTML}
+            </body>
+            </html>
+        `;
+
+        try {
+            const pdfBuffer = await window.electronAPI.generatePDF(fullPdfHtml);
+            const pdfBlob = new Blob([pdfBuffer], { type: 'application/pdf' });
+            const successPdf = await sendTelegramDocument(pdfBlob, pdfFilename, captionPdf);
+            if (successPdf) {
+                if (typeof showToast === 'function') showToast('បានផ្ញើឯកសារ Excel និង PDF ទៅ Telegram ជោគជ័យ!', 'success');
+            } else {
+                if (typeof showToast === 'function') showToast('ការបញ្ជូនឯកសារ PDF បរាជ័យ!', 'error');
+            }
+        } catch (error) {
+            console.error('Native PDF Generation Error:', error);
+            if (typeof showToast === 'function') showToast('មានបញ្ហាក្នុងការបង្កើតឯកសារ PDF!', 'error');
+        }
+    } else if (typeof html2pdf !== 'undefined') {
+        // --- FALLBACK TO HTML2PDF (WEB MODE) ---
         const tempContainer = document.createElement('div');
         tempContainer.innerHTML = `
             <div style="font-family: 'Khmer OS Battambang', sans-serif; padding: 10px; width: 1100px;">
@@ -128,10 +169,9 @@ window.shareMasterTableToTelegramBot = async function() {
             </div>
         `;
         
-        // Use html2pdf to generate blob
         const pdfOpt = {
             margin:       10,
-            filename:     `${fileNameText}_${new Date().toISOString().slice(0, 10)}.pdf`,
+            filename:     pdfFilename,
             image:        { type: 'jpeg', quality: 0.98 },
             html2canvas:  { scale: 2 },
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
@@ -139,18 +179,14 @@ window.shareMasterTableToTelegramBot = async function() {
 
         try {
             const pdfBlob = await html2pdf().set(pdfOpt).from(tempContainer).outputPdf('blob');
-            const pdfFilename = `${fileNameText}_${new Date().toISOString().slice(0, 10)}.pdf`;
-            const captionPdf = `📄 <b>ឯកសារបញ្ជីសំណុំរឿង (PDF)</b>\nចំនួន៖ ${filteredCasesCache.length} ករណី\nបញ្ជូនពីប្រព័ន្ធ CMS Pro`;
-            
             const successPdf = await sendTelegramDocument(pdfBlob, pdfFilename, captionPdf);
-            
             if (successPdf) {
-                if (typeof showToast === 'function') showToast('បានផ្ញើឯកសារ Excel និង PDF ទៅ Telegram ជោគជ័យ!', 'success');
+                if (typeof showToast === 'function') showToast('បានផ្ញើឯកសារ Excel និង PDF ទៅ Telegram ជោគជ័យ (Web Mode)!', 'success');
             } else {
                 if (typeof showToast === 'function') showToast('ការបញ្ជូនឯកសារ PDF បរាជ័យ!', 'error');
             }
         } catch (error) {
-            console.error('PDF Generation Error:', error);
+            console.error('HTML2PDF Generation Error:', error);
             if (typeof showToast === 'function') showToast('មានបញ្ហាក្នុងការបង្កើតឯកសារ PDF!', 'error');
         }
     } else {
