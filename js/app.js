@@ -528,6 +528,7 @@ function generateMasterCaseRowHTML(c, rowNum) {
                 <div class="action-btns">
                     <button type="button" class="btn-icon system-action-btn" data-action="view" data-id="${c.id}" title="មើលប័ណ្ណ"><i class="fa-solid fa-eye" style="pointer-events: none;"></i></button>
                     <button type="button" class="btn-icon text-success system-action-btn" data-action="legal" data-id="${c.id}" title="ផលិតលិខិតគតិយុត្ត"><i class="fa-solid fa-file-signature" style="pointer-events: none;"></i></button>
+                    <button type="button" class="btn-icon text-info system-action-btn" data-action="telegram" data-id="${c.id}" title="ចែករំលែកទៅ Telegram"><i class="fab fa-telegram-plane" style="pointer-events: none;"></i></button>
                     <button type="button" class="btn-icon system-action-btn" data-action="edit" data-id="${c.id}" title="កែសម្រួល"><i class="fa-solid fa-pen" style="pointer-events: none;"></i></button>
                     <button type="button" class="btn-icon delete-btn system-action-btn" data-action="delete" data-id="${c.id}" title="លុប"><i class="fa-solid fa-trash" style="pointer-events: none;"></i></button>
                 </div>
@@ -552,6 +553,8 @@ document.addEventListener('click', function(e) {
         if(typeof openViewModal === 'function') openViewModal(id);
     } else if (action === 'legal') {
         if(typeof openLegalDocModal === 'function') openLegalDocModal(id);
+    } else if (action === 'telegram') {
+        if(typeof shareCaseToTelegram === 'function') shareCaseToTelegram(id);
     } else if (action === 'edit') {
         if(typeof openEditModal === 'function') openEditModal(id);
     } else if (action === 'delete') {
@@ -837,6 +840,13 @@ function initModalEvents() {
     if (meetingA) meetingA.addEventListener('change', () => handleMeetingChange(meetingA, 'meeting-a'));
     if (meetingB) meetingB.addEventListener('change', () => handleMeetingChange(meetingB, 'meeting-b'));
     if (mediation) mediation.addEventListener('change', () => handleMeetingChange(mediation, 'mediation'));
+
+    const btnShareStatsTelegram = document.getElementById('btn-share-stats-telegram');
+    if (btnShareStatsTelegram) {
+        btnShareStatsTelegram.addEventListener('click', () => {
+            if (typeof shareStatsToTelegram === 'function') shareStatsToTelegram();
+        });
+    }
 
 
     const openAdd = () => {
@@ -1263,12 +1273,63 @@ function openViewModal(id) {
             if (typeof openLegalDocModal === 'function') openLegalDocModal(c.id);
         };
     }
+    const btnTelegram = document.getElementById('btn-telegram-from-view');
+    if (btnTelegram) {
+        btnTelegram.onclick = () => shareCaseToTelegram(c.id);
+    }
     document.getElementById('btn-edit-from-view').onclick = () => openEditModal(c.id);
     document.getElementById('btn-delete-from-view').onclick = () => confirmDeleteCase(c.id, true);
     document.getElementById('btn-print-single-case').onclick = () => printSingleDossier(c);
 
     modal.classList.add('open');
 }
+
+/**
+ * Share Case to Telegram via t.me/share/url scheme
+ */
+window.shareCaseToTelegram = function(id) {
+    const c = getCaseById(id);
+    if (!c) return;
+
+    let text = `📂 *ព័ត៌មានសំណុំរឿង NADR*\n`;
+    text += `🔹 លេខសំណុំរឿង៖ ${c.caseNumber}\n`;
+    text += `🔹 កាលបរិច្ឆេទ៖ ${c.dateReceived}\n`;
+    text += `🔹 ប្រភេទ៖ ${t_val(c.category)}\n`;
+    text += `🔹 ភាគី (ក)៖ ${c.partyA_name || ''}\n`;
+    text += `🔹 ភាគី (ខ)៖ ${c.partyB_name || ''}\n`;
+    text += `🔹 ទីតាំងវិវាទ៖ ${t_val(c.disputeLocation)}\n`;
+    text += `🔹 ស្ថានភាព៖ ${t_val(c.status)}\n\n`;
+    
+    if (c.summary) {
+        text += `📝 *សេចក្តីសង្ខេប៖*\n${c.summary}\n`;
+    }
+
+    const url = `https://t.me/share/url?url=&text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+};
+
+/**
+ * Share Statistics to Telegram
+ */
+window.shareStatsToTelegram = function() {
+    const total = casesData.length;
+    const settle = casesData.filter(c => c.status && c.status.startsWith('Settle')).length;
+    const active = casesData.filter(c => c.status && c.status.startsWith('Active')).length;
+    const close = casesData.filter(c => c.status && c.status.startsWith('Close')).length;
+    const pending = casesData.filter(c => c.status && c.status.startsWith('Pending')).length;
+
+    let text = `📊 *របាយការណ៍ស្ថិតិសំណុំរឿង NADR*\n`;
+    text += `📅 កាលបរិច្ឆេទ៖ ${getTodayDateString()}\n\n`;
+    text += `🔹 សំណុំរឿងសរុប៖ ${total} ករណី\n`;
+    text += `🔹 បានដោះស្រាយ (Settle)៖ ${settle} ករណី\n`;
+    text += `🔹 កំពុងចាត់ការ (Active)៖ ${active} ករណី\n`;
+    text += `🔹 បានបិទបញ្ចុះ (Close)៖ ${close} ករណី\n`;
+    text += `🔹 បានតម្កល់ (Pending)៖ ${pending} ករណី\n\n`;
+    text += `✨ បញ្ជូនពីប្រព័ន្ធ CMS Pro`;
+
+    const url = `https://t.me/share/url?url=&text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+};
 
 /**
  * Custom Confirmation Popup Modal System
