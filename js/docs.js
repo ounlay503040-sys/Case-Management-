@@ -21,7 +21,7 @@ function initDocsEvents() {
 
     if (btnCloseDocModal) {
         btnCloseDocModal.addEventListener('click', () => {
-            if (docModal) docModal.classList.remove('active');
+            if (docModal) docModal.classList.remove('open');
         });
     }
 
@@ -72,7 +72,7 @@ function openLegalDocModal(id) {
     if (docOfficerInput) docOfficerInput.value = localStorage.getItem('nadr_auth_user_name') || 'មន្ត្រីសម្របសម្រួល NADR';
     if (docRoomInput) docRoomInput.value = 'សាលសះជាលេខ ០១ (អគាររដ្ឋបាល NADR)';
 
-    if (docModal) docModal.classList.add('active');
+    if (docModal) docModal.classList.add('open');
     renderDocumentPreview();
 }
 
