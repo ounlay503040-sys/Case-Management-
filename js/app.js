@@ -1323,7 +1323,7 @@ window.shareStatsToTelegram = async function() {
     const total = casesData.length;
     const settle = casesData.filter(c => c.status && c.status.startsWith('Settle')).length;
     const active = casesData.filter(c => c.status && c.status.startsWith('Active')).length;
-    const close = casesData.filter(c => c.status && c.status.startsWith('Close')).length;
+    const close = casesData.filter(c => c.status && (c.status.startsWith('Close') || c.status.startsWith('No Settle') || c.status.includes('មិនព្រមព្រៀង'))).length;
     const pending = casesData.filter(c => c.status && c.status.startsWith('Pending')).length;
 
     // 1. & 2. Overview & Breakdown
@@ -1334,7 +1334,7 @@ window.shareStatsToTelegram = async function() {
     text += `• សំណុំរឿងសរុប៖ <b>${total}</b> ករណី\n`;
     text += `• កំពុងចាត់ការ (Active)៖ <b>${active}</b> ករណី\n`;
     text += `• បានដោះស្រាយ (Settle)៖ <b>${settle}</b> ករណី\n`;
-    text += `• បានបិទបញ្ចុះ (Close)៖ <b>${close}</b> ករណី\n`;
+    text += `• បានបិទបញ្ចប់ (Closed)៖ <b>${close}</b> ករណី\n`;
     text += `• បានតម្កល់ (Pending)៖ <b>${pending}</b> ករណី\n\n`;
 
     // 3. & 4. Categories breakdown
