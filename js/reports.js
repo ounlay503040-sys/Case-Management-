@@ -544,13 +544,13 @@ function renderMonthlyProgressReportHTML(dataArray) {
                 </td>
                 <td style="padding: 6px; border: 1px solid #cbd5e1;">
                     <strong style="color: #1e3a8a;">${c.category}</strong><br>
-                    <span style="font-size: 8.5pt; color: #475569;">${c.disputeLocation || '-'}</span>
+                    <span style="color: #475569;">${c.disputeLocation || '-'}</span>
                 </td>
-                <td style="padding: 6px; font-size: 8.5pt; border: 1px solid #cbd5e1;">${c.meetingPartyA || 'បានប្រមូលព័ត៌មានភាគីសន្និដ្ឋានរួចរាល់'}</td>
-                <td style="padding: 6px; font-size: 8.5pt; border: 1px solid #cbd5e1;">${c.meetingPartyB || 'បានប្រមូលព័ត៌មានភាគីម្ខាងទៀតរួចរាល់'}</td>
-                <td style="padding: 6px; font-size: 8.5pt; font-weight: 600; color: #1d4ed8; border: 1px solid #cbd5e1;">${c.mediationMeeting || 'បានប្រជុំសម្រុះសម្រួលរួចរាល់'}</td>
-                <td style="padding: 6px; text-align: center; font-size: 8.5pt; border: 1px solid #cbd5e1;">${c.assistingOfficer || 'គ្មាន'}</td>
-                <td style="padding: 6px; text-align: center; font-size: 8.5pt; border: 1px solid #cbd5e1;">${c.remarks || 'គ្មាន'}</td>
+                <td style="padding: 6px; border: 1px solid #cbd5e1;">${c.meetingPartyA || 'បានប្រមូលព័ត៌មានភាគីសន្និដ្ឋានរួចរាល់'}</td>
+                <td style="padding: 6px; border: 1px solid #cbd5e1;">${c.meetingPartyB || 'បានប្រមូលព័ត៌មានភាគីម្ខាងទៀតរួចរាល់'}</td>
+                <td style="padding: 6px; font-weight: 600; color: #1d4ed8; border: 1px solid #cbd5e1;">${c.mediationMeeting || 'បានប្រជុំសម្រុះសម្រួលរួចរាល់'}</td>
+                <td style="padding: 6px; text-align: center; border: 1px solid #cbd5e1;">${c.assistingOfficer || 'គ្មាន'}</td>
+                <td style="padding: 6px; text-align: center; border: 1px solid #cbd5e1;">${c.remarks || 'គ្មាន'}</td>
             </tr>
         `;
     });
@@ -648,24 +648,24 @@ function renderOfficialTrackingReportHTML(dataArray) {
                     <tr style="background-color: ${rowBg}; vertical-align: middle; border: 1px solid #cbd5e1; transition: background 0.2s;">
                         <td style="padding: 6px; text-align: center; font-weight: 700; border: 1px solid #cbd5e1;">${overallIndex}</td>
                         <td style="padding: 6px; text-align: center; border: 1px solid #cbd5e1;">
-                            <strong style="color: #1d4ed8; font-size: 10pt;">${c.caseNumber}</strong><br>
-                            <span style="font-size: 8.5pt; color: #475569;">📅 ${c.dateReceived}</span>
+                            <strong style="color: #1d4ed8;">${c.caseNumber}</strong><br>
+                            <span style="color: #475569;">📅 ${c.dateReceived}</span>
                         </td>
                         <td style="padding: 6px; border: 1px solid #cbd5e1;">
                             <strong style="color: #0f172a;">${c.partyA_name}</strong> (${c.partyA_gender}, ${c.partyA_age || '?'} ឆ្នាំ)<br>
-                            <span style="font-size: 8.5pt; color: #475569;">📞 ${c.partyA_phone || 'ពុំមាន'} | 📍 ${c.partyA_location}</span>
+                            <span style="color: #475569;">📞 ${c.partyA_phone || 'ពុំមាន'} | 📍 ${c.partyA_location}</span>
                         </td>
                         <td style="padding: 6px; border: 1px solid #cbd5e1;">
                             <strong style="color: #0f172a;">${c.partyB_name}</strong> (${c.partyB_gender}, ${c.partyB_age || '?'} ឆ្នាំ)<br>
-                            <span style="font-size: 8.5pt; color: #475569;">📞 ${c.partyB_phone || 'ពុំមាន'} | 📍 ${c.partyB_location}</span>
+                            <span style="color: #475569;">📞 ${c.partyB_phone || 'ពុំមាន'} | 📍 ${c.partyB_location}</span>
                         </td>
                         <td style="padding: 6px; font-weight: 600; color: #1e3a8a; border: 1px solid #cbd5e1;">${c.category}</td>
                         <td style="padding: 6px; text-align: center; border: 1px solid #cbd5e1;">${c.disputeLocation}</td>
-                        <td style="padding: 6px; font-size: 8.5pt; border: 1px solid #cbd5e1;">${c.meetingPartyA || 'ពុំទាន់ជួប'}</td>
-                        <td style="padding: 6px; font-size: 8.5pt; border: 1px solid #cbd5e1;">${c.meetingPartyB || 'ពុំទាន់ជួប'}</td>
-                        <td style="padding: 6px; font-size: 8.5pt; font-weight: 600; color: #1d4ed8; border: 1px solid #cbd5e1;">${c.mediationMeeting || 'រង់ចាំកិច្ចប្រជុំ'}</td>
+                        <td style="padding: 6px; border: 1px solid #cbd5e1;">${c.meetingPartyA || 'ពុំទាន់ជួប'}</td>
+                        <td style="padding: 6px; border: 1px solid #cbd5e1;">${c.meetingPartyB || 'ពុំទាន់ជួប'}</td>
+                        <td style="padding: 6px; font-weight: 600; color: #1d4ed8; border: 1px solid #cbd5e1;">${c.mediationMeeting || 'រង់ចាំកិច្ចប្រជុំ'}</td>
                         <td style="padding: 6px; text-align: center; font-weight: 800; border: 1px solid #cbd5e1; color: ${c.status.startsWith('Settle') ? '#15803d' : (c.status.startsWith('Active') ? '#1d4ed8' : '#b91c1c')};">${c.status}</td>
-                        <td style="padding: 6px; text-align: center; font-size: 8.5pt; border: 1px solid #cbd5e1;">${c.remarks || '-'}</td>
+                        <td style="padding: 6px; text-align: center; border: 1px solid #cbd5e1;">${c.remarks || '-'}</td>
                     </tr>
                 `;
             });
