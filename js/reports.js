@@ -313,6 +313,8 @@ function generateReport(silent = false) {
     if (btnPrint) btnPrint.disabled = false;
     if (btnExcel) btnExcel.disabled = false;
     if (btnWord) btnWord.disabled = false;
+    const btnTelegram = document.getElementById('btn-share-report-telegram');
+    if (btnTelegram) btnTelegram.disabled = false;
 
     // Avoid duplicate Kingdom header for reports that render their own custom headers
     const officialHeader = paper?.querySelector('.official-report-header');

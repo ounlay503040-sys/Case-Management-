@@ -492,29 +492,29 @@ function generateMasterCaseRowHTML(c, rowNum) {
                 <span style="font-size: 12px; font-weight: 600; color: #b91c1c;">${c.caseEventDate || '-'}</span>
             </td>
             <td>
-                <div class="party-box" style="max-width: 250px;">
-                    <strong class="text-truncate-2" title="${c.partyA_name}">${c.partyA_name}</strong>
-                    <span class="text-truncate-2"><i class="fa-solid fa-map-marker-alt"></i> ${c.partyA_location}</span>
+                <div class="party-box" style="max-width: 250px; white-space: normal; word-wrap: break-word;">
+                    <strong title="${c.partyA_name}">${c.partyA_name}</strong>
+                    <span><i class="fa-solid fa-map-marker-alt"></i> ${c.partyA_location}</span>
                 </div>
             </td>
             <td>
-                <div class="party-box" style="max-width: 250px;">
-                    <strong class="text-truncate-2" title="${c.partyB_name}">${c.partyB_name}</strong>
-                    <span class="text-truncate-2"><i class="fa-solid fa-map-marker-alt"></i> ${c.partyB_location}</span>
+                <div class="party-box" style="max-width: 250px; white-space: normal; word-wrap: break-word;">
+                    <strong title="${c.partyB_name}">${c.partyB_name}</strong>
+                    <span><i class="fa-solid fa-map-marker-alt"></i> ${c.partyB_location}</span>
                 </div>
             </td>
             <td>
-                <div class="party-box" style="max-width: 250px;">
-                    <strong class="text-truncate-2" title="${c.partyC_name || ''}">${c.partyC_name || '-'}</strong>
+                <div class="party-box" style="max-width: 250px; white-space: normal; word-wrap: break-word;">
+                    <strong title="${c.partyC_name || ''}">${c.partyC_name || '-'}</strong>
                 </div>
             </td>
             <td><span style="font-weight: 600;">${t_val(c.category)}</span></td>
-            <td><span class="badge" style="background: var(--border-color); color: var(--text-color);">${t_val(c.disputeLocation)}</span><br><small style="color: #64748b;">${c.disputeAddress || ''}</small></td>
+            <td><span class="badge" style="background: var(--border-color); color: var(--text-color); white-space: normal;">${t_val(c.disputeLocation)}</span><br><small style="color: #64748b; white-space: normal;">${c.disputeAddress || ''}</small></td>
             <td>
-                <div style="font-size: 11px; line-height: 1.5; max-width: 200px;">
-                    <div class="text-truncate-2" title="ក៖ ${t_val(c.meetingPartyA)}">🔹 ក៖ ${t_val(c.meetingPartyA)}</div>
-                    <div class="text-truncate-2" title="ខ៖ ${t_val(c.meetingPartyB)}">🔸 ខ៖ ${t_val(c.meetingPartyB)}</div>
-                    <div class="text-truncate-2" title="ផ្សះផ្សា៖ ${t_val(c.mediationMeeting)}" style="font-weight: 600; color: var(--primary-color);">⚖️ ផ្សះផ្សា៖ ${t_val(c.mediationMeeting)}</div>
+                <div style="font-size: 11px; line-height: 1.5; max-width: 250px; white-space: normal; word-wrap: break-word;">
+                    <div title="ក៖ ${t_val(c.meetingPartyA)}">🔹 ក៖ ${t_val(c.meetingPartyA)}</div>
+                    <div title="ខ៖ ${t_val(c.meetingPartyB)}">🔸 ខ៖ ${t_val(c.meetingPartyB)}</div>
+                    <div title="ផ្សះផ្សា៖ ${t_val(c.mediationMeeting)}" style="font-weight: 600; color: var(--primary-color);">⚖️ ផ្សះផ្សា៖ ${t_val(c.mediationMeeting)}</div>
                 </div>
             </td>
             <td class="text-center">
@@ -4963,8 +4963,10 @@ function formatPhoneNumberWithTelecom(phoneStr) {
     let cleanPhone = phoneStr.replace(/\s*\([a-zA-Z\s]+\)$/, '').trim();
     // Remove spaces/dashes to get the digits
     let digits = cleanPhone.replace(/[\s-]/g, '');
-    if (digits.length >= 3) {
-        let prefix = digits.substring(0, 3);
+    let khmerToEng = { '០':'0', '១':'1', '២':'2', '៣':'3', '៤':'4', '៥':'5', '៦':'6', '៧':'7', '៨':'8', '៩':'9' };
+    let engDigits = digits.replace(/[០-៩]/g, m => khmerToEng[m]);
+    if (engDigits.length >= 3) {
+        let prefix = engDigits.substring(0, 3);
         let network = null;
         for (const [net, prefixes] of Object.entries(TELECOM_PREFIXES)) {
             if (prefixes.includes(prefix)) {
