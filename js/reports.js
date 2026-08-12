@@ -203,12 +203,29 @@ async function shareFilteredCasesToTelegram() {
         return;
     }
 
-    let tableHTML = paper.innerHTML;
+    const pdfClone = paper.cloneNode(true);
+    const hiddens = pdfClone.querySelectorAll('[style*="display: none"], .official-report-footer');
+    hiddens.forEach(el => el.remove());
 
-    let pdfStyledHTML = tableHTML.replace(/<table/g, '<table border="1" cellpadding="2" cellspacing="0" style="width: 100%; border-collapse: collapse; border-color: #000000;"');
-    pdfStyledHTML = pdfStyledHTML.replace(/<th/g, '<th style="border: 1px solid #000000; padding: 2px 4px; font-size: 8pt; word-wrap: break-word;"');
-    pdfStyledHTML = pdfStyledHTML.replace(/<td/g, '<td style="border: 1px solid #000000; padding: 2px 4px; font-size: 8pt; word-wrap: break-word;"');
-    pdfStyledHTML = pdfStyledHTML.replace(/<tr/g, '<tr style="page-break-inside: avoid;"');
+    const styleEl = document.createElement('style');
+    styleEl.innerHTML = `
+        table { width: 100% !important; border-collapse: collapse !important; table-layout: fixed !important; }
+        th, td { 
+            width: auto !important; 
+            min-width: 0 !important; 
+            font-size: 7.5pt !important; 
+            padding: 4px !important; 
+            white-space: normal !important; 
+            word-wrap: break-word !important; 
+            word-break: break-word !important;
+        }
+        span, strong, div, p { font-size: 7.5pt !important; }
+        h2 { font-size: 13pt !important; }
+        h3 { font-size: 14pt !important; }
+        h4 { font-size: 12pt !important; }
+        tr { page-break-inside: avoid !important; }
+    `;
+    pdfClone.prepend(styleEl);
 
     const titleEl = document.getElementById('report-header-title');
     const fileNameText = titleEl ? titleEl.innerText.replace(/[^a-zA-Z0-9ក-ឤ០-៩]/g, '_') : 'NADR_Report';
@@ -230,7 +247,7 @@ async function shareFilteredCasesToTelegram() {
             if (printArea) {
                 printArea.innerHTML = `
                     <div style="font-family: 'Kantumruy Pro', 'Battambang', sans-serif;">
-                        ${pdfStyledHTML}
+                        ${pdfClone.innerHTML}
                     </div>
                 `;
             }
@@ -257,7 +274,7 @@ async function shareFilteredCasesToTelegram() {
         const tempContainer = document.createElement('div');
         tempContainer.innerHTML = `
             <div style="font-family: 'Kantumruy Pro', 'Battambang', sans-serif; padding: 10px; width: 1100px;">
-                ${pdfStyledHTML}
+                ${pdfClone.innerHTML}
             </div>
         `;
         
