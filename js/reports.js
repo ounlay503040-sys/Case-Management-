@@ -24,13 +24,82 @@ function initReportEvents() {
     }
 
     if (btnPrint) {
-        btnPrint.addEventListener('click', () => {
+        btnPrint.addEventListener('click', async () => {
             const paper = document.getElementById('report-content');
             const printArea = document.getElementById('print-area');
-            if (paper && printArea) {
-                printArea.innerHTML = paper.innerHTML;
+            if (!paper || !printArea) return;
+            
+            const btnIcon = btnPrint.innerHTML;
+            btnPrint.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> កំពុងរៀបចំ PDF...';
+            btnPrint.disabled = true;
+
+            try {
+                // Ensure proper PDF styling wrapper
+                printArea.innerHTML = `
+                    <div style="font-family: 'Kantumruy Pro', 'Battambang', sans-serif; background: #ffffff; padding: 20px;">
+                        ${paper.innerHTML}
+                    </div>
+                `;
+
+                // Strip dark mode before capture
+                const wasDark = document.body.classList.contains('dark-theme');
+                if (wasDark) document.body.classList.remove('dark-theme');
+
+                let pdfBuffer;
+                if (window.electronAPI && window.electronAPI.generatePDF) {
+                    pdfBuffer = await window.electronAPI.generatePDF();
+                } else {
+                    // Fallback for Web mode
+                    window.print();
+                    btnPrint.innerHTML = btnIcon;
+                    btnPrint.disabled = false;
+                    return;
+                }
+                
+                // Restore dark mode
+                if (wasDark) document.body.classList.add('dark-theme');
+                printArea.innerHTML = '';
+
+                if (pdfBuffer) {
+                    const titleEl = document.getElementById('report-header-title');
+                    let fileNameText = titleEl ? titleEl.innerText.replace(/[^a-zA-Z0-9]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '') : 'NADR_Report';
+                    if (!fileNameText || fileNameText === '_' || fileNameText === '') fileNameText = 'NADR_Progress_Report';
+                    const pdfFilename = `${fileNameText}_${new Date().toISOString().slice(0, 10)}.pdf`;
+
+                    const pdfBlob = new Blob([pdfBuffer], { type: 'application/pdf' });
+                    const blobUrl = URL.createObjectURL(pdfBlob);
+                    
+                    if (typeof displayUniversalDocument === 'function') {
+                        // Show beautifully in the modal
+                        displayUniversalDocument({
+                            base64: blobUrl,
+                            name: pdfFilename,
+                            type: 'application/pdf',
+                            canReplace: false,
+                            canDelete: false,
+                            infoText: '💡 គន្លឹះ៖ លោកអ្នកអាចទាញយក (Download) ឬ បោះពុម្ព (Print) ដោយផ្ទាល់ពីទីនេះបាន។'
+                        });
+                        const modal = document.getElementById('pdf-viewer-modal');
+                        if (modal) {
+                            modal.classList.add('show');
+                        }
+                    } else {
+                        // Fallback trigger direct download if modal doesn't exist
+                        const a = document.createElement('a');
+                        a.href = blobUrl;
+                        a.download = pdfFilename;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                    }
+                }
+            } catch (error) {
+                console.error('PDF preview error:', error);
+                if (typeof showToast === 'function') showToast('មានបញ្ហាក្នុងការបង្កើត PDF!', 'error');
+            } finally {
+                btnPrint.innerHTML = btnIcon;
+                btnPrint.disabled = false;
             }
-            window.print();
         });
     }
 
