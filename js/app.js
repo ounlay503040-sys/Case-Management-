@@ -480,14 +480,14 @@ function generateMasterCaseRowHTML(c, rowNum) {
 
     return `
         <tr ondblclick="openViewModal('${c.id}')" style="cursor: pointer;" title="ចុចពីរដង ដើម្បីមើលប័ណ្ណ">
-            <td class="text-center" style="font-weight: bold; color: #64748b;">${rowNum}</td>
-            <td class="text-center" style="white-space: normal; word-wrap: break-word;">${rowNumHtml}</td>
-            <td class="text-center">
+            <td class="text-center freeze-col-1" style="font-weight: bold; color: #64748b;">${rowNum}</td>
+            <td class="text-center freeze-col-2" style="white-space: normal; word-wrap: break-word;">${rowNumHtml}</td>
+            <td class="text-center freeze-col-3">
                 ${c.folderLink ? `<a href="${c.folderLink}" target="_blank" title="បើក Folder" class="btn-icon" style="color:#0ea5e9; text-decoration:none;"><i class="fa-solid fa-folder-open"></i></a>` : '<span class="text-muted" style="font-size:11px;">-</span>'}
             </td>
 
-            <td><span class="case-number-tag" style="white-space: normal; word-wrap: break-word;">${c.caseNumber}</span></td>
-            <td>${formatExcelDate(c.dateReceived)}</td>
+            <td class="freeze-col-4"><span class="case-number-tag" style="white-space: normal; word-wrap: break-word;">${c.caseNumber}</span></td>
+            <td class="freeze-col-5">${formatExcelDate(c.dateReceived)}</td>
             <td class="text-center" style="white-space: normal; word-wrap: break-word;">${getStatusBadgeHTML(c.status)}</td>
             <td style="white-space: normal; word-wrap: break-word;">
                 <span style="font-size: 12px; font-weight: 600; color: #1e40af;">${c.caseEvent || '-'}</span>
@@ -526,7 +526,7 @@ function generateMasterCaseRowHTML(c, rowNum) {
                     ${c.remarks}
                 </span>
             </td>
-            <td class="text-center" style="position: relative; z-index: 10; white-space: nowrap; min-width: 150px;">
+            <td class="text-center" style="white-space: nowrap; min-width: 150px;">
                 <div class="action-btns" style="display: flex; gap: 4px; justify-content: center; flex-wrap: nowrap;">
                     <button type="button" class="btn-icon system-action-btn" data-action="view" data-id="${c.id}" title="មើលប័ណ្ណ"><i class="fa-solid fa-eye" style="pointer-events: none;"></i></button>
                     <button type="button" class="btn-icon text-success system-action-btn" data-action="legal" data-id="${c.id}" title="ផលិតលិខិតគតិយុត្ត"><i class="fa-solid fa-file-signature" style="pointer-events: none;"></i></button>

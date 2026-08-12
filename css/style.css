@@ -1055,6 +1055,124 @@ body {
     padding: 12px 14px;
 }
 
+/* ==========================================================================
+   FREEZE PANES (STICKY HEADER & STICKY LEFT COLUMNS - UP TO DATE)
+   ========================================================================== */
+
+/* Enforce box-sizing and border-collapse for alignment */
+.data-table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+/* Base Top Sticky Header for all TH */
+.data-table th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+}
+body.dark-theme .data-table th {
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+}
+
+/* Frozen TD (Left Sticky) */
+.data-table td.freeze-col-1,
+.data-table td.freeze-col-2,
+.data-table td.freeze-col-3,
+.data-table td.freeze-col-4,
+.data-table td.freeze-col-5 {
+    position: sticky;
+    z-index: 5;
+    background-color: #ffffff;
+}
+
+/* Frozen TH (Both Top & Left Sticky) */
+.data-table th.freeze-col-1,
+.data-table th.freeze-col-2,
+.data-table th.freeze-col-3,
+.data-table th.freeze-col-4,
+.data-table th.freeze-col-5 {
+    position: sticky;
+    top: 0;
+    z-index: 25;
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+/* Hover background for frozen TD */
+.data-table tr:hover td.freeze-col-1,
+.data-table tr:hover td.freeze-col-2,
+.data-table tr:hover td.freeze-col-3,
+.data-table tr:hover td.freeze-col-4,
+.data-table tr:hover td.freeze-col-5 {
+    background-color: #f8fafc;
+}
+
+/* Dark Theme Support */
+body.dark-theme .data-table td.freeze-col-1,
+body.dark-theme .data-table td.freeze-col-2,
+body.dark-theme .data-table td.freeze-col-3,
+body.dark-theme .data-table td.freeze-col-4,
+body.dark-theme .data-table td.freeze-col-5 {
+    background-color: var(--bg-card, #1e293b);
+}
+body.dark-theme .data-table th.freeze-col-1,
+body.dark-theme .data-table th.freeze-col-2,
+body.dark-theme .data-table th.freeze-col-3,
+body.dark-theme .data-table th.freeze-col-4,
+body.dark-theme .data-table th.freeze-col-5 {
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+}
+body.dark-theme .data-table tr:hover td.freeze-col-1,
+body.dark-theme .data-table tr:hover td.freeze-col-2,
+body.dark-theme .data-table tr:hover td.freeze-col-3,
+body.dark-theme .data-table tr:hover td.freeze-col-4,
+body.dark-theme .data-table tr:hover td.freeze-col-5 {
+    background-color: #334155;
+}
+
+/* Column Dimensions & Offsets */
+.freeze-col-1 {
+    left: 0px !important;
+    width: 50px !important;
+    min-width: 50px !important;
+    max-width: 50px !important;
+    box-sizing: border-box !important;
+}
+.freeze-col-2 {
+    left: 50px !important;
+    width: 55px !important;
+    min-width: 55px !important;
+    max-width: 55px !important;
+    box-sizing: border-box !important;
+}
+.freeze-col-3 {
+    left: 105px !important;
+    width: 75px !important;
+    min-width: 75px !important;
+    max-width: 75px !important;
+    box-sizing: border-box !important;
+}
+.freeze-col-4 {
+    left: 180px !important;
+    width: 95px !important;
+    min-width: 95px !important;
+    max-width: 95px !important;
+    box-sizing: border-box !important;
+}
+.freeze-col-5 {
+    left: 275px !important;
+    width: 105px !important;
+    min-width: 105px !important;
+    max-width: 105px !important;
+    box-sizing: border-box !important;
+    border-right: 2px solid #cbd5e1 !important;
+}
+body.dark-theme .freeze-col-5 {
+    border-right: 2px solid #475569 !important;
+}
+
+
 .case-number-tag {
     font-weight: 700;
     color: var(--primary-color);
