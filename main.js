@@ -59,14 +59,16 @@ app.whenReady().then(() => {
   });
 
   // Native PDF Generation Handler (Prints the current window to PDF, ensuring all fonts are loaded)
-  ipcMain.handle('generate-pdf', async (event) => {
+  ipcMain.handle('generate-pdf', async (event, customOptions = {}) => {
     try {
-      const pdfBuffer = await event.sender.printToPDF({
+      const options = {
         landscape: true,
         printBackground: true,
         pageSize: 'A4',
-        margins: { marginType: 'printableArea' }
-      });
+        margins: { marginType: 'printableArea' },
+        ...customOptions
+      };
+      const pdfBuffer = await event.sender.printToPDF(options);
       return pdfBuffer;
     } catch (error) {
       console.error('Failed to generate PDF:', error);

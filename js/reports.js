@@ -47,7 +47,7 @@ function initReportEvents() {
 
                 let pdfBuffer;
                 if (window.electronAPI && window.electronAPI.generatePDF) {
-                    pdfBuffer = await window.electronAPI.generatePDF();
+                    pdfBuffer = await window.electronAPI.generatePDF({ scale: 0.65 });
                 } else {
                     // Fallback for Web mode
                     window.print();
@@ -210,7 +210,7 @@ window.shareMasterTableToTelegramBot = async function() {
             if (wasDark) document.body.classList.remove('dark-theme');
 
             // Call generatePDF which will print the current window
-            const pdfBuffer = await window.electronAPI.generatePDF();
+            const pdfBuffer = await window.electronAPI.generatePDF({ scale: 0.65 });
             
             if (wasDark) document.body.classList.add('dark-theme');
             // Clear print-area
@@ -331,7 +331,7 @@ async function shareFilteredCasesToTelegram() {
             const wasDark = document.body.classList.contains('dark-theme');
             if (wasDark) document.body.classList.remove('dark-theme');
 
-            const pdfBuffer = await window.electronAPI.generatePDF();
+            const pdfBuffer = await window.electronAPI.generatePDF({ scale: 0.65 });
             
             if (wasDark) document.body.classList.add('dark-theme');
             
