@@ -203,68 +203,112 @@ async function shareFilteredCasesToTelegram() {
         return;
     }
 
-    const clone = paper.cloneNode(true);
-    const hiddens = clone.querySelectorAll('[style*="display: none"], .official-report-footer');
+    const pdfClone = paper.cloneNode(true);
+    const hiddens = pdfClone.querySelectorAll('[style*="display: none"], .official-report-footer');
     hiddens.forEach(el => el.remove());
     
-    const tables = clone.querySelectorAll('table');
+    const tables = pdfClone.querySelectorAll('table');
     tables.forEach(table => {
         table.setAttribute('border', '1');
-        table.setAttribute('cellpadding', '4');
+        table.setAttribute('cellpadding', '2');
         table.setAttribute('cellspacing', '0');
         table.style.width = '100%';
         table.style.borderCollapse = 'collapse';
         table.style.borderColor = '#000000';
     });
 
-    const ths = clone.querySelectorAll('th');
+    const ths = pdfClone.querySelectorAll('th');
     ths.forEach(th => {
         th.style.border = '1px solid #000000';
         th.style.padding = '2px 4px';
-        th.style.fontSize = '9.5pt';
+        th.style.fontSize = '8pt';
+        th.style.wordWrap = 'break-word';
     });
-    const tds = clone.querySelectorAll('td');
+    const tds = pdfClone.querySelectorAll('td');
     tds.forEach(td => {
         td.style.border = '1px solid #000000';
         td.style.padding = '2px 4px';
-        td.style.fontSize = '9.5pt';
+        td.style.fontSize = '8pt';
+        td.style.wordWrap = 'break-word';
+    });
+    const trs = pdfClone.querySelectorAll('tr');
+    trs.forEach(tr => {
+        tr.style.pageBreakInside = 'avoid';
     });
 
     const titleEl = document.getElementById('report-header-title');
     const fileNameText = titleEl ? titleEl.innerText.replace(/[^a-zA-Z0-9ក-ឤ០-៩]/g, '_') : 'NADR_Report';
 
-    const excelHTML = `
-        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-        <head>
-            <meta charset="utf-8">
-            <style>
-                @page { mso-page-orientation: landscape; margin: 0.5in; }
-                body { font-family: 'Khmer OS Battambang', sans-serif; font-size: 10pt; }
-                table { border-collapse: collapse; }
-                td, th { vertical-align: middle; white-space: normal; }
-                h1, h2, h3, h4, th { font-family: 'Khmer OS Muol Light', serif; }
-            </style>
-        </head>
-        <body>${clone.innerHTML}</body>
-        </html>
-    `;
+    const pdfFilename = `${fileNameText}_${new Date().toISOString().slice(0, 10)}.pdf`;
+    const captionPdf = `📄 <b>ឯកសាររបាយការណ៍បញ្ជីសំណុំរឿង (PDF)</b>\nចំនួន៖ ${currentReportData.length} ករណី\nបញ្ជូនពីប្រព័ន្ធ CMS Pro`;
 
-    const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), excelHTML], { type: 'application/vnd.ms-excel;charset=utf-8' });
-    const filename = `${fileNameText}_${new Date().toISOString().slice(0, 10)}.xls`;
-    
-    const caption = `📊 <b>ឯកសាររបាយការណ៍បញ្ជីសំណុំរឿង</b>\nចំនួន៖ ${currentReportData.length} ករណី\nបញ្ជូនពីប្រព័ន្ធ CMS Pro`;
+    if (typeof showToast === 'function') showToast('កំពុងបញ្ជូនឯកសាររបាយការណ៍ PDF ទៅ Telegram...', 'info');
 
-    if (typeof showToast === 'function') showToast('កំពុងបញ្ជូនឯកសារទៅ Telegram...', 'info');
+    if (typeof sendTelegramDocument !== 'function') {
+        if (typeof showToast === 'function') showToast('ប្រព័ន្ធ Telegram មិនត្រូវបានភ្ជាប់ទេ។', 'error');
+        return;
+    }
 
-    if (typeof sendTelegramDocument === 'function') {
-        const success = await sendTelegramDocument(blob, filename, caption);
-        if (success) {
-            if (typeof showToast === 'function') showToast('បានផ្ញើឯកសាររបាយការណ៍ទៅ Telegram ជោគជ័យ!', 'success');
-        } else {
-            if (typeof showToast === 'function') showToast('ការបញ្ជូនឯកសារបរាជ័យ! សូមពិនិត្យមើលការកំណត់ Bot Token។', 'error');
+    if (window.electronAPI && window.electronAPI.generatePDF) {
+        // --- NATIVE ELECTRON PDF GENERATION (PERFECT KHMER RENDERING) ---
+        try {
+            const printArea = document.getElementById('print-area');
+            if (printArea) {
+                printArea.innerHTML = `
+                    <div style="font-family: 'Kantumruy Pro', 'Battambang', sans-serif;">
+                        ${pdfClone.innerHTML}
+                    </div>
+                `;
+            }
+
+            const pdfBuffer = await window.electronAPI.generatePDF();
+            if (printArea) printArea.innerHTML = '';
+
+            const pdfBlob = new Blob([pdfBuffer], { type: 'application/pdf' });
+            const successPdf = await sendTelegramDocument(pdfBlob, pdfFilename, captionPdf);
+            
+            if (successPdf) {
+                if (typeof showToast === 'function') showToast('បានផ្ញើឯកសាររបាយការណ៍ PDF ទៅ Telegram ជោគជ័យ!', 'success');
+            } else {
+                if (typeof showToast === 'function') showToast('ការបញ្ជូនឯកសារបរាជ័យ! សូមពិនិត្យមើលការកំណត់ Bot Token។', 'error');
+            }
+        } catch (error) {
+            console.error('Native PDF Generation Error:', error);
+            if (typeof showToast === 'function') showToast('មានបញ្ហាក្នុងការបង្កើតឯកសារ PDF!', 'error');
+            const printArea = document.getElementById('print-area');
+            if (printArea) printArea.innerHTML = '';
+        }
+    } else if (typeof html2pdf !== 'undefined') {
+        // --- FALLBACK TO HTML2PDF (WEB MODE) ---
+        const tempContainer = document.createElement('div');
+        tempContainer.innerHTML = `
+            <div style="font-family: 'Kantumruy Pro', 'Battambang', sans-serif; padding: 10px; width: 1100px;">
+                ${pdfClone.innerHTML}
+            </div>
+        `;
+        
+        const pdfOpt = {
+            margin:       10,
+            filename:     pdfFilename,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        };
+
+        try {
+            const pdfBlob = await html2pdf().set(pdfOpt).from(tempContainer).outputPdf('blob');
+            const successPdf = await sendTelegramDocument(pdfBlob, pdfFilename, captionPdf);
+            if (successPdf) {
+                if (typeof showToast === 'function') showToast('បានផ្ញើឯកសាររបាយការណ៍ PDF ទៅ Telegram ជោគជ័យ!', 'success');
+            } else {
+                if (typeof showToast === 'function') showToast('ការបញ្ជូនឯកសារបរាជ័យ! សូមពិនិត្យមើលការកំណត់ Bot Token។', 'error');
+            }
+        } catch (error) {
+            console.error('HTML2PDF Error:', error);
+            if (typeof showToast === 'function') showToast('មានបញ្ហាក្នុងការបង្កើតឯកសារ PDF!', 'error');
         }
     } else {
-        if (typeof showToast === 'function') showToast('ប្រព័ន្ធ Telegram មិនត្រូវបានភ្ជាប់ទេ។', 'error');
+        if (typeof showToast === 'function') showToast('មុខងារបង្កើត PDF មិនមានការគាំទ្រទេ។', 'error');
     }
 }
 

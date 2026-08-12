@@ -481,11 +481,15 @@ function generateMasterCaseRowHTML(c, rowNum) {
     return `
         <tr ondblclick="openViewModal('${c.id}')" style="cursor: pointer;" title="ចុចពីរដង ដើម្បីមើលប័ណ្ណ">
             <td class="text-center" style="font-weight: bold; color: #64748b;">${rowNum}</td>
-            <td class="text-center">${rowNumHtml}</td>
-            <td><span class="case-number-tag">${c.caseNumber}</span></td>
+            <td class="text-center" style="white-space: normal; word-wrap: break-word;">${rowNumHtml}</td>
+            <td class="text-center">
+                ${c.folderLink ? `<a href="${c.folderLink}" target="_blank" title="បើក Folder" class="btn-icon" style="color:#0ea5e9; text-decoration:none;"><i class="fa-solid fa-folder-open"></i></a>` : '<span class="text-muted" style="font-size:11px;">-</span>'}
+            </td>
+            <td class="text-center" style="white-space: normal; word-wrap: break-word;">${renderTableFileCell(c)}</td>
+            <td><span class="case-number-tag" style="white-space: normal; word-wrap: break-word;">${c.caseNumber}</span></td>
             <td>${formatExcelDate(c.dateReceived)}</td>
-            <td class="text-center">${getStatusBadgeHTML(c.status)}</td>
-            <td>
+            <td class="text-center" style="white-space: normal; word-wrap: break-word;">${getStatusBadgeHTML(c.status)}</td>
+            <td style="white-space: normal; word-wrap: break-word;">
                 <span style="font-size: 12px; font-weight: 600; color: #1e40af;">${c.caseEvent || '-'}</span>
             </td>
             <td>
@@ -504,7 +508,7 @@ function generateMasterCaseRowHTML(c, rowNum) {
                 </div>
             </td>
             <td>
-                <div class="party-box" style="max-width: 250px; white-space: normal; word-wrap: break-word;">
+                <div class="party-box" style="max-width: 120px; white-space: normal; word-wrap: break-word;">
                     <strong title="${c.partyC_name || ''}">${c.partyC_name || '-'}</strong>
                 </div>
             </td>
@@ -517,17 +521,13 @@ function generateMasterCaseRowHTML(c, rowNum) {
                     <div title="ផ្សះផ្សា៖ ${t_val(c.mediationMeeting)}" style="font-weight: 600; color: var(--primary-color);">⚖️ ផ្សះផ្សា៖ ${t_val(c.mediationMeeting)}</div>
                 </div>
             </td>
-            <td class="text-center">
+            <td class="text-center" style="white-space: normal; word-wrap: break-word;">
                 <span class="badge ${c.remarks === 'បានបិទរួចរាល់' ? 'badge-settle' : 'badge-pending'}" style="font-size: 11px;">
                     ${c.remarks}
                 </span>
             </td>
             ${customCells}
-            <td class="text-center">
-                ${c.folderLink ? `<a href="${c.folderLink}" target="_blank" title="បើក Folder" class="btn-icon" style="color:#0ea5e9; text-decoration:none;"><i class="fa-solid fa-folder-open"></i></a>` : '<span class="text-muted" style="font-size:11px;">-</span>'}
-            </td>
-            <td class="text-center">${renderTableFileCell(c)}</td>
-            <td class="text-center" style="position: relative; z-index: 10;">
+            <td class="text-center" style="position: relative; z-index: 10; white-space: normal; word-wrap: break-word; min-width: 90px;">
                 <div class="action-btns">
                     <button type="button" class="btn-icon system-action-btn" data-action="view" data-id="${c.id}" title="មើលប័ណ្ណ"><i class="fa-solid fa-eye" style="pointer-events: none;"></i></button>
                     <button type="button" class="btn-icon text-success system-action-btn" data-action="legal" data-id="${c.id}" title="ផលិតលិខិតគតិយុត្ត"><i class="fa-solid fa-file-signature" style="pointer-events: none;"></i></button>
@@ -1307,7 +1307,13 @@ window.shareCaseToTelegram = async function(id) {
     text += `🔹 ស្ថានភាព៖ ${t_val(c.status)}\n\n`;
     
     if (c.summary) {
-        text += `📝 <b>សេចក្តីសង្ខេប៖</b>\n${c.summary}\n`;
+        let formattedSummary = c.summary.replace(/\b\d{4,}(?:\.\d+)?\b|\b\d+\.\d+\b/g, m => {
+            if (m.match(/^20[0-9]{2}$/)) return m; // ignore years like 2024
+            let parts = m.split('.');
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            return parts.join('.');
+        });
+        text += `📝 <b>សេចក្តីសង្ខេប៖</b>\n${formattedSummary}\n`;
     }
 
     if (typeof sendTelegramMessage === 'function') {
@@ -3172,28 +3178,28 @@ function renderMasterTableHeader() {
 
     let html = `
         <th class="text-center" style="width: 50px;" data-i18n="table.no">ល.រ</th>
-        <th class="text-center" style="width: 60px;">ល.រ ក្នុងបញ្ជី</th>
-        <th style="width: 130px;" data-i18n="table.caseCode">លេខកូដសំណុំរឿង</th>
+        <th class="text-center" style="width: 50px;">ល.រ ក្នុងបញ្ជី</th>
+        <th style="width: 90px;" class="text-center">តំណភ្ជាប់ Folder</th>
+        <th style="width: 90px;" class="text-center">ឯកសារ ដើម (PDF)</th>
+        <th style="width: 90px;" data-i18n="table.caseCode">លេខកូដសំណុំរឿង</th>
         <th style="width: 110px;" data-i18n="table.date">កាលបរិច្ឆេទ</th>
-        <th style="width: 140px;" class="text-center" data-i18n="table.status">លទ្ធផលសំណុំរឿង</th>
-        <th style="width: 150px;">កម្មវិធី (Event)</th>
+        <th style="width: 90px;" class="text-center" data-i18n="table.status">លទ្ធផលសំណុំរឿង</th>
+        <th style="width: 100px;">កម្មវិធី (Event)</th>
         <th style="width: 120px;">កាលបរិច្ឆេទកម្មវិធី</th>
         <th style="min-width: 180px;" data-i18n="table.partyA">ភាគី (ក) ដើមបណ្ដឹង</th>
         <th style="min-width: 180px;" data-i18n="table.partyB">ភាគី (ខ) ចុងបណ្ដឹង</th>
-        <th style="min-width: 180px;">ភាគី (គ) អ្នកពាក់ព័ន្ធ</th>
+        <th style="width: 120px;">ភាគី (គ) អ្នកពាក់ព័ន្ធ</th>
         <th style="width: 140px;" data-i18n="table.category">ប្រភេទវិវាទ</th>
         <th style="width: 120px;" data-i18n="table.location">ទីតាំងវិវាទ</th>
         <th style="min-width: 200px;" data-i18n="form.mediation">ចំណាត់ការសម្រុះសម្រួល</th>
-        <th style="width: 110px;" class="text-center" data-i18n="table.remarks">កំណត់ចំណាំ</th>
+        <th style="width: 80px;" class="text-center" data-i18n="table.remarks">កំណត់ចំណាំ</th>
     `;
 
     CUSTOM_COLUMNS.forEach(col => {
         html += `<th style="min-width: 120px;" class="text-center">${currentLang === 'km' ? col.labelKh : col.labelEn}</th>`;
     });
 
-    html += `<th style="width: 120px;" class="text-center">តំណភ្ជាប់ Folder</th>`;
-    html += `<th style="width: 120px;" class="text-center">ឯកសារ ដើម (PDF)</th>`;
-    html += `<th style="width: 120px;" class="text-center" data-i18n="table.actions">សកម្មភាព</th>`;
+    html += `<th style="width: 90px;" class="text-center" data-i18n="table.actions">សកម្មភាព</th>`;
     thead.innerHTML = html;
 }
 
