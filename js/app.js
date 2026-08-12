@@ -485,7 +485,7 @@ function generateMasterCaseRowHTML(c, rowNum) {
             <td class="text-center">
                 ${c.folderLink ? `<a href="${c.folderLink}" target="_blank" title="បើក Folder" class="btn-icon" style="color:#0ea5e9; text-decoration:none;"><i class="fa-solid fa-folder-open"></i></a>` : '<span class="text-muted" style="font-size:11px;">-</span>'}
             </td>
-            <td class="text-center" style="white-space: normal; word-wrap: break-word;">${renderTableFileCell(c)}</td>
+
             <td><span class="case-number-tag" style="white-space: normal; word-wrap: break-word;">${c.caseNumber}</span></td>
             <td>${formatExcelDate(c.dateReceived)}</td>
             <td class="text-center" style="white-space: normal; word-wrap: break-word;">${getStatusBadgeHTML(c.status)}</td>

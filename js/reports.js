@@ -203,42 +203,12 @@ async function shareFilteredCasesToTelegram() {
         return;
     }
 
-    const pdfClone = paper.cloneNode(true);
-    const hiddens = pdfClone.querySelectorAll('[style*="display: none"], .official-report-footer');
-    hiddens.forEach(el => el.remove());
-    
-    const tables = pdfClone.querySelectorAll('table');
-    tables.forEach(table => {
-        table.setAttribute('border', '1');
-        table.setAttribute('cellpadding', '2');
-        table.setAttribute('cellspacing', '0');
-        table.style.width = '100%';
-        table.style.borderCollapse = 'collapse';
-        table.style.borderColor = '#000000';
-    });
+    let tableHTML = paper.innerHTML;
 
-    const ths = pdfClone.querySelectorAll('th');
-    ths.forEach(th => {
-        th.style.border = '1px solid #000000';
-        th.style.padding = '2px 4px';
-        th.style.fontSize = '8pt';
-        th.style.wordWrap = 'break-word';
-        th.style.width = '';
-        th.style.minWidth = '';
-    });
-    const tds = pdfClone.querySelectorAll('td');
-    tds.forEach(td => {
-        td.style.border = '1px solid #000000';
-        td.style.padding = '2px 4px';
-        td.style.fontSize = '8pt';
-        td.style.wordWrap = 'break-word';
-        td.style.width = '';
-        td.style.minWidth = '';
-    });
-    const trs = pdfClone.querySelectorAll('tr');
-    trs.forEach(tr => {
-        tr.style.pageBreakInside = 'avoid';
-    });
+    let pdfStyledHTML = tableHTML.replace(/<table/g, '<table border="1" cellpadding="2" cellspacing="0" style="width: 100%; border-collapse: collapse; border-color: #000000;"');
+    pdfStyledHTML = pdfStyledHTML.replace(/<th/g, '<th style="border: 1px solid #000000; padding: 2px 4px; font-size: 8pt; word-wrap: break-word;"');
+    pdfStyledHTML = pdfStyledHTML.replace(/<td/g, '<td style="border: 1px solid #000000; padding: 2px 4px; font-size: 8pt; word-wrap: break-word;"');
+    pdfStyledHTML = pdfStyledHTML.replace(/<tr/g, '<tr style="page-break-inside: avoid;"');
 
     const titleEl = document.getElementById('report-header-title');
     const fileNameText = titleEl ? titleEl.innerText.replace(/[^a-zA-Z0-9ក-ឤ០-៩]/g, '_') : 'NADR_Report';
@@ -260,7 +230,7 @@ async function shareFilteredCasesToTelegram() {
             if (printArea) {
                 printArea.innerHTML = `
                     <div style="font-family: 'Kantumruy Pro', 'Battambang', sans-serif;">
-                        ${pdfClone.innerHTML}
+                        ${pdfStyledHTML}
                     </div>
                 `;
             }
@@ -287,7 +257,7 @@ async function shareFilteredCasesToTelegram() {
         const tempContainer = document.createElement('div');
         tempContainer.innerHTML = `
             <div style="font-family: 'Kantumruy Pro', 'Battambang', sans-serif; padding: 10px; width: 1100px;">
-                ${pdfClone.innerHTML}
+                ${pdfStyledHTML}
             </div>
         `;
         
