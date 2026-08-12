@@ -115,8 +115,8 @@ window.shareMasterTableToTelegramBot = async function() {
     
     // Create a separate styled HTML for PDF to make it fit nicely (font-size 8pt, compact padding)
     let pdfStyledHTML = tableHTML.replace(/<table/g, '<table border="1" cellpadding="2" cellspacing="0" style="width: 100%; border-collapse: collapse; border-color: #000000;"');
-    pdfStyledHTML = pdfStyledHTML.replace(/<th/g, '<th style="border: 1px solid #000000; padding: 2px 4px; font-size: 8pt; word-wrap: break-word;"');
-    pdfStyledHTML = pdfStyledHTML.replace(/<td/g, '<td style="border: 1px solid #000000; padding: 2px 4px; font-size: 8pt; word-wrap: break-word;"');
+    pdfStyledHTML = pdfStyledHTML.replace(/<th/g, '<th style="border: 1px solid #000000; padding: 2px 2px; font-size: 6pt; word-wrap: break-word;"');
+    pdfStyledHTML = pdfStyledHTML.replace(/<td/g, '<td style="border: 1px solid #000000; padding: 2px 2px; font-size: 6pt; word-wrap: break-word;"');
     // Prevent table rows from breaking across pages
     pdfStyledHTML = pdfStyledHTML.replace(/<tr/g, '<tr style="page-break-inside: avoid;"');
 
@@ -213,13 +213,13 @@ async function shareFilteredCasesToTelegram() {
         th, td { 
             width: auto !important; 
             min-width: 0 !important; 
-            font-size: 7.5pt !important; 
-            padding: 4px !important; 
+            font-size: 6pt !important; 
+            padding: 2px !important; 
             white-space: normal !important; 
             word-wrap: break-word !important; 
             word-break: break-word !important;
         }
-        span, strong, div, p { font-size: 7.5pt !important; }
+        span, strong, div, p { font-size: 6pt !important; }
         h2 { font-size: 13pt !important; }
         h3 { font-size: 14pt !important; }
         h4 { font-size: 12pt !important; }
@@ -228,7 +228,10 @@ async function shareFilteredCasesToTelegram() {
     pdfClone.prepend(styleEl);
 
     const titleEl = document.getElementById('report-header-title');
-    const fileNameText = titleEl ? titleEl.innerText.replace(/[^a-zA-Z0-9ក-ឤ០-៩]/g, '_') : 'NADR_Report';
+    let fileNameText = titleEl ? titleEl.innerText.replace(/[^a-zA-Z0-9]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '') : 'NADR_Report';
+    if (!fileNameText || fileNameText === '_' || fileNameText === '') {
+        fileNameText = 'NADR_Progress_Report';
+    }
 
     const pdfFilename = `${fileNameText}_${new Date().toISOString().slice(0, 10)}.pdf`;
     const captionPdf = `📄 <b>ឯកសាររបាយការណ៍បញ្ជីសំណុំរឿង (PDF)</b>\nចំនួន៖ ${currentReportData.length} ករណី\nបញ្ជូនពីប្រព័ន្ធ CMS Pro`;
