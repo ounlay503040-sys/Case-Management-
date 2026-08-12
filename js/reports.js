@@ -162,7 +162,7 @@ window.shareMasterTableToTelegramBot = async function() {
         // --- FALLBACK TO HTML2PDF (WEB MODE) ---
         const tempContainer = document.createElement('div');
         tempContainer.innerHTML = `
-            <div style="font-family: 'Kantumruy Pro', 'Battambang', sans-serif; padding: 10px; width: 1100px;">
+            <div style="font-family: 'Kantumruy Pro', 'Battambang', sans-serif; padding: 10px; width: 1040px;">
                 <h2 style="font-family: 'Khmer OS Muol Light', Moul, serif; text-align: center; color: #1e3a8a; margin-bottom: 10px; font-size: 14pt;">តារាងបញ្ជីសំណុំរឿង (Master Case Directory)</h2>
                 ${pdfStyledHTML}
             </div>
@@ -273,7 +273,7 @@ async function shareFilteredCasesToTelegram() {
         // --- FALLBACK TO HTML2PDF (WEB MODE) ---
         const tempContainer = document.createElement('div');
         tempContainer.innerHTML = `
-            <div style="font-family: 'Kantumruy Pro', 'Battambang', sans-serif; padding: 10px; width: 1100px;">
+            <div style="font-family: 'Kantumruy Pro', 'Battambang', sans-serif; padding: 10px; width: 1040px;">
                 ${pdfClone.innerHTML}
             </div>
         `;
