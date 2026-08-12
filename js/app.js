@@ -1326,19 +1326,30 @@ window.shareStatsToTelegram = async function() {
     const close = casesData.filter(c => c.status && (c.status.startsWith('Close') || c.status.startsWith('No Settle') || c.status.includes('មិនព្រមព្រៀង'))).length;
     const pending = casesData.filter(c => c.status && c.status.startsWith('Pending')).length;
 
-    // 1. & 2. Overview & Breakdown
+    // 1. Overview & Breakdown
     let text = `📊 <b>របាយការណ៍ស្ថិតិសំណុំរឿង NADR</b>\n`;
     text += `📅 <b>កាលបរិច្ឆេទ៖</b> ${getTodayDateString()}\n\n`;
     
     text += `📑 <b>១. ស្ថិតិសង្ខេប និងលទ្ធផលចំណាត់ការ</b>\n`;
     text += `• សំណុំរឿងសរុប៖ <b>${total}</b> ករណី\n`;
     text += `• កំពុងចាត់ការ (Active)៖ <b>${active}</b> ករណី\n`;
-    text += `• បានដោះស្រាយ (Settle)៖ <b>${settle}</b> ករណី\n`;
+    text += `• ព្រមព្រៀង (Settle)៖ <b>${settle}</b> ករណី\n`;
     text += `• បានបិទបញ្ចប់ (Closed)៖ <b>${close}</b> ករណី\n`;
     text += `• បានតម្កល់ (Pending)៖ <b>${pending}</b> ករណី\n\n`;
 
-    // 3. & 4. Categories breakdown
-    text += `📋 <b>២. ស្ថិតិតាមប្រភេទវិវាទ</b>\n`;
+    const activeGroupTotal = active + pending;
+    const closedGroupTotal = settle + close;
+    
+    text += `📈 <b>២. លទ្ធផលចំណាត់ការសំណុំរឿងរួម</b>\n`;
+    text += `• សំណុំរឿង Active (កំពុងចាត់ការ)៖ <b>${activeGroupTotal}</b> ករណី\n`;
+    text += `   - Active (កំពុងសម្រុះសម្រួល)៖ <b>${active}</b> ករណី\n`;
+    text += `   - Pending (តម្កល់)៖ <b>${pending}</b> ករណី\n`;
+    text += `• សំណុំរឿង Closed (បិទបញ្ចប់)៖ <b>${closedGroupTotal}</b> ករណី\n`;
+    text += `   - Settle (ព្រមព្រៀង)៖ <b>${settle}</b> ករណី\n`;
+    text += `   - No Settle (មិនព្រមព្រៀង)៖ <b>${close}</b> ករណី\n\n`;
+
+    // 3. Categories breakdown
+    text += `📋 <b>៣. ស្ថិតិតាមប្រភេទវិវាទ</b>\n`;
     let categories = {};
     casesData.forEach(c => {
         let cat = t_val(c.category) || 'ផ្សេងៗ';
@@ -1354,8 +1365,8 @@ window.shareStatsToTelegram = async function() {
     });
     text += `\n`;
 
-    // 5. Provinces breakdown
-    text += `🗺 <b>៣. ស្ថិតិតាមទីតាំង (ខេត្ត/រាជធានី)</b>\n`;
+    // 4. Provinces breakdown
+    text += `🗺 <b>៤. ស្ថិតិតាមទីតាំង (ខេត្ត/រាជធានី)</b>\n`;
     let provinces = {};
     casesData.forEach(c => {
         let loc = t_val(c.disputeLocation) || 'ផ្សេងៗ';
