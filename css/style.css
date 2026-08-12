@@ -1027,7 +1027,7 @@ body {
     padding: 14px 16px;
     border-bottom: 2px solid #cbd5e1;
     border-top: 1px solid #e2e8f0;
-    white-space: nowrap;
+    white-space: normal;
     position: sticky;
     top: 0;
     z-index: 10;
