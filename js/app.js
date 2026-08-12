@@ -3176,16 +3176,16 @@ function renderMasterTableHeader() {
     if (!thead) return;
 
     let html = `
-        <th class="text-center" style="width: 50px;" data-i18n="table.no">ល.រ</th>
-        <th class="text-center" style="width: 50px;">ល.រ ក្នុងបញ្ជី</th>
-        <th style="width: 90px;" class="text-center">ឯកសារ ដើម (PDF)</th>
-        <th style="width: 90px;" data-i18n="table.caseCode">លេខកូដសំណុំរឿង</th>
-        <th style="width: 110px;" data-i18n="table.date">កាលបរិច្ឆេទ</th>
+        <th class="text-center freeze-col-1" style="width: 50px;">ល.រ</th>
+        <th class="text-center freeze-col-2" style="width: 50px;">ល.រ ក្នុងបញ្ជី</th>
+        <th class="text-center freeze-col-3" style="width: 90px;">ទៅកាន់ Folder</th>
+        <th class="freeze-col-4" style="width: 90px;" data-i18n="table.caseCode">លេខកូដសំណុំរឿង</th>
+        <th class="freeze-col-5" style="width: 110px;" data-i18n="table.date">កាលបរិច្ឆេទ</th>
         <th style="width: 90px;" class="text-center" data-i18n="table.status">លទ្ធផលសំណុំរឿង</th>
         <th style="width: 100px;">កម្មវិធី (Event)</th>
         <th style="width: 120px;">កាលបរិច្ឆេទកម្មវិធី</th>
-        <th style="min-width: 180px;" data-i18n="table.partyA">ភាគី (ក) ដើមបណ្ដឹង</th>
-        <th style="min-width: 180px;" data-i18n="table.partyB">ភាគី (ខ) ចុងបណ្ដឹង</th>
+        <th style="min-width: 180px;">ភាគី (ក) ភាគីស្នើសុំ</th>
+        <th style="min-width: 180px;">ភាគី (ខ) ភាគីម្ខាងទៀត</th>
         <th style="width: 120px;">ភាគី (គ) អ្នកពាក់ព័ន្ធ</th>
         <th style="width: 140px;" data-i18n="table.category">ប្រភេទវិវាទ</th>
         <th style="width: 120px;" data-i18n="table.location">ទីតាំងវិវាទ</th>
