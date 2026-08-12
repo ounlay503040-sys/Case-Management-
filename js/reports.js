@@ -69,8 +69,8 @@ window.shareMasterTableToTelegramBot = async function() {
     
     // Add border to table for Excel
     let styledHTML = tableHTML.replace(/<table/g, '<table border="1" cellpadding="4" cellspacing="0" style="width: 100%; border-collapse: collapse; border-color: #000000;"');
-    styledHTML = styledHTML.replace(/<th/g, '<th style="border: 1px solid #000000; padding: 2px 4px; font-size: 9.5pt;"');
-    styledHTML = styledHTML.replace(/<td/g, '<td style="border: 1px solid #000000; padding: 2px 4px; font-size: 9.5pt;"');
+    styledHTML = styledHTML.replace(/<th/g, '<th style="border: 1px solid #000000; padding: 2px 4px; "');
+    styledHTML = styledHTML.replace(/<td/g, '<td style="border: 1px solid #000000; padding: 2px 4px; "');
 
     const fileNameText = 'Master_Case_List_NADR';
     
@@ -80,7 +80,7 @@ window.shareMasterTableToTelegramBot = async function() {
             <meta charset="utf-8">
             <style>
                 @page { mso-page-orientation: landscape; margin: 0.5in; }
-                body { font-family: 'Khmer OS Battambang', sans-serif; font-size: 10pt; }
+                body { font-family: 'Khmer OS Battambang', sans-serif;  }
                 table { border-collapse: collapse; }
                 td, th { vertical-align: middle; white-space: normal; }
                 h1, h2, h3, h4, th { font-family: 'Khmer OS Muol Light', serif; }
@@ -115,8 +115,8 @@ window.shareMasterTableToTelegramBot = async function() {
     
     // Create a separate styled HTML for PDF to make it fit nicely (font-size 8pt, compact padding)
     let pdfStyledHTML = tableHTML.replace(/<table/g, '<table border="1" cellpadding="2" cellspacing="0" style="width: 100%; border-collapse: collapse; border-color: #000000;"');
-    pdfStyledHTML = pdfStyledHTML.replace(/<th/g, '<th style="border: 1px solid #000000; padding: 2px 2px; font-size: 6pt; word-wrap: break-word;"');
-    pdfStyledHTML = pdfStyledHTML.replace(/<td/g, '<td style="border: 1px solid #000000; padding: 2px 2px; font-size: 6pt; word-wrap: break-word;"');
+    pdfStyledHTML = pdfStyledHTML.replace(/<th/g, '<th style="border: 1px solid #000000; padding: 2px 2px;  word-wrap: break-word;"');
+    pdfStyledHTML = pdfStyledHTML.replace(/<td/g, '<td style="border: 1px solid #000000; padding: 2px 2px;  word-wrap: break-word;"');
     // Prevent table rows from breaking across pages
     pdfStyledHTML = pdfStyledHTML.replace(/<tr/g, '<tr style="page-break-inside: avoid;"');
 
@@ -131,15 +131,19 @@ window.shareMasterTableToTelegramBot = async function() {
             if (printArea) {
                 printArea.innerHTML = `
                     <div style="font-family: 'Kantumruy Pro', 'Battambang', sans-serif; background: #ffffff; padding: 20px;">
-                        <h2 style="font-family: 'Khmer OS Muol Light', Moul, serif; text-align: center; color: #1e3a8a; margin-bottom: 20px; font-size: 14pt;">តារាងបញ្ជីសំណុំរឿង (Master Case Directory)</h2>
+                        <h2 style="font-family: 'Khmer OS Muol Light', Moul, serif; text-align: center; color: #1e3a8a; margin-bottom: 20px; ">តារាងបញ្ជីសំណុំរឿង (Master Case Directory)</h2>
                         ${pdfStyledHTML}
                     </div>
                 `;
             }
 
+            const wasDark = document.body.classList.contains('dark-theme');
+            if (wasDark) document.body.classList.remove('dark-theme');
+
             // Call generatePDF which will print the current window
             const pdfBuffer = await window.electronAPI.generatePDF();
             
+            if (wasDark) document.body.classList.add('dark-theme');
             // Clear print-area
             if (printArea) printArea.innerHTML = '';
 
@@ -163,7 +167,7 @@ window.shareMasterTableToTelegramBot = async function() {
         const tempContainer = document.createElement('div');
         tempContainer.innerHTML = `
             <div style="font-family: 'Kantumruy Pro', 'Battambang', sans-serif; padding: 10px; width: 1040px;">
-                <h2 style="font-family: 'Khmer OS Muol Light', Moul, serif; text-align: center; color: #1e3a8a; margin-bottom: 10px; font-size: 14pt;">តារាងបញ្ជីសំណុំរឿង (Master Case Directory)</h2>
+                <h2 style="font-family: 'Khmer OS Muol Light', Moul, serif; text-align: center; color: #1e3a8a; margin-bottom: 10px; ">តារាងបញ្ជីសំណុំរឿង (Master Case Directory)</h2>
                 ${pdfStyledHTML}
             </div>
         `;
@@ -213,16 +217,16 @@ async function shareFilteredCasesToTelegram() {
         th, td { 
             width: auto !important; 
             min-width: 0 !important; 
-            font-size: 6pt !important; 
+             
             padding: 2px !important; 
             white-space: normal !important; 
             word-wrap: break-word !important; 
             word-break: break-word !important;
         }
-        span, strong, div, p { font-size: 6pt !important; }
-        h2 { font-size: 13pt !important; }
-        h3 { font-size: 14pt !important; }
-        h4 { font-size: 12pt !important; }
+        span, strong, div, p {  }
+        h2 {  }
+        h3 {  }
+        h4 {  }
         tr { page-break-inside: avoid !important; }
     `;
     pdfClone.prepend(styleEl);
@@ -255,7 +259,13 @@ async function shareFilteredCasesToTelegram() {
                 `;
             }
 
+            const wasDark = document.body.classList.contains('dark-theme');
+            if (wasDark) document.body.classList.remove('dark-theme');
+
             const pdfBuffer = await window.electronAPI.generatePDF();
+            
+            if (wasDark) document.body.classList.add('dark-theme');
+            
             if (printArea) printArea.innerHTML = '';
 
             const pdfBlob = new Blob([pdfBuffer], { type: 'application/pdf' });
@@ -399,7 +409,7 @@ function generateReport(silent = false) {
     if (!bodyEl) return;
 
     if (filtered.length === 0) {
-        bodyEl.innerHTML = `<div class="text-center py-4" style="color: #666; font-size: 14pt;">ពុំមានទិន្នន័យសំណុំរឿងស្របតាមលក្ខខណ្ឌចម្រោះឡើយ!</div>`;
+        bodyEl.innerHTML = `<div class="text-center py-4" style="color: #666; ">ពុំមានទិន្នន័យសំណុំរឿងស្របតាមលក្ខខណ្ឌចម្រោះឡើយ!</div>`;
         return;
     }
 
@@ -451,18 +461,18 @@ function renderMonthlyProgressReportHTML(dataArray) {
     let html = `
         <div style="font-family: inherit; margin-bottom: 20px; position: relative;">
             <div class="hide-on-export" style="text-align: center; margin-bottom: 15px;">
-                <h3 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif; font-size: 13pt; font-weight: normal; color: #1e3a8a; margin: 0 0 4px 0;">ព្រះរាជាណាចក្រកម្ពុជា</h3>
-                <h4 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif; font-size: 11pt; font-weight: normal; color: #1e3a8a; margin: 0 0 15px 0;">ជាតិ សាសនា ព្រះមហាក្សត្រ</h4>
-                <div style="font-family: inherit; font-size: 16pt; font-weight: normal; color: #ca8a04; margin-bottom: 15px;">❧</div>
+                <h3 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif;  font-weight: normal; color: #1e3a8a; margin: 0 0 4px 0;">ព្រះរាជាណាចក្រកម្ពុជា</h3>
+                <h4 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif;  font-weight: normal; color: #1e3a8a; margin: 0 0 15px 0;">ជាតិ សាសនា ព្រះមហាក្សត្រ</h4>
+                <div style="font-family: inherit;  font-weight: normal; color: #ca8a04; margin-bottom: 15px;">❧</div>
             </div>
             <div style="text-align: center; margin-bottom: 15px;">
-                <h2 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif; font-size: 12.5pt; font-weight: normal; color: #0f172a; margin: 0 0 8px 0; line-height: 1.6;">របាយការណ៍វឌ្ឍនភាពចំណាត់ការសំណុំរឿងរបស់ ម.ស.វ. ឈ្មោះ <span contenteditable="true" style="color: #dc2626; font-weight: normal; border-bottom: 1px dashed #dc2626; padding: 0 4px;">${officerName}</span></h2>
-                <p style="font-size: 10.5pt; font-weight: 700; color: #334155; margin: 0;">ប្រចាំខែ <span style="color: #2563eb;">${monthStr}</span> <span style="font-weight: normal; color: #64748b;">( គិតត្រឹមថ្ងៃទី ${todayStr} )</span></p>
+                <h2 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif;  font-weight: normal; color: #0f172a; margin: 0 0 8px 0; line-height: 1.6;">របាយការណ៍វឌ្ឍនភាពចំណាត់ការសំណុំរឿងរបស់ ម.ស.វ. ឈ្មោះ <span contenteditable="true" style="color: #dc2626; font-weight: normal; border-bottom: 1px dashed #dc2626; padding: 0 4px;">${officerName}</span></h2>
+                <p style=" font-weight: 700; color: #334155; margin: 0;">ប្រចាំខែ <span style="color: #2563eb;">${monthStr}</span> <span style="font-weight: normal; color: #64748b;">( គិតត្រឹមថ្ងៃទី ${todayStr} )</span></p>
             </div>
 
             <!-- Top Right Summary Table matching PDF -->
             <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
-                <table style="border-collapse: collapse; font-size: 9.5pt; text-align: center; border: 2px solid #0f172a; background: #fff;" border="1">
+                <table style="border-collapse: collapse;  text-align: center; border: 2px solid #0f172a; background: #fff;" border="1">
                     <thead>
                         <tr style="background: #ffedd5; font-weight: 800; color: #0f172a;">
                             <th style="padding: 6px 12px; border: 1px solid #0f172a;">សំណុំរឿងសរុប</th>
@@ -472,7 +482,7 @@ function renderMonthlyProgressReportHTML(dataArray) {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr style="font-weight: 800; font-size: 11pt; color: #1e293b;">
+                        <tr style="font-weight: 800;  color: #1e293b;">
                             <td style="padding: 6px 12px; border: 1px solid #0f172a; color: #2563eb;">${totCount}</td>
                             <td style="padding: 6px 12px; border: 1px solid #0f172a; color: #16a34a;">${settleCount}</td>
                             <td style="padding: 6px 12px; border: 1px solid #0f172a; color: #64748b;">${invCount}</td>
@@ -483,7 +493,7 @@ function renderMonthlyProgressReportHTML(dataArray) {
             </div>
         </div>
 
-        <table style="width: 100%; border-collapse: collapse; font-size: 9pt; font-family: inherit;" border="1">
+        <table style="width: 100%; border-collapse: collapse;  font-family: inherit;" border="1">
             <thead>
                 <tr style="background: #fcd34d; color: #0f172a; text-align: center; font-weight: 800; border: 1px solid #ca8a04;">
                     <th rowspan="2" style="padding: 8px 4px; width: 30px; border: 1px solid #ca8a04; vertical-align: middle;">ល.រ</th>
@@ -506,7 +516,7 @@ function renderMonthlyProgressReportHTML(dataArray) {
             </thead>
             <tbody>
                 <!-- Section A: Directly Responsible Cases -->
-                <tr style="background: #e0f2fe; color: #0369a1; font-weight: 800; font-size: 10.5pt; border: 1px solid #0284c7;">
+                <tr style="background: #e0f2fe; color: #0369a1; font-weight: 800;  border: 1px solid #0284c7;">
                     <td colspan="12" style="padding: 10px 12px; text-align: left; border: 1px solid #0284c7;">
                         ក. សំណុំរឿងទទួលបន្ទុកផ្ទាល់
                     </td>
@@ -557,7 +567,7 @@ function renderMonthlyProgressReportHTML(dataArray) {
 
     html += `
                 <!-- Section B: Assisting Officer Cases -->
-                <tr style="background: #fcd34d; color: #854d0e; font-weight: 800; font-size: 10.5pt; border: 1px solid #ca8a04;">
+                <tr style="background: #fcd34d; color: #854d0e; font-weight: 800;  border: 1px solid #ca8a04;">
                     <td colspan="12" style="padding: 10px 12px; text-align: left; border: 1px solid #ca8a04;">
                         ខ. សំណុំរឿងអមជាមួយថ្នាក់ដឹកនាំ និងឬជាមួយ ម.ស.វ.
                     </td>
@@ -584,13 +594,13 @@ function renderMonthlyProgressReportHTML(dataArray) {
 function renderOfficialTrackingReportHTML(dataArray) {
     let html = `
         <div style="text-align: center; margin-bottom: 20px; font-family: inherit;">
-            <h3 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif; font-size: 14pt; font-weight: normal; color: #1e3a8a; margin: 0 0 4px 0;">ព្រះរាជាណាចក្រកម្ពុជា</h3>
-            <h4 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif; font-size: 12pt; font-weight: normal; color: #1e3a8a; margin: 0 0 10px 0;">ជាតិ សាសនា ព្រះមហាក្សត្រ</h4>
-            <div style="font-family: inherit; font-size: 16pt; font-weight: normal; color: #ca8a04; margin-bottom: 15px;">❧</div>
-            <h2 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif; font-size: 13pt; font-weight: normal; color: #0f172a; margin: 0 0 6px 0;">តារាងតាមដានលទ្ធផលនៃការដោះស្រាយវិវាទ (Official Case Tracking & Outcome Report)</h2>
-            <p style="font-size: 10pt; color: #475569; margin: 0;">អាជ្ញាធរជាតិដោះស្រាយវិវាទ - អគ្គលេខាធិការដ្ឋាន</p>
+            <h3 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif;  font-weight: normal; color: #1e3a8a; margin: 0 0 4px 0;">ព្រះរាជាណាចក្រកម្ពុជា</h3>
+            <h4 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif;  font-weight: normal; color: #1e3a8a; margin: 0 0 10px 0;">ជាតិ សាសនា ព្រះមហាក្សត្រ</h4>
+            <div style="font-family: inherit;  font-weight: normal; color: #ca8a04; margin-bottom: 15px;">❧</div>
+            <h2 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif;  font-weight: normal; color: #0f172a; margin: 0 0 6px 0;">តារាងតាមដានលទ្ធផលនៃការដោះស្រាយវិវាទ (Official Case Tracking & Outcome Report)</h2>
+            <p style=" color: #475569; margin: 0;">អាជ្ញាធរជាតិដោះស្រាយវិវាទ - អគ្គលេខាធិការដ្ឋាន</p>
         </div>
-        <table style="width: 100%; border-collapse: collapse; font-size: 9.5pt; margin-top: 15px; font-family: inherit;" border="1">
+        <table style="width: 100%; border-collapse: collapse;  margin-top: 15px; font-family: inherit;" border="1">
             <thead>
                 <tr style="background: #fde047; color: #1e293b; text-align: center; font-weight: 800; border: 1px solid #ca8a04;">
                     <th rowspan="2" style="padding: 8px 4px; width: 35px; border: 1px solid #ca8a04; vertical-align: middle;">ល.រ</th>
@@ -623,7 +633,7 @@ function renderOfficialTrackingReportHTML(dataArray) {
         const catCases = dataArray.filter(c => c.category === cat);
         if (catCases.length > 0) {
             html += `
-                <tr style="background: linear-gradient(90deg, #e0f2fe, #f0f9ff); color: #0369a1; font-weight: 800; font-size: 10.5pt; border: 1px solid #0284c7;">
+                <tr style="background: linear-gradient(90deg, #e0f2fe, #f0f9ff); color: #0369a1; font-weight: 800;  border: 1px solid #0284c7;">
                     <td colspan="11" style="padding: 10px 12px; text-align: left; border: 1px solid #0284c7;">
                         <i class="fa-solid fa-folder-open" style="margin-right: 6px;"></i> ${catIdx + 1}. ${cat} (សរុប៖ <span style="color: #d97706;">${catCases.length}</span> ករណី)
                     </td>
@@ -677,7 +687,7 @@ function renderOfficialTrackingReportHTML(dataArray) {
             <tfoot style="background: #f8fafc; font-weight: 800; border: 2px solid #0f172a; color: #0f172a;">
                 <tr>
                     <td colspan="9" style="padding: 10px 15px; text-align: right; border: 1px solid #cbd5e1;">សរុបលទ្ធផលរួម (Total Summary)៖</td>
-                    <td colspan="2" style="padding: 10px; text-align: left; border: 1px solid #cbd5e1; font-size: 9pt;">
+                    <td colspan="2" style="padding: 10px; text-align: left; border: 1px solid #cbd5e1; ">
                         <span style="color: #2563eb;">កំពុងដោះស្រាយ៖ ${totActive}</span> | 
                         <span style="color: #16a34a;">ព្រមព្រៀង៖ ${totSettle}</span> | 
                         <span style="color: #d97706;">តម្កល់៖ ${totPending}</span> | 
@@ -695,7 +705,7 @@ function renderOfficialTrackingReportHTML(dataArray) {
  */
 function renderMasterTableHTML(dataArray) {
     let html = `
-        <table style="width: 100%; border-collapse: collapse; font-size: 10pt; margin-top: 15px;" border="1">
+        <table style="width: 100%; border-collapse: collapse;  margin-top: 15px;" border="1">
             <thead>
                 <tr style="background-color: #f1f5f9; text-align: center; font-weight: 700;">
                     <th style="padding: 8px 4px; width: 30px;">${t('table.no')}</th>
@@ -724,22 +734,22 @@ function renderMasterTableHTML(dataArray) {
                 <td style="padding: 6px; text-align: center;">${c.dateReceived}</td>
                 <td style="padding: 6px;">
                     <strong>${c.partyA_name}</strong> (${t_val(c.partyA_gender)}, ${c.partyA_age || '?'} ឆ្នាំ)<br>
-                    <span style="font-size: 9pt; color: #555;">📞 ${c.partyA_phone || 'ពុំមាន'} | 📍 ${t_val(c.partyA_location)}</span>
+                    <span style=" color: #555;">📞 ${c.partyA_phone || 'ពុំមាន'} | 📍 ${t_val(c.partyA_location)}</span>
                 </td>
                 <td style="padding: 6px;">
                     <strong>${c.partyB_name}</strong> (${t_val(c.partyB_gender)}, ${c.partyB_age || '?'} ឆ្នាំ)<br>
-                    <span style="font-size: 9pt; color: #555;">📞 ${c.partyB_phone || 'ពុំមាន'} | 📍 ${t_val(c.partyB_location)}</span>
+                    <span style=" color: #555;">📞 ${c.partyB_phone || 'ពុំមាន'} | 📍 ${t_val(c.partyB_location)}</span>
                 </td>
                 <td style="padding: 6px;">${t_val(c.category)}</td>
                 <td style="padding: 6px; text-align: center;">${t_val(c.disputeLocation)}</td>
-                <td style="padding: 6px; font-size: 9pt;">
+                <td style="padding: 6px; ">
                     <div>🔹 ក៖ ${t_val(c.meetingPartyA)}</div>
                     <div>🔸 ខ៖ ${t_val(c.meetingPartyB)}</div>
                     <div style="font-weight: 700; color: #2563eb; margin-top: 2px;">⚖️ ${t_val(c.mediationMeeting)}</div>
                 </td>
-                <td style="padding: 6px; font-size: 9pt;">${officialsStr || '-'}</td>
+                <td style="padding: 6px; ">${officialsStr || '-'}</td>
                 <td style="padding: 6px; text-align: center; font-weight: 700; color: ${c.status.startsWith('Settle') ? '#10b981' : (c.status.startsWith('Active') ? '#2563eb' : '#64748b')};">${t_val(c.status)}</td>
-                <td style="padding: 6px; text-align: center; font-size: 9.5pt;">${t_val(c.remarks)}</td>
+                <td style="padding: 6px; text-align: center; ">${t_val(c.remarks)}</td>
             </tr>
         `;
     });
@@ -757,7 +767,7 @@ function renderMasterTableHTML(dataArray) {
 function renderSummaryReportHTML(dataArray) {
     const stats = getCaseStatistics(dataArray);
     let html = `
-        <div style="margin-top: 20px; font-size: 12pt;">
+        <div style="margin-top: 20px; ">
             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 25px;">
                 <div style="border: 1px solid #ddd; padding: 15px; border-radius: 6px; background: #f8fafc;">
                     <h4 style="margin-bottom: 10px; color: #2563eb;">ស្ថិតិតាមលទ្ធផលសំណុំរឿង</h4>
@@ -907,7 +917,7 @@ function exportReportToExcel() {
                     mso-page-orientation: landscape;
                     margin: 0.5in 0.5in 0.5in 0.5in;
                 }
-                body { font-family: 'Khmer OS Battambang', sans-serif; font-size: 10pt; }
+                body { font-family: 'Khmer OS Battambang', sans-serif;  }
                 table { border-collapse: collapse; }
                 td, th { vertical-align: middle; white-space: normal; }
                 h1, h2, h3, h4, th { font-family: 'Khmer OS Muol Light', serif; }
@@ -1065,7 +1075,7 @@ function exportReportToWord() {
                 div.WordSection1 { page: WordSection1; }
                 body {
                     font-family: 'Khmer OS Battambang', 'Khmer OS Content', 'Arial Unicode MS', sans-serif;
-                    font-size: 10pt;
+                    
                     line-height: 1.4;
                     color: #0f172a;
                 }
@@ -1087,12 +1097,12 @@ function exportReportToWord() {
                     margin-bottom: 25px;
                 }
                 .kingdom-title h3 {
-                    font-size: 14pt;
+                    
                     color: #1e3a8a;
                     margin: 0 0 4px 0;
                 }
                 .kingdom-title h4 {
-                    font-size: 12pt;
+                    
                     color: #1e3a8a;
                     margin: 0 0 10px 0;
                 }
@@ -1103,12 +1113,12 @@ function exportReportToWord() {
                     margin: 0 auto 15px auto;
                 }
                 .report-main-title h2 {
-                    font-size: 13pt;
+                    
                     color: #0f172a;
                     margin: 0 0 6px 0;
                 }
                 .report-main-title p {
-                    font-size: 11pt;
+                    
                     color: #475569;
                     margin: 0;
                 }
