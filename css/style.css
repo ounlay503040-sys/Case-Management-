@@ -1016,7 +1016,7 @@ body {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    font-size: 13px;
+    font-size: 12.5px;
 }
 
 .data-table th {
@@ -1024,7 +1024,7 @@ body {
     color: #1e3a8a;
     font-weight: 700;
     text-align: left;
-    padding: 14px 16px;
+    padding: 10px 12px;
     border-bottom: 2px solid #cbd5e1;
     border-top: 1px solid #e2e8f0;
     white-space: nowrap;
@@ -1035,15 +1035,17 @@ body {
 }
 
 .data-table td {
-    padding: 14px 16px;
+    padding: 8px 10px;
     border-bottom: 1px solid #f1f5f9;
     color: var(--text-color);
     vertical-align: middle;
     transition: background-color 0.15s ease;
+    line-height: 1.5;
 }
 
 .data-table tr {
-    transition: all 0.15s ease;
+    transition: all 0.25s ease;
+    border-left: 3px solid transparent;
 }
 
 .data-table tr:hover td {
@@ -1051,9 +1053,53 @@ body {
     box-shadow: inset 0 1px 0 #e2e8f0, inset 0 -1px 0 #e2e8f0;
 }
 
-.master-table th, .master-table td {
-    padding: 12px 14px;
+.data-table tr:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
+
+/* --- Freeze Panes (Sticky Left Columns) --- */
+.data-table {
+    --col1-width: 45px;
+    --col2-width: 55px;
+    --col3-width: 110px;
+    --col4-width: 110px;
+}
+
+.data-table .freeze-col {
+    position: sticky;
+    background-color: #ffffff; /* Default background for td */
+    z-index: 5;
+    border-right: 1px solid #e2e8f0; /* Slight border to indicate freeze */
+}
+
+.data-table th.freeze-col {
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    z-index: 15; /* Above sticky header and sticky columns */
+    border-right: 1px solid #cbd5e1;
+}
+
+.data-table tr:hover .freeze-col {
+    background-color: #f8fafc;
+}
+
+body.dark-theme .data-table .freeze-col {
+    background-color: var(--bg-card);
+    border-right-color: #334155;
+}
+body.dark-theme .data-table th.freeze-col {
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    border-right-color: #334155;
+}
+body.dark-theme .data-table tr:hover .freeze-col {
+    background-color: #1e293b;
+}
+
+.data-table .freeze-col-1 { left: 0; width: var(--col1-width); min-width: var(--col1-width); max-width: var(--col1-width); text-align: center; }
+.data-table .freeze-col-2 { left: var(--col1-width); width: var(--col2-width); min-width: var(--col2-width); max-width: var(--col2-width); text-align: center; }
+.data-table .freeze-col-3 { left: calc(var(--col1-width) + var(--col2-width)); width: var(--col3-width); min-width: var(--col3-width); max-width: var(--col3-width); }
+.data-table .freeze-col-4 { left: calc(var(--col1-width) + var(--col2-width) + var(--col3-width)); width: var(--col4-width); min-width: var(--col4-width); max-width: var(--col4-width); }
+/* ------------------------------------------- */
 
 .case-number-tag {
     font-weight: 700;
@@ -2012,17 +2058,7 @@ body.dark-theme .badge-close { color: #cbd5e1; }
 }
 
 /* Master Table Optimization */
-.data-table td {
-    padding: 10px 12px;
-    vertical-align: middle;
-    font-size: 13px;
-    line-height: 1.4;
-}
-
-.data-table th {
-    padding: 12px;
-    font-size: 13px;
-}
+/* Duplicate rules removed, kept in primary data-table block */
 
 /* Truncate long text in party columns */
 .data-table td:nth-child(4), 
