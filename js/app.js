@@ -526,9 +526,8 @@ function generateMasterCaseRowHTML(c, rowNum) {
                     ${c.remarks}
                 </span>
             </td>
-            ${customCells}
-            <td class="text-center" style="position: relative; z-index: 10; white-space: normal; word-wrap: break-word; min-width: 90px;">
-                <div class="action-btns">
+            <td class="text-center" style="position: relative; z-index: 10; white-space: nowrap; min-width: 150px;">
+                <div class="action-btns" style="display: flex; gap: 4px; justify-content: center; flex-wrap: nowrap;">
                     <button type="button" class="btn-icon system-action-btn" data-action="view" data-id="${c.id}" title="មើលប័ណ្ណ"><i class="fa-solid fa-eye" style="pointer-events: none;"></i></button>
                     <button type="button" class="btn-icon text-success system-action-btn" data-action="legal" data-id="${c.id}" title="ផលិតលិខិតគតិយុត្ត"><i class="fa-solid fa-file-signature" style="pointer-events: none;"></i></button>
                     <button type="button" class="btn-icon text-info system-action-btn" data-action="telegram" data-id="${c.id}" title="ចែករំលែកទៅ Telegram"><i class="fab fa-telegram-plane" style="pointer-events: none;"></i></button>
@@ -3179,7 +3178,6 @@ function renderMasterTableHeader() {
     let html = `
         <th class="text-center" style="width: 50px;" data-i18n="table.no">ល.រ</th>
         <th class="text-center" style="width: 50px;">ល.រ ក្នុងបញ្ជី</th>
-        <th style="width: 90px;" class="text-center">តំណភ្ជាប់ Folder</th>
         <th style="width: 90px;" class="text-center">ឯកសារ ដើម (PDF)</th>
         <th style="width: 90px;" data-i18n="table.caseCode">លេខកូដសំណុំរឿង</th>
         <th style="width: 110px;" data-i18n="table.date">កាលបរិច្ឆេទ</th>
@@ -3199,7 +3197,7 @@ function renderMasterTableHeader() {
         html += `<th style="min-width: 120px;" class="text-center">${currentLang === 'km' ? col.labelKh : col.labelEn}</th>`;
     });
 
-    html += `<th style="width: 90px;" class="text-center" data-i18n="table.actions">សកម្មភាព</th>`;
+    html += `<th style="width: 150px;" class="text-center" data-i18n="table.actions">សកម្មភាព</th>`;
     thead.innerHTML = html;
 }
 

@@ -223,6 +223,8 @@ async function shareFilteredCasesToTelegram() {
         th.style.padding = '2px 4px';
         th.style.fontSize = '8pt';
         th.style.wordWrap = 'break-word';
+        th.style.width = '';
+        th.style.minWidth = '';
     });
     const tds = pdfClone.querySelectorAll('td');
     tds.forEach(td => {
@@ -230,6 +232,8 @@ async function shareFilteredCasesToTelegram() {
         td.style.padding = '2px 4px';
         td.style.fontSize = '8pt';
         td.style.wordWrap = 'break-word';
+        td.style.width = '';
+        td.style.minWidth = '';
     });
     const trs = pdfClone.querySelectorAll('tr');
     trs.forEach(tr => {
