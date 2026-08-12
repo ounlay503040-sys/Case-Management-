@@ -1030,6 +1030,7 @@ function openEditModal(id) {
     document.getElementById('case-category').value = c.category || 'វិវាទកិច្ចសន្យា';
     document.getElementById('case-dispute-location').value = c.disputeLocation || 'ភ្នំពេញ';
     if(document.getElementById('case-dispute-address')) document.getElementById('case-dispute-address').value = c.disputeAddress || '';
+    if(document.getElementById('case-folder-link')) document.getElementById('case-folder-link').value = c.folderLink || '';
     if(document.getElementById('case-event')) document.getElementById('case-event').value = c.caseEvent || '';
     if(document.getElementById('case-event-date')) document.getElementById('case-event-date').value = c.caseEventDate || '';
     if(document.getElementById('case-event-time')) document.getElementById('case-event-time').value = c.caseEventTime || '';
@@ -1300,13 +1301,13 @@ window.shareCaseToTelegram = async function(id) {
     text += `🔹 លេខសំណុំរឿង៖ <b>${c.caseNumber}</b>\n`;
     text += `🔹 កាលបរិច្ឆេទ៖ ${c.dateReceived}\n`;
     text += `🔹 ប្រភេទ៖ ${t_val(c.category)}\n`;
-    text += `🔹 ភាគី (ក)៖ ${c.partyA_name || ''} ${c.partyA_phone ? '(' + formatPhoneNumberWithTelecom(c.partyA_phone) + ')' : ''}\n`;
-    text += `🔹 ភាគី (ខ)៖ ${c.partyB_name || ''} ${c.partyB_phone ? '(' + formatPhoneNumberWithTelecom(c.partyB_phone) + ')' : ''}\n`;
+    text += `🔹 ភាគី (ក)៖ ${c.partyA_name || ''} ${c.partyA_phone ? '📞 ' + formatPhoneNumberWithTelecom(c.partyA_phone) : ''}\n`;
+    text += `🔹 ភាគី (ខ)៖ ${c.partyB_name || ''} ${c.partyB_phone ? '📞 ' + formatPhoneNumberWithTelecom(c.partyB_phone) : ''}\n`;
     text += `🔹 ទីតាំងវិវាទ៖ ${t_val(c.disputeLocation)}\n`;
     text += `🔹 ស្ថានភាព៖ ${t_val(c.status)}\n\n`;
     
     if (c.summary) {
-        text += `📝 <b>សេចក្តីសង្ខេប៖</b>\n<i>${c.summary}</i>\n`;
+        text += `📝 <b>សេចក្តីសង្ខេប៖</b>\n${c.summary}\n`;
     }
 
     if (typeof sendTelegramMessage === 'function') {
@@ -4957,8 +4958,9 @@ const TELECOM_PREFIXES = {
 
 function formatPhoneNumberWithTelecom(phoneStr) {
     if (!phoneStr) return '';
+    phoneStr = String(phoneStr);
     // Strip existing network names in parenthesis if any to re-evaluate
-    let cleanPhone = phoneStr.replace(/\s*\([a-zA-Z]+\)$/, '').trim();
+    let cleanPhone = phoneStr.replace(/\s*\([a-zA-Z\s]+\)$/, '').trim();
     // Remove spaces/dashes to get the digits
     let digits = cleanPhone.replace(/[\s-]/g, '');
     if (digits.length >= 3) {
