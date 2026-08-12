@@ -1132,43 +1132,53 @@ body.dark-theme .data-table tr:hover td.freeze-col-5 {
 }
 
 /* Column Dimensions & Offsets */
-.freeze-col-1 {
+.data-table th.freeze-col-1, .data-table td.freeze-col-1 {
     left: 0px !important;
     width: 50px !important;
     min-width: 50px !important;
     max-width: 50px !important;
     box-sizing: border-box !important;
+    padding-left: 2px !important;
+    padding-right: 2px !important;
 }
-.freeze-col-2 {
+.data-table th.freeze-col-2, .data-table td.freeze-col-2 {
     left: 50px !important;
     width: 55px !important;
     min-width: 55px !important;
     max-width: 55px !important;
     box-sizing: border-box !important;
+    padding-left: 2px !important;
+    padding-right: 2px !important;
 }
-.freeze-col-3 {
+.data-table th.freeze-col-3, .data-table td.freeze-col-3 {
     left: 105px !important;
     width: 75px !important;
     min-width: 75px !important;
     max-width: 75px !important;
     box-sizing: border-box !important;
+    padding-left: 2px !important;
+    padding-right: 2px !important;
 }
-.freeze-col-4 {
+.data-table th.freeze-col-4, .data-table td.freeze-col-4 {
     left: 180px !important;
     width: 95px !important;
     min-width: 95px !important;
     max-width: 95px !important;
     box-sizing: border-box !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
 }
-.freeze-col-5 {
+.data-table th.freeze-col-5, .data-table td.freeze-col-5 {
     left: 275px !important;
     width: 105px !important;
     min-width: 105px !important;
     max-width: 105px !important;
     box-sizing: border-box !important;
-    border-right: 2px solid #cbd5e1 !important;
+    border-right: 2px solid #94a3b8 !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
 }
-body.dark-theme .freeze-col-5 {
+body.dark-theme .data-table th.freeze-col-5, body.dark-theme .data-table td.freeze-col-5 {
     border-right: 2px solid #475569 !important;
 }
 

@@ -497,13 +497,13 @@ function generateMasterCaseRowHTML(c, rowNum) {
             </td>
             <td>
                 <div class="party-box" style="max-width: 250px; white-space: normal; word-wrap: break-word;">
-                    <strong title="${c.partyA_name}">${c.partyA_name}</strong>
+                    <strong title="${c.partyA_name}" style="color: #1e40af;">${c.partyA_name}</strong>
                     <span><i class="fa-solid fa-map-marker-alt"></i> ${c.partyA_location}</span>
                 </div>
             </td>
             <td>
                 <div class="party-box" style="max-width: 250px; white-space: normal; word-wrap: break-word;">
-                    <strong title="${c.partyB_name}">${c.partyB_name}</strong>
+                    <strong title="${c.partyB_name}" style="color: #b91c1c;">${c.partyB_name}</strong>
                     <span><i class="fa-solid fa-map-marker-alt"></i> ${c.partyB_location}</span>
                 </div>
             </td>
