@@ -1027,7 +1027,7 @@ body {
     padding: 14px 16px;
     border-bottom: 2px solid #cbd5e1;
     border-top: 1px solid #e2e8f0;
-    white-space: normal;
+    white-space: nowrap;
     position: sticky;
     top: 0;
     z-index: 10;
@@ -1097,6 +1097,11 @@ body.dark-theme .data-table th {
     top: 0;
     z-index: 25;
     background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+}
+.data-table th.freeze-col-2,
+.data-table th.freeze-col-3,
+.data-table th.freeze-col-4 {
+    white-space: normal !important;
 }
 
 /* Hover background for frozen TD */

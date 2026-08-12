@@ -3189,7 +3189,7 @@ function renderMasterTableHeader() {
         <th style="width: 120px;">ភាគី (គ) អ្នកពាក់ព័ន្ធ</th>
         <th style="width: 140px;" data-i18n="table.category">ប្រភេទវិវាទ</th>
         <th style="width: 120px;" data-i18n="table.location">ទីតាំងវិវាទ</th>
-        <th style="min-width: 200px;" data-i18n="form.mediation">ចំណាត់ការសម្រុះសម្រួល</th>
+        <th style="min-width: 200px;">ចំណាត់ការសម្រុះសម្រួល</th>
         <th style="width: 80px;" class="text-center" data-i18n="table.remarks">កំណត់ចំណាំ</th>
     `;
 
