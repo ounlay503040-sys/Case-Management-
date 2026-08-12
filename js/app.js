@@ -523,6 +523,9 @@ function generateMasterCaseRowHTML(c, rowNum) {
                 </span>
             </td>
             ${customCells}
+            <td class="text-center">
+                ${c.folderLink ? `<a href="${c.folderLink}" target="_blank" title="បើក Folder" class="btn-icon" style="color:#0ea5e9; text-decoration:none;"><i class="fa-solid fa-folder-open"></i></a>` : '<span class="text-muted" style="font-size:11px;">-</span>'}
+            </td>
             <td class="text-center">${renderTableFileCell(c)}</td>
             <td class="text-center" style="position: relative; z-index: 10;">
                 <div class="action-btns">
@@ -905,6 +908,7 @@ function initModalEvents() {
                 category: document.getElementById('case-category').value,
                 disputeLocation: document.getElementById('case-dispute-location').value,
                 disputeAddress: document.getElementById('case-dispute-address') ? document.getElementById('case-dispute-address').value.trim() : '',
+                folderLink: document.getElementById('case-folder-link') ? document.getElementById('case-folder-link').value.trim() : '',
                 
                 partyA_name: document.getElementById('case-party-a-name').value.trim(),
                 partyA_gender: document.getElementById('case-party-a-gender').value,
@@ -1149,9 +1153,10 @@ function openViewModal(id) {
                 <h2>${c.caseNumber}</h2>
                 <span>កាលបរិច្ឆេទទទួលពាក្យ៖ <strong>${c.dateReceived}</strong></span>
             </div>
-            <div>
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end;">
+                ${c.folderLink ? `<a href="${c.folderLink}" target="_blank" class="btn btn-sm" style="background:#f0f9ff; color:#0ea5e9; border:1px solid #bae6fd; text-decoration:none; padding:4px 10px; font-size:12px; border-radius:6px; margin-right:8px;"><i class="fa-solid fa-folder-open"></i> បើក Folder</a>` : ''}
                 ${getStatusBadgeHTML(c.status)}
-                <span class="badge ${c.remarks === 'បានបិទរួចរាល់' ? 'badge-settle' : 'badge-pending'}" style="margin-left: 8px;">${c.remarks}</span>
+                <span class="badge ${c.remarks === 'បានបិទរួចរាល់' ? 'badge-settle' : 'badge-pending'}">${c.remarks}</span>
             </div>
         </div>
 
@@ -1295,8 +1300,8 @@ window.shareCaseToTelegram = async function(id) {
     text += `🔹 លេខសំណុំរឿង៖ <b>${c.caseNumber}</b>\n`;
     text += `🔹 កាលបរិច្ឆេទ៖ ${c.dateReceived}\n`;
     text += `🔹 ប្រភេទ៖ ${t_val(c.category)}\n`;
-    text += `🔹 ភាគី (ក)៖ ${c.partyA_name || ''}\n`;
-    text += `🔹 ភាគី (ខ)៖ ${c.partyB_name || ''}\n`;
+    text += `🔹 ភាគី (ក)៖ ${c.partyA_name || ''} ${c.partyA_phone ? '(' + formatPhoneNumberWithTelecom(c.partyA_phone) + ')' : ''}\n`;
+    text += `🔹 ភាគី (ខ)៖ ${c.partyB_name || ''} ${c.partyB_phone ? '(' + formatPhoneNumberWithTelecom(c.partyB_phone) + ')' : ''}\n`;
     text += `🔹 ទីតាំងវិវាទ៖ ${t_val(c.disputeLocation)}\n`;
     text += `🔹 ស្ថានភាព៖ ${t_val(c.status)}\n\n`;
     
@@ -3185,6 +3190,7 @@ function renderMasterTableHeader() {
         html += `<th style="min-width: 120px;" class="text-center">${currentLang === 'km' ? col.labelKh : col.labelEn}</th>`;
     });
 
+    html += `<th style="width: 120px;" class="text-center">តំណភ្ជាប់ Folder</th>`;
     html += `<th style="width: 120px;" class="text-center">ឯកសារ ដើម (PDF)</th>`;
     html += `<th style="width: 120px;" class="text-center" data-i18n="table.actions">សកម្មភាព</th>`;
     thead.innerHTML = html;
@@ -3243,6 +3249,7 @@ function initDashboardQuickForm() {
                 caseEventTime: document.getElementById('quick-case-event-time') ? document.getElementById('quick-case-event-time').value : '',
                 category: document.getElementById('quick-case-category').value,
                 disputeLocation: document.getElementById('quick-case-dispute-location').value,
+                folderLink: document.getElementById('quick-case-folder-link') ? document.getElementById('quick-case-folder-link').value.trim() : '',
                 
                 partyA_name: document.getElementById('quick-case-party-a-name').value.trim(),
                 partyA_gender: 'ប្រុស',
@@ -4939,4 +4946,50 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnForward = document.getElementById('btn-nav-forward');
     if (btnBack) btnBack.addEventListener('click', navigateBack);
     if (btnForward) btnForward.addEventListener('click', navigateForward);
+});
+
+// TELECOM AUTO-DETECT LOGIC
+const TELECOM_PREFIXES = {
+    'Cellcard': ['011', '012', '017', '061', '076', '077', '078', '079', '085', '089', '092', '095', '099'],
+    'Smart': ['010', '015', '016', '069', '070', '081', '086', '087', '093', '096', '098'],
+    'Metfone': ['031', '060', '066', '067', '068', '071', '088', '090', '097']
+};
+
+function formatPhoneNumberWithTelecom(phoneStr) {
+    if (!phoneStr) return '';
+    // Strip existing network names in parenthesis if any to re-evaluate
+    let cleanPhone = phoneStr.replace(/\s*\([a-zA-Z]+\)$/, '').trim();
+    // Remove spaces/dashes to get the digits
+    let digits = cleanPhone.replace(/[\s-]/g, '');
+    if (digits.length >= 3) {
+        let prefix = digits.substring(0, 3);
+        let network = null;
+        for (const [net, prefixes] of Object.entries(TELECOM_PREFIXES)) {
+            if (prefixes.includes(prefix)) {
+                network = net;
+                break;
+            }
+        }
+        if (network) {
+            return `${cleanPhone} (${network})`;
+        }
+    }
+    return cleanPhone;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const phoneInputs = [
+        'case-party-a-phone', 
+        'case-party-b-phone', 
+        'case-party-c-phone'
+    ];
+    
+    phoneInputs.forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+            input.addEventListener('blur', function() {
+                this.value = formatPhoneNumberWithTelecom(this.value);
+            });
+        }
+    });
 });
