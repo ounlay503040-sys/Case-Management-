@@ -39,6 +39,9 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  // Fix for Google OAuth "400 invalid_request" block for Embedded Browsers
+  app.userAgentFallback = app.userAgentFallback.replace(/Electron\/\S*\s/, "");
+
   createWindow();
 
   // Check for updates
