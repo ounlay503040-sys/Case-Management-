@@ -84,8 +84,16 @@ app.whenReady().then(() => {
   const { shell } = require('electron');
   const url = require('url');
 
+  let activeAuthServer = null;
+
   ipcMain.handle('google-auth', async (event, clientId) => {
     return new Promise((resolve, reject) => {
+      // Close existing server if user clicks multiple times
+      if (activeAuthServer) {
+        try { activeAuthServer.close(); } catch(e) {}
+        activeAuthServer = null;
+      }
+
       let server;
       try {
         server = http.createServer((req, res) => {
@@ -133,9 +141,9 @@ app.whenReady().then(() => {
             }
             
             // Close server after resolving
-            if (server) {
+            if (activeAuthServer === server) {
               server.close();
-              server = null;
+              activeAuthServer = null;
             }
           } else {
             res.writeHead(404);
@@ -143,6 +151,8 @@ app.whenReady().then(() => {
           }
         });
         
+        activeAuthServer = server;
+
         server.listen(3456, '127.0.0.1', () => {
           const redirectUri = encodeURIComponent('http://127.0.0.1:3456/callback');
           const scope = encodeURIComponent('https://www.googleapis.com/auth/calendar.events');
@@ -153,14 +163,18 @@ app.whenReady().then(() => {
         
         // Timeout after 5 minutes
         setTimeout(() => {
-          if (server) {
+          if (activeAuthServer === server) {
             server.close();
+            activeAuthServer = null;
             reject(new Error('Authentication timeout'));
           }
         }, 5 * 60 * 1000);
         
       } catch (err) {
-        if (server) server.close();
+        if (activeAuthServer === server) {
+          server.close();
+          activeAuthServer = null;
+        }
         reject(err);
       }
     });

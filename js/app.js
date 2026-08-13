@@ -4740,6 +4740,20 @@ document.getElementById('btn-save-calendar-event')?.addEventListener('click', ()
         c.caseEventTime = timeStr;
         c.notifiedEventDate = ''; // Reset notification flag when date changes
         c.notifiedOneHour = false; // Reset 1 hour notification flag
+        c.notifiedNow = false; // Reset now notification flag
+        
+        // Sync with case meeting properties (7.1, 7.2, 7.3)
+        if (eventType.includes('៧.១')) {
+            c.meetingPartyADate = dateStr;
+            if (!c.meetingPartyA || c.meetingPartyA === 'មិនទាន់ប្រជុំ') c.meetingPartyA = 'បានប្រជុំប្រមូលព័ត៌មានភាគីរួច';
+        } else if (eventType.includes('៧.២')) {
+            c.meetingPartyBDate = dateStr;
+            if (!c.meetingPartyB || c.meetingPartyB === 'មិនទាន់ប្រជុំ') c.meetingPartyB = 'បានប្រជុំប្រមូលព័ត៌មានភាគីរួច';
+        } else if (eventType.includes('៧.៣')) {
+            c.mediationMeetingDate = dateStr;
+            if (!c.mediationMeeting || c.mediationMeeting === 'មិនទាន់ប្រជុំ') c.mediationMeeting = 'បានប្រជុំសម្រុះសម្រួល (កំពុងបន្ត)';
+        }
+
         saveCases();
         showToast('បានកំណត់កម្មវិធីដោយជោគជ័យ!', 'success');
         document.getElementById('calendar-event-modal').classList.remove('open');
