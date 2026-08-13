@@ -53,43 +53,10 @@ async function initializeGapiClient() {
     }
 }
 
-// Callback after gis client is loaded
-function gisLoaded() {
-    initTokenClient();
-}
-
-function initTokenClient() {
-    const clientId = getGoogleClientId();
-    if (!clientId) return; // Wait until they configure it
-    try {
-        tokenClient = google.accounts.oauth2.initTokenClient({
-            client_id: clientId,
-            scope: SCOPES,
-            callback: (resp) => {
-                if (resp.error !== undefined) {
-                    throw (resp);
-                }
-                // Important: Set the token for gapi client to use
-                gapi.client.setToken({ access_token: resp.access_token });
-                
-                // Save to local storage for persistence
-                localStorage.setItem('nadr_gcal_token', resp.access_token);
-                localStorage.setItem('nadr_gcal_token_expires', Date.now() + (resp.expires_in * 1000));
-                
-                document.getElementById('btn-google-signout').style.display = 'inline-block';
-                document.getElementById('btn-google-auth').innerHTML = '<i class="fa-brands fa-google"></i> បានភ្ជាប់ Google Calendar រួចរាល់';
-                if (typeof showToast === 'function') showToast('ភ្ជាប់ Google Calendar ជោគជ័យ!', 'success');
-            },
-        });
-        gisInited = true;
-        maybeEnableButtons();
-    } catch (e) {
-        console.error('GIS Error:', e);
-    }
-}
+// Removed GIS init functions
 
 function maybeEnableButtons() {
-    if (gapiInited && gisInited) {
+    if (gapiInited) {
         // Check for persistent token
         const storedToken = localStorage.getItem('nadr_gcal_token');
         const storedExpiry = localStorage.getItem('nadr_gcal_token_expires');
@@ -102,13 +69,12 @@ function maybeEnableButtons() {
     }
 }
 
-// Check if loaded periodically (since we used async script tags without explicit callback to these functions)
+// Check if loaded periodically
 let gcalChecks = 0;
 const gcalInterval = setInterval(() => {
     if (window.gapi && !gapiInited) gapiLoaded();
-    if (window.google && !gisInited) gisLoaded();
     gcalChecks++;
-    if ((gapiInited && gisInited) || gcalChecks > 20) clearInterval(gcalInterval);
+    if (gapiInited || gcalChecks > 20) clearInterval(gcalInterval);
 }, 500);
 
 function handleAuthClick() {
@@ -117,9 +83,26 @@ function handleAuthClick() {
         if (typeof showToast === 'function') showToast('សូមរក្សាទុក Google Client ID ជាមុនសិន!', 'error');
         return;
     }
-    if (!tokenClient) initTokenClient();
-    if (tokenClient) {
-        tokenClient.requestAccessToken({prompt: 'consent'});
+    
+    if (window.electronAPI && window.electronAPI.googleAuth) {
+        if (typeof showToast === 'function') showToast('សូមពិនិត្យមើលផ្ទាំង Web Browser របស់អ្នកដើម្បី Login...', 'info');
+        window.electronAPI.googleAuth(clientId).then(resp => {
+            // Important: Set the token for gapi client to use
+            gapi.client.setToken({ access_token: resp.access_token });
+            
+            // Save to local storage for persistence (assume 1 hour expiry for implicit flow)
+            localStorage.setItem('nadr_gcal_token', resp.access_token);
+            localStorage.setItem('nadr_gcal_token_expires', Date.now() + (3599 * 1000));
+            
+            document.getElementById('btn-google-signout').style.display = 'inline-block';
+            document.getElementById('btn-google-auth').innerHTML = '<i class="fa-brands fa-google"></i> បានភ្ជាប់ Google Calendar រួចរាល់';
+            if (typeof showToast === 'function') showToast('ភ្ជាប់ Google Calendar ជោគជ័យ!', 'success');
+        }).catch(err => {
+            console.error('Google Auth Error:', err);
+            if (typeof showToast === 'function') showToast('ការភ្ជាប់បរាជ័យ ឬត្រូវបានលុបចោល។', 'error');
+        });
+    } else {
+        if (typeof showToast === 'function') showToast('មុខងារនេះមិនទាន់មាននៅលើប្រព័ន្ធរបស់អ្នកទេ។', 'error');
     }
 }
 

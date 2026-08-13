@@ -4594,24 +4594,121 @@ renderAllViews = function() {
 function openCalendarEventModal(dateStr, caseIdToSelect = null) {
     document.getElementById('cal-modal-date').value = dateStr;
     const caseSelect = document.getElementById('cal-modal-case');
+    
+    // Create Custom Dropdown Container if not exists
+    let customSelect = document.getElementById('custom-cal-modal-case');
+    if (!customSelect) {
+        customSelect = document.createElement('div');
+        customSelect.id = 'custom-cal-modal-case';
+        customSelect.className = 'custom-select-wrapper';
+        caseSelect.parentNode.insertBefore(customSelect, caseSelect);
+        caseSelect.style.display = 'none'; // Hide native select
+        
+        // Add minimal CSS for the custom select
+        if (!document.getElementById('custom-select-style')) {
+            const style = document.createElement('style');
+            style.id = 'custom-select-style';
+            style.innerHTML = `
+                .custom-select-wrapper { position: relative; width: 100%; user-select: none; }
+                .custom-select-trigger { border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px 15px; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: space-between; font-size: 14px; }
+                .custom-select-trigger:focus { outline: 2px solid var(--primary-color); }
+                .custom-select-options { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; margin-top: 5px; max-height: 250px; overflow-y: auto; z-index: 9999; display: none; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+                .custom-select-options.open { display: block; }
+                .custom-select-option { padding: 10px 15px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 14px; border-bottom: 1px solid #f1f5f9; }
+                .custom-select-option:last-child { border-bottom: none; }
+                .custom-select-option:hover { background: #f8fafc; }
+                .custom-select-option.selected { background: #eff6ff; }
+                .custom-select-circle { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px; color: #fff; flex-shrink: 0; }
+            `;
+            document.head.appendChild(style);
+        }
+    }
+
+    // Populate Options
     caseSelect.innerHTML = '<option value="">-- ជ្រើសរើសសំណុំរឿង --</option>';
     
+    let customOptionsHTML = `<div class="custom-select-option" data-value="">-- ជ្រើសរើសសំណុំរឿង --</div>`;
+    
     casesData.forEach(c => {
-        // Only show active cases or all cases
-        const shortStatus = c.status.split(' ')[0]; // e.g. "Active", "Settle"
-        caseSelect.innerHTML += `<option value="${c.id}">[${shortStatus}] លេខ ${c.caseNumber} - ${c.partyA_name} vs ${c.partyB_name}</option>`;
+        const shortStatus = c.status.split(' ')[0];
+        const statusColor = typeof getStatusColor === 'function' ? getStatusColor(c.status) : '#334155';
+        const listNo = c.originalListNo || '-';
+        
+        const optionText = `[${shortStatus}] លេខ ${c.caseNumber} - ${c.partyA_name} vs ${c.partyB_name}`;
+        caseSelect.innerHTML += `<option value="${c.id}">${listNo} ${optionText}</option>`;
+        
+        customOptionsHTML += `
+            <div class="custom-select-option" data-value="${c.id}">
+                <div class="custom-select-circle" style="background-color: ${statusColor}; box-shadow: 0 0 4px ${statusColor}80;">${listNo}</div>
+                <div>${optionText}</div>
+            </div>
+        `;
+    });
+
+    // Render Custom Dropdown
+    customSelect.innerHTML = `
+        <div class="custom-select-trigger" tabindex="0">
+            <span class="custom-select-label">-- ជ្រើសរើសសំណុំរឿង --</span>
+            <i class="fa-solid fa-chevron-down"></i>
+        </div>
+        <div class="custom-select-options">${customOptionsHTML}</div>
+    `;
+
+    const trigger = customSelect.querySelector('.custom-select-trigger');
+    const optionsContainer = customSelect.querySelector('.custom-select-options');
+    const label = customSelect.querySelector('.custom-select-label');
+
+    // Toggle dropdown
+    trigger.onclick = () => {
+        optionsContainer.classList.toggle('open');
+    };
+    
+    // Close when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!customSelect.contains(e.target)) {
+            optionsContainer.classList.remove('open');
+        }
+    }, { once: false });
+
+    // Handle Option Selection function
+    const selectOption = (val) => {
+        caseSelect.value = val;
+        optionsContainer.classList.remove('open');
+        
+        // Update Label
+        const selectedOpt = customSelect.querySelector(`.custom-select-option[data-value="${val}"]`);
+        if (selectedOpt) {
+            label.innerHTML = selectedOpt.innerHTML;
+            
+            // Remove selection class from all
+            customSelect.querySelectorAll('.custom-select-option').forEach(el => el.classList.remove('selected'));
+            selectedOpt.classList.add('selected');
+        } else {
+            label.innerHTML = '-- ជ្រើសរើសសំណុំរឿង --';
+        }
+        
+        // Dispatch change event to native select just in case
+        caseSelect.dispatchEvent(new Event('change'));
+    };
+
+    // Attach click events to custom options
+    customSelect.querySelectorAll('.custom-select-option').forEach(opt => {
+        opt.onclick = () => {
+            selectOption(opt.getAttribute('data-value'));
+        };
     });
 
     if (caseIdToSelect) {
-        caseSelect.value = caseIdToSelect;
+        selectOption(caseIdToSelect);
         const c = getCaseById(caseIdToSelect);
         if (c) {
             document.getElementById('cal-modal-event').value = c.caseEvent || '';
             document.getElementById('cal-modal-time').value = c.caseEventTime || '08:00';
         }
     } else {
+        selectOption(''); // Reset selection
         document.getElementById('cal-modal-event').value = '';
-        document.getElementById('cal-modal-time').value = '08:00'; // Default time
+        document.getElementById('cal-modal-time').value = '08:00';
     }
 
     document.getElementById('calendar-event-modal').classList.add('open');

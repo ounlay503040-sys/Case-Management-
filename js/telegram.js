@@ -146,11 +146,31 @@ function checkAndSendTelegramNotifications() {
 
                 // If event is in the future but less than 1 hour away
                 if (diffHours > 0 && diffHours <= 1) {
-                    const msg = `⏳ <b>ការរំលឹកបន្ទាន់ (១ ម៉ោងទៀត)</b>\n\nកម្មវិធីរបស់សំណុំរឿង <b>${c.caseNumber}</b> នឹងចាប់ផ្តើមក្នុងពេល ១ ម៉ោងទៀត!\n🗓 <b>កម្មវិធី៖</b> ${c.caseEvent} (ម៉ោង ${c.caseEventTime})\n📍 <b>ទីតាំង៖</b> ${c.disputeLocation}`;
+                    const msg = `⏳ <b>ការរំលឹកបន្ទាន់ (១ ម៉ោងទៀត)</b>\n\nសំណុំរឿង៖ <b>${c.caseNumber}</b>\n⚖️ <b>ប្រភេទវិវាទ៖</b> ${c.category}\n🗓 <b>កម្មវិធី៖</b> ${c.caseEvent} (ម៉ោង ${c.caseEventTime})\n📍 <b>ទីតាំង៖</b> ${c.disputeLocation}\n\n🧑 <b>ភាគីក៖</b> ${c.partyA_name} (${c.partyA_phone || 'គ្មានលេខ'})\n🧑 <b>ភាគីខ៖</b> ${c.partyB_name} (${c.partyB_phone || 'គ្មានលេខ'})`;
                     
                     sendTelegramMessage(msg).then(success => {
                         if (success) {
                             c.notifiedOneHour = true;
+                            hasChanges = true;
+                            if (typeof saveCases === 'function') saveCases();
+                        }
+                    });
+                }
+            }
+
+            // 3. Check for NOW notification
+            if (c.caseEventTime && !c.notifiedNow) {
+                const eventDateTime = new Date(`${c.caseEventDate}T${c.caseEventTime}:00`);
+                const diffMs = eventDateTime - now;
+                const diffMinutes = diffMs / (1000 * 60);
+
+                // If event is exactly now or passed within the last 5 minutes
+                if (diffMinutes <= 0 && diffMinutes > -5) {
+                    const msg = `⏳ <b>ការរំលឹកបន្ទាន់ កម្មវិធីរបស់សំណុំរឿង ${c.caseNumber} ដល់ពេលវេលាហើយ!</b>\n⚖️ <b>ប្រភេទវិវាទ៖</b> ${c.category}\n🗓 <b>កម្មវិធី៖</b> ${c.caseEvent}\n📍 <b>ទីតាំង៖</b> ${c.disputeLocation}\n\n🧑 <b>ភាគីក៖</b> ${c.partyA_name} (${c.partyA_phone || 'គ្មានលេខ'})\n🧑 <b>ភាគីខ៖</b> ${c.partyB_name} (${c.partyB_phone || 'គ្មានលេខ'})`;
+                    
+                    sendTelegramMessage(msg).then(success => {
+                        if (success) {
+                            c.notifiedNow = true;
                             hasChanges = true;
                             if (typeof saveCases === 'function') saveCases();
                         }
