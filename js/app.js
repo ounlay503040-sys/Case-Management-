@@ -552,7 +552,7 @@ document.addEventListener('click', function(e) {
     const id = btn.getAttribute('data-id');
     
     if (action === 'view') {
-        if(typeof openViewModal === 'function') openViewModal(id);
+        if(typeof openCaseProfileModal === 'function') openCaseProfileModal(id);
     } else if (action === 'legal') {
         if(typeof openLegalDocModal === 'function') openLegalDocModal(id);
     } else if (action === 'telegram') {
@@ -1134,6 +1134,65 @@ function openEditModal(id) {
     renderModalCaseFilesGrid();
     modal.classList.add('open');
     setTimeout(() => { if (typeof caseFormStateManager !== 'undefined' && caseFormStateManager) caseFormStateManager.reset(); }, 100);
+}
+
+/**
+ * Open Case Profile Modal (Modern View)
+ */
+function openCaseProfileModal(id) {
+    const c = getCaseById(id);
+    if (!c) return;
+
+    // Header
+    document.getElementById('profile-case-code').innerText = c.caseNumber || '--';
+    document.getElementById('profile-case-date').innerText = formatExcelDate(c.dateReceived) || '--';
+    document.getElementById('profile-case-category').innerText = t_val(c.category) || '--';
+    document.getElementById('profile-case-location').innerText = t_val(c.disputeLocation) || '--';
+    
+    const statusEl = document.getElementById('profile-case-status');
+    statusEl.innerHTML = getStatusBadgeHTML(c.status);
+    
+    // Party A
+    document.getElementById('profile-party-a-name').innerText = `${c.partyA_name || '--'} (${c.partyA_gender || '?'}, ${c.partyA_age || '?'} ឆ្នាំ)`;
+    document.getElementById('profile-party-a-phone').innerText = c.partyA_phone || 'គ្មានលេខទូរស័ព្ទ';
+    document.getElementById('profile-party-a-lawyer').innerText = c.partyA_lawyer_name ? `${c.partyA_lawyer_name} (${c.partyA_lawyer_phone || ''})` : 'គ្មានមេធាវីតំណាង';
+
+    // Party B
+    document.getElementById('profile-party-b-name').innerText = `${c.partyB_name || '--'} (${c.partyB_gender || '?'}, ${c.partyB_age || '?'} ឆ្នាំ)`;
+    document.getElementById('profile-party-b-phone').innerText = c.partyB_phone || 'គ្មានលេខទូរស័ព្ទ';
+    document.getElementById('profile-party-b-lawyer').innerText = c.partyB_lawyer_name ? `${c.partyB_lawyer_name} (${c.partyB_lawyer_phone || ''})` : 'គ្មានមេធាវីតំណាង';
+
+    // Summary
+    document.getElementById('profile-case-summary').innerText = c.disputeSummary || 'ពុំមានព័ត៌មានលម្អិតអំពីអង្គហេតុទេ...';
+
+    // Timeline 7.1
+    document.getElementById('profile-71-date').innerText = c.meetingPartyADate || 'មិនទាន់កំណត់';
+    const status71 = document.getElementById('profile-71-status');
+    status71.innerText = c.meetingPartyA || 'មិនទាន់ប្រជុំ';
+    status71.className = `badge ${c.meetingPartyA && c.meetingPartyA !== 'មិនទាន់ប្រជុំ' ? 'badge-settle' : 'badge-pending'} bg-secondary`;
+
+    // Timeline 7.2
+    document.getElementById('profile-72-date').innerText = c.meetingPartyBDate || 'មិនទាន់កំណត់';
+    const status72 = document.getElementById('profile-72-status');
+    status72.innerText = c.meetingPartyB || 'មិនទាន់ប្រជុំ';
+    status72.className = `badge ${c.meetingPartyB && c.meetingPartyB !== 'មិនទាន់ប្រជុំ' ? 'badge-settle' : 'badge-pending'} bg-secondary`;
+
+    // Timeline 7.3
+    document.getElementById('profile-73-date').innerText = c.mediationMeetingDate || 'មិនទាន់កំណត់';
+    const status73 = document.getElementById('profile-73-status');
+    status73.innerText = c.mediationMeeting || 'មិនទាន់ប្រជុំ';
+    status73.className = `badge ${c.mediationMeeting && c.mediationMeeting.includes('រួចរាល់') ? 'badge-settle' : (c.mediationMeeting && c.mediationMeeting !== 'មិនទាន់ប្រជុំ' ? 'badge-active' : 'badge-pending')} bg-secondary`;
+
+    // Upcoming Event
+    document.getElementById('profile-upcoming-event').innerText = c.caseEvent || 'មិនមានកម្មវិធីបន្ទាប់ទេ';
+    document.getElementById('profile-upcoming-date').innerText = c.caseEventDate || '--/--/----';
+    document.getElementById('profile-upcoming-time').innerText = c.caseEventTime || '--:--';
+
+    document.getElementById('case-profile-modal').classList.add('open');
+}
+
+function closeCaseProfileModal() {
+    document.getElementById('case-profile-modal').classList.remove('open');
 }
 
 /**
