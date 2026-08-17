@@ -3101,7 +3101,8 @@ function initLanguageSwitcher() {
             if (currentLang !== 'en') {
                 applyLanguage('en');
                 renderAllViews();
-                showToast('Language switched to English 🇺🇸', 'success');
+                const msgEn = currentLang === 'en' ? 'Language switched to English' : 'បានប្តូរទៅភាសាអង់គ្លេស';
+                showToast(msgEn, 'success');
             }
         });
     }
@@ -5427,7 +5428,9 @@ function updateBreadcrumb(viewId) {
     const targetNav = document.querySelector('.sidebar-nav .nav-item[data-view="' + viewId + '"]');
     let title = 'ទំព័រដើម';
     if (targetNav) title = targetNav.innerText.trim();
-    breadcrumbPath.innerText = 'ទំព័រដើម > ' + title;
+    const isEn = (localStorage.getItem('nadr_app_lang') === 'en');
+    const homeText = isEn ? 'Home' : 'ទំព័រដើម';
+    breadcrumbPath.innerText = homeText + ' > ' + title;
 }
 
 function updateNavButtons() {
