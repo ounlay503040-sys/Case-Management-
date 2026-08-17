@@ -6,5 +6,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   generatePDF: (options) => ipcRenderer.invoke('generate-pdf', options),
   googleAuth: (clientId) => ipcRenderer.invoke('google-auth', clientId),
   openFolder: (folderPath) => ipcRenderer.send('open-folder', folderPath),
-  exportAll: (data) => ipcRenderer.send('data:export-all', data)
+  exportAll: (data) => ipcRenderer.send('data:export-all', data),
+  toggleDevTools: () => ipcRenderer.send('toggle-dev-tools')
 });

@@ -68,6 +68,13 @@ if (!gotTheLock) {
       }
     });
 
+    // Toggle DevTools for admins
+    ipcMain.on('toggle-dev-tools', (event) => {
+      if (mainWindow && mainWindow.webContents) {
+        mainWindow.webContents.toggleDevTools();
+      }
+    });
+
     // Fix for Google OAuth "400 invalid_request" block for Embedded Browsers
     app.userAgentFallback = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 

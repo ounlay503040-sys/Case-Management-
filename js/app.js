@@ -40,6 +40,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // DevTools Shortcut for Admins (Ctrl+Shift+Alt+D)
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.shiftKey && e.altKey && (e.key === 'd' || e.key === 'D')) {
+            const role = localStorage.getItem('nadr_auth_user_role') || sessionStorage.getItem('nadr_auth_user_role') || '';
+            if (role.toLowerCase().includes('admin') || role.includes('គ្រប់គ្រង')) {
+                if (window.electronAPI && window.electronAPI.toggleDevTools) {
+                    window.electronAPI.toggleDevTools();
+                }
+            }
+        }
+    });
+
     const quickEntryCard = document.querySelector('.quick-entry-card');
     const quickCaseTypeRadios = document.querySelectorAll('input[name="quickCaseType"]');
     if (quickCaseTypeRadios) {
