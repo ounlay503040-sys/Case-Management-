@@ -2282,6 +2282,31 @@
     </div>
 
     <!-- MODAL 1: ADD / EDIT CASE ENTRY FORM (NADR MASTER SCHEMA) -->
+    <!-- Change Password Modal (Hotfix 2.5) -->
+    <div class="modal fade" id="change-password-modal" tabindex="-1" style="z-index: 1060; background: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title"><i class="fa-solid fa-key"></i> ប្តូរពាក្យសម្ងាត់ (ចាំបាច់)</h5>
+                </div>
+                <div class="modal-body">
+                    <p class="small text-danger">គណនីនេះប្រើពាក្យសម្ងាត់ខ្សោយ។ សូមប្តូរវាឥឡូវនេះ ដើម្បីសុវត្ថិភាព។</p>
+                    <div class="mb-3">
+                        <label class="form-label">ពាក្យសម្ងាត់ថ្មី</label>
+                        <input type="password" class="form-control" id="hotfix-new-password" placeholder="យ៉ាងតិច ៦ តួអក្សរ">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">បញ្ជាក់ពាក្យសម្ងាត់ថ្មី</label>
+                        <input type="password" class="form-control" id="hotfix-confirm-password">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary w-100" onclick="window.saveHotfixPassword()">រក្សាទុក</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="case-modal">
         <div class="modal-dialog modal-xl">
             <div class="modal-header">

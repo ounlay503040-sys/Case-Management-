@@ -2648,14 +2648,27 @@ function initAuth() {
             if (errorMsg) errorMsg.classList.add('d-none');
 
             // 1. Fetch valid users from LocalStorage
-            let adminUsers = JSON.parse(localStorage.getItem('nadr_admin_users')) || ADMIN_USERS;
+            let adminUsers = JSON.parse(localStorage.getItem('nadr_admin_users'));
+            if (!Array.isArray(adminUsers) || adminUsers.length === 0 || !adminUsers.some(u => u.username === 'admin' && u.password)) {
+                // Seed from default if missing, empty, or corrupted (missing admin or password)
+                adminUsers = [
+                    { username: 'admin', password: 'admin123', name: 'គណនីរដ្ឋបាល (Admin)', role: 'Super Admin (អ្នកគ្រប់គ្រងកម្មវិធី)', status: 'Active', phone: '012 345 678', email: 'admin@nadr.gov.kh' },
+                    { username: 'nadr', password: '123', name: 'មន្ត្រីសម្របសម្រួល', role: 'NADR Officer (មន្ត្រីធម្មតា)', status: 'Active', phone: '012 000 000', email: 'officer@nadr.gov.kh' },
+                    { username: 'user', password: 'user', name: 'អ្នកមើលការខុសត្រូវ', role: 'Viewer (ត្រឹមមើល)', status: 'Active', phone: '012 111 111', email: 'viewer@nadr.gov.kh' }
+                ];
+                localStorage.setItem('nadr_admin_users', JSON.stringify(adminUsers));
+                // Update global variable as well
+                if (typeof ADMIN_USERS !== 'undefined') {
+                    ADMIN_USERS = adminUsers;
+                }
+            }
             
             // For now, if there is no username input field, just match password against any user
             let foundUser = null;
             if (document.getElementById('login-username')) {
-                foundUser = adminUsers.find(u => u.username === usernameInput && u.password === password);
+                foundUser = adminUsers.find(u => u.username === usernameInput && u.password && u.password === password);
             } else {
-                foundUser = adminUsers.find(u => u.password === password);
+                foundUser = adminUsers.find(u => u.password && u.password === password);
             }
 
             if (!foundUser) {
@@ -2680,12 +2693,43 @@ function initAuth() {
             const weakPasswords = ['admin', '123', 'admin123', 'nadr', 'nadr2026', 'user', '1234', 'password'];
             if (weakPasswords.includes(foundUser.password)) {
                 setTimeout(() => {
-                    alert('សូមព្រមាន៖ គណនីរបស់អ្នកកំពុងប្រើប្រាស់ពាក្យសម្ងាត់ខ្សោយងាយរងគ្រោះ (ឧ. admin123)។\nដើម្បីសុវត្ថិភាព សូមផ្លាស់ប្តូរវាភ្លាមៗនៅក្នុងផ្ទាំងការកំណត់គណនី។');
-                    if (typeof window.showAccountSettings === 'function') {
-                        window.showAccountSettings();
+                    const modal = document.getElementById('change-password-modal');
+                    if (modal) {
+                        modal.classList.add('show');
+                        modal.style.display = 'block';
                     }
                 }, 1000);
             }
+
+window.saveHotfixPassword = function() {
+    const newPwd = document.getElementById('hotfix-new-password').value.trim();
+    const confirmPwd = document.getElementById('hotfix-confirm-password').value.trim();
+    
+    if (newPwd.length < 6) {
+        alert('ពាក្យសម្ងាត់ថ្មីត្រូវមានយ៉ាងតិច ៦ តួអក្សរ!');
+        return;
+    }
+    if (newPwd !== confirmPwd) {
+        alert('ការបញ្ជាក់ពាក្យសម្ងាត់មិនផ្ទៀងផ្ទាត់គ្នាទេ!');
+        return;
+    }
+    
+    const loggedUser = localStorage.getItem('nadr_auth_username');
+    let adminUsers = JSON.parse(localStorage.getItem('nadr_admin_users'));
+    let u = adminUsers.find(x => x.username === loggedUser);
+    if (u) {
+        u.password = newPwd;
+        localStorage.setItem('nadr_admin_users', JSON.stringify(adminUsers));
+        if (typeof ADMIN_USERS !== 'undefined') ADMIN_USERS = adminUsers;
+        
+        const modal = document.getElementById('change-password-modal');
+        if (modal) {
+            modal.classList.remove('show');
+            modal.style.display = 'none';
+        }
+        alert('ប្តូរពាក្យសម្ងាត់បានជោគជ័យ!');
+    }
+};
 
                 // Animate out
                 if (overlay) {
