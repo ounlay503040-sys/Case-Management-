@@ -1617,6 +1617,13 @@
                                 <button class="btn btn-primary mb-2" id="btn-export-json" style="flex: 1; min-width: 200px;">
                                     <i class="fa-solid fa-download"></i> ទាញយក Backup សរុប (ផ្ទាល់ខ្លួន+អម)
                                 </button>
+                                <button class="btn btn-success mb-2" id="btn-export-all-data" style="flex: 1; min-width: 200px;" onclick="window.electronAPI.exportAll(JSON.stringify(Object.fromEntries(Object.entries(localStorage)), null, 2))">
+                                    <i class="fa-solid fa-download"></i> នាំចេញទិន្នន័យទាំងអស់ (Export All Data)
+                                </button>
+                                <button class="btn btn-warning mb-2" id="btn-import-all-data" style="flex: 1; min-width: 200px;" onclick="document.getElementById('import-all-file').click()">
+                                    <i class="fa-solid fa-upload"></i> នាំចូលទិន្នន័យទាំងអស់ (Import All Data)
+                                </button>
+                                <input type="file" id="import-all-file" accept=".json" style="display: none;" onchange="handleImportAllData(event)">
                                 <button class="btn btn-outline text-success mb-2" id="btn-export-csv-all" onclick="exportReportToCSV()" style="flex: 1; min-width: 200px;">
                                     <i class="fa-solid fa-file-csv"></i> ទាញយកជា CSV សរុប (ផ្ទាល់ខ្លួន+អម)
                                 </button>

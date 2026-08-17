@@ -9,6 +9,17 @@ const ITEMS_PER_PAGE = 10;
 let filteredCasesCache = [];
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Check for empty localStorage (Task 0.5 - Import backup if empty)
+    if (localStorage.length === 0) {
+        if (confirm('រកមិនឃើញទិន្នន័យ (គ្មានទិន្នន័យក្នុងប្រព័ន្ធទេ)។\nតើអ្នកចង់នាំចូលទិន្នន័យពីឯកសារ Backup (.json) ឥឡូវនេះទេ?')) {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = window.handleImportAllData;
+            input.click();
+            return;
+        }
+    }
 
     // Case Type Theme Toggling
     const modalContent = document.querySelector('#case-modal .modal-dialog');
@@ -2433,6 +2444,41 @@ function initDataManagementEvents() {
     const btnExportJSON = document.getElementById('btn-export-json');
     if (btnExportJSON) btnExportJSON.addEventListener('click', exportBackupJSON);
 
+window.handleImportAllData = function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = JSON.parse(e.target.result);
+            if (typeof data !== 'object' || Array.isArray(data)) {
+                throw new Error('ទម្រង់ JSON មិនត្រឹមត្រូវ។ ត្រូវការ Object នៃ LocalStorage។');
+            }
+
+            const keys = Object.keys(data);
+            if (keys.length === 0) {
+                alert('មិនមានទិន្នន័យក្នុងឯកសារនេះទេ។');
+                return;
+            }
+
+            if (confirm(`អ្នកកំពុងនាំចូលទិន្នន័យទាំងអស់ពី Backup ដែលមានចំនួន ${keys.length} ផ្នែក។\nតើអ្នកពិតជាចង់សរសេរជាន់លើទិន្នន័យបច្ចុប្បន្នមែនទេ? សកម្មភាពនេះមិនអាចត្រឡប់ក្រោយបានទេ!`)) {
+                localStorage.clear();
+                for (const [key, value] of Object.entries(data)) {
+                    localStorage.setItem(key, value);
+                }
+                alert('ការនាំចូលទទួលបានជោគជ័យ! កម្មវិធីនឹងចាប់ផ្តើមឡើងវិញ។');
+                location.reload();
+            }
+        } catch (error) {
+            console.error('Import All Error:', error);
+            alert('មានបញ្ហាក្នុងការអានឯកសារ JSON: ' + error.message);
+        }
+        event.target.value = ''; // Reset input
+    };
+    reader.readAsText(file);
+};
+
     const jsonInput = document.getElementById('import-json-file');
     if (jsonInput) {
         jsonInput.addEventListener('change', (e) => {
@@ -2583,19 +2629,24 @@ function initAuth() {
     if (loginForm) {
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
+            const usernameInput = document.getElementById('login-username') ? document.getElementById('login-username').value.trim() : 'admin';
             const password = document.getElementById('login-password').value.trim();
             const remember = document.getElementById('login-remember').checked;
 
             if (errorMsg) errorMsg.classList.add('d-none');
 
-            // Valid accounts checklist
-            let isValid = false;
-            let uName = 'Admin';
-            let uRole = 'អ្នកគ្រប់គ្រងប្រព័ន្ធ';
-
-            if (password === 'admin' || password === '123' || password === 'admin123' || password === 'nadr2026') {
-                isValid = true;
+            // 1. Fetch valid users from LocalStorage
+            let adminUsers = JSON.parse(localStorage.getItem('nadr_admin_users')) || ADMIN_USERS;
+            
+            // For now, if there is no username input field, just match password against any user
+            let foundUser = null;
+            if (document.getElementById('login-username')) {
+                foundUser = adminUsers.find(u => u.username === usernameInput && u.password === password);
             } else {
+                foundUser = adminUsers.find(u => u.password === password);
+            }
+
+            if (!foundUser) {
                 if (errorMsg) {
                     errorMsg.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> <span>ពាក្យសម្ងាត់មិនត្រឹមត្រូវទេ! សូមពិនិត្យម្តងទៀត។</span>';
                     errorMsg.classList.remove('d-none');
@@ -2603,16 +2654,26 @@ function initAuth() {
                 return;
             }
 
-            if (isValid) {
-                // Save state
-                const storage = remember ? localStorage : sessionStorage;
-                storage.setItem('nadr_auth_logged_in', 'true');
-                storage.setItem('nadr_auth_username', 'admin');
-                storage.setItem('nadr_auth_user_name', uName);
-                storage.setItem('nadr_auth_user_role', uRole);
+            // Save state
+            const storage = remember ? localStorage : sessionStorage;
+            storage.setItem('nadr_auth_logged_in', 'true');
+            storage.setItem('nadr_auth_username', foundUser.username);
+            storage.setItem('nadr_auth_user_name', foundUser.name);
+            storage.setItem('nadr_auth_user_role', foundUser.role);
 
-                updateSidebarUser(uName, uRole);
-                if (typeof logAuditAction === 'function') logAuditAction('ចូលប្រព័ន្ធ', `បានចូលប្រើប្រព័ន្ធក្នុងនាម ${uName} (${uRole})`);
+            updateSidebarUser(foundUser.name, foundUser.role);
+            if (typeof logAuditAction === 'function') logAuditAction('ចូលប្រព័ន្ធ', `បានចូលប្រើប្រព័ន្ធក្នុងនាម ${foundUser.name} (${foundUser.role})`);
+
+            // Hotfix: Force password change if using weak password
+            const weakPasswords = ['admin', '123', 'admin123', 'nadr', 'nadr2026', 'user', '1234', 'password'];
+            if (weakPasswords.includes(foundUser.password)) {
+                setTimeout(() => {
+                    alert('សូមព្រមាន៖ គណនីរបស់អ្នកកំពុងប្រើប្រាស់ពាក្យសម្ងាត់ខ្សោយងាយរងគ្រោះ (ឧ. admin123)។\nដើម្បីសុវត្ថិភាព សូមផ្លាស់ប្តូរវាភ្លាមៗនៅក្នុងផ្ទាំងការកំណត់គណនី។');
+                    if (typeof window.showAccountSettings === 'function') {
+                        window.showAccountSettings();
+                    }
+                }, 1000);
+            }
 
                 // Animate out
                 if (overlay) {
