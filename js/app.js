@@ -2705,8 +2705,13 @@ window.saveHotfixPassword = function() {
     const newPwd = document.getElementById('hotfix-new-password').value.trim();
     const confirmPwd = document.getElementById('hotfix-confirm-password').value.trim();
     
-    if (newPwd.length < 6) {
-        alert('ពាក្យសម្ងាត់ថ្មីត្រូវមានយ៉ាងតិច ៦ តួអក្សរ!');
+    if (newPwd.length < 8) {
+        alert('ពាក្យសម្ងាត់ថ្មីត្រូវមានយ៉ាងតិច ៨ តួអក្សរ!');
+        return;
+    }
+    const weakList = ['admin', '123', 'admin123', 'nadr', 'nadr2026', 'password', '12345678'];
+    if (weakList.includes(newPwd)) {
+        alert('ពាក្យសម្ងាត់នេះខ្សោយពេក ងាយស្រួលទាយ។ សូមជ្រើសរើសពាក្យសម្ងាត់ផ្សេង!');
         return;
     }
     if (newPwd !== confirmPwd) {
@@ -2718,6 +2723,7 @@ window.saveHotfixPassword = function() {
     let adminUsers = JSON.parse(localStorage.getItem('nadr_admin_users'));
     let u = adminUsers.find(x => x.username === loggedUser);
     if (u) {
+        // TODO(task-3): hash this password. Task 3 migration will hash this plaintext password. Do not delete it and restore default.
         u.password = newPwd;
         localStorage.setItem('nadr_admin_users', JSON.stringify(adminUsers));
         if (typeof ADMIN_USERS !== 'undefined') ADMIN_USERS = adminUsers;
