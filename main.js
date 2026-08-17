@@ -38,11 +38,23 @@ function createWindow() {
   });
 }
 
-app.whenReady().then(() => {
-  // Fix for Google OAuth "400 invalid_request" block for Embedded Browsers
-  app.userAgentFallback = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+const gotTheLock = app.requestSingleInstanceLock();
 
-  createWindow();
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
+  });
+
+  app.whenReady().then(() => {
+    // Fix for Google OAuth "400 invalid_request" block for Embedded Browsers
+    app.userAgentFallback = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+
+    createWindow();
 
   // Check for updates
   autoUpdater.checkForUpdatesAndNotify();
@@ -195,6 +207,7 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
 });
+}
 
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') app.quit();
