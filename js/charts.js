@@ -10,13 +10,13 @@ let locationChartInstance = null;
 /**
  * Initialize or update Dashboard and Analytics charts
  */
-function initOrUpdateCharts() {
+function initOrUpdateCharts(customStats = null) {
     if (typeof Chart === 'undefined') {
         console.warn('Chart.js library is not loaded!');
         return;
     }
 
-    const stats = getCaseStatistics();
+    const stats = customStats || getCaseStatistics();
     const isDark = document.body.classList.contains('dark-theme');
     const textColor = isDark ? '#f1f5f9' : '#1e293b';
     const gridColor = isDark ? '#1f2937' : '#e2e8f0';

@@ -512,18 +512,23 @@ function renderMonthlyProgressReportHTML(dataArray) {
     const monthStr = `${monthsKm[now.getMonth()]} (${now.toLocaleDateString('en-US', { month: 'long' })})`;
     const todayStr = `${now.getDate().toString().padStart(2, '0')}-${(now.getMonth()+1).toString().padStart(2, '0')}-${now.getFullYear().toString().slice(2)}`;
 
-    let totCount = dataArray.length;
+    // Split cases
+    const personalCases = dataArray.filter(c => (c.caseType || 'personal') === 'personal');
+    const assistingCases = dataArray.filter(c => c.caseType === 'assisting');
+
+    // Calculate Summary based on Personal Cases (or both, but usually Personal is the main focus for the officer's performance)
+    let totCount = personalCases.length;
     let settleCount = 0;
     let activeCount = 0;
     let invCount = 0;
 
-    dataArray.forEach(c => {
+    personalCases.forEach(c => {
         if (c.status.startsWith('Settle') || (c.status.includes('ព្រមព្រៀង') && !c.status.includes('មិនព្រមព្រៀង'))) {
             settleCount++;
-        } else if (c.status.startsWith('Active') || c.status.includes('កំពុង')) {
-            activeCount++;
-        } else {
+        } else if (c.status.startsWith('Close') || c.status.includes('បិទ') || c.status.includes('មិនព្រមព្រៀង')) {
             invCount++;
+        } else {
+            activeCount++;
         }
     });
 
@@ -532,7 +537,20 @@ function renderMonthlyProgressReportHTML(dataArray) {
             <div class="hide-on-export" style="text-align: center; margin-bottom: 15px;">
                 <h3 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif;  font-weight: normal; color: #1e3a8a; margin: 0 0 4px 0;">ព្រះរាជាណាចក្រកម្ពុជា</h3>
                 <h4 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif;  font-weight: normal; color: #1e3a8a; margin: 0 0 15px 0;">ជាតិ សាសនា ព្រះមហាក្សត្រ</h4>
-                <div style="font-family: inherit;  font-weight: normal; color: #ca8a04; margin-bottom: 15px;">❧</div>
+                <div style="margin-bottom: 15px; display: flex; justify-content: center; align-items: center;">
+                    <svg width="250" height="20" viewBox="0 0 250 20" xmlns="http://www.w3.org/2000/svg" style="fill: #1e3a8a;">
+                        <line x1="0" y1="10" x2="80" y2="10" stroke="#1e3a8a" stroke-width="1.5"/>
+                        <line x1="170" y1="10" x2="250" y2="10" stroke="#1e3a8a" stroke-width="1.5"/>
+                        <polygon points="85,10 88,7 91,10 88,13" />
+                        <polygon points="95,10 98,6 101,10 98,14" />
+                        <polygon points="165,10 162,7 159,10 162,13" />
+                        <polygon points="155,10 152,6 149,10 152,14" />
+                        <path d="M105,10 C110,3 118,3 120,10 C118,17 110,17 105,10" />
+                        <path d="M145,10 C140,3 132,3 130,10 C132,17 140,17 145,10" />
+                        <circle cx="125" cy="10" r="3.5" fill="none" stroke="#1e3a8a" stroke-width="1.5"/>
+                        <circle cx="125" cy="10" r="1.5" />
+                    </svg>
+                </div>
             </div>
             <div style="text-align: center; margin-bottom: 15px;">
                 <h2 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif;  font-weight: normal; color: #0f172a; margin: 0 0 8px 0; line-height: 1.6;">របាយការណ៍វឌ្ឍនភាពចំណាត់ការសំណុំរឿងរបស់ ម.ស.វ. ឈ្មោះ <span contenteditable="true" style="color: #dc2626; font-weight: normal; border-bottom: 1px dashed #dc2626; padding: 0 4px;">${officerName}</span></h2>
@@ -546,7 +564,7 @@ function renderMonthlyProgressReportHTML(dataArray) {
                         <tr style="background: #ffedd5; font-weight: 800; color: #0f172a;">
                             <th style="padding: 6px 12px; border: 1px solid #0f172a;">សំណុំរឿងសរុប</th>
                             <th style="padding: 6px 12px; border: 1px solid #0f172a;">បញ្ចប់ព្រមព្រៀង</th>
-                            <th style="padding: 6px 12px; border: 1px solid #0f172a;">សើបអង្កេត/បិទ</th>
+                            <th style="padding: 6px 12px; border: 1px solid #0f172a;">ស្នើសុំបិទ</th>
                             <th style="padding: 6px 12px; border: 1px solid #0f172a;">កំពុងចំណាត់ការ</th>
                         </tr>
                     </thead>
@@ -592,7 +610,7 @@ function renderMonthlyProgressReportHTML(dataArray) {
                 </tr>
     `;
 
-    dataArray.forEach((c, idx) => {
+    const generateRow = (c, idx) => {
         let statusText = c.status;
         let rowBg = '#ffffff';
         if (c.status.startsWith('Settle') || (c.status.includes('ព្រមព្រៀង') && !c.status.includes('មិនព្រមព្រៀង'))) {
@@ -605,11 +623,11 @@ function renderMonthlyProgressReportHTML(dataArray) {
             statusText = 'កំពុងសម្រុះសម្រួល';
             rowBg = '#93c5fd'; // Solid blue matching Image 1
         } else {
-            statusText = 'សើបអង្កេត / តម្កល់';
-            rowBg = '#f1f5f9'; // Gray
+            statusText = 'កំពុងសម្រុះសម្រួល';
+            rowBg = '#f1f5f9'; // Gray (or can be blue if preferred)
         }
 
-        html += `
+        return `
             <tr style="background-color: ${rowBg}; vertical-align: middle; border: 1px solid #cbd5e1;">
                 <td style="padding: 6px; text-align: center; font-weight: 700; border: 1px solid #cbd5e1;">${idx + 1}</td>
                 <td style="padding: 6px; text-align: center; font-weight: 700; color: #1e3a8a; border: 1px solid #cbd5e1;">${statusText}</td>
@@ -632,7 +650,17 @@ function renderMonthlyProgressReportHTML(dataArray) {
                 <td style="padding: 6px; text-align: center; border: 1px solid #cbd5e1;">${c.remarks || 'គ្មាន'}</td>
             </tr>
         `;
-    });
+    };
+
+    if (personalCases.length > 0) {
+        personalCases.forEach((c, idx) => {
+            html += generateRow(c, idx);
+        });
+    } else {
+        html += `<tr style="background: #ffffff; height: 40px;">
+            <td colspan="12" style="border: 1px solid #cbd5e1; text-align: center; color: #64748b;">មិនមានសំណុំរឿង</td>
+        </tr>`;
+    }
 
     html += `
                 <!-- Section B: Assisting Officer Cases -->
@@ -641,6 +669,14 @@ function renderMonthlyProgressReportHTML(dataArray) {
                         ខ. សំណុំរឿងអមជាមួយថ្នាក់ដឹកនាំ និងឬជាមួយ ម.ស.វ.
                     </td>
                 </tr>
+    `;
+
+    if (assistingCases.length > 0) {
+        assistingCases.forEach((c, idx) => {
+            html += generateRow(c, idx);
+        });
+    } else {
+        html += `
                 <tr style="background: #ffffff; height: 40px;">
                     <td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td>
                 </tr>
@@ -650,6 +686,10 @@ function renderMonthlyProgressReportHTML(dataArray) {
                 <tr style="background: #ffffff; height: 40px;">
                     <td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td><td style="border: 1px solid #cbd5e1;"></td>
                 </tr>
+        `;
+    }
+
+    html += `
             </tbody>
         </table>
     `;
@@ -665,7 +705,20 @@ function renderOfficialTrackingReportHTML(dataArray) {
         <div style="text-align: center; margin-bottom: 20px; font-family: inherit;">
             <h3 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif;  font-weight: normal; color: #1e3a8a; margin: 0 0 4px 0;">ព្រះរាជាណាចក្រកម្ពុជា</h3>
             <h4 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif;  font-weight: normal; color: #1e3a8a; margin: 0 0 10px 0;">ជាតិ សាសនា ព្រះមហាក្សត្រ</h4>
-            <div style="font-family: inherit;  font-weight: normal; color: #ca8a04; margin-bottom: 15px;">❧</div>
+            <div style="margin-bottom: 15px; display: flex; justify-content: center; align-items: center;">
+                <svg width="250" height="20" viewBox="0 0 250 20" xmlns="http://www.w3.org/2000/svg" style="fill: #1e3a8a;">
+                    <line x1="0" y1="10" x2="80" y2="10" stroke="#1e3a8a" stroke-width="1.5"/>
+                    <line x1="170" y1="10" x2="250" y2="10" stroke="#1e3a8a" stroke-width="1.5"/>
+                    <polygon points="85,10 88,7 91,10 88,13" />
+                    <polygon points="95,10 98,6 101,10 98,14" />
+                    <polygon points="165,10 162,7 159,10 162,13" />
+                    <polygon points="155,10 152,6 149,10 152,14" />
+                    <path d="M105,10 C110,3 118,3 120,10 C118,17 110,17 105,10" />
+                    <path d="M145,10 C140,3 132,3 130,10 C132,17 140,17 145,10" />
+                    <circle cx="125" cy="10" r="3.5" fill="none" stroke="#1e3a8a" stroke-width="1.5"/>
+                    <circle cx="125" cy="10" r="1.5" />
+                </svg>
+            </div>
             <h2 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif;  font-weight: normal; color: #0f172a; margin: 0 0 6px 0;">តារាងតាមដានលទ្ធផលនៃការដោះស្រាយវិវាទ (Official Case Tracking & Outcome Report)</h2>
             <p style=" color: #475569; margin: 0;">អាជ្ញាធរជាតិដោះស្រាយវិវាទ - អគ្គលេខាធិការដ្ឋាន</p>
         </div>

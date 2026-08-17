@@ -52,7 +52,7 @@ let CUSTOM_COLUMNS = JSON.parse(localStorage.getItem('nadr_custom_columns')) || 
 
 // Organization & Audit Logs Schema
 let ORG_SETTINGS = JSON.parse(localStorage.getItem('nadr_org_settings')) || {
-    nameKm: 'អាជ្ញាធរជាតិដោះស្រាយវិវាទ (អ.ដ.វ.)',
+    nameKm: 'កម្មវិធីគ្រប់គ្រងសំណុំរឿង របស់ ម.ស.វ.',
     nameEn: 'National Authority for Dispute Resolution (NADR)',
     casePrefix: 'NADR-2026-'
 };
@@ -177,6 +177,7 @@ function addCase(newCase) {
     const caseObj = {
         originalListNo: newCase.originalListNo ? parseInt(newCase.originalListNo) : nextListNo,
         id: 'case-nadr-' + Date.now() + '-' + Math.floor(Math.random()*1000),
+        caseType: newCase.caseType || 'personal',
         caseNumber: newCase.caseNumber || generateNextCaseNumber(),
         dateReceived: newCase.dateReceived || getTodayDateString(),
         partyA_name: newCase.partyA_name || '',
@@ -281,6 +282,10 @@ function generateNextCaseNumber() {
  */
 function filterCases(filters = {}) {
     return casesData.filter(c => {
+        // Case Type Filter (Assisting vs Personal)
+        const type = c.caseType || 'personal';
+        if (filters.caseType && type !== filters.caseType) return false;
+
         // Search query (matches caseNumber, partyA_name, partyB_name, summary, officer)
         if (filters.search && filters.search.trim() !== '') {
             const q = filters.search.toLowerCase().trim();
@@ -473,6 +478,7 @@ function importFromExcelRows(excelRows) {
     let addedCount = 0;
     excelRows.forEach(row => {
         // Try to map column names flexibly (supporting Khmer and English headers)
+        const caseType = row['ប្រភេទសំណុំរឿង (ក/ខ)'] || row['ប្រភេទអម'] || row['Case Type'] || 'personal';
         const caseNum = row['លេខកូដសំណុំរឿង'] || row['លេខកូដ'] || row['Case Code'] || row['Case Number'] || generateNextCaseNumber();
         const dateRec = row['កាលបរិច្ឆេទ'] || row['ថ្ងៃ ខែ ឆ្នាំ'] || row['Date'] || getTodayDateString();
         
@@ -511,6 +517,7 @@ function importFromExcelRows(excelRows) {
             casesData.unshift({
                 originalListNo: nextListNo,
                 id: 'case-nadr-import-' + Date.now() + '-' + Math.floor(Math.random()*10000),
+                caseType: String(caseType) === 'សំណុំរឿងអម' ? 'assisting' : (String(caseType).toLowerCase().includes('assisting') ? 'assisting' : 'personal'),
                 caseNumber: String(caseNum),
                 dateReceived: String(dateRec).substring(0, 10),
                 partyA_name: String(paName),
@@ -659,7 +666,7 @@ const I18N = {
     'nav.reports': { km: 'ផលិតរបាយការណ៍', en: 'Report Generator' },
     'nav.data': { km: 'ទាញទិន្នន័យចូល & បម្រុង', en: 'Import & Backup' },
     'nav.settings': { km: 'ការកំណត់ប្រព័ន្ធ', en: 'System Settings' },
-    'sidebar.subtitle': { km: 'អាជ្ញាធរជាតិដោះស្រាយវិវាទ', en: 'National Authority for Dispute Resolution' },
+    'sidebar.subtitle': { km: 'កម្មវិធីគ្រប់គ្រងសំណុំរឿង របស់ ម.ស.វ.', en: 'M.S.V Case Management System' },
 
     // ------------ Top Header ------------
     'header.search': { km: 'ស្វែងរកលេខកូដសំណុំរឿង ឬឈ្មោះភាគី ក/ខ...', en: 'Search case code or party name...' },

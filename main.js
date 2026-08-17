@@ -61,6 +61,18 @@ app.whenReady().then(() => {
     return 1;
   });
 
+  const { shell } = require('electron');
+
+  // Handle opening local folders or URLs
+  ipcMain.on('open-folder', (event, folderPath) => {
+    if (!folderPath) return;
+    if (folderPath.startsWith('http://') || folderPath.startsWith('https://')) {
+      shell.openExternal(folderPath);
+    } else {
+      shell.openPath(folderPath);
+    }
+  });
+
   // Native PDF Generation Handler (Prints the current window to PDF, ensuring all fonts are loaded)
   ipcMain.handle('generate-pdf', async (event, customOptions = {}) => {
     try {
@@ -81,7 +93,6 @@ app.whenReady().then(() => {
 
   // Google OAuth via System Browser
   const http = require('http');
-  const { shell } = require('electron');
   const url = require('url');
 
   let activeAuthServer = null;

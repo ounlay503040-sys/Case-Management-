@@ -9,6 +9,43 @@ const ITEMS_PER_PAGE = 10;
 let filteredCasesCache = [];
 
 document.addEventListener('DOMContentLoaded', () => {
+
+    // Case Type Theme Toggling
+    const modalContent = document.querySelector('#case-modal .modal-dialog');
+    const caseTypeRadios = document.querySelectorAll('input[name="caseType"]');
+    if (caseTypeRadios) {
+        caseTypeRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if (modalContent) {
+                    if (e.target.value === 'assisting') {
+                        modalContent.classList.add('theme-assisting');
+                        modalContent.classList.remove('theme-personal');
+                    } else {
+                        modalContent.classList.add('theme-personal');
+                        modalContent.classList.remove('theme-assisting');
+                    }
+                }
+            });
+        });
+    }
+
+    const quickEntryCard = document.querySelector('.quick-entry-card');
+    const quickCaseTypeRadios = document.querySelectorAll('input[name="quickCaseType"]');
+    if (quickCaseTypeRadios) {
+        quickCaseTypeRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if (quickEntryCard) {
+                    if (e.target.value === 'assisting') {
+                        quickEntryCard.classList.add('theme-assisting');
+                        quickEntryCard.classList.remove('theme-personal');
+                    } else {
+                        quickEntryCard.classList.add('theme-personal');
+                        quickEntryCard.classList.remove('theme-assisting');
+                    }
+                }
+            });
+        });
+    }
     // 0. Initialize Authentication Layer
     initAuth();
 
@@ -95,8 +132,35 @@ function updateClock() {
     const clockEl = document.getElementById('current-time-display');
     if (!clockEl) return;
     const now = new Date();
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-    const dateStr = now.toLocaleDateString('km-KH', options);
+    
+    let dateStr = '';
+    if (typeof currentLang !== 'undefined' && currentLang === 'km') {
+        const days = ['អាទិត្យ', 'ចន្ទ', 'អង្គារ', 'ពុធ', 'ព្រហស្បតិ៍', 'សុក្រ', 'សៅរ៍'];
+        const months = ['មករា', 'កុម្ភៈ', 'មីនា', 'មេសា', 'ឧសភា', 'មិថុនា', 'កក្កដា', 'សីហា', 'កញ្ញា', 'តុលា', 'វិច្ឆិកា', 'ធ្នូ'];
+        const dayName = days[now.getDay()];
+        const day = now.getDate();
+        const monthName = months[now.getMonth()];
+        const year = now.getFullYear();
+        
+        let hours = now.getHours();
+        let ampm = hours >= 12 ? 'រសៀល' : 'ព្រឹក';
+        hours = hours % 12;
+        hours = hours ? hours : 12;
+        
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        
+        // ថ្ងៃអាទិត្យ ទី១៦ ខែសីហា ឆ្នាំ២០២៦ ម៉ោង 10:14:36 PM
+        // To use Khmer numbers for the date (optional but nice):
+        const kmDigits = ['០','១','២','៣','៤','៥','៦','៧','៨','៩'];
+        const toKmNum = (numStr) => String(numStr).split('').map(d => /[0-9]/.test(d) ? kmDigits[parseInt(d)] : d).join('');
+        
+        dateStr = `ថ្ងៃ${dayName} ទី${toKmNum(day)} ខែ${monthName} ឆ្នាំ${toKmNum(year)} ម៉ោង ${hours}:${minutes}:${seconds} ${ampm}`;
+    } else {
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+        dateStr = now.toLocaleDateString('en-US', options);
+    }
+    
     clockEl.innerHTML = `<i class="fa-regular fa-clock"></i> <span>${dateStr}</span>`;
 }
 
@@ -137,7 +201,7 @@ function renderUpcomingEventsTable() {
         });
 
     if (eventsList.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted" style="padding: 24px;">មិនទាន់មានកម្មវិធីសំណុំរឿងត្រូវបានកំណត់នៅឡើយទេ</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted" style="padding: 24px;">មិនទាន់មានកម្មវិធីសំណុំរឿងត្រូវបានកំណត់នៅឡើយទេ</td></tr>`;
         if (summaryContainer) summaryContainer.innerHTML = '';
         return;
     }
@@ -148,7 +212,7 @@ function renderUpcomingEventsTable() {
     let pastCount = 0;
     let html = '';
 
-    eventsList.forEach(c => {
+    eventsList.forEach((c, idx) => {
         let rowClass = '';
         let statusBadgeHTML = '';
 
@@ -167,8 +231,16 @@ function renderUpcomingEventsTable() {
         }
 
         let timeStr = c.caseEventTime ? `<br><small style="color: #64748b; font-weight: 500;"><i class="fa-regular fa-clock"></i> ម៉ោង ${c.caseEventTime}</small>` : '';
+        const statusColor = getStatusColor(c.status);
 
         html += `<tr class="${rowClass}" style="cursor: pointer;" onclick="openViewModal('${c.id}')" title="ចុចដើម្បីមើលលម្អិត">
+            <td style="text-align: center; font-weight: 700;">
+                <div style="display: flex; align-items: center; justify-content: center;">
+                    <div style="width: 24px; height: 24px; border-radius: 50%; background-color: ${statusColor}; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px; box-shadow: 0 0 4px ${statusColor}80;">
+                        ${c.originalListNo || '-'}
+                    </div>
+                </div>
+            </td>
             <td style="font-weight: 600;">
                 <i class="fa-regular fa-calendar-days text-primary"></i> ${c.caseEventDate}${timeStr}
             </td>
@@ -273,8 +345,13 @@ function switchView(viewId) {
  * Render Dashboard Summary Cards
  */
 function renderDashboardStats() {
-    const stats = getCaseStatistics();
+    const personalCases = casesData.filter(c => (c.caseType || 'personal') === 'personal');
+    const assistingCases = casesData.filter(c => c.caseType === 'assisting');
+
+    const stats = getCaseStatistics(personalCases);
+    const assistingStats = getCaseStatistics(assistingCases);
     
+    // --- PERSONAL CASES STATS ---
     const totEl = document.getElementById('stat-total');
     const actEl = document.getElementById('stat-active');
     const setEl = document.getElementById('stat-settle');
@@ -287,7 +364,7 @@ function renderDashboardStats() {
     if (cloEl) cloEl.innerText = stats.close;
     if (penEl) penEl.innerText = stats.pending;
 
-    // Update Circular Percentage Badges (Donut Indicators)
+    // Update Circular Percentage Badges
     const tot = stats.total || 0;
     const actPct = tot > 0 ? Math.round((stats.active / tot) * 100) : 0;
     const setPct = tot > 0 ? Math.round((stats.settle / tot) * 100) : 0;
@@ -314,6 +391,45 @@ function renderDashboardStats() {
     if (cloDonut) cloDonut.style.background = `conic-gradient(#ef4444 0%, #ef4444 ${cloPct}%, #e2e8f0 ${cloPct}%, #e2e8f0 100%)`;
     if (penDonut) penDonut.style.background = `conic-gradient(#f59e0b 0%, #f59e0b ${penPct}%, #e2e8f0 ${penPct}%, #e2e8f0 100%)`;
 
+    // --- ASSISTING CASES STATS ---
+    const aTotEl = document.getElementById('stat-total-assisting');
+    const aActEl = document.getElementById('stat-active-assisting');
+    const aSetEl = document.getElementById('stat-settle-assisting');
+    const aCloEl = document.getElementById('stat-close-assisting');
+    const aPenEl = document.getElementById('stat-pending-assisting');
+
+    if (aTotEl) aTotEl.innerText = assistingStats.total;
+    if (aActEl) aActEl.innerText = assistingStats.active;
+    if (aSetEl) aSetEl.innerText = assistingStats.settle;
+    if (aCloEl) aCloEl.innerText = assistingStats.close;
+    if (aPenEl) aPenEl.innerText = assistingStats.pending;
+
+    const aTot = assistingStats.total || 0;
+    const aActPct = aTot > 0 ? Math.round((assistingStats.active / aTot) * 100) : 0;
+    const aSetPct = aTot > 0 ? Math.round((assistingStats.settle / aTot) * 100) : 0;
+    const aCloPct = aTot > 0 ? Math.round((assistingStats.close / aTot) * 100) : 0;
+    const aPenPct = aTot > 0 ? Math.round((assistingStats.pending / aTot) * 100) : 0;
+
+    const aActPctEl = document.getElementById('stat-active-assisting-pct');
+    const aSetPctEl = document.getElementById('stat-settle-assisting-pct');
+    const aCloPctEl = document.getElementById('stat-close-assisting-pct');
+    const aPenPctEl = document.getElementById('stat-pending-assisting-pct');
+
+    if (aActPctEl) aActPctEl.innerText = `${aActPct}%`;
+    if (aSetPctEl) aSetPctEl.innerText = `${aSetPct}%`;
+    if (aCloPctEl) aCloPctEl.innerText = `${aCloPct}%`;
+    if (aPenPctEl) aPenPctEl.innerText = `${aPenPct}%`;
+
+    const aActDonut = document.getElementById('stat-active-assisting-donut');
+    const aSetDonut = document.getElementById('stat-settle-assisting-donut');
+    const aCloDonut = document.getElementById('stat-close-assisting-donut');
+    const aPenDonut = document.getElementById('stat-pending-assisting-donut');
+
+    if (aActDonut) aActDonut.style.background = `conic-gradient(#2563eb 0%, #2563eb ${aActPct}%, #e2e8f0 ${aActPct}%, #e2e8f0 100%)`;
+    if (aSetDonut) aSetDonut.style.background = `conic-gradient(#10b981 0%, #10b981 ${aSetPct}%, #e2e8f0 ${aSetPct}%, #e2e8f0 100%)`;
+    if (aCloDonut) aCloDonut.style.background = `conic-gradient(#ef4444 0%, #ef4444 ${aCloPct}%, #e2e8f0 ${aCloPct}%, #e2e8f0 100%)`;
+    if (aPenDonut) aPenDonut.style.background = `conic-gradient(#f59e0b 0%, #f59e0b ${aPenPct}%, #e2e8f0 ${aPenPct}%, #e2e8f0 100%)`;
+
     // Section 2 Hierarchical Counters
     const actGrpEl = document.getElementById('h-stat-active-total');
     const actSub1El = document.getElementById('h-stat-active-sub1');
@@ -333,13 +449,49 @@ function renderDashboardStats() {
     if (noSetR1El) noSetR1El.innerText = stats.noSettleReason1 || 0;
     if (noSetR2El) noSetR2El.innerText = stats.noSettleReason2 || 0;
 
+    // --- ASSISTING BREAKDOWN ---
+    const aActGrpEl = document.getElementById('h-stat-active-assisting-total');
+    const aActSub1El = document.getElementById('h-stat-active-assisting-sub1');
+    const aActSub2El = document.getElementById('h-stat-active-assisting-sub2');
+    const aCloGrpEl = document.getElementById('h-stat-closed-assisting-total');
+    const aCloSub1El = document.getElementById('h-stat-closed-assisting-sub1');
+    const aCloSub2El = document.getElementById('h-stat-closed-assisting-sub2');
+    const aNoSetR1El = document.getElementById('h-stat-nosettle-assisting-r1');
+    const aNoSetR2El = document.getElementById('h-stat-nosettle-assisting-r2');
+
+    if (aActGrpEl) aActGrpEl.innerText = assistingStats.activeGroupTotal || 0;
+    if (aActSub1El) aActSub1El.innerText = assistingStats.active || 0;
+    if (aActSub2El) aActSub2El.innerText = assistingStats.pending || 0;
+    if (aCloGrpEl) aCloGrpEl.innerText = assistingStats.closedGroupTotal || 0;
+    if (aCloSub1El) aCloSub1El.innerText = assistingStats.settle || 0;
+    if (aCloSub2El) aCloSub2El.innerText = assistingStats.close || 0;
+    if (aNoSetR1El) aNoSetR1El.innerText = assistingStats.noSettleReason1 || 0;
+    if (aNoSetR2El) aNoSetR2El.innerText = assistingStats.noSettleReason2 || 0;
+
+    updateDashboardSharedSections();
+}
+
+window.currentDashboardTab = 'personal';
+
+function updateDashboardSharedSections() {
+    const personalCases = casesData.filter(c => (c.caseType || 'personal') === 'personal');
+    const assistingCases = casesData.filter(c => c.caseType === 'assisting');
+    const targetCases = window.currentDashboardTab === 'assisting' ? assistingCases : personalCases;
+    
+    const stats = getCaseStatistics(targetCases);
+    stats.rawCases = targetCases;
+    
     renderDashboardExtendedStats(stats);
+    if (typeof initOrUpdateCharts === 'function') {
+        initOrUpdateCharts(stats);
+    }
 }
 
 /**
  * Render Extended Dashboard Statistics (Section 4 & 5 - Request 3)
  */
 function renderDashboardExtendedStats(stats) {
+    const targetCases = stats.rawCases || (typeof casesData !== 'undefined' ? casesData : []);
     const catTbody = document.getElementById('dashboard-cat-stats-tbody');
     const yrTbody = document.getElementById('dashboard-yearly-tbody');
     const totalSys = stats.total || 1;
@@ -350,8 +502,8 @@ function renderDashboardExtendedStats(stats) {
         CASE_CATEGORIES.forEach((cat, idx) => {
             const count = stats.byCategory[cat] || 0;
             const pct = ((count / totalSys) * 100).toFixed(1);
-            const settleCount = casesData.filter(c => c.category === cat && (c.status.startsWith('Settle') || (c.status.includes('ព្រមព្រៀង') && !c.status.includes('មិនព្រមព្រៀង')))).length;
-            const activeCount = casesData.filter(c => c.category === cat && (c.status.startsWith('Active') || c.status.includes('កំពុង'))).length;
+            const settleCount = targetCases.filter(c => c.category === cat && (c.status.startsWith('Settle') || (c.status.includes('ព្រមព្រៀង') && !c.status.includes('មិនព្រមព្រៀង')))).length;
+            const activeCount = targetCases.filter(c => c.category === cat && (c.status.startsWith('Active') || c.status.includes('កំពុង'))).length;
             
             catHtml += `
                 <tr style="border-bottom: 1px solid #f1f5f9;">
@@ -375,7 +527,7 @@ function renderDashboardExtendedStats(stats) {
     // 2. Yearly Breakdown Table (Section 5)
     if (yrTbody) {
         const yearMap = {};
-        const allCases = typeof casesData !== 'undefined' ? casesData : [];
+        const allCases = targetCases;
         allCases.forEach(c => {
             let yr = '2026';
             if (c && c.dateReceived) {
@@ -483,7 +635,7 @@ function generateMasterCaseRowHTML(c, rowNum) {
             <td class="text-center freeze-col-1" style="font-weight: bold; color: #64748b;">${rowNum}</td>
             <td class="text-center freeze-col-2" style="white-space: normal; word-wrap: break-word;">${rowNumHtml}</td>
             <td class="text-center freeze-col-3">
-                ${c.folderLink ? `<a href="${c.folderLink}" target="_blank" title="បើក Folder" class="btn-icon" style="color:#0ea5e9; text-decoration:none;"><i class="fa-solid fa-folder-open"></i></a>` : '<span class="text-muted" style="font-size:11px;">-</span>'}
+                ${c.folderLink ? `<a href="javascript:void(0)" onclick="window.electronAPI ? window.electronAPI.openFolder('${c.folderLink.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}') : window.open('${c.folderLink.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}')" title="បើក Folder" class="btn-icon" style="color:#0ea5e9; text-decoration:none;"><i class="fa-solid fa-folder-open"></i></a>` : '<span class="text-muted" style="font-size:11px;">-</span>'}
             </td>
 
             <td class="freeze-col-4"><span class="case-number-tag" style="white-space: normal; word-wrap: break-word;">${c.caseNumber}</span></td>
@@ -552,7 +704,7 @@ document.addEventListener('click', function(e) {
     const id = btn.getAttribute('data-id');
     
     if (action === 'view') {
-        if(typeof openCaseProfileModal === 'function') openCaseProfileModal(id);
+        if(typeof openViewModal === 'function') openViewModal(id);
     } else if (action === 'legal') {
         if(typeof openLegalDocModal === 'function') openLegalDocModal(id);
     } else if (action === 'telegram') {
@@ -582,10 +734,31 @@ function renderEntryCasesTable() {
         return;
     }
 
+    const personalCases = sorted.filter(c => c.caseType !== 'assisting');
+    const assistingCases = sorted.filter(c => c.caseType === 'assisting');
+
     let html = '';
-    sorted.forEach((c, idx) => {
-        html += generateMasterCaseRowHTML(c, idx + 1);
-    });
+    
+    // Header for Personal
+    html += `<tr class="section-header"><td colspan="16" style="background:#f1f5f9; font-weight:bold; color:#0f172a; padding:10px; text-align: left;"><i class="fa-solid fa-user-tie"></i> ផ្នែក ក. សំណុំរឿងផ្ទាល់ខ្លួន (${personalCases.length} ករណី)</td></tr>`;
+    if (personalCases.length === 0) {
+        html += `<tr><td colspan="16" class="text-center text-muted py-2">គ្មានទិន្នន័យ</td></tr>`;
+    } else {
+        personalCases.forEach((c) => {
+            html += generateMasterCaseRowHTML(c, c.originalListNo);
+        });
+    }
+
+    // Header for Assisting
+    html += `<tr class="section-header"><td colspan="16" style="background:#fff7ed; font-weight:bold; color:#9a3412; padding:10px; text-align: left;"><i class="fa-solid fa-user-group"></i> ផ្នែក ខ. សំណុំរឿងអម (${assistingCases.length} ករណី)</td></tr>`;
+    if (assistingCases.length === 0) {
+        html += `<tr><td colspan="16" class="text-center text-muted py-2">គ្មានទិន្នន័យ</td></tr>`;
+    } else {
+        assistingCases.forEach((c) => {
+            html += generateMasterCaseRowHTML(c, c.originalListNo);
+        });
+    }
+    
     tbody.innerHTML = html;
 }
 
@@ -596,8 +769,9 @@ function applyFiltersAndRenderMasterTable() {
     const loc = document.getElementById('filter-location')?.value || 'ALL';
     const evt = document.getElementById('filter-event')?.value || 'ALL';
     const sortBy = document.getElementById('sort-by')?.value || 'default';
+    const currentTab = window.currentMasterTab || 'personal';
 
-    const filters = { search: q, category: cat, status: st, location: loc, event: evt };
+    const filters = { search: q, category: cat, status: st, location: loc, event: evt, caseType: currentTab };
     let filtered = filterCases(filters);
     filtered = sortCases(filtered, sortBy);
     filteredCasesCache = filtered;
@@ -720,6 +894,7 @@ function initFilterAndSearchEvents() {
             debouncedTriggerFilter();
         });
     }
+
     if (catEl) catEl.addEventListener('change', triggerFilter);
     if (stEl) stEl.addEventListener('change', triggerFilter);
     if (locEl) locEl.addEventListener('change', triggerFilter);
@@ -740,6 +915,79 @@ function initFilterAndSearchEvents() {
         });
     }
 
+    // --- Master Table Tabs Logic ---
+    const tabPersonal = document.getElementById('tab-personal-cases');
+    const tabAssisting = document.getElementById('tab-assisting-cases');
+
+    window.currentMasterTab = 'personal';
+
+    if (tabPersonal && tabAssisting) {
+        tabPersonal.addEventListener('click', () => {
+            window.currentMasterTab = 'personal';
+            tabPersonal.classList.add('active');
+            tabPersonal.style.background = '#eff6ff';
+            tabPersonal.style.color = '#1d4ed8';
+            tabPersonal.style.borderBottomColor = '#3b82f6';
+            
+            tabAssisting.classList.remove('active');
+            tabAssisting.style.background = 'transparent';
+            tabAssisting.style.color = '#64748b';
+            tabAssisting.style.borderBottomColor = 'transparent';
+            
+            triggerFilter();
+        });
+
+        tabAssisting.addEventListener('click', () => {
+            window.currentMasterTab = 'assisting';
+            tabAssisting.classList.add('active');
+            tabAssisting.style.background = '#eff6ff';
+            tabAssisting.style.color = '#1d4ed8';
+            tabAssisting.style.borderBottomColor = '#3b82f6';
+            
+            tabPersonal.classList.remove('active');
+            tabPersonal.style.background = 'transparent';
+            tabPersonal.style.color = '#64748b';
+            tabPersonal.style.borderBottomColor = 'transparent';
+            
+            triggerFilter();
+        });
+    }
+    // -------------------------------
+
+    // --- Dashboard Tabs Logic ---
+    const dashTabPersonal = document.getElementById('dash-tab-personal');
+    const dashTabAssisting = document.getElementById('dash-tab-assisting');
+    const dashContentPersonal = document.getElementById('dash-content-personal');
+    const dashContentAssisting = document.getElementById('dash-content-assisting');
+
+    if (dashTabPersonal && dashTabAssisting && dashContentPersonal && dashContentAssisting) {
+        dashTabPersonal.addEventListener('click', () => {
+            // Update Tab Styles (CSS handles the rest via .active)
+            dashTabPersonal.classList.add('active');
+            dashTabAssisting.classList.remove('active');
+            
+            // Show/Hide Content
+            dashContentPersonal.style.display = 'block';
+            dashContentAssisting.style.display = 'none';
+
+            window.currentDashboardTab = 'personal';
+            if (typeof updateDashboardSharedSections === 'function') updateDashboardSharedSections();
+        });
+
+        dashTabAssisting.addEventListener('click', () => {
+            // Update Tab Styles (CSS handles the rest via .active)
+            dashTabAssisting.classList.add('active');
+            dashTabPersonal.classList.remove('active');
+            
+            // Show/Hide Content
+            dashContentPersonal.style.display = 'none';
+            dashContentAssisting.style.display = 'block';
+
+            window.currentDashboardTab = 'assisting';
+            if (typeof updateDashboardSharedSections === 'function') updateDashboardSharedSections();
+        });
+    }
+    // -------------------------------
     if (refreshBtn) {
         refreshBtn.addEventListener('click', () => {
             loadCases();
@@ -890,6 +1138,16 @@ function initModalEvents() {
     if (form) {
         form.addEventListener('submit', (e) => {
             e.preventDefault();
+            
+            const caseEventEl = document.getElementById('case-event');
+            const caseEventDateEl = document.getElementById('case-event-date');
+            
+            if (caseEventEl && caseEventEl.value && caseEventDateEl && !caseEventDateEl.value) {
+                if (typeof showToast === 'function') showToast('សូមបញ្ចូល កាលបរិច្ឆេទកម្មវិធី (Event Date) ជាមុនសិន!', 'error');
+                caseEventDateEl.focus();
+                return;
+            }
+
             const id = document.getElementById('case-id').value;
             const statusVal = document.getElementById('case-status').value;
             const remarksVal = (statusVal.startsWith('No Settle') || statusVal.startsWith('Close')) 
@@ -897,7 +1155,9 @@ function initModalEvents() {
                                 : document.getElementById('case-remarks').value;
 
             const listNoVal = document.getElementById('case-list-no') ? document.getElementById('case-list-no').value : '';
+            const caseTypeVal = document.querySelector('input[name="caseType"]:checked') ? document.querySelector('input[name="caseType"]:checked').value : 'personal';
             const payload = {
+                caseType: caseTypeVal,
                 originalListNo: listNoVal ? parseInt(listNoVal) : null,
                 caseNumber: document.getElementById('case-number').value.trim(),
                 dateReceived: document.getElementById('case-date').value,
@@ -1022,6 +1282,14 @@ function openEditModal(id) {
     document.getElementById('modal-title').innerHTML = `<i class="fa-solid fa-pen-to-square"></i> កែសម្រួលព័ត៌មានសំណុំរឿង៖ ${c.caseNumber}`;
     document.getElementById('case-id').value = c.id;
     
+    if (c.caseType === 'assisting') {
+        const typeAssisting = document.getElementById('type-assisting');
+        if (typeAssisting) typeAssisting.checked = true;
+    } else {
+        const typePersonal = document.getElementById('type-personal');
+        if (typePersonal) typePersonal.checked = true;
+    }
+
     const listNoEl = document.getElementById('case-list-no');
     if (listNoEl) listNoEl.value = c.originalListNo || '';
     document.getElementById('case-number').value = c.caseNumber || '';
@@ -1137,65 +1405,6 @@ function openEditModal(id) {
 }
 
 /**
- * Open Case Profile Modal (Modern View)
- */
-function openCaseProfileModal(id) {
-    const c = getCaseById(id);
-    if (!c) return;
-
-    // Header
-    document.getElementById('profile-case-code').innerText = c.caseNumber || '--';
-    document.getElementById('profile-case-date').innerText = formatExcelDate(c.dateReceived) || '--';
-    document.getElementById('profile-case-category').innerText = t_val(c.category) || '--';
-    document.getElementById('profile-case-location').innerText = t_val(c.disputeLocation) || '--';
-    
-    const statusEl = document.getElementById('profile-case-status');
-    statusEl.innerHTML = getStatusBadgeHTML(c.status);
-    
-    // Party A
-    document.getElementById('profile-party-a-name').innerText = `${c.partyA_name || '--'} (${c.partyA_gender || '?'}, ${c.partyA_age || '?'} ឆ្នាំ)`;
-    document.getElementById('profile-party-a-phone').innerText = c.partyA_phone || 'គ្មានលេខទូរស័ព្ទ';
-    document.getElementById('profile-party-a-lawyer').innerText = c.partyA_lawyer_name ? `${c.partyA_lawyer_name} (${c.partyA_lawyer_phone || ''})` : 'គ្មានមេធាវីតំណាង';
-
-    // Party B
-    document.getElementById('profile-party-b-name').innerText = `${c.partyB_name || '--'} (${c.partyB_gender || '?'}, ${c.partyB_age || '?'} ឆ្នាំ)`;
-    document.getElementById('profile-party-b-phone').innerText = c.partyB_phone || 'គ្មានលេខទូរស័ព្ទ';
-    document.getElementById('profile-party-b-lawyer').innerText = c.partyB_lawyer_name ? `${c.partyB_lawyer_name} (${c.partyB_lawyer_phone || ''})` : 'គ្មានមេធាវីតំណាង';
-
-    // Summary
-    document.getElementById('profile-case-summary').innerText = c.disputeSummary || 'ពុំមានព័ត៌មានលម្អិតអំពីអង្គហេតុទេ...';
-
-    // Timeline 7.1
-    document.getElementById('profile-71-date').innerText = c.meetingPartyADate || 'មិនទាន់កំណត់';
-    const status71 = document.getElementById('profile-71-status');
-    status71.innerText = c.meetingPartyA || 'មិនទាន់ប្រជុំ';
-    status71.className = `badge ${c.meetingPartyA && c.meetingPartyA !== 'មិនទាន់ប្រជុំ' ? 'badge-settle' : 'badge-pending'} bg-secondary`;
-
-    // Timeline 7.2
-    document.getElementById('profile-72-date').innerText = c.meetingPartyBDate || 'មិនទាន់កំណត់';
-    const status72 = document.getElementById('profile-72-status');
-    status72.innerText = c.meetingPartyB || 'មិនទាន់ប្រជុំ';
-    status72.className = `badge ${c.meetingPartyB && c.meetingPartyB !== 'មិនទាន់ប្រជុំ' ? 'badge-settle' : 'badge-pending'} bg-secondary`;
-
-    // Timeline 7.3
-    document.getElementById('profile-73-date').innerText = c.mediationMeetingDate || 'មិនទាន់កំណត់';
-    const status73 = document.getElementById('profile-73-status');
-    status73.innerText = c.mediationMeeting || 'មិនទាន់ប្រជុំ';
-    status73.className = `badge ${c.mediationMeeting && c.mediationMeeting.includes('រួចរាល់') ? 'badge-settle' : (c.mediationMeeting && c.mediationMeeting !== 'មិនទាន់ប្រជុំ' ? 'badge-active' : 'badge-pending')} bg-secondary`;
-
-    // Upcoming Event
-    document.getElementById('profile-upcoming-event').innerText = c.caseEvent || 'មិនមានកម្មវិធីបន្ទាប់ទេ';
-    document.getElementById('profile-upcoming-date').innerText = c.caseEventDate || '--/--/----';
-    document.getElementById('profile-upcoming-time').innerText = c.caseEventTime || '--:--';
-
-    document.getElementById('case-profile-modal').classList.add('open');
-}
-
-function closeCaseProfileModal() {
-    document.getElementById('case-profile-modal').classList.remove('open');
-}
-
-/**
  * Open Dossier Detail View Modal
  */
 function openViewModal(id) {
@@ -1207,107 +1416,195 @@ function openViewModal(id) {
     if (!modal || !body) return;
 
     body.innerHTML = `
-        <div class="dossier-header">
-            <div class="dossier-number">
-                <h2>${c.caseNumber}</h2>
-                <span>កាលបរិច្ឆេទទទួលពាក្យ៖ <strong>${c.dateReceived}</strong></span>
-            </div>
-            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end;">
-                ${c.folderLink ? `<a href="${c.folderLink}" target="_blank" class="btn btn-sm" style="background:#f0f9ff; color:#0ea5e9; border:1px solid #bae6fd; text-decoration:none; padding:4px 10px; font-size:12px; border-radius:6px; margin-right:8px;"><i class="fa-solid fa-folder-open"></i> បើក Folder</a>` : ''}
-                ${getStatusBadgeHTML(c.status)}
-                <span class="badge ${c.remarks === 'បានបិទរួចរាល់' ? 'badge-settle' : 'badge-pending'}">${c.remarks}</span>
-            </div>
-        </div>
-
-        <div class="dossier-grid">
-            <div class="dossier-item" style="background: #eff6ff; border-color: #bfdbfe;">
-                <span class="d-label" style="color: #1d4ed8;"><i class="fa-solid fa-user-check"></i> ដើមបណ្ដឹង ភាគី (ក)</span>
-                <span class="d-val">${c.partyA_name} (${c.partyA_gender}, ${c.partyA_age || '?'} ឆ្នាំ)</span>
-                <div style="font-size: 13px; margin-top: 6px; color: #334155;">
-                    <div>📞 ទូរស័ព្ទ៖ <strong>${c.partyA_phone || 'ពុំមាន'}</strong></div>
-                    <div>📍 អាសយដ្ឋាន៖ <strong>${c.partyA_location} ${c.partyA_address ? ' - ' + c.partyA_address : ''}</strong></div>
-                    ${c.partyA_additional_names ? `<div class="mt-1" style="padding-top:4px; border-top:1px dashed #cbd5e1;">👥 ភាគីបន្ថែម៖ <strong>${c.partyA_additional_names}</strong></div>` : ''}
-                    ${c.partyA_additional_addresses ? `<div>🏠 អាសយដ្ឋានភាគីបន្ថែម៖ <strong>${c.partyA_additional_addresses}</strong></div>` : ''}
+        <div style="background-color: #f8fafc; margin: -20px; padding: 20px;">
+            <!-- Profile Header -->
+            <div style="background: white; padding: 24px; border-bottom: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-start; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <div>
+                    <h2 style="font-size: 24px; font-weight: 800; color: #0f172a; margin: 0 0 8px 0;">${c.caseNumber}</h2>
+                    <div style="display: flex; gap: 12px; align-items: center; font-size: 14px; color: #64748b; flex-wrap: wrap;">
+                        <span><i class="fa-solid fa-calendar-days"></i> ទទួលពាក្យ៖ <span style="font-weight:600; color:#334155;">${c.dateReceived}</span></span>
+                        <span><i class="fa-solid fa-tag"></i> <span style="font-weight:600; color:#334155;">${c.category}</span></span>
+                        <span><i class="fa-solid fa-location-dot"></i> <span style="font-weight:600; color:#334155;">${c.disputeLocation}</span></span>
+                        ${c.folderLink ? `<a href="javascript:void(0)" onclick="window.electronAPI ? window.electronAPI.openFolder('${c.folderLink.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}') : window.open('${c.folderLink.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}')" class="btn btn-sm" style="background:#f0f9ff; color:#0ea5e9; border:1px solid #bae6fd; text-decoration:none; padding:4px 10px; font-size:12px; border-radius:6px;"><i class="fa-solid fa-folder-open"></i> បើក Folder</a>` : ''}
+                    </div>
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+                    ${getStatusBadgeHTML(c.status)}
+                    <span class="badge ${c.remarks === 'បានបិទរួចរាល់' ? 'badge-settle' : 'badge-pending'}" style="font-size: 12px;">${c.remarks}</span>
                 </div>
             </div>
 
-            <div class="dossier-item" style="background: #fef2f2; border-color: #fecaca;">
-                <span class="d-label" style="color: #b91c1c;"><i class="fa-solid fa-user-xmark"></i> ចុងបណ្ដឹង ភាគី (ខ)</span>
-                <span class="d-val">${c.partyB_name} (${c.partyB_gender}, ${c.partyB_age || '?'} ឆ្នាំ)</span>
-                <div style="font-size: 13px; margin-top: 6px; color: #334155;">
-                    <div>📞 ទូរស័ព្ទ៖ <strong>${c.partyB_phone || 'ពុំមាន'}</strong></div>
-                    <div>📍 អាសយដ្ឋាន៖ <strong>${c.partyB_location} ${c.partyB_address ? ' - ' + c.partyB_address : ''}</strong></div>
-                    ${c.partyB_additional_names ? `<div class="mt-1" style="padding-top:4px; border-top:1px dashed #cbd5e1;">👥 ភាគីបន្ថែម៖ <strong>${c.partyB_additional_names}</strong></div>` : ''}
-                    ${c.partyB_additional_addresses ? `<div>🏠 អាសយដ្ឋានភាគីបន្ថែម៖ <strong>${c.partyB_additional_addresses}</strong></div>` : ''}
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+                <!-- Party A Card -->
+                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
+                    <h4 style="color: #2563eb; font-weight: 700; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #eff6ff; padding-bottom: 8px;">
+                        <i class="fa-solid fa-user-shield"></i> ដើមបណ្ដឹង ភាគី "ក"
+                    </h4>
+                    <div style="margin-bottom: 12px;">
+                        <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block;">ឈ្មោះ</label>
+                        <div style="font-size: 15px; font-weight: 600; color: #334155;">${c.partyA_name} (${c.partyA_gender}, ${c.partyA_age || '?'} ឆ្នាំ)</div>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block;">លេខទូរស័ព្ទ</label>
+                        <div style="font-size: 14px; color: #334155;">${c.partyA_phone || 'ពុំមាន'}</div>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block;">មេធាវីតំណាង</label>
+                        <div style="font-size: 14px; color: #334155;">${c.partyA_lawyer_name ? `${c.partyA_lawyer_name} (${c.partyA_lawyer_phone || ''})` : 'គ្មានមេធាវីតំណាង'}</div>
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block;">អាសយដ្ឋាន</label>
+                        <div style="font-size: 14px; color: #334155;">${c.partyA_location} ${c.partyA_address ? ' - ' + c.partyA_address : ''}</div>
+                    </div>
+                    ${c.partyA_additional_names ? `
+                    <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed #e2e8f0;">
+                        <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block;">ភាគីបន្ថែម</label>
+                        <div style="font-size: 14px; color: #334155;">${c.partyA_additional_names}</div>
+                        ${c.partyA_additional_addresses ? `<div style="font-size: 13px; color: #64748b; margin-top: 4px;">🏠 ${c.partyA_additional_addresses}</div>` : ''}
+                    </div>` : ''}
+                </div>
+
+                <!-- Party B Card -->
+                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
+                    <h4 style="color: #ef4444; font-weight: 700; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #fef2f2; padding-bottom: 8px;">
+                        <i class="fa-solid fa-user-xmark"></i> ចុងបណ្ដឹង ភាគី "ខ"
+                    </h4>
+                    <div style="margin-bottom: 12px;">
+                        <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block;">ឈ្មោះ</label>
+                        <div style="font-size: 15px; font-weight: 600; color: #334155;">${c.partyB_name} (${c.partyB_gender}, ${c.partyB_age || '?'} ឆ្នាំ)</div>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block;">លេខទូរស័ព្ទ</label>
+                        <div style="font-size: 14px; color: #334155;">${c.partyB_phone || 'ពុំមាន'}</div>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block;">មេធាវីតំណាង</label>
+                        <div style="font-size: 14px; color: #334155;">${c.partyB_lawyer_name ? `${c.partyB_lawyer_name} (${c.partyB_lawyer_phone || ''})` : 'គ្មានមេធាវីតំណាង'}</div>
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block;">អាសយដ្ឋាន</label>
+                        <div style="font-size: 14px; color: #334155;">${c.partyB_location} ${c.partyB_address ? ' - ' + c.partyB_address : ''}</div>
+                    </div>
+                    ${c.partyB_additional_names ? `
+                    <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed #e2e8f0;">
+                        <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block;">ភាគីបន្ថែម</label>
+                        <div style="font-size: 14px; color: #334155;">${c.partyB_additional_names}</div>
+                        ${c.partyB_additional_addresses ? `<div style="font-size: 13px; color: #64748b; margin-top: 4px;">🏠 ${c.partyB_additional_addresses}</div>` : ''}
+                    </div>` : ''}
                 </div>
             </div>
 
             ${c.partyC_name ? `
-            <div class="dossier-item full-width" style="grid-column: span 2; background: #f8fafc; border-color: #e2e8f0;">
-                <span class="d-label" style="color: #475569;"><i class="fa-solid fa-users"></i> អ្នកពាក់ព័ន្ធ / តតិយជន ភាគី (គ)</span>
-                <span class="d-val">${c.partyC_name} (${c.partyC_gender || 'ប្រុស'}, ${c.partyC_age || '?'} ឆ្នាំ)</span>
-                <div style="font-size: 13px; margin-top: 6px; color: #334155;">
-                    <div>📞 ទូរស័ព្ទ៖ <strong>${c.partyC_phone || 'ពុំមាន'}</strong></div>
-                    <div>📍 អាសយដ្ឋាន៖ <strong>${c.partyC_location || ''} ${c.partyC_address ? ' - ' + c.partyC_address : ''}</strong></div>
-                    ${c.partyC_additional_names ? `<div class="mt-1" style="padding-top:4px; border-top:1px dashed #cbd5e1;">👥 ភាគីបន្ថែម៖ <strong>${c.partyC_additional_names}</strong></div>` : ''}
-                    ${c.partyC_additional_addresses ? `<div>🏠 អាសយដ្ឋានភាគីបន្ថែម៖ <strong>${c.partyC_additional_addresses}</strong></div>` : ''}
+            <!-- Party C Card -->
+            <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; margin-bottom: 24px;">
+                <h4 style="color: #475569; font-weight: 700; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px;">
+                    <i class="fa-solid fa-users"></i> អ្នកពាក់ព័ន្ធ / តតិយជន ភាគី "គ"
+                </h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div>
+                        <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block;">ឈ្មោះ</label>
+                        <div style="font-size: 15px; font-weight: 600; color: #334155;">${c.partyC_name} (${c.partyC_gender || 'ប្រុស'}, ${c.partyC_age || '?'} ឆ្នាំ)</div>
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block;">លេខទូរស័ព្ទ</label>
+                        <div style="font-size: 14px; color: #334155;">${c.partyC_phone || 'ពុំមាន'}</div>
+                    </div>
+                    <div style="grid-column: span 2;">
+                        <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block;">អាសយដ្ឋាន</label>
+                        <div style="font-size: 14px; color: #334155;">${c.partyC_location || ''} ${c.partyC_address ? ' - ' + c.partyC_address : ''}</div>
+                    </div>
                 </div>
+                ${c.partyC_additional_names ? `
+                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed #e2e8f0;">
+                    <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block;">ភាគីបន្ថែម</label>
+                    <div style="font-size: 14px; color: #334155;">${c.partyC_additional_names}</div>
+                    ${c.partyC_additional_addresses ? `<div style="font-size: 13px; color: #64748b; margin-top: 4px;">🏠 ${c.partyC_additional_addresses}</div>` : ''}
+                </div>` : ''}
             </div>
             ` : ''}
 
-            <div class="dossier-item">
-                <span class="d-label">ប្រភេទសំណុំរឿង (Category)</span>
-                <span class="d-val" style="color: var(--primary-color);">${c.category}</span>
+            <!-- Dispute Summary -->
+            <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; margin-bottom: 24px;">
+                <h4 style="color: #1e293b; font-weight: 700; margin-top: 0; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-file-lines text-primary"></i> អង្គហេតុសង្ខេប (Dispute Summary)
+                </h4>
+                <p style="font-size: 14.5px; line-height: 1.7; color: #475569; margin: 0; white-space: pre-wrap; background: #f8fafc; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0;">${c.summary || 'ពុំមានរៀបរាប់សេចក្តីសង្ខេប'}</p>
             </div>
 
-            <div class="dossier-item">
-                <span class="d-label">ទីតាំងវិវាទ (Dispute Location)</span>
-                <span class="d-val">${c.disputeLocation}</span>
-            </div>
-
-            <div class="dossier-item full-width">
-                <span class="d-label">សេចក្តីសង្ខេបវិវាទ (Dispute Summary / Facts)</span>
-                <p class="d-val-text mt-1" style="background: var(--bg-card); padding: 12px; border-radius: 6px; border: 1px solid var(--border-color);">${c.summary || 'ពុំមានរៀបរាប់សេចក្តីសង្ខេប'}</p>
-            </div>
-
-            <div class="dossier-item full-width" style="background: var(--primary-light); border-color: #bfdbfe;">
-                <span class="d-label" style="color: var(--primary-color); font-size: 13px;"><i class="fa-solid fa-gavel"></i> ស្ថានភាពកិច្ចប្រជុំ និងចំណាត់ការនីតិវិធី</span>
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 8px; font-size: 13px;">
-                    <div style="background: white; padding: 8px; border-radius: 4px;">
-                        <span class="text-muted d-block" style="font-size: 11px;">ប្រជុំភាគី (ក)៖</span>
-                        <strong>${c.meetingPartyA}</strong>
+            <!-- Action Timeline -->
+            <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; margin-bottom: 24px;">
+                <h4 style="color: #1e293b; font-weight: 700; margin-top: 0; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-clock-rotate-left text-primary"></i> ប្រវត្តិចំណាត់ការ និងកិច្ចប្រជុំ (Action Timeline)
+                </h4>
+                <div class="timeline" style="margin-left: 10px; border-left: 2px solid #cbd5e1; padding-left: 24px; position: relative;">
+                    
+                    <!-- 7.1 -->
+                    <div style="position: relative; margin-bottom: 24px;">
+                        <div style="position: absolute; left: -31px; top: 2px; width: 12px; height: 12px; border-radius: 50%; background: #3b82f6; border: 2px solid white; box-shadow: 0 0 0 2px #3b82f6;"></div>
+                        <h5 style="margin: 0 0 4px 0; font-size: 14px; color: #0f172a; font-weight: 700;">៧.១ កិច្ចប្រជុំប្រមូលព័ត៌មាន ភាគី "ក"</h5>
+                        <div style="font-size: 13px; color: #64748b; display: flex; gap: 16px; margin-top: 6px;">
+                            <span><i class="fa-regular fa-calendar" style="margin-right: 4px;"></i> <strong>${c.meetingPartyADate || 'មិនទាន់កំណត់'}</strong></span>
+                            <span class="badge ${c.meetingPartyA && c.meetingPartyA !== 'មិនទាន់ប្រជុំ' ? 'badge-settle' : 'badge-pending'} bg-secondary" style="font-size: 11px;">${c.meetingPartyA || 'មិនទាន់ប្រជុំ'}</span>
+                        </div>
                     </div>
-                    <div style="background: white; padding: 8px; border-radius: 4px;">
-                        <span class="text-muted d-block" style="font-size: 11px;">ប្រជុំភាគី (ខ)៖</span>
-                        <strong>${c.meetingPartyB}</strong>
+                    
+                    <!-- 7.2 -->
+                    <div style="position: relative; margin-bottom: 24px;">
+                        <div style="position: absolute; left: -31px; top: 2px; width: 12px; height: 12px; border-radius: 50%; background: #ef4444; border: 2px solid white; box-shadow: 0 0 0 2px #ef4444;"></div>
+                        <h5 style="margin: 0 0 4px 0; font-size: 14px; color: #0f172a; font-weight: 700;">៧.២ កិច្ចប្រជុំប្រមូលព័ត៌មាន ភាគី "ខ"</h5>
+                        <div style="font-size: 13px; color: #64748b; display: flex; gap: 16px; margin-top: 6px;">
+                            <span><i class="fa-regular fa-calendar" style="margin-right: 4px;"></i> <strong>${c.meetingPartyBDate || 'មិនទាន់កំណត់'}</strong></span>
+                            <span class="badge ${c.meetingPartyB && c.meetingPartyB !== 'មិនទាន់ប្រជុំ' ? 'badge-settle' : 'badge-pending'} bg-secondary" style="font-size: 11px;">${c.meetingPartyB || 'មិនទាន់ប្រជុំ'}</span>
+                        </div>
                     </div>
-                    <div style="background: white; padding: 8px; border-radius: 4px; border-left: 3px solid var(--primary-color);">
-                        <span class="text-muted d-block" style="font-size: 11px;">ប្រជុំសម្រុះសម្រួល៖</span>
-                        <strong style="color: var(--primary-color);">${c.mediationMeeting}</strong>
+
+                    <!-- 7.3 -->
+                    <div style="position: relative; margin-bottom: 24px;">
+                        <div style="position: absolute; left: -31px; top: 2px; width: 12px; height: 12px; border-radius: 50%; background: #f59e0b; border: 2px solid white; box-shadow: 0 0 0 2px #f59e0b;"></div>
+                        <h5 style="margin: 0 0 4px 0; font-size: 14px; color: #0f172a; font-weight: 700;">៧.៣ ប្រជុំសម្រុះសម្រួល</h5>
+                        <div style="font-size: 13px; color: #64748b; display: flex; gap: 16px; margin-top: 6px;">
+                            <span><i class="fa-regular fa-calendar" style="margin-right: 4px;"></i> <strong>${c.mediationMeetingDate || 'មិនទាន់កំណត់'}</strong></span>
+                            <span class="badge ${c.mediationMeeting && c.mediationMeeting.includes('រួចរាល់') ? 'badge-settle' : (c.mediationMeeting && c.mediationMeeting !== 'មិនទាន់ប្រជុំ' ? 'badge-active' : 'badge-pending')} bg-secondary" style="font-size: 11px;">${c.mediationMeeting || 'មិនទាន់ប្រជុំ'}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Upcoming Event -->
+                    <div style="position: relative;">
+                        <div style="position: absolute; left: -31px; top: 2px; width: 12px; height: 12px; border-radius: 50%; background: #10b981; border: 2px solid white; box-shadow: 0 0 0 2px #10b981;"></div>
+                        <h5 style="margin: 0 0 4px 0; font-size: 14px; color: #0f172a; font-weight: 700;">កម្មវិធីបន្ទាប់ (Upcoming Event)</h5>
+                        <div style="font-size: 14px; color: #334155; font-weight: 600; margin-top: 4px;">${c.caseEvent || 'មិនមានកម្មវិធីបន្ទាប់ទេ'}</div>
+                        <div style="font-size: 13px; color: #64748b; margin-top: 4px;"><i class="fa-regular fa-calendar"></i> <span>${c.caseEventDate || '--/--/----'}</span> <i class="fa-regular fa-clock" style="margin-left: 8px;"></i> <span>${c.caseEventTime || '--:--'}</span></div>
                     </div>
                 </div>
             </div>
-            
+
             ${(() => {
                 if (CUSTOM_COLUMNS.length === 0) return '';
                 let customHtml = `
-                <div class="dossier-item full-width" style="grid-column: span 2; background: #f8fafc; border-color: #e2e8f0; margin-top: 10px;">
-                    <span class="d-label" style="color: #475569; font-weight: 700;"><i class="fa-solid fa-square-plus"></i> ៦. ព័ត៌មានបន្ថែម (Custom Fields)</span>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 8px; font-size: 13px;">
+                <!-- Custom Fields -->
+                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; margin-bottom: 24px;">
+                    <h4 style="color: #475569; font-weight: 700; margin-top: 0; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-square-plus"></i> ព័ត៌មានបន្ថែម (Custom Fields)
+                    </h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; font-size: 13px;">
                 `;
                 CUSTOM_COLUMNS.forEach(col => {
                     const val = c[col.key] || 'ពុំមានបញ្ចូល';
                     customHtml += `
-                        <div style="background: white; padding: 8px; border-radius: 4px; border: 1px solid var(--border-color);">
-                            <span class="text-muted d-block" style="font-size: 11px;">${col.labelKh} (${col.labelEn})៖</span>
-                            <strong>${val}</strong>
+                        <div style="background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                            <span style="font-size: 11px; color: #64748b; display: block; margin-bottom: 4px;">${col.labelKh} (${col.labelEn})</span>
+                            <strong style="color: #334155;">${val}</strong>
                         </div>
                     `;
                 });
                 customHtml += `</div></div>`;
                 return customHtml;
             })()}
-            ${renderDossierFilesSection(c)}
+
+            <!-- Attached Files -->
+            <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
+                ${renderDossierFilesSection(c)}
+            </div>
         </div>
     `;
 
@@ -1356,6 +1653,9 @@ window.shareCaseToTelegram = async function(id) {
     if (!c) return;
 
     let text = `📂 <b>ព័ត៌មានសំណុំរឿង NADR</b>\n\n`;
+    if (c.caseType === 'assisting') {
+        text = `📂 <b>[សំណុំរឿងអម] ព័ត៌មានសំណុំរឿង NADR</b>\n\n`;
+    }
     text += `🔹 លេខសំណុំរឿង៖ <b>${c.caseNumber}</b>\n`;
     text += `🔹 កាលបរិច្ឆេទ៖ ${c.dateReceived}\n`;
     text += `🔹 ប្រភេទ៖ ${t_val(c.category)}\n`;
@@ -1390,17 +1690,42 @@ window.shareCaseToTelegram = async function(id) {
  * Share Statistics to Telegram
  */
 window.shareStatsToTelegram = async function() {
-    const total = casesData.length;
-    const settle = casesData.filter(c => c.status && c.status.startsWith('Settle')).length;
-    const active = casesData.filter(c => c.status && c.status.startsWith('Active')).length;
-    const close = casesData.filter(c => c.status && (c.status.startsWith('Close') || c.status.startsWith('No Settle') || c.status.includes('មិនព្រមព្រៀង'))).length;
-    const pending = casesData.filter(c => c.status && c.status.startsWith('Pending')).length;
+    const personalCases = casesData.filter(c => !c.caseType || c.caseType === 'personal' || c.caseType === '');
+    const assistingCases = casesData.filter(c => c.caseType === 'assisting');
 
-    // 1. Overview & Breakdown
     let text = `📊 <b>របាយការណ៍ស្ថិតិសំណុំរឿង NADR</b>\n`;
     text += `📅 <b>កាលបរិច្ឆេទ៖</b> ${getTodayDateString()}\n\n`;
-    
-    text += `📑 <b>១. ស្ថិតិសង្ខេប និងលទ្ធផលចំណាត់ការ</b>\n`;
+
+    text += `🔹 <b>ផ្នែកទី១៖ សំណុំរឿងផ្ទាល់ខ្លួន (Personal Cases)</b>\n`;
+    text += generateStatsTextForTelegram(personalCases);
+
+    if (assistingCases.length > 0) {
+        text += `\n🔹 <b>ផ្នែកទី២៖ សំណុំរឿងអម (Assisting Cases)</b>\n`;
+        text += generateStatsTextForTelegram(assistingCases);
+    }
+
+    text += `\n<i>✨ បញ្ជូនពីប្រព័ន្ធ CMS Pro (Telegram Bot Integration)</i>`;
+
+    if (typeof sendTelegramMessage === 'function') {
+        const success = await sendTelegramMessage(text);
+        if (success) {
+            if (typeof showToast === 'function') showToast('បានផ្ញើរបាយការណ៍ស្ថិតិទៅ Telegram ជោគជ័យ!', 'success');
+        } else {
+            if (typeof showToast === 'function') showToast('ការបញ្ជូនទៅ Telegram បរាជ័យ! សូមពិនិត្យមើលការកំណត់ Bot Token។', 'error');
+        }
+    } else {
+        if (typeof showToast === 'function') showToast('ប្រព័ន្ធ Telegram មិនត្រូវបានភ្ជាប់ទេ។', 'error');
+    }
+};
+
+function generateStatsTextForTelegram(casesArray) {
+    const total = casesArray.length;
+    const settle = casesArray.filter(c => c.status && c.status.startsWith('Settle')).length;
+    const active = casesArray.filter(c => c.status && c.status.startsWith('Active')).length;
+    const close = casesArray.filter(c => c.status && (c.status.startsWith('Close') || c.status.startsWith('No Settle') || c.status.includes('មិនព្រមព្រៀង'))).length;
+    const pending = casesArray.filter(c => c.status && c.status.startsWith('Pending')).length;
+
+    let text = `📑 <b>១. ស្ថិតិសង្ខេប និងលទ្ធផលចំណាត់ការ</b>\n`;
     text += `• សំណុំរឿងសរុប៖ <b>${total}</b> ករណី\n`;
     text += `• កំពុងចាត់ការ (Active)៖ <b>${active}</b> ករណី\n`;
     text += `• ព្រមព្រៀង (Settle)៖ <b>${settle}</b> ករណី\n`;
@@ -1421,12 +1746,11 @@ window.shareStatsToTelegram = async function() {
     // 3. Categories breakdown
     text += `📋 <b>៣. ស្ថិតិតាមប្រភេទវិវាទ</b>\n`;
     let categories = {};
-    casesData.forEach(c => {
+    casesArray.forEach(c => {
         let cat = t_val(c.category) || 'ផ្សេងៗ';
         categories[cat] = (categories[cat] || 0) + 1;
     });
     
-    // Sort categories by count
     const sortedCats = Object.keys(categories).sort((a,b) => categories[b] - categories[a]);
     sortedCats.forEach(cat => {
         const count = categories[cat];
@@ -1438,7 +1762,7 @@ window.shareStatsToTelegram = async function() {
     // 4. Provinces breakdown
     text += `🗺 <b>៤. ស្ថិតិតាមទីតាំង (ខេត្ត/រាជធានី)</b>\n`;
     let provinces = {};
-    casesData.forEach(c => {
+    casesArray.forEach(c => {
         let loc = t_val(c.disputeLocation) || 'ផ្សេងៗ';
         provinces[loc] = (provinces[loc] || 0) + 1;
     });
@@ -1449,19 +1773,10 @@ window.shareStatsToTelegram = async function() {
         text += `• ${loc}៖ ${count} ករណី\n`;
     });
     
-    text += `\n<i>✨ បញ្ជូនពីប្រព័ន្ធ CMS Pro (Telegram Bot Integration)</i>`;
+    return text;
+}
 
-    if (typeof sendTelegramMessage === 'function') {
-        const success = await sendTelegramMessage(text);
-        if (success) {
-            if (typeof showToast === 'function') showToast('បានផ្ញើរបាយការណ៍ស្ថិតិទៅ Telegram ជោគជ័យ!', 'success');
-        } else {
-            if (typeof showToast === 'function') showToast('ការបញ្ជូនទៅ Telegram បរាជ័យ! សូមពិនិត្យមើលការកំណត់ Bot Token។', 'error');
-        }
-    } else {
-        if (typeof showToast === 'function') showToast('ប្រព័ន្ធ Telegram មិនត្រូវបានភ្ជាប់ទេ។', 'error');
-    }
-};
+
 
 /**
  * Custom Confirmation Popup Modal System
@@ -3307,6 +3622,7 @@ function initDashboardQuickForm() {
             
             const payload = {
                 caseNumber: document.getElementById('quick-case-number').value.trim(),
+                caseType: document.querySelector('input[name="quickCaseType"]:checked') ? document.querySelector('input[name="quickCaseType"]:checked').value : 'personal',
                 dateReceived: document.getElementById('quick-case-date').value,
                 caseEvent: document.getElementById('quick-case-event') ? document.getElementById('quick-case-event').value : '',
                 caseEventDate: document.getElementById('quick-case-event-date') ? document.getElementById('quick-case-event-date').value : '',
@@ -5133,26 +5449,31 @@ const TELECOM_PREFIXES = {
 function formatPhoneNumberWithTelecom(phoneStr) {
     if (!phoneStr) return '';
     phoneStr = String(phoneStr);
-    // Strip existing network names in parenthesis if any to re-evaluate
-    let cleanPhone = phoneStr.replace(/\s*\([a-zA-Z\s]+\)$/, '').trim();
-    // Remove spaces/dashes to get the digits
-    let digits = cleanPhone.replace(/[\s-]/g, '');
-    let khmerToEng = { '០':'0', '១':'1', '២':'2', '៣':'3', '៤':'4', '៥':'5', '៦':'6', '៧':'7', '៨':'8', '៩':'9' };
-    let engDigits = digits.replace(/[០-៩]/g, m => khmerToEng[m]);
-    if (engDigits.length >= 3) {
-        let prefix = engDigits.substring(0, 3);
-        let network = null;
-        for (const [net, prefixes] of Object.entries(TELECOM_PREFIXES)) {
-            if (prefixes.includes(prefix)) {
-                network = net;
-                break;
+    
+    // Split by slash, comma, or " និង "
+    let parts = phoneStr.split(/[\/\,]|និង/);
+    let resultParts = parts.map(part => {
+        let cleanPhone = part.replace(/\s*\([a-zA-Z\s]+\)$/, '').trim();
+        let digits = cleanPhone.replace(/[\s-]/g, '');
+        let khmerToEng = { '០':'0', '១':'1', '២':'2', '៣':'3', '៤':'4', '៥':'5', '៦':'6', '៧':'7', '៨':'8', '៩':'9' };
+        let engDigits = digits.replace(/[០-៩]/g, m => khmerToEng[m]);
+        if (engDigits.length >= 3) {
+            let prefix = engDigits.substring(0, 3);
+            let network = null;
+            for (const [net, prefixes] of Object.entries(TELECOM_PREFIXES)) {
+                if (prefixes.includes(prefix)) {
+                    network = net;
+                    break;
+                }
+            }
+            if (network) {
+                return `${cleanPhone} (${network})`;
             }
         }
-        if (network) {
-            return `${cleanPhone} (${network})`;
-        }
-    }
-    return cleanPhone;
+        return cleanPhone;
+    });
+    
+    return resultParts.filter(Boolean).join(' / ');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
