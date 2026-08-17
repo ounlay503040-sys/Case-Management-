@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ប្រព័ន្ធគ្រប់គ្រងសំណុំរឿងគោល - NADR Master Case Management</title>
+
+    <!-- Preload Theme to prevent White Flash -->
+    <script>
+        try {
+            if (localStorage.getItem('nadr_app_theme') === 'dark') {
+                document.documentElement.classList.add('dark-theme');
+            }
+        } catch (e) {}
+    </script>
+
     <!-- Web App Manifest & Desktop Icons (PWA) -->
     <link rel="manifest" href="manifest.json">
     <link rel="shortcut icon" href="favicon.ico">
@@ -259,7 +269,7 @@
                 </div>
 
                 <div class="header-right">
-                    <div class="lang-switcher">
+                    <div class="lang-switcher" style="display: none;">
                         <button type="button" class="btn-lang active" id="btn-lang-km">
                             <span class="lang-code">KH</span> ខ្មែរ
                         </button>

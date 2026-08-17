@@ -651,6 +651,10 @@ function generateExcelTemplate() {
 // I18N DICTIONARY — BILINGUAL LANGUAGE SUPPORT (ខ្មែរ / English)
 // ===========================================================================
 
+const ENABLE_LANG_TOGGLE = false;
+if (!ENABLE_LANG_TOGGLE) {
+    localStorage.setItem('nadr_app_lang', 'km');
+}
 let currentLang = localStorage.getItem('nadr_app_lang') || 'km';
 
 const I18N = {
