@@ -2246,7 +2246,10 @@ function initStrategicPlanTabs() {
     if (tabBtns.length === 0) return;
     
     tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
+        const isDarkInit = document.documentElement.classList.contains('dark-theme');
+    btn.innerHTML = isDarkInit ? `<i class="fa-solid fa-sun" style="color: #f59e0b;"></i>` : `<i class="fa-solid fa-moon"></i>`;
+
+    btn.addEventListener('click', () => {
             tabBtns.forEach(b => {
                 b.classList.remove('active');
                 b.style.background = '#f1f5f9';
@@ -2531,11 +2534,20 @@ window.confirmFactoryReset = function() {
 function initThemeToggle() {
     const btn = document.getElementById('theme-toggle');
     if (!btn) return;
+    
+    const isDarkInit = document.documentElement.classList.contains('dark-theme');
+    btn.innerHTML = isDarkInit ? '<i class="fa-solid fa-sun" style="color: #f59e0b;"></i>' : '<i class="fa-solid fa-moon"></i>';
+    
     btn.addEventListener('click', () => {
-        document.body.classList.toggle('dark-theme');
-        const isDark = document.body.classList.contains('dark-theme');
-        btn.innerHTML = isDark ? `<i class="fa-solid fa-sun" style="color: #f59e0b;"></i>` : `<i class="fa-solid fa-moon"></i>`;
+        document.documentElement.classList.toggle('dark-theme');
+        localStorage.setItem('nadr_app_theme', document.documentElement.classList.contains('dark-theme') ? 'dark' : 'light');
+        const isDark = document.documentElement.classList.contains('dark-theme');
+        btn.innerHTML = isDark ? '<i class="fa-solid fa-sun" style="color: #f59e0b;"></i>' : '<i class="fa-solid fa-moon"></i>';
         showToast(isDark ? 'បានប្តូរទៅ Dark Mode 🌙' : 'បានប្តូរទៅ Light Mode ☀️', 'info');
+        
+        if (typeof initOrUpdateCharts === 'function') {
+            initOrUpdateCharts();
+        }
     });
 }
 

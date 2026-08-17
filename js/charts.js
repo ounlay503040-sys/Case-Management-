@@ -17,9 +17,10 @@ function initOrUpdateCharts(customStats = null) {
     }
 
     const stats = customStats || getCaseStatistics();
-    const isDark = document.body.classList.contains('dark-theme');
-    const textColor = isDark ? '#f1f5f9' : '#1e293b';
-    const gridColor = isDark ? '#1f2937' : '#e2e8f0';
+    const rootStyle = getComputedStyle(document.documentElement);
+    const textColor = rootStyle.getPropertyValue('--text-main').trim() || (document.documentElement.classList.contains('dark-theme') ? '#f8fafc' : '#0f172a');
+    const gridColor = rootStyle.getPropertyValue('--border-light').trim() || (document.documentElement.classList.contains('dark-theme') ? '#1e293b' : '#f1f5f9');
+    const isDark = document.documentElement.classList.contains('dark-theme');
 
     // 1. Status Doughnut Chart (4 Statuses)
     const ctxStatus = document.getElementById('statusChart')?.getContext('2d');
@@ -137,9 +138,10 @@ function renderDashboardLocationChart(byLocObj, ctx) {
     if (!ctx || typeof Chart === 'undefined') return;
     if (dashLocationChartInstance) dashLocationChartInstance.destroy();
     
-    const isDark = document.body.classList.contains('dark-theme');
-    const textColor = isDark ? '#f1f5f9' : '#1e293b';
-    const gridColor = isDark ? '#1f2937' : '#e2e8f0';
+    const rootStyle = getComputedStyle(document.documentElement);
+    const textColor = rootStyle.getPropertyValue('--text-main').trim() || (document.documentElement.classList.contains('dark-theme') ? '#f8fafc' : '#0f172a');
+    const gridColor = rootStyle.getPropertyValue('--border-light').trim() || (document.documentElement.classList.contains('dark-theme') ? '#1e293b' : '#f1f5f9');
+    const isDark = document.documentElement.classList.contains('dark-theme');
 
     const entries = Object.entries(byLocObj || {}).filter(e => e[1] > 0);
     entries.sort((a, b) => b[1] - a[1]);
@@ -203,9 +205,10 @@ function renderLocationChart(byLocationObj) {
 
     if (locationChartInstance) locationChartInstance.destroy();
 
-    const isDark = document.body.classList.contains('dark-theme');
-    const textColor = isDark ? '#f1f5f9' : '#1e293b';
-    const gridColor = isDark ? '#1f2937' : '#e2e8f0';
+    const rootStyle = getComputedStyle(document.documentElement);
+    const textColor = rootStyle.getPropertyValue('--text-main').trim() || (document.documentElement.classList.contains('dark-theme') ? '#f8fafc' : '#0f172a');
+    const gridColor = rootStyle.getPropertyValue('--border-light').trim() || (document.documentElement.classList.contains('dark-theme') ? '#1e293b' : '#f1f5f9');
+    const isDark = document.documentElement.classList.contains('dark-theme');
 
     // Sort top 7 locations
     const entries = Object.entries(byLocationObj).filter(e => e[1] > 0);
