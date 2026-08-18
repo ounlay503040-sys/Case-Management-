@@ -63,7 +63,7 @@ function initOrUpdateCharts(customStats = null) {
                             label: function(context) {
                                 const val = context.raw;
                                 const tot = stats.total || 1;
-                                const pct = ((val / tot) * 100).toFixed(1);
+                                const pct = typeof safePercent !== 'undefined' ? safePercent(val, tot) : ((val / tot) * 100).toFixed(1);
                                 return ` ${context.label}: ${val} ករណី (${pct}%)`;
                             }
                         }

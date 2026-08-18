@@ -9,7 +9,7 @@
   --bg-sidebar: #0f172a; /* keeping dark for brand */
   --text-main: #0f172a;
   --text-muted: #64748b;
-  --border-color: var(--border-color);
+  --border-color: #e2e8f0;
   --border-light: #f1f5f9;
   
   --bg-table-header: #f8fafc;
@@ -19,12 +19,12 @@
 
   --bg-input: #ffffff;
   --text-input: #0f172a;
-  --border-input: #cbd5e1;
+  --border-input: #64748b;
   --bg-input-focus: #ffffff;
   
   --bg-disabled: #f1f5f9;
   --text-disabled: #94a3b8;
-  --text-placeholder: #94a3b8;
+  --text-placeholder: #64748b;
 
   --scrollbar-track: #f1f5f9;
   --scrollbar-thumb: #cbd5e1;
@@ -54,7 +54,7 @@
 
   --bg-disabled: #1e293b;
   --text-disabled: #64748b;
-  --text-placeholder: #64748b;
+  --text-placeholder: #94a3b8;
 
   --scrollbar-track: #0f172a;
   --scrollbar-thumb: #334155;
@@ -737,7 +737,7 @@ body {
 
 /* LANGUAGE SWITCHER */
 .lang-switcher {
-    display: flex;
+    display: none !important;
     align-items: center;
     background: #f1f5f9;
     padding: 4px;
@@ -2377,3 +2377,4 @@ body {
 ::placeholder {
   color: var(--text-placeholder) !important;
 }
+\n\n/* Dark mode select options fix */\nselect option { background: var(--bg-surface); color: var(--text-main); }

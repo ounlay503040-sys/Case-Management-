@@ -29,18 +29,7 @@ function createWindow() {
   // Load the app's index.html
   mainWindow.loadFile('index.html');
   
-  mainWindow.webContents.on('did-finish-load', async () => {
-      const userData = app.getPath('userData');
-      const href = await mainWindow.webContents.executeJavaScript('location.href');
-      const lsKeys = await mainWindow.webContents.executeJavaScript('Object.keys(localStorage)');
-      const out = "\\n=== ORIGIN TEST RESULT ===\\n" +
-                  "UserData Path: " + userData + "\\n" +
-                  "Location.href: " + href + "\\n" +
-                  "LocalStorage Keys: " + JSON.stringify(lsKeys) + "\\n" +
-                  "==========================\\n";
-      require('fs').writeFileSync('origin-test.txt', out);
-      app.quit(); // automatically close the app so we can continue
-  });
+
 
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();

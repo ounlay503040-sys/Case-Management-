@@ -1144,7 +1144,7 @@ function initModalEvents() {
         const partyB = document.getElementById('case-party-b-name')?.value?.trim();
         const summary = document.getElementById('case-summary')?.value?.trim();
         if (caseNum || partyA || partyB || summary) {
-            customConfirm("បញ្ជាក់ការបោះបង់", "លោកអ្នកកំពុងបញ្ចូលទិន្នន័យ តើអ្នកពិតជាចង់បោះបង់ ឬចាកចេញពីផ្ទាំងនេះមែនទេ? ទិន្នន័យដែលបានវាយបញ្ចូលនឹងមិនត្រូវបានរក្សាទុកឡើយ!", () => {
+            customConfirm("បញ្ជាក់ការបោះបង់", "លោកអ្នកកំពុងបញ្ចូលទិន្នន័យ តើអ្នកពិតជាចង់បោះបង់ ឬចាកចេញពីផ្ទាំងនេះមែនទេ? ទិន្នន័យដែលបានវាយបញ្ចូលនឹងមិនត្រូវបានរក្សាទុកឡើយ!", (null, 'បោះបង់ការបញ្ចូល', 'បន្តកែសម្រួល') {
                 modal.classList.remove('open');
             });
         } else {
@@ -1824,7 +1824,7 @@ function customConfirm(title, message, onYes, onNo) {
     if (!btnYes || !btnNo) return;
     
     const newBtnYes = btnYes.cloneNode(true);
-    const newBtnNo = btnNo.cloneNode(true);
+    btnNo.innerHTML = `<i class="fa-solid fa-xmark"></i> ${noText}`; const newBtnNo = btnNo.cloneNode(true);
     btnYes.parentNode.replaceChild(newBtnYes, btnYes);
     btnNo.parentNode.replaceChild(newBtnNo, btnNo);
     
@@ -1855,7 +1855,7 @@ function confirmDeleteCase(id, closeViewAfter = false) {
             document.getElementById('view-modal')?.classList.remove('open');
         }
         renderAllViews();
-    });
+    }, null, 'ស្ដារវិញ');
 }
 
 /**
@@ -1890,18 +1890,18 @@ function renderAnalyticsView() {
                     const diffDays = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
                     totalDays += Math.min(diffDays, 120);
                 } else {
-                    totalDays += 14;
+                    totalDays += 0;
                 }
             } else {
-                totalDays += 14;
+                totalDays += 0;
             }
         }
     });
-    const avgDays = resolvedCount > 0 ? Math.round(totalDays / resolvedCount) : 14;
-    if (avgDaysEl) avgDaysEl.innerText = `${avgDays} ថ្ងៃ`;
+    const avgDays = resolvedCount > 0 ? Math.round(totalDays / resolvedCount) : '—';
+    if (avgDaysEl) avgDaysEl.innerText = avgDays === '—' ? 'គ្មានទិន្នន័យ' : `${avgDays} ថ្ងៃ`;
 
-    const overallResRate = stats.total > 0 ? (((stats.settle + stats.close) / stats.total) * 100).toFixed(1) : 0;
-    if (resRateEl) resRateEl.innerText = `${overallResRate} %`;
+    const overallResRate = safePercent(stats.settle + stats.close, stats.total);
+    if (resRateEl) resRateEl.innerText = stats.total > 0 ? `${overallResRate} %` : 'គ្មានទិន្នន័យ';
 
     if (concEl) {
         const rateNum = parseFloat(stats.settleRate);
@@ -2508,7 +2508,7 @@ window.handleImportAllData = function(event) {
     const btnReset = document.getElementById('btn-reset-mock-data');
     if (btnReset) {
         btnReset.addEventListener('click', () => {
-            customConfirm('បញ្ជាក់ការស្ដារទិន្នន័យដើម', 'តើលោកអ្នកពិតជាចង់ស្ដារទិន្នន័យគំរូដើមទាំង ១០ ករណីវិញមែនទេ? រាល់ទិន្នន័យដែលបានកែប្រែនឹងត្រូវជំនួស!', () => {
+            customConfirm('បញ្ជាក់ការស្ដារទិន្នន័យដើម', 'តើលោកអ្នកពិតជាចង់ស្ដារទិន្នន័យគំរូដើមទាំង ១០ ករណីវិញមែនទេ? រាល់ទិន្នន័យដែលបានកែប្រែនឹងត្រូវជំនួស!', (null, 'ស្ដារវិញ') {
                 resetToMockData();
                 renderAllViews();
                 if (typeof logAuditAction === 'function') logAuditAction('ស្ដារទិន្នន័យគំរូ', 'បានស្ដារទិន្នន័យគំរូដើម ១០ សំណុំរឿង NADR');
@@ -2519,7 +2519,7 @@ window.handleImportAllData = function(event) {
 }
 
 window.confirmFactoryReset = function() {
-    customConfirm('បញ្ជាក់ការលុបទិន្នន័យទាំងអស់ (Factory Reset)', 'ប្រកាសអាសន្ន! តើលោកអ្នកពិតជាចង់លុបទិន្នន័យសំណុំរឿងទាំងអស់ក្នុងប្រព័ន្ធឱ្យក្លាយជាសូន្យ (Empty State) មែនទេ? ទិន្នន័យដែលលុបហើយមិនអាចស្ដារវិញបានឡើយ!', () => {
+    customConfirm('បញ្ជាក់ការលុបទិន្នន័យទាំងអស់ (Factory Reset)', 'ប្រកាសអាសន្ន! តើលោកអ្នកពិតជាចង់លុបទិន្នន័យសំណុំរឿងទាំងអស់ក្នុងប្រព័ន្ធឱ្យក្លាយជាសូន្យ (Empty State) មែនទេ? ទិន្នន័យដែលលុបហើយមិនអាចស្ដារវិញបានឡើយ!', (null, 'លុបទាំងអស់') {
         casesData = [];
         saveCases();
         renderAllViews();
@@ -2769,7 +2769,7 @@ window.saveHotfixPassword = function() {
 
     // 4. Logout click
     const doLogout = () => {
-        customConfirm('បញ្ជាក់ការចាកចេញ', 'តើអ្នកពិតជាចង់ចាកចេញពីប្រព័ន្ធ (Logout) មែនទេ?', () => {
+        customConfirm('បញ្ជាក់ការចាកចេញ', 'តើអ្នកពិតជាចង់ចាកចេញពីប្រព័ន្ធ (Logout) មែនទេ?', (null, 'ចាកចេញ') {
             localStorage.removeItem('nadr_auth_logged_in');
             sessionStorage.removeItem('nadr_auth_logged_in');
             if (typeof logAuditAction === 'function') logAuditAction('ចាកចេញពីប្រព័ន្ធ', 'បានចាកចេញពីប្រព័ន្ធ (Logout)');
@@ -3321,7 +3321,7 @@ function renderSettingsProvinces() {
 }
 
 window.deleteProvinceSetting = function(index) {
-    customConfirm('បញ្ជាក់ការលុបខេត្ត/ក្រុង', `តើអ្នកពិតជាចង់លុបខេត្ត ${PROVINCES_LIST[index].name} មែនទេ?`, () => {
+    customConfirm('បញ្ជាក់ការលុបខេត្ត/ក្រុង', `តើអ្នកពិតជាចង់លុបខេត្ត ${PROVINCES_LIST[index].name} មែនទេ?`, (null, 'លុប') {
         PROVINCES_LIST.splice(index, 1);
         localStorage.setItem('nadr_provinces', JSON.stringify(PROVINCES_LIST));
         populateProvinceDropdowns();
@@ -3349,7 +3349,7 @@ function renderSettingsCategories() {
 }
 
 window.deleteCategorySetting = function(index) {
-    customConfirm('បញ្ជាក់ការលុបប្រភេទវិវាទ', `តើអ្នកពិតជាចង់លុបប្រភេទវិវាទ "${CASE_CATEGORIES[index]}" មែនទេ?`, () => {
+    customConfirm('បញ្ជាក់ការលុបប្រភេទវិវាទ', `តើអ្នកពិតជាចង់លុបប្រភេទវិវាទ "${CASE_CATEGORIES[index]}" មែនទេ?`, (null, 'លុប') {
         CASE_CATEGORIES.splice(index, 1);
         localStorage.setItem('nadr_categories', JSON.stringify(CASE_CATEGORIES));
         populateCategoryDropdowns();
@@ -3378,7 +3378,7 @@ function renderSettingsColumns() {
 }
 
 window.deleteColumnSetting = function(index) {
-    customConfirm('បញ្ជាក់ការលុបកូឡោន', `តើអ្នកពិតជាចង់លុបកូឡោន "${CUSTOM_COLUMNS[index].labelKh}" មែនទេ?`, () => {
+    customConfirm('បញ្ជាក់ការលុបកូឡោន', `តើអ្នកពិតជាចង់លុបកូឡោន "${CUSTOM_COLUMNS[index].labelKh}" មែនទេ?`, (null, 'លុប') {
         CUSTOM_COLUMNS.splice(index, 1);
         localStorage.setItem('nadr_custom_columns', JSON.stringify(CUSTOM_COLUMNS));
         renderSettingsColumns();
@@ -3575,7 +3575,7 @@ window.saveResolutionStrategies = function() {
 };
 
 window.resetResolutionStrategies = function() {
-    customConfirm('កំណត់ទៅលក្ខខណ្ឌដើម', 'តើលោកអ្នកពិតជាចង់កំណត់យុទ្ធសាស្ត្រដោះស្រាយវិវាទទាំងអស់ទៅជាស្ដង់ដារដើមវិញមែនទេ?', () => {
+    customConfirm('កំណត់ទៅលក្ខខណ្ឌដើម', 'តើលោកអ្នកពិតជាចង់កំណត់យុទ្ធសាស្ត្រដោះស្រាយវិវាទទាំងអស់ទៅជាស្ដង់ដារដើមវិញមែនទេ?', (null, 'កំណត់') {
         localStorage.removeItem('nadr_resolution_strategies');
         loadResolutionStrategies();
         renderAllViews();
@@ -3605,7 +3605,7 @@ window.saveEvalMatrixSetting = function() {
 };
 
 window.resetEvalMatrixSetting = function() {
-    customConfirm('កំណត់ទៅលក្ខខណ្ឌដើម', 'តើលោកអ្នកពិតជាចង់កំណត់លក្ខណៈវិនិច្ឆ័យវាយតម្លៃវិវាទទាំងអស់ទៅជាលក្ខខណ្ឌស្ដង់ដារដើមវិញមែនទេ?', () => {
+    customConfirm('កំណត់ទៅលក្ខខណ្ឌដើម', 'តើលោកអ្នកពិតជាចង់កំណត់លក្ខណៈវិនិច្ឆ័យវាយតម្លៃវិវាទទាំងអស់ទៅជាលក្ខខណ្ឌស្ដង់ដារដើមវិញមែនទេ?', (null, 'កំណត់') {
         localStorage.removeItem('nadr_eval_thresholds');
         loadEvalThresholds();
         EVAL_BASELINE_MAP = {
@@ -3647,7 +3647,7 @@ function renderAuditLogs() {
 }
 
 window.clearAuditLogs = function() {
-    customConfirm('សម្អាតកំណត់ហេតុ', 'តើអ្នកពិតជាចង់លុបសម្អាតកំណត់ហេតុសកម្មភាពទាំងអស់មែនទេ?', () => {
+    customConfirm('សម្អាតកំណត់ហេតុ', 'តើអ្នកពិតជាចង់លុបសម្អាតកំណត់ហេតុសកម្មភាពទាំងអស់មែនទេ?', (null, 'សម្អាតទិន្នន័យ') {
         AUDIT_LOGS = [];
         localStorage.setItem('nadr_audit_logs', JSON.stringify(AUDIT_LOGS));
         renderAuditLogs();
@@ -4277,7 +4277,7 @@ function deleteCurrentViewerPdf() {
     if (!currentPdfCaseId) return;
     const c = getCaseById(currentPdfCaseId);
     if (!c) return;
-    showConfirmModal(`តើលោកអ្នកពិតជាចង់លុបឯកសារ PDF "${c.pdfName || 'Case PDF'}" ចេញពីសំណុំរឿង ${c.caseNumber} មែនទេ?`, () => {
+    showConfirmModal(`តើលោកអ្នកពិតជាចង់លុបឯកសារ PDF "${c.pdfName || 'Case PDF'}" ចេញពីសំណុំរឿង ${c.caseNumber} មែនទេ?`, (null, 'លុប') {
         delete c.attachedPdf;
         delete c.pdfName;
         updateCase(c.id, c);
@@ -4759,7 +4759,7 @@ function previewFolderItem(caseId, idx) {
 function deleteFileFromCaseFolder(caseId, idx) {
     const c = getCaseById(caseId);
     if (!c) return;
-    customConfirm("លុបឯកសារពី Folder", `តើលោកអ្នកពិតជាចង់លុបឯកសារនេះចេញពី Folder សំណុំរឿង "${c.caseNumber}" មែនទេ?`, () => {
+    customConfirm("លុបឯកសារពី Folder", `តើលោកអ្នកពិតជាចង់លុបឯកសារនេះចេញពី Folder សំណុំរឿង "${c.caseNumber}" មែនទេ?`, (null, 'លុប') {
         if (!c.caseFiles || c.caseFiles.length === 0) {
             if (c.attachedPdf) {
                 c.attachedPdf = '';
@@ -5319,7 +5319,7 @@ document.getElementById('btn-clear-calendar-event')?.addEventListener('click', (
                 notifyTelegramEventCancelled(c.caseNumber, oldEventName);
                 showToast('បានធ្វើបច្ចុប្បន្នភាពការលុបទៅកាន់ Telegram', 'info');
             }
-        });
+        }, null, 'លុប');
     }
 });
 // Initialize Calendar view hook
