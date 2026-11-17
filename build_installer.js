@@ -1,7 +1,7 @@
 const path = require('path');
 const builder = require('electron-builder');
 
-console.log('Starting local Windows build for v1.1.83...');
+console.log('Starting local Windows build for v1.1.84...');
 builder.build({
     targets: builder.Platform.WINDOWS.createTarget(),
     publish: 'never'
