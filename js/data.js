@@ -200,7 +200,29 @@ function saveCases() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(casesData));
     } catch (e) {
         console.error('Error saving NADR cases:', e);
+        if (typeof showToast === 'function') {
+            showToast('បរាជ័យក្នុងការរក្សាទុកទិន្នន័យ! សូមនាំចេញ Backup (.json) ភ្លាមៗ។', 'error');
+        }
     }
+    scheduleAutoBackup();
+}
+
+/**
+ * Automatic backup to a file on disk (Documents\NADR CMS Backups), one file per day.
+ * Same format as the manual JSON backup, so it can be restored with "Import Backup".
+ */
+let _autoBackupTimer = null;
+function scheduleAutoBackup(delayMs = 5000) {
+    if (!window.electronAPI || typeof window.electronAPI.autoBackup !== 'function') return;
+    clearTimeout(_autoBackupTimer);
+    _autoBackupTimer = setTimeout(async () => {
+        try {
+            if (!Array.isArray(casesData) || casesData.length === 0) return;
+            await window.electronAPI.autoBackup(JSON.stringify(casesData, null, 2));
+        } catch (e) {
+            console.error('Auto backup failed:', e);
+        }
+    }, delayMs);
 }
 
 /**

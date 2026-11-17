@@ -74,6 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 1. Initialize data
     loadCases();
+    if (typeof scheduleAutoBackup === 'function') scheduleAutoBackup(15000); // daily backup on startup
 
     // 2. Populate 25 province dropdowns across the app
     populateProvinceDropdowns();
@@ -4740,6 +4741,13 @@ function initAuth() {
     if (isLogged === 'true') {
         if (overlay) overlay.style.display = 'none';
         updateSidebarUser(savedName, savedRole);
+        try {
+            const users = JSON.parse(localStorage.getItem('nadr_admin_users')) || [];
+            const me = users.find(u => u.username === getLoggedInUsername());
+            if (me && (me.mustChangePassword || (me.password && WEAK_PASSWORDS.includes(me.password)))) {
+                setTimeout(showForcedPasswordChange, 1000);
+            }
+        } catch (err) { console.error('Password policy check failed:', err); }
     } else {
         if (overlay) overlay.style.display = 'flex';
     }
@@ -4759,7 +4767,7 @@ function initAuth() {
 
     // 3. Login form submit
     if (loginForm) {
-        loginForm.addEventListener('submit', (e) => {
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const usernameInput = document.getElementById('login-username') ? document.getElementById('login-username').value.trim() : 'admin';
             const password = document.getElementById('login-password').value.trim();
@@ -4775,7 +4783,7 @@ function initAuth() {
                 console.error("JSON parse error for admin users:", e);
                 adminUsers = null;
             }
-            if (!Array.isArray(adminUsers) || adminUsers.length === 0 || !adminUsers.some(u => u.username === 'admin' && u.password)) {
+            if (!Array.isArray(adminUsers) || adminUsers.length === 0 || !adminUsers.some(u => u.username === 'admin' && userHasPassword(u))) {
                 // Seed from default if missing, empty, or corrupted (missing admin or password)
                 adminUsers = [
                     { username: 'admin', password: 'admin123', name: 'គណនីរដ្ឋបាល (Admin)', role: 'Super Admin (អ្នកគ្រប់គ្រងកម្មវិធី)', status: 'Active', phone: '012 345 678', email: 'admin@nadr.gov.kh' },
@@ -4791,10 +4799,20 @@ function initAuth() {
             
             // For now, if there is no username input field, just match password against any user
             let foundUser = null;
-            if (document.getElementById('login-username')) {
-                foundUser = adminUsers.find(u => u.username === usernameInput && u.password && u.password === password);
-            } else {
-                foundUser = adminUsers.find(u => u.password && u.password === password);
+            const candidates = document.getElementById('login-username')
+                ? adminUsers.filter(u => u.username === usernameInput)
+                : adminUsers;
+            for (const u of candidates) {
+                if (await verifyUserPassword(u, password)) { foundUser = u; break; }
+            }
+
+            // Migrate legacy plaintext password to a hash; weak/default passwords must be changed.
+            if (foundUser && foundUser.password) {
+                const wasWeak = WEAK_PASSWORDS.includes(foundUser.password);
+                await setUserPassword(foundUser, password);
+                if (wasWeak) foundUser.mustChangePassword = true;
+                localStorage.setItem('nadr_admin_users', JSON.stringify(adminUsers));
+                if (typeof ADMIN_USERS !== 'undefined') ADMIN_USERS = adminUsers;
             }
 
             if (!foundUser) {
@@ -4827,22 +4845,15 @@ function initAuth() {
             if (typeof logAuditAction === 'function') logAuditAction('ចូលប្រព័ន្ធ', `បានចូលប្រើប្រព័ន្ធក្នុងនាម ${foundUser.name} (${foundUser.role})`);
 
             // Hotfix: Force password change if using weak password
-            const weakPasswords = ['admin', '123', 'admin123', 'nadr', 'nadr2026', 'user', '1234', 'password'];
-            if (weakPasswords.includes(foundUser.password)) {
-                setTimeout(() => {
-                    const modal = document.getElementById('change-password-modal');
-                    if (modal) {
-                        modal.classList.add('show');
-                        modal.style.display = 'block';
-                    }
-                }, 1000);
+            if (foundUser.mustChangePassword) {
+                setTimeout(showForcedPasswordChange, 1000);
             }
 
             showToast('ចូលប្រព័ន្ធជោគជ័យ! សូមស្វាគមន៍មកកាន់ CMS Pro', 'success');
         });
     }
 
-window.saveHotfixPassword = function() {
+window.saveHotfixPassword = async function() {
     const newPwd = document.getElementById('hotfix-new-password').value.trim();
     const confirmPwd = document.getElementById('hotfix-confirm-password').value.trim();
     
@@ -4850,8 +4861,7 @@ window.saveHotfixPassword = function() {
         alert('ពាក្យសម្ងាត់ថ្មីត្រូវមានយ៉ាងតិច ៨ តួអក្សរ!');
         return;
     }
-    const weakList = ['admin', '123', 'admin123', 'nadr', 'nadr2026', 'password', '12345678'];
-    if (weakList.includes(newPwd)) {
+    if (WEAK_PASSWORDS.includes(newPwd)) {
         alert('ពាក្យសម្ងាត់នេះខ្សោយពេក ងាយស្រួលទាយ។ សូមជ្រើសរើសពាក្យសម្ងាត់ផ្សេង!');
         return;
     }
@@ -4860,7 +4870,7 @@ window.saveHotfixPassword = function() {
         return;
     }
     
-    const loggedUser = localStorage.getItem('nadr_auth_username');
+    const loggedUser = getLoggedInUsername();
     let adminUsers = null;
     try {
         adminUsers = JSON.parse(localStorage.getItem('nadr_admin_users'));
@@ -4871,8 +4881,7 @@ window.saveHotfixPassword = function() {
     if (!adminUsers) return;
     let u = adminUsers.find(x => x.username === loggedUser);
     if (u) {
-        // TODO(task-3): hash this password. Task 3 migration will hash this plaintext password. Do not delete it and restore default.
-        u.password = newPwd;
+        await setUserPassword(u, newPwd);
         localStorage.setItem('nadr_admin_users', JSON.stringify(adminUsers));
         if (typeof ADMIN_USERS !== 'undefined') ADMIN_USERS = adminUsers;
         
@@ -5118,7 +5127,7 @@ function renderProfileView() {
     if (statReports) statReports.textContent = cases.length > 0 ? '12' : '0';
 }
 
-function saveUserProfileView() {
+async function saveUserProfileView() {
     const { user: currUser, index: foundIdx, admins } = getCurrentAuthUser();
     const inputName = document.getElementById('profile-view-fullname');
     const inputRole = document.getElementById('profile-view-role');
@@ -5144,7 +5153,12 @@ function saveUserProfileView() {
     }
 
     if (inputPass && inputPass.value.trim()) {
-        currUser.password = inputPass.value.trim();
+        const newPwd = inputPass.value.trim();
+        if (newPwd.length < 8 || WEAK_PASSWORDS.includes(newPwd)) {
+            showToast('ពាក្យសម្ងាត់ថ្មីត្រូវមានយ៉ាងតិច ៨ តួអក្សរ ហើយមិនងាយទាយ!', 'error');
+            return;
+        }
+        await setUserPassword(currUser, newPwd);
         inputPass.value = '';
     }
 
@@ -5242,6 +5256,69 @@ function initLanguageSwitcher() {
 }
 
 /**
+ * Password hashing (PBKDF2-SHA256 via Web Crypto).
+ * Stored format: "pbkdf2$<iterations>$<saltBase64>$<hashBase64>" in user.passwordHash.
+ * Legacy accounts with a plaintext user.password are migrated on their next successful login.
+ */
+const PWD_HASH_ITERATIONS = 150000;
+const WEAK_PASSWORDS = ['admin', '123', 'admin123', 'nadr', 'nadr2026', 'user', '1234', '12345678', 'password'];
+
+function _b64FromBytes(bytes) {
+    let s = '';
+    bytes.forEach(b => { s += String.fromCharCode(b); });
+    return btoa(s);
+}
+
+function _bytesFromB64(b64) {
+    return Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+}
+
+async function _pbkdf2(password, saltBytes, iterations) {
+    const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']);
+    const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: saltBytes, iterations }, key, 256);
+    return _b64FromBytes(new Uint8Array(bits));
+}
+
+async function hashPassword(password) {
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const hash = await _pbkdf2(password, salt, PWD_HASH_ITERATIONS);
+    return `pbkdf2$${PWD_HASH_ITERATIONS}$${_b64FromBytes(salt)}$${hash}`;
+}
+
+function userHasPassword(user) {
+    return !!(user && (user.passwordHash || user.password));
+}
+
+async function verifyUserPassword(user, password) {
+    if (!user || !password) return false;
+    if (user.passwordHash) {
+        const parts = user.passwordHash.split('$');
+        if (parts.length !== 4 || parts[0] !== 'pbkdf2') return false;
+        const hash = await _pbkdf2(password, _bytesFromB64(parts[2]), parseInt(parts[1], 10));
+        return hash === parts[3];
+    }
+    return !!user.password && user.password === password;
+}
+
+async function setUserPassword(user, newPassword) {
+    user.passwordHash = await hashPassword(newPassword);
+    delete user.password;
+    user.mustChangePassword = false;
+}
+
+function getLoggedInUsername() {
+    return localStorage.getItem('nadr_auth_username') || sessionStorage.getItem('nadr_auth_username');
+}
+
+function showForcedPasswordChange() {
+    const modal = document.getElementById('change-password-modal');
+    if (modal) {
+        modal.classList.add('show');
+        modal.style.display = 'block';
+    }
+}
+
+/**
  * Dynamic Admin User accounts loaded from localStorage
  */
 let ADMIN_USERS = JSON.parse(localStorage.getItem('nadr_admin_users')) || [
@@ -5263,6 +5340,24 @@ if (legacyAdmin && legacyAdmin.password === '123') {
     legacyAdmin.password = 'admin123';
     localStorage.setItem('nadr_admin_users', JSON.stringify(ADMIN_USERS));
 }
+
+// Hash any remaining plaintext passwords at startup so none stay readable in storage.
+(async function migratePlaintextPasswords() {
+    try {
+        const users = JSON.parse(localStorage.getItem('nadr_admin_users'));
+        if (!Array.isArray(users) || !users.some(u => u.password)) return;
+        for (const u of users) {
+            if (!u.password) continue;
+            const wasWeak = WEAK_PASSWORDS.includes(u.password);
+            await setUserPassword(u, u.password);
+            if (wasWeak) u.mustChangePassword = true;
+        }
+        localStorage.setItem('nadr_admin_users', JSON.stringify(users));
+        ADMIN_USERS = users;
+    } catch (e) {
+        console.error('Password migration failed:', e);
+    }
+})();
 
 /**
  * Dynamic Evaluation Matrix Baseline Map loaded from localStorage

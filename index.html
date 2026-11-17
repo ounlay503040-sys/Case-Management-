@@ -22,15 +22,15 @@
     <link rel="icon" type="image/png" sizes="512x512" href="images/icon-512.png">
     <link rel="apple-touch-icon" href="images/icon-192.png">
     <!-- Google Fonts for standard Khmer & English typography -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700;900&family=Inter:wght@400;500;600;700;800&family=Kantumruy+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Moul&family=Noto+Sans+Khmer:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+
+    <link href="vendor/fonts/fonts.css" rel="stylesheet">
     <!-- Font Awesome for sleek modern icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css">
     <!-- Chart.js for data visualization -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="vendor/js/chart.umd.min.js"></script>
     <!-- SheetJS (XLSX) for Excel Import and Export -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="vendor/js/xlsx.full.min.js"></script>
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css?v=18.0">
 
@@ -3247,10 +3247,8 @@
 
     <!-- JAVASCRIPT SCRIPTS -->
     <!-- Mammoth.js for Word (.docx) rendering - MUST load before app.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js" crossorigin="anonymous"></script>
-    <!-- SheetJS for Excel (.xlsx/.xls) rendering -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <script src="vendor/js/mammoth.browser.min.js"></script>
+    <script src="vendor/js/pdf.min.js"></script>
     
     <!-- MODAL 4: EVENT OUTCOME MODAL (កត់ត្រាលទ្ធផលកម្មវិធីប្រជុំ) -->
     <div class="modal-overlay" id="event-outcome-modal" style="display: none; align-items: center; justify-content: center; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 9999; padding: 16px;">
@@ -3335,11 +3333,11 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="vendor/js/html2pdf.bundle.min.js"></script>
     <script>
         // Set workerSrc for PDF.js
         if (typeof pdfjsLib !== 'undefined') {
-            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'vendor/js/pdf.worker.min.js';
         }
     </script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>

@@ -70,6 +70,28 @@ if (!gotTheLock) {
       }
     });
 
+    // Automatic daily backup of case data to Documents\NADR CMS Backups (keeps the newest 30 days)
+    ipcMain.handle('backup:auto-save', async (event, jsonData) => {
+      const fs = require('fs');
+      const dir = path.join(app.getPath('documents'), 'NADR CMS Backups');
+      fs.mkdirSync(dir, { recursive: true });
+      const d = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      const file = path.join(dir, `NADR_AutoBackup_${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}.json`);
+      const tmp = file + '.tmp';
+      fs.writeFileSync(tmp, jsonData, 'utf8');
+      fs.renameSync(tmp, file);
+      const old = fs.readdirSync(dir)
+        .filter(f => /^NADR_AutoBackup_\d{4}-\d{2}-\d{2}\.json$/.test(f))
+        .sort()
+        .reverse()
+        .slice(30);
+      old.forEach(f => { try { fs.unlinkSync(path.join(dir, f)); } catch (e) {} });
+      return file;
+    });
+
+    ipcMain.handle('backup:get-folder', () => path.join(app.getPath('documents'), 'NADR CMS Backups'));
+
     // Toggle DevTools for admins
     ipcMain.on('toggle-dev-tools', (event) => {
       if (mainWindow && mainWindow.webContents) {
