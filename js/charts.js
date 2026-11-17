@@ -124,13 +124,62 @@ function initOrUpdateCharts(customStats = null) {
         });
     }
 
-    // 3. Update both Location Charts (Dashboard & Analytics)
-    const ctxDashLoc = document.getElementById('dashboardLocationChart')?.getContext('2d');
-    if (ctxDashLoc) renderDashboardLocationChart(stats.byLocation, ctxDashLoc);
-    
+    // 3. Analytics location chart (the dashboard renders its own, filtered by scope/period)
     if (typeof renderLocationChart === 'function') {
         renderLocationChart(stats.byLocation);
     }
+}
+
+let dashMonthlyChartInstance = null;
+/**
+ * Dashboard section 2: monthly intake line chart (incoming vs. settled vs. no-settle).
+ * @param {string[]} labels month names
+ * @param {{total:number, settle:number, nosettle:number}[]} months counts per month
+ */
+function renderDashboardMonthlyChart(labels, months) {
+    const ctx = document.getElementById('dsbMonthlyChart')?.getContext('2d');
+    if (!ctx || typeof Chart === 'undefined') return;
+    if (dashMonthlyChartInstance) dashMonthlyChartInstance.destroy();
+
+    const rootStyle = getComputedStyle(document.documentElement);
+    const textColor = rootStyle.getPropertyValue('--text-main').trim() || '#0f172a';
+    const gridColor = rootStyle.getPropertyValue('--border-light').trim() || '#f1f5f9';
+    const font = { family: "'Kantumruy Pro', 'Battambang', sans-serif", size: 12 };
+    const line = (label, data, color, fill) => ({
+        label, data,
+        borderColor: color,
+        backgroundColor: fill ? color + '22' : color,
+        fill: !!fill,
+        tension: 0.35,
+        borderWidth: 2.5,
+        pointRadius: 3.5,
+        pointHoverRadius: 6
+    });
+
+    dashMonthlyChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels,
+            datasets: [
+                line('សំណុំរឿងចូល', months.map(m => m.total), '#2563eb', true),
+                line('ព្រមព្រៀង', months.map(m => m.settle), '#10b981'),
+                line('មិនព្រមព្រៀង', months.map(m => m.nosettle), '#ef4444')
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { position: 'top', align: 'end', labels: { color: textColor, font, usePointStyle: true, boxWidth: 8 } },
+                tooltip: { bodyFont: font, titleFont: font }
+            },
+            scales: {
+                y: { beginAtZero: true, ticks: { precision: 0, color: textColor, font }, grid: { color: gridColor } },
+                x: { ticks: { color: textColor, font }, grid: { display: false } }
+            }
+        }
+    });
 }
 
 let dashLocationChartInstance = null;

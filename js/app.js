@@ -490,7 +490,6 @@ function switchView(viewId) {
 
     if (viewId === 'dashboard-view') {
         renderDashboardStats();
-        if (typeof initOrUpdateCharts === 'function') initOrUpdateCharts();
     } else if (viewId === 'analytics-view') {
         renderAnalyticsView();
         if (typeof initOrUpdateCharts === 'function') initOrUpdateCharts();
@@ -525,239 +524,347 @@ function switchView(viewId) {
     if (typeof updateNavButtons === 'function') updateNavButtons();
 }
 
-/**
- * Render Dashboard Summary Cards
- */
-function renderDashboardStats() {
-    const personalCases = casesData.filter(c => (c.caseType || 'personal') === 'personal');
-    const assistingCases = casesData.filter(c => c.caseType === 'assisting');
+/* ==========================================================================
+   DASHBOARD (ស្ថិតិសំណុំរឿង)
+   One render path for all sections. State: scope (personal / assisting / all)
+   and period (all / YYYY / this_month). Everything is computed from casesData.
+   ========================================================================== */
+const DSB_KHMER_MONTHS = ['មករា', 'កុម្ភៈ', 'មីនា', 'មេសា', 'ឧសភា', 'មិថុនា', 'កក្កដា', 'សីហា', 'កញ្ញា', 'តុលា', 'វិច្ឆិកា', 'ធ្នូ'];
+const DSB_SCOPE_LABEL = { personal: 'សំណុំរឿងផ្ទាល់ខ្លួនសរុប', assisting: 'សំណុំរឿងអមសរុប', all: 'សំណុំរឿងសរុបរួម' };
 
-    const stats = getCaseStatistics(personalCases);
-    const assistingStats = getCaseStatistics(assistingCases);
-    
-    // --- PERSONAL CASES STATS ---
-    const totEl = document.getElementById('stat-total');
-    const actEl = document.getElementById('stat-active');
-    const setEl = document.getElementById('stat-settle');
-    const cloEl = document.getElementById('stat-close');
-    const penEl = document.getElementById('stat-pending');
-
-    if (totEl) totEl.innerText = stats.total;
-    if (actEl) actEl.innerText = stats.active;
-    if (setEl) setEl.innerText = stats.settle;
-    if (cloEl) cloEl.innerText = stats.close;
-    if (penEl) penEl.innerText = stats.pending;
-
-    // Update Circular Percentage Badges
-    const tot = stats.total || 0;
-    const actPct = tot > 0 ? Math.round((stats.active / tot) * 100) : 0;
-    const setPct = tot > 0 ? Math.round((stats.settle / tot) * 100) : 0;
-    const cloPct = tot > 0 ? Math.round((stats.close / tot) * 100) : 0;
-    const penPct = tot > 0 ? Math.round((stats.pending / tot) * 100) : 0;
-
-    const actPctEl = document.getElementById('stat-active-pct');
-    const setPctEl = document.getElementById('stat-settle-pct');
-    const cloPctEl = document.getElementById('stat-close-pct');
-    const penPctEl = document.getElementById('stat-pending-pct');
-
-    if (actPctEl) actPctEl.innerText = `${actPct}%`;
-    if (setPctEl) setPctEl.innerText = `${setPct}%`;
-    if (cloPctEl) cloPctEl.innerText = `${cloPct}%`;
-    if (penPctEl) penPctEl.innerText = `${penPct}%`;
-
-    const actDonut = document.getElementById('stat-active-donut');
-    const setDonut = document.getElementById('stat-settle-donut');
-    const cloDonut = document.getElementById('stat-close-donut');
-    const penDonut = document.getElementById('stat-pending-donut');
-
-    if (actDonut) actDonut.style.background = `conic-gradient(#2563eb 0%, #2563eb ${actPct}%, #e2e8f0 ${actPct}%, #e2e8f0 100%)`;
-    if (setDonut) setDonut.style.background = `conic-gradient(#10b981 0%, #10b981 ${setPct}%, #e2e8f0 ${setPct}%, #e2e8f0 100%)`;
-    if (cloDonut) cloDonut.style.background = `conic-gradient(#ef4444 0%, #ef4444 ${cloPct}%, #e2e8f0 ${cloPct}%, #e2e8f0 100%)`;
-    if (penDonut) penDonut.style.background = `conic-gradient(#f59e0b 0%, #f59e0b ${penPct}%, #e2e8f0 ${penPct}%, #e2e8f0 100%)`;
-
-    // --- ASSISTING CASES STATS ---
-    const aTotEl = document.getElementById('stat-total-assisting');
-    const aActEl = document.getElementById('stat-active-assisting');
-    const aSetEl = document.getElementById('stat-settle-assisting');
-    const aCloEl = document.getElementById('stat-close-assisting');
-    const aPenEl = document.getElementById('stat-pending-assisting');
-
-    if (aTotEl) aTotEl.innerText = assistingStats.total;
-    if (aActEl) aActEl.innerText = assistingStats.active;
-    if (aSetEl) aSetEl.innerText = assistingStats.settle;
-    if (aCloEl) aCloEl.innerText = assistingStats.close;
-    if (aPenEl) aPenEl.innerText = assistingStats.pending;
-
-    const aTot = assistingStats.total || 0;
-    const aActPct = aTot > 0 ? Math.round((assistingStats.active / aTot) * 100) : 0;
-    const aSetPct = aTot > 0 ? Math.round((assistingStats.settle / aTot) * 100) : 0;
-    const aCloPct = aTot > 0 ? Math.round((assistingStats.close / aTot) * 100) : 0;
-    const aPenPct = aTot > 0 ? Math.round((assistingStats.pending / aTot) * 100) : 0;
-
-    const aActPctEl = document.getElementById('stat-active-assisting-pct');
-    const aSetPctEl = document.getElementById('stat-settle-assisting-pct');
-    const aCloPctEl = document.getElementById('stat-close-assisting-pct');
-    const aPenPctEl = document.getElementById('stat-pending-assisting-pct');
-
-    if (aActPctEl) aActPctEl.innerText = `${aActPct}%`;
-    if (aSetPctEl) aSetPctEl.innerText = `${aSetPct}%`;
-    if (aCloPctEl) aCloPctEl.innerText = `${aCloPct}%`;
-    if (aPenPctEl) aPenPctEl.innerText = `${aPenPct}%`;
-
-    const aActDonut = document.getElementById('stat-active-assisting-donut');
-    const aSetDonut = document.getElementById('stat-settle-assisting-donut');
-    const aCloDonut = document.getElementById('stat-close-assisting-donut');
-    const aPenDonut = document.getElementById('stat-pending-assisting-donut');
-
-    if (aActDonut) aActDonut.style.background = `conic-gradient(#2563eb 0%, #2563eb ${aActPct}%, #e2e8f0 ${aActPct}%, #e2e8f0 100%)`;
-    if (aSetDonut) aSetDonut.style.background = `conic-gradient(#10b981 0%, #10b981 ${aSetPct}%, #e2e8f0 ${aSetPct}%, #e2e8f0 100%)`;
-    if (aCloDonut) aCloDonut.style.background = `conic-gradient(#ef4444 0%, #ef4444 ${aCloPct}%, #e2e8f0 ${aCloPct}%, #e2e8f0 100%)`;
-    if (aPenDonut) aPenDonut.style.background = `conic-gradient(#f59e0b 0%, #f59e0b ${aPenPct}%, #e2e8f0 ${aPenPct}%, #e2e8f0 100%)`;
-
-    // Section 2 Hierarchical Counters
-    const actGrpEl = document.getElementById('h-stat-active-total');
-    const actSub1El = document.getElementById('h-stat-active-sub1');
-    const actSub2El = document.getElementById('h-stat-active-sub2');
-    const cloGrpEl = document.getElementById('h-stat-closed-total');
-    const cloSub1El = document.getElementById('h-stat-closed-sub1');
-    const cloSub2El = document.getElementById('h-stat-closed-sub2');
-    const noSetR1El = document.getElementById('h-stat-nosettle-r1');
-    const noSetR2El = document.getElementById('h-stat-nosettle-r2');
-
-    if (actGrpEl) actGrpEl.innerText = stats.activeGroupTotal || 0;
-    if (actSub1El) actSub1El.innerText = stats.active || 0;
-    if (actSub2El) actSub2El.innerText = stats.pending || 0;
-    if (cloGrpEl) cloGrpEl.innerText = stats.closedGroupTotal || 0;
-    if (cloSub1El) cloSub1El.innerText = stats.settle || 0;
-    if (cloSub2El) cloSub2El.innerText = stats.close || 0;
-    if (noSetR1El) noSetR1El.innerText = stats.noSettleReason1 || 0;
-    if (noSetR2El) noSetR2El.innerText = stats.noSettleReason2 || 0;
-
-    // --- ASSISTING BREAKDOWN ---
-    const aActGrpEl = document.getElementById('h-stat-active-assisting-total');
-    const aActSub1El = document.getElementById('h-stat-active-assisting-sub1');
-    const aActSub2El = document.getElementById('h-stat-active-assisting-sub2');
-    const aCloGrpEl = document.getElementById('h-stat-closed-assisting-total');
-    const aCloSub1El = document.getElementById('h-stat-closed-assisting-sub1');
-    const aCloSub2El = document.getElementById('h-stat-closed-assisting-sub2');
-    const aNoSetR1El = document.getElementById('h-stat-nosettle-assisting-r1');
-    const aNoSetR2El = document.getElementById('h-stat-nosettle-assisting-r2');
-
-    if (aActGrpEl) aActGrpEl.innerText = assistingStats.activeGroupTotal || 0;
-    if (aActSub1El) aActSub1El.innerText = assistingStats.active || 0;
-    if (aActSub2El) aActSub2El.innerText = assistingStats.pending || 0;
-    if (aCloGrpEl) aCloGrpEl.innerText = assistingStats.closedGroupTotal || 0;
-    if (aCloSub1El) aCloSub1El.innerText = assistingStats.settle || 0;
-    if (aCloSub2El) aCloSub2El.innerText = assistingStats.close || 0;
-    if (aNoSetR1El) aNoSetR1El.innerText = assistingStats.noSettleReason1 || 0;
-    if (aNoSetR2El) aNoSetR2El.innerText = assistingStats.noSettleReason2 || 0;
-
-    updateDashboardSharedSections();
-}
-
+window.dashboardScope = 'personal';
+window.dashboardPeriod = 'all';
+window.dashboardMonthYear = null;
+// Kept for older code (Telegram report) that reads the current tab.
 window.currentDashboardTab = 'personal';
 
-function updateDashboardSharedSections() {
-    const personalCases = casesData.filter(c => (c.caseType || 'personal') === 'personal');
-    const assistingCases = casesData.filter(c => c.caseType === 'assisting');
-    const targetCases = window.currentDashboardTab === 'assisting' ? assistingCases : personalCases;
-    
-    const stats = getCaseStatistics(targetCases);
-    stats.rawCases = targetCases;
-    
-    renderDashboardExtendedStats(stats);
-    if (typeof initOrUpdateCharts === 'function') {
-        initOrUpdateCharts(stats);
+/** Parse a case's received date (YYYY-MM-DD, DD/MM/YYYY or Excel serial) into a Date, or null. */
+function dsbCaseDate(c) {
+    const raw = c && (c.dateReceived || c.receivedDate || c.filingDate);
+    if (raw === undefined || raw === null || raw === '') return null;
+    const s = String(raw).trim();
+    let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+    if (m) return new Date(+m[1], +m[2] - 1, +m[3]);
+    m = s.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})/);
+    if (m) return new Date(+m[3], +m[2] - 1, +m[1]);
+    if (/^\d+(\.\d+)?$/.test(s) && +s > 20000 && +s < 90000) {
+        return new Date(Math.round((+s - 25569) * 86400 * 1000));
+    }
+    return null;
+}
+
+/** Normalise any status string to one of: active, pending, settle, nosettle. */
+function dsbStatusKey(status) {
+    const s = String(status || '');
+    if (s.startsWith('Pending') || s.includes('តម្កល់')) return 'pending';
+    if (s.startsWith('No Settle') || s.startsWith('Close') || s.includes('មិនព្រមព្រៀង')) return 'nosettle';
+    if (s.startsWith('Settle') || s.includes('ព្រមព្រៀង')) return 'settle';
+    return 'active';
+}
+
+function dsbEmptyCounts() {
+    return { total: 0, active: 0, pending: 0, settle: 0, nosettle: 0 };
+}
+
+function dsbCount(list) {
+    const r = dsbEmptyCounts();
+    list.forEach(c => { r.total++; r[dsbStatusKey(c.status)]++; });
+    return r;
+}
+
+function dsbPct(part, total, digits = 1) {
+    return total > 0 ? +((part / total) * 100).toFixed(digits) : 0;
+}
+
+function dsbSuccessRate(r) {
+    const decided = r.settle + r.nosettle;
+    return decided > 0 ? dsbPct(r.settle, decided) + '%' : '—';
+}
+
+function dsbEsc(s) {
+    return String(s ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+}
+
+function dsbSetText(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+}
+
+function dsbSetWidth(id, pct) {
+    const el = document.getElementById(id);
+    if (el) el.style.width = `${pct}%`;
+}
+
+/** Cases for a scope, before the period filter. */
+function getDashboardScopeCases(scope = window.dashboardScope) {
+    const all = Array.isArray(casesData) ? casesData : [];
+    if (scope === 'assisting') return all.filter(c => c.caseType === 'assisting');
+    if (scope === 'all') return all;
+    return all.filter(c => (c.caseType || 'personal') === 'personal');
+}
+
+/** Cases for the current scope and period. */
+function getDashboardCases() {
+    const period = window.dashboardPeriod;
+    const list = getDashboardScopeCases();
+    if (period === 'all') return list;
+    const now = new Date();
+    return list.filter(c => {
+        const d = dsbCaseDate(c);
+        if (!d) return false;
+        if (period === 'this_month') return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+        return String(d.getFullYear()) === String(period);
+    });
+}
+
+function dsbYearsIn(list) {
+    const years = new Set();
+    list.forEach(c => { const d = dsbCaseDate(c); if (d) years.add(d.getFullYear()); });
+    return [...years].sort((a, b) => b - a);
+}
+
+function dsbPeriodLabel() {
+    const p = window.dashboardPeriod;
+    if (p === 'all') return 'គ្រប់រយៈពេល';
+    if (p === 'this_month') {
+        const now = new Date();
+        return `ខែ${DSB_KHMER_MONTHS[now.getMonth()]} ${now.getFullYear()}`;
+    }
+    return `ឆ្នាំ ${p}`;
+}
+
+/** Rebuild the period and month-year selects from the years present in the data. */
+function dsbSyncSelectors() {
+    const years = dsbYearsIn(getDashboardScopeCases('all'));
+
+    const periodSel = document.getElementById('dashboard-date-filter');
+    if (periodSel) {
+        const opts = [['all', 'គ្រប់រយៈពេល (All Time)'], ['this_month', 'ខែនេះ (This Month)']]
+            .concat(years.map(y => [String(y), `ឆ្នាំ ${y}`]));
+        if (!opts.some(o => o[0] === window.dashboardPeriod)) window.dashboardPeriod = 'all';
+        periodSel.innerHTML = opts.map(([v, t]) => `<option value="${v}">${t}</option>`).join('');
+        periodSel.value = window.dashboardPeriod;
+    }
+
+    const yearSel = document.getElementById('dsb-month-year');
+    if (yearSel) {
+        const list = years.length ? years : [new Date().getFullYear()];
+        if (/^\d{4}$/.test(window.dashboardPeriod)) window.dashboardMonthYear = +window.dashboardPeriod;
+        if (!list.includes(window.dashboardMonthYear)) window.dashboardMonthYear = list[0];
+        yearSel.innerHTML = list.map(y => `<option value="${y}">ឆ្នាំ ${y}</option>`).join('');
+        yearSel.value = String(window.dashboardMonthYear);
+    }
+
+    dsbSetText('dsb-count-personal', getDashboardScopeCases('personal').length);
+    dsbSetText('dsb-count-assisting', getDashboardScopeCases('assisting').length);
+    dsbSetText('dsb-count-all', getDashboardScopeCases('all').length);
+    document.querySelectorAll('#dashboard-view .dsb-seg').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.scope === window.dashboardScope);
+    });
+}
+
+/** Section 1: hero total + 4 status cards. */
+function dsbRenderSummary(list) {
+    const r = dsbCount(list);
+    const open = r.active + r.pending;
+    const done = r.settle + r.nosettle;
+
+    dsbSetText('dsb-hero-label', DSB_SCOPE_LABEL[window.dashboardScope] || DSB_SCOPE_LABEL.personal);
+    dsbSetText('dsb-hero-period', dsbPeriodLabel());
+    dsbSetText('stat-total', r.total);
+    dsbSetText('dsb-open-count', open);
+    dsbSetText('dsb-done-count', done);
+    dsbSetText('dsb-open-pct', dsbPct(open, r.total) + '%');
+    dsbSetText('dsb-done-pct', dsbPct(done, r.total) + '%');
+    dsbSetWidth('dsb-open-bar', dsbPct(open, r.total));
+    dsbSetWidth('dsb-done-bar', dsbPct(done, r.total));
+
+    [['active', 'active'], ['pending', 'pending'], ['settle', 'settle'], ['close', 'nosettle']].forEach(([idPart, key]) => {
+        const pct = dsbPct(r[key], r.total);
+        dsbSetText(`stat-${idPart}`, r[key]);
+        dsbSetText(`stat-${idPart}-pct`, pct + '%');
+        dsbSetWidth(`stat-${idPart}-bar`, pct);
+    });
+    dsbSetText('dsb-success-rate', dsbSuccessRate(r));
+
+    let withdrawn = 0;
+    list.forEach(c => {
+        if (dsbStatusKey(c.status) === 'nosettle' && String(c.remarks || '').includes('ដកពាក្យបណ្តឹង')) withdrawn++;
+    });
+    dsbSetText('h-stat-nosettle-r1', withdrawn);
+    dsbSetText('h-stat-nosettle-r2', r.nosettle - withdrawn);
+}
+
+/** Section 2: monthly intake for the chosen year (scope applied, period ignored). */
+function dsbRenderMonthly() {
+    const tbody = document.getElementById('dsb-month-tbody');
+    const tfoot = document.getElementById('dsb-month-tfoot');
+    if (!tbody) return;
+    const year = window.dashboardMonthYear;
+    const months = Array.from({ length: 12 }, () => dsbEmptyCounts());
+    getDashboardScopeCases().forEach(c => {
+        const d = dsbCaseDate(c);
+        if (!d || d.getFullYear() !== year) return;
+        const m = months[d.getMonth()];
+        m.total++;
+        m[dsbStatusKey(c.status)]++;
+    });
+
+    // Hide trailing empty months of the current year so the table ends at "now".
+    const now = new Date();
+    const lastMonth = year === now.getFullYear() ? now.getMonth() : 11;
+    const sum = dsbEmptyCounts();
+    let html = '';
+    for (let i = 0; i <= lastMonth; i++) {
+        const m = months[i];
+        Object.keys(sum).forEach(k => { sum[k] += m[k]; });
+        let trend = '';
+        if (i > 0) {
+            const diff = m.total - months[i - 1].total;
+            trend = diff > 0 ? ` <span class="dsb-up">↑${diff}</span>` : diff < 0 ? ` <span class="dsb-down">↓${-diff}</span>` : ' <span class="dsb-flat">–</span>';
+        }
+        const cell = v => v ? v : '<span class="muted">0</span>';
+        html += `<tr>
+            <td><strong>${DSB_KHMER_MONTHS[i]}</strong></td>
+            <td class="tc"><span class="dsb-pill">${m.total}</span>${trend}</td>
+            <td class="tc">${cell(m.active)}</td>
+            <td class="tc">${cell(m.pending)}</td>
+            <td class="tc">${cell(m.settle)}</td>
+            <td class="tc">${cell(m.nosettle)}</td>
+        </tr>`;
+    }
+    tbody.innerHTML = html;
+    if (tfoot) {
+        tfoot.innerHTML = `<tr>
+            <td>សរុបឆ្នាំ ${year}</td>
+            <td class="tc">${sum.total}</td>
+            <td class="tc">${sum.active}</td>
+            <td class="tc">${sum.pending}</td>
+            <td class="tc">${sum.settle}</td>
+            <td class="tc">${sum.nosettle}</td>
+        </tr>`;
+    }
+    if (typeof renderDashboardMonthlyChart === 'function') {
+        renderDashboardMonthlyChart(
+            DSB_KHMER_MONTHS.slice(0, lastMonth + 1),
+            months.slice(0, lastMonth + 1)
+        );
     }
 }
 
-/**
- * Render Extended Dashboard Statistics (Section 4 & 5 - Request 3)
- */
-function renderDashboardExtendedStats(stats) {
-    const targetCases = stats.rawCases || (typeof casesData !== 'undefined' ? casesData : []);
-    const catTbody = document.getElementById('dashboard-cat-stats-tbody');
-    const yrTbody = document.getElementById('dashboard-yearly-tbody');
-    const totalSys = stats.total || 1;
+/** Section 3: category table with all four statuses and a stacked bar. */
+function dsbRenderCategories(list) {
+    const tbody = document.getElementById('dashboard-cat-stats-tbody');
+    if (!tbody) return;
+    const byCat = {};
+    (typeof CASE_CATEGORIES !== 'undefined' ? CASE_CATEGORIES : []).forEach(cat => { byCat[cat] = dsbEmptyCounts(); });
+    list.forEach(c => {
+        const cat = c.category || 'ផ្សេងៗ';
+        if (!byCat[cat]) byCat[cat] = dsbEmptyCounts();
+        byCat[cat].total++;
+        byCat[cat][dsbStatusKey(c.status)]++;
+    });
+    const total = list.length;
+    const rows = Object.entries(byCat).sort((a, b) => b[1].total - a[1].total);
+    tbody.innerHTML = rows.map(([cat, r], idx) => {
+        const seg = (key, color) => r[key] ? `<div style="width:${dsbPct(r[key], r.total)}%;background:${color}" title="${r[key]}"></div>` : '';
+        const cell = v => v ? v : '<span class="muted">0</span>';
+        return `<tr>
+            <td class="tc">${idx + 1}</td>
+            <td><strong>${dsbEsc(cat)}</strong></td>
+            <td class="tc"><span class="dsb-pill">${r.total}</span></td>
+            <td class="tc">${dsbPct(r.total, total)}%</td>
+            <td class="tc">${cell(r.settle)}</td>
+            <td class="tc">${cell(r.active)}</td>
+            <td class="tc">${cell(r.pending)}</td>
+            <td class="tc">${cell(r.nosettle)}</td>
+            <td><div class="dsb-stack">${seg('settle', '#10b981')}${seg('active', '#2563eb')}${seg('pending', '#f59e0b')}${seg('nosettle', '#ef4444')}</div></td>
+        </tr>`;
+    }).join('') + `<tr style="font-weight:800">
+            <td></td><td>សរុប</td><td class="tc">${total}</td><td class="tc">${total ? '100%' : '0%'}</td>
+            <td class="tc">${rows.reduce((s, [, r]) => s + r.settle, 0)}</td>
+            <td class="tc">${rows.reduce((s, [, r]) => s + r.active, 0)}</td>
+            <td class="tc">${rows.reduce((s, [, r]) => s + r.pending, 0)}</td>
+            <td class="tc">${rows.reduce((s, [, r]) => s + r.nosettle, 0)}</td><td></td>
+        </tr>`;
+}
 
-    // 1. Category Breakdown Table (Section 4)
-    if (catTbody && typeof CASE_CATEGORIES !== 'undefined') {
-        let catHtml = '';
-        CASE_CATEGORIES.forEach((cat, idx) => {
-            const count = stats.byCategory[cat] || 0;
-            const pct = ((count / totalSys) * 100).toFixed(1);
-            const settleCount = targetCases.filter(c => c.category === cat && (c.status.startsWith('Settle') || (c.status.includes('ព្រមព្រៀង') && !c.status.includes('មិនព្រមព្រៀង')))).length;
-            const activeCount = targetCases.filter(c => c.category === cat && (c.status.startsWith('Active') || c.status.includes('កំពុង'))).length;
-            
-            catHtml += `
-                <tr style="border-bottom: 1px solid #f1f5f9;">
-                    <td class="text-center"><strong>${idx + 1}</strong></td>
-                    <td><strong style="color: var(--primary-color);">${cat}</strong></td>
-                    <td class="text-center"><span class="badge" style="background: #eff6ff; color: #1d4ed8; font-size: 13px; font-weight: 700;">${count}</span></td>
-                    <td class="text-center"><strong style="color: #1e293b;">${pct}%</strong></td>
-                    <td class="text-center"><span style="color: #10b981; font-weight: 700;">${settleCount}</span></td>
-                    <td class="text-center"><span style="color: #2563eb; font-weight: 700;">${activeCount}</span></td>
-                    <td style="padding: 10px 15px;">
-                        <div style="background: #e2e8f0; border-radius: 10px; height: 12px; width: 100%; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);">
-                            <div style="background: linear-gradient(90deg, #2563eb, #3b82f6); width: ${pct}%; height: 100%; border-radius: 10px; transition: width 0.6s ease;"></div>
-                        </div>
-                    </td>
-                </tr>
-            `;
+/** Section 4: yearly outcomes (scope applied, period ignored). */
+function dsbRenderYearly() {
+    const tbody = document.getElementById('dashboard-yearly-tbody');
+    if (!tbody) return;
+    const byYear = {};
+    getDashboardScopeCases().forEach(c => {
+        const d = dsbCaseDate(c);
+        const y = d ? String(d.getFullYear()) : 'មិនមានកាលបរិច្ឆេទ';
+        if (!byYear[y]) byYear[y] = dsbEmptyCounts();
+        byYear[y].total++;
+        byYear[y][dsbStatusKey(c.status)]++;
+    });
+    const years = Object.keys(byYear).sort((a, b) => b.localeCompare(a));
+    tbody.innerHTML = years.length ? years.map(y => {
+        const r = byYear[y];
+        return `<tr>
+            <td><strong>${/^\d{4}$/.test(y) ? 'ឆ្នាំ ' + y : y}</strong></td>
+            <td class="tc"><span class="dsb-pill">${r.total}</span></td>
+            <td class="tc">${r.settle}</td>
+            <td class="tc">${r.active + r.pending}</td>
+            <td class="tc">${r.nosettle}</td>
+            <td class="tc"><span class="dsb-rate">${dsbSuccessRate(r)}</span></td>
+        </tr>`;
+    }).join('') : '<tr><td colspan="6" class="tc muted">គ្មានទិន្នន័យ</td></tr>';
+}
+
+/** Section 5: top provinces chart. */
+function dsbRenderLocations(list) {
+    const ctx = document.getElementById('dashboardLocationChart')?.getContext('2d');
+    if (!ctx || typeof renderDashboardLocationChart !== 'function' || typeof Chart === 'undefined') return;
+    const byLoc = {};
+    list.forEach(c => {
+        const loc = c.disputeLocation || 'មិនបញ្ជាក់';
+        byLoc[loc] = (byLoc[loc] || 0) + 1;
+    });
+    renderDashboardLocationChart(byLoc, ctx);
+}
+
+/** Render every dashboard section. Called on navigation and after data changes. */
+function renderDashboardStats() {
+    if (!document.getElementById('dashboard-view')) return;
+    window.currentDashboardTab = window.dashboardScope;
+    dsbSyncSelectors();
+    const list = getDashboardCases();
+    dsbRenderSummary(list);
+    dsbRenderMonthly();
+    dsbRenderCategories(list);
+    dsbRenderYearly();
+    dsbRenderLocations(list);
+}
+
+// Older callers still use this name.
+function updateDashboardSharedSections() {
+    renderDashboardStats();
+}
+
+function initDashboardControls() {
+    const view = document.getElementById('dashboard-view');
+    if (!view || view.dataset.dsbBound) return;
+    view.dataset.dsbBound = '1';
+    view.querySelectorAll('.dsb-seg').forEach(btn => {
+        btn.addEventListener('click', () => {
+            window.dashboardScope = btn.dataset.scope;
+            renderDashboardStats();
         });
-        catTbody.innerHTML = catHtml;
-    }
-
-    // 2. Yearly Breakdown Table (Section 5)
-    if (yrTbody) {
-        const yearMap = {};
-        const allCases = targetCases;
-        allCases.forEach(c => {
-            let yr = '2026';
-            if (c && c.dateReceived) {
-                const match = String(c.dateReceived).match(/\d{4}/);
-                if (match) yr = match[0];
-            }
-            if (!yearMap[yr]) yearMap[yr] = { total: 0, settle: 0, active: 0, other: 0 };
-            yearMap[yr].total++;
-            if (c && (c.status.startsWith('Settle') || (c.status.includes('ព្រមព្រៀង') && !c.status.includes('មិនព្រមព្រៀង')))) yearMap[yr].settle++;
-            else if (c && (c.status.startsWith('Active') || c.status.includes('កំពុង'))) yearMap[yr].active++;
-            else yearMap[yr].other++;
-        });
-
-        if (Object.keys(yearMap).length === 0) {
-            yearMap['2026'] = { total: stats.total || 0, settle: stats.settle || 0, active: stats.active || 0, other: (stats.close + stats.pending) || 0 };
-        }
-
-        const sortedYears = Object.keys(yearMap).sort((a, b) => b.localeCompare(a));
-        let yrHtml = '';
-        sortedYears.forEach(yr => {
-            const d = yearMap[yr];
-            const rate = d.total > 0 ? ((d.settle / d.total) * 100).toFixed(1) + '%' : '0%';
-            yrHtml += `
-                <tr style="border-bottom: 1px solid #f1f5f9;">
-                    <td><strong style="color: #1e3a8a;">ឆ្នាំ ${yr}</strong></td>
-                    <td><span class="badge" style="background: #f1f5f9; color: #334155; font-weight: 700;">${d.total}</span></td>
-                    <td style="color: #10b981; font-weight: 700;">${d.settle}</td>
-                    <td style="color: #2563eb; font-weight: 700;">${d.active}</td>
-                    <td style="color: #64748b; font-weight: 700;">${d.other}</td>
-                    <td><span class="badge" style="background: #dcfce7; color: #15803d; font-weight: 700;">${rate}</span></td>
-                </tr>
-            `;
-        });
-        yrTbody.innerHTML = yrHtml;
-    }
-
-    // 3. Render Dashboard Location Chart (Section 5)
-    if (typeof renderDashboardLocationChart === 'function') {
-        const ctxDashLoc = document.getElementById('dashboardLocationChart')?.getContext('2d');
-        if (ctxDashLoc && typeof Chart !== 'undefined') {
-            renderDashboardLocationChart(stats.byLocation, ctxDashLoc);
-        }
-    }
-    if (typeof initOrUpdateCharts === 'function') {
-        initOrUpdateCharts();
-    }
+    });
+    const periodSel = document.getElementById('dashboard-date-filter');
+    if (periodSel) periodSel.addEventListener('change', () => {
+        window.dashboardPeriod = periodSel.value;
+        renderDashboardStats();
+    });
+    const yearSel = document.getElementById('dsb-month-year');
+    if (yearSel) yearSel.addEventListener('change', () => {
+        window.dashboardMonthYear = +yearSel.value;
+        dsbRenderMonthly();
+    });
 }
 
 /**
@@ -765,10 +872,13 @@ function renderDashboardExtendedStats(stats) {
  */
 function filterByStatusQuick(statusStr) {
     switchView('cases-view');
-    const statusSelect = document.getElementById('filter-status');
-    if (statusSelect) {
-        statusSelect.value = statusStr;
-        applyFiltersAndRenderMasterTable();
+    // Map the status string to the case list's status filter (#mt-filter-status).
+    const key = typeof dsbStatusKey === 'function' ? dsbStatusKey(statusStr) : 'active';
+    const value = { active: 'mediating', pending: 'shelved', settle: 'settled', nosettle: 'unsuccessful' }[key];
+    const statusSelect = document.getElementById('mt-filter-status');
+    if (statusSelect && value) {
+        statusSelect.value = value;
+        if (typeof filterMasterData === 'function') filterMasterData();
     }
 }
 
@@ -1674,40 +1784,8 @@ function initFilterAndSearchEvents() {
     if (provEl) provEl.addEventListener('change', triggerFilter);
     if (hlEl) hlEl.addEventListener('change', triggerFilter);
 
-    // --- Dashboard Tabs Logic ---
-    const dashTabPersonal = document.getElementById('dash-tab-personal');
-    const dashTabAssisting = document.getElementById('dash-tab-assisting');
-    const dashContentPersonal = document.getElementById('dash-content-personal');
-    const dashContentAssisting = document.getElementById('dash-content-assisting');
-
-    if (dashTabPersonal && dashTabAssisting && dashContentPersonal && dashContentAssisting) {
-        dashTabPersonal.addEventListener('click', () => {
-            // Update Tab Styles (CSS handles the rest via .active)
-            dashTabPersonal.classList.add('active');
-            dashTabAssisting.classList.remove('active');
-            
-            // Show/Hide Content
-            dashContentPersonal.style.display = 'block';
-            dashContentAssisting.style.display = 'none';
-
-            window.currentDashboardTab = 'personal';
-            if (typeof updateDashboardSharedSections === 'function') updateDashboardSharedSections();
-        });
-
-        dashTabAssisting.addEventListener('click', () => {
-            // Update Tab Styles (CSS handles the rest via .active)
-            dashTabAssisting.classList.add('active');
-            dashTabPersonal.classList.remove('active');
-            
-            // Show/Hide Content
-            dashContentPersonal.style.display = 'none';
-            dashContentAssisting.style.display = 'block';
-
-            window.currentDashboardTab = 'assisting';
-            if (typeof updateDashboardSharedSections === 'function') updateDashboardSharedSections();
-        });
-    }
-    // -------------------------------
+    // --- Dashboard controls (scope / period / month-year) ---
+    if (typeof initDashboardControls === 'function') initDashboardControls();
     const refreshBtn = document.getElementById('btn-refresh-cases') || document.getElementById('refresh-btn') || document.getElementById('btn-refresh-data');
     if (refreshBtn) {
         refreshBtn.addEventListener('click', () => {
@@ -3471,14 +3549,14 @@ window.shareStatsToTelegram = async function() {
     let targetCases = [];
     let title = '';
 
-    const dashTabAssisting = document.getElementById('dash-tab-assisting');
-    if (window.currentDashboardTab === 'assisting' || (dashTabAssisting && dashTabAssisting.classList.contains('active'))) {
-        targetCases = allCases.filter(c => c.caseType === 'assisting');
-        title = `🔹 <b>របាយការណ៍ស្ថិតិ៖ សំណុំរឿងអម (Assisting Cases)</b>\n`;
-    } else {
-        targetCases = allCases.filter(c => (c.caseType || 'personal') === 'personal');
-        title = `🔹 <b>របាយការណ៍ស្ថិតិ៖ សំណុំរឿងផ្ទាល់ខ្លួន (Personal Cases)</b>\n`;
-    }
+    // Follow the dashboard's current scope and period.
+    const scope = window.dashboardScope || 'personal';
+    targetCases = typeof getDashboardCases === 'function'
+        ? getDashboardCases()
+        : allCases.filter(c => (c.caseType || 'personal') === 'personal');
+    const scopeTitle = { personal: 'សំណុំរឿងផ្ទាល់ខ្លួន (Personal Cases)', assisting: 'សំណុំរឿងអម (Assisting Cases)', all: 'សំណុំរឿងសរុបរួម (All Cases)' }[scope] || 'សំណុំរឿងផ្ទាល់ខ្លួន (Personal Cases)';
+    const periodText = typeof dsbPeriodLabel === 'function' ? ` — ${dsbPeriodLabel()}` : '';
+    title = `🔹 <b>របាយការណ៍ស្ថិតិ៖ ${scopeTitle}${periodText}</b>\n`;
 
     const todayStr = (typeof getTodayDateString === 'function') ? getTodayDateString() : new Date().toISOString().split('T')[0];
     let text = `📊 <b>របាយការណ៍ស្ថិតិសំណុំរឿង NADR</b>\n`;
