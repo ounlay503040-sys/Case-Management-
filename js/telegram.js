@@ -36,9 +36,15 @@ window.addEventListener('load', () => {
     }, 1000);
 });
 
+window.lastTelegramError = null;
+
 async function sendTelegramMessage(message) {
+    window.lastTelegramError = null;
     const { token, chatid } = getTelegramSettings();
-    if (!token || !chatid) return false;
+    if (!token || !chatid) {
+        window.lastTelegramError = 'MISSING_CONFIG';
+        return false;
+    }
 
     const url = `https://api.telegram.org/bot${token}/sendMessage`;
     try {
@@ -54,8 +60,13 @@ async function sendTelegramMessage(message) {
             })
         });
         const data = await response.json();
-        return data.ok;
+        if (!data.ok) {
+            window.lastTelegramError = data.description || `HTTP ${response.status}`;
+            console.error('Telegram API rejected message:', window.lastTelegramError);
+        }
+        return !!data.ok;
     } catch (e) {
+        window.lastTelegramError = e && e.message ? e.message : 'NETWORK_ERROR';
         console.error('Telegram API Error:', e);
         return false;
     }
@@ -181,11 +192,33 @@ function checkAndSendTelegramNotifications() {
     }
 }
 
-async function notifyTelegramEventUpdate(c) {
-    if (!c.caseEvent || !c.caseEventDate) return;
-    let timeStr = c.caseEventTime ? ` (ម៉ោង ${c.caseEventTime})` : '';
-    const msg = `🔄 <b>មានការកែប្រែកម្មវិធីសំណុំរឿង</b>\n\n📁 <b>សំណុំរឿង៖</b> ${c.caseNumber}\n🗓 <b>កម្មវិធី៖</b> ${c.caseEvent} ${timeStr}\n📅 <b>ថ្ងៃទី៖</b> ${c.caseEventDate}\n📍 <b>ទីតាំង៖</b> ${c.disputeLocation}`;
-    await sendTelegramMessage(msg);
+async function notifyTelegramAction(c, actionType) {
+    if (!c) return;
+    let msg = '';
+    
+    if (actionType === 'NEW_CASE') {
+        msg = `🆕 <b>សំណុំរឿងថ្មីត្រូវបានបញ្ចូល</b>\n\n📁 <b>លេខសំណុំរឿង៖</b> ${c.caseNumber}\n⚖️ <b>កម្មវត្ថុវិវាទ៖</b> ${c.category}\n🧑 <b>ភាគីក៖</b> ${c.partyA_name}\n🧑 <b>ភាគីខ៖</b> ${c.partyB_name}\n📍 <b>ទីតាំងវិវាទ៖</b> ${c.disputeLocation}\n📅 <b>ថ្ងៃទទួល៖</b> ${c.dateReceived}`;
+        if (c.caseEvent && c.caseEventDate) {
+            let timeStr = c.caseEventTime ? ` (ម៉ោង ${c.caseEventTime})` : '';
+            msg += `\n\n🗓 <b>កម្មវិធីកំណត់៖</b> ${c.caseEvent} ${timeStr} នៅថ្ងៃទី ${c.caseEventDate}`;
+        }
+    } 
+    else if (actionType === 'UPDATE_CASE') {
+        msg = `🔄 <b>សំណុំរឿងត្រូវបានកែប្រែ / ធ្វើបច្ចុប្បន្នភាព</b>\n\n📁 <b>លេខសំណុំរឿង៖</b> ${c.caseNumber}\n⚖️ <b>កម្មវត្ថុវិវាទ៖</b> ${c.category}\n🧑 <b>ភាគីក៖</b> ${c.partyA_name}\n🧑 <b>ភាគីខ៖</b> ${c.partyB_name}\n📊 <b>ចំណាត់ការបច្ចុប្បន្ន៖</b> ${c.status}`;
+        if (c.caseEvent && c.caseEventDate) {
+            let timeStr = c.caseEventTime ? ` (ម៉ោង ${c.caseEventTime})` : '';
+            msg += `\n\n🗓 <b>កម្មវិធីបន្ត៖</b> ${c.caseEvent} ${timeStr} នៅថ្ងៃទី ${c.caseEventDate}`;
+        }
+    }
+    else if (actionType === 'SCHEDULE_EVENT') {
+        if (!c.caseEvent || !c.caseEventDate) return;
+        let timeStr = c.caseEventTime ? ` (ម៉ោង ${c.caseEventTime})` : '';
+        msg = `🗓 <b>កម្មវិធីសំណុំរឿងត្រូវបានកំណត់/កែប្រែលើប្រតិទិន</b>\n\n📁 <b>លេខសំណុំរឿង៖</b> ${c.caseNumber}\n⚖️ <b>កម្មវត្ថុវិវាទ៖</b> ${c.category}\n🗓 <b>កម្មវិធី៖</b> ${c.caseEvent} ${timeStr}\n📅 <b>ថ្ងៃទី៖</b> ${c.caseEventDate}\n📍 <b>ទីតាំង៖</b> ${c.disputeLocation}\n🧑 <b>ភាគីក៖</b> ${c.partyA_name}\n🧑 <b>ភាគីខ៖</b> ${c.partyB_name}`;
+    }
+    
+    if (msg !== '') {
+        await sendTelegramMessage(msg);
+    }
 }
 
 /**

@@ -57,9 +57,17 @@ let ORG_SETTINGS = JSON.parse(localStorage.getItem('nadr_org_settings')) || {
     casePrefix: 'NADR-2026-'
 };
 
-let AUDIT_LOGS = JSON.parse(localStorage.getItem('nadr_audit_logs')) || [
-    { timestamp: new Date().toLocaleString('km-KH'), user: 'Admin', action: 'ចូលប្រព័ន្ធ (Login)', details: 'បានចូលប្រើប្រព័ន្ធគ្រប់គ្រងសំណុំរឿង NADR' }
-];
+let AUDIT_LOGS = [];
+try {
+    AUDIT_LOGS = JSON.parse(localStorage.getItem('nadr_audit_logs'));
+} catch (e) {
+    console.error("Audit log parse error:", e);
+}
+if (!Array.isArray(AUDIT_LOGS) || AUDIT_LOGS.length === 0) {
+    AUDIT_LOGS = [
+        { timestamp: new Date().toLocaleString('km-KH'), user: 'Admin', action: 'ចូលប្រព័ន្ធ (Login)', details: 'បានចូលប្រើប្រព័ន្ធគ្រប់គ្រងសំណុំរឿង NADR' }
+    ];
+}
 
 function logAuditAction(action, details) {
     const entry = {
@@ -125,6 +133,32 @@ function loadCases() {
             // Auto-fix corrupted Excel serial dates in existing data
             let needsSave = false;
             casesData.forEach(c => {
+                
+                // MIGRATION: Old Data to New Phase Tracker
+                if (!c.casePhases) {
+                    c.casePhases = { currentPhase: 1 };
+                    
+                    if (c.meetingPartyA && c.meetingPartyA !== 'មិនទាន់ប្រជុំ') {
+                        c.casePhases.p1_2_2 = c.meetingPartyA;
+                        needsSave = true;
+                    }
+                    if (c.meetingPartyB && c.meetingPartyB !== 'មិនទាន់ប្រជុំ') {
+                        c.casePhases.p1_2_3 = c.meetingPartyB;
+                        needsSave = true;
+                    }
+                    if (c.mediationMeeting && c.mediationMeeting !== 'មិនទាន់ប្រជុំ') {
+                        c.casePhases.p2_1 = c.mediationMeeting;
+                        c.casePhases.currentPhase = 2;
+                        needsSave = true;
+                    }
+                    
+                    if (c.remarks === 'បានបិទរួចរាល់' || c.status === 'Completed') {
+                        c.casePhases.currentPhase = 3;
+                        c.casePhases.p3_1 = c.remarks || 'បានបិទរួចរាល់';
+                        needsSave = true;
+                    }
+                }
+                
                 if (c.dateReceived && !isNaN(c.dateReceived) && parseFloat(c.dateReceived) > 20000 && parseFloat(c.dateReceived) < 90000) {
                     const serial = parseFloat(c.dateReceived);
                     const utc_days = Math.floor(serial - 25569);
@@ -175,11 +209,36 @@ function saveCases() {
 function addCase(newCase) {
     const nextListNo = casesData.length > 0 ? Math.max(...casesData.map(c => c.originalListNo || 0)) + 1 : 1;
     const caseObj = {
+        ...newCase,
         originalListNo: newCase.originalListNo ? parseInt(newCase.originalListNo) : nextListNo,
-        id: 'case-nadr-' + Date.now() + '-' + Math.floor(Math.random()*1000),
+        id: newCase.id || ('case-nadr-' + Date.now() + '-' + Math.floor(Math.random()*1000)),
         caseType: newCase.caseType || 'personal',
+        leadOfficer: newCase.leadOfficer || '',
         caseNumber: newCase.caseNumber || generateNextCaseNumber(),
-        dateReceived: newCase.dateReceived || getTodayDateString(),
+        filingDate: newCase.filingDate || newCase.dateReceived || getTodayDateString(),
+        assignedDate: newCase.assignedDate || newCase.dateReceived || getTodayDateString(),
+        receivedDate: newCase.receivedDate || newCase.dateReceived || getTodayDateString(),
+        dateReceived: newCase.receivedDate || newCase.dateReceived || getTodayDateString(),
+        category: newCase.category || 'វិវាទដីធ្លី',
+        claimAmount: newCase.claimAmount || '',
+        claimCurrency: newCase.claimCurrency || '$ USD',
+        locationHouse: newCase.locationHouse || '',
+        locationCommune: newCase.locationCommune || '',
+        locationProvince: newCase.locationProvince || newCase.disputeLocation || 'ភ្នំពេញ',
+        disputeLocation: newCase.locationProvince || newCase.disputeLocation || 'ភ្នំពេញ',
+        legacyPhase: newCase.legacyPhase || 'phase1',
+        legacyOutcome: newCase.legacyOutcome || 'mediating',
+        status: newCase.status || 'Active (កំពុងសម្រុះសម្រួល)',
+        remarks: newCase.remarks || 'មិនទាន់បិទ',
+        facts: newCase.facts || newCase.summary || '',
+        summary: newCase.facts || newCase.summary || '',
+        claims: newCase.claims || newCase.claimsRequests || '',
+        claimsRequests: newCase.claims || newCase.claimsRequests || '',
+        driveLink: newCase.driveLink || newCase.folderLink || '',
+        folderLink: newCase.driveLink || newCase.folderLink || '',
+        claimants: newCase.claimants || [],
+        respondents: newCase.respondents || [],
+        thirdParties: newCase.thirdParties || [],
         partyA_name: newCase.partyA_name || '',
         partyA_gender: newCase.partyA_gender || 'ប្រុស',
         partyA_age: newCase.partyA_age || '',
@@ -190,9 +249,11 @@ function addCase(newCase) {
         partyB_age: newCase.partyB_age || '',
         partyB_phone: newCase.partyB_phone || '',
         partyB_location: newCase.partyB_location || 'ភ្នំពេញ',
-        category: newCase.category || 'វិវាទកិច្ចសន្យា',
-        disputeLocation: newCase.disputeLocation || 'ភ្នំពេញ',
-        summary: newCase.summary || '',
+        partyC_name: newCase.partyC_name || '',
+        partyC_gender: newCase.partyC_gender || 'ប្រុស',
+        partyC_phone: newCase.partyC_phone || '',
+        partyC_location: newCase.partyC_location || '',
+        partyC_role: newCase.partyC_role || '',
         caseEvent: newCase.caseEvent || '',
         caseEventDate: newCase.caseEventDate || '',
         caseEventTime: newCase.caseEventTime || '',
@@ -201,9 +262,7 @@ function addCase(newCase) {
         meetingPartyA: newCase.meetingPartyA || 'មិនទាន់ប្រជុំ',
         meetingPartyB: newCase.meetingPartyB || 'មិនទាន់ប្រជុំ',
         mediationMeeting: newCase.mediationMeeting || 'មិនទាន់ប្រជុំ',
-        status: newCase.status || 'Active (កំពុងសម្រុះសម្រួល)',
-        remarks: newCase.remarks || 'មិនទាន់បិទ',
-        createdAt: getTodayDateString(),
+        createdAt: newCase.createdAt || getTodayDateString(),
         updatedAt: getTodayDateString()
     };
     casesData.unshift(caseObj);

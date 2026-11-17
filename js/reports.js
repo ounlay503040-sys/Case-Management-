@@ -126,7 +126,7 @@ function initReportEvents() {
  * Share filtered master table directly from cases-view via Telegram Bot Document Upload
  */
 window.shareMasterTableToTelegramBot = async function() {
-    if (typeof filteredCasesCache === 'undefined' || filteredCasesCache.length === 0) {
+    if (typeof window.filteredCasesCache === 'undefined' || window.filteredCasesCache.length === 0) {
         if (typeof showToast === 'function') showToast('ពុំមានទិន្នន័យដើម្បីបញ្ជូនទេ!', 'warning');
         return;
     }
@@ -134,7 +134,7 @@ window.shareMasterTableToTelegramBot = async function() {
     if (typeof showToast === 'function') showToast('កំពុងរៀបចំទិន្នន័យបញ្ជូនទៅ Telegram...', 'info');
 
     // Use renderMasterTableHTML which is already defined to generate the table HTML
-    const tableHTML = renderMasterTableHTML(filteredCasesCache);
+    const tableHTML = renderMasterTableHTML(window.filteredCasesCache);
     
     // Add border to table for Excel
     let styledHTML = tableHTML.replace(/<table/g, '<table border="1" cellpadding="4" cellspacing="0" style="width: 100%; border-collapse: collapse; border-color: #000000;"');
@@ -165,7 +165,7 @@ window.shareMasterTableToTelegramBot = async function() {
     const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), excelHTML], { type: 'application/vnd.ms-excel;charset=utf-8' });
     const filename = `${fileNameText}_${new Date().toISOString().slice(0, 10)}.xls`;
     
-    const captionExcel = `📊 <b>ឯកសារបញ្ជីសំណុំរឿង (Excel)</b>\nចំនួន៖ ${filteredCasesCache.length} ករណី\nបញ្ជូនពីប្រព័ន្ធ CMS Pro`;
+    const captionExcel = `📊 <b>ឯកសារបញ្ជីសំណុំរឿង (Excel)</b>\nចំនួន៖ ${window.filteredCasesCache.length} ករណី\nបញ្ជូនពីប្រព័ន្ធ CMS Pro`;
 
     if (typeof sendTelegramDocument !== 'function') {
         if (typeof showToast === 'function') showToast('ប្រព័ន្ធ Telegram មិនត្រូវបានភ្ជាប់ទេ។', 'error');
@@ -190,7 +190,7 @@ window.shareMasterTableToTelegramBot = async function() {
     pdfStyledHTML = pdfStyledHTML.replace(/<tr/g, '<tr style="page-break-inside: avoid;"');
 
     const pdfFilename = `${fileNameText}_${new Date().toISOString().slice(0, 10)}.pdf`;
-    const captionPdf = `📄 <b>ឯកសារបញ្ជីសំណុំរឿង (PDF)</b>\nចំនួន៖ ${filteredCasesCache.length} ករណី\nបញ្ជូនពីប្រព័ន្ធ CMS Pro`;
+    const captionPdf = `📄 <b>ឯកសារបញ្ជីសំណុំរឿង (PDF)</b>\nចំនួន៖ ${window.filteredCasesCache.length} ករណី\nបញ្ជូនពីប្រព័ន្ធ CMS Pro`;
 
     if (window.electronAPI && window.electronAPI.generatePDF) {
         // --- NATIVE ELECTRON PDF GENERATION (PERFECT KHMER RENDERING) ---
