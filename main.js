@@ -92,6 +92,8 @@ if (!gotTheLock) {
 
     ipcMain.handle('backup:get-folder', () => path.join(app.getPath('documents'), 'NADR CMS Backups'));
 
+    ipcMain.handle('app:get-version', () => app.getVersion());
+
     // Toggle DevTools for admins
     ipcMain.on('toggle-dev-tools', (event) => {
       if (mainWindow && mainWindow.webContents) {

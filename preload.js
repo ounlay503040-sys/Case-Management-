@@ -9,5 +9,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   exportAll: (data) => ipcRenderer.send('data:export-all', data),
   autoBackup: (json) => ipcRenderer.invoke('backup:auto-save', json),
   getBackupFolder: () => ipcRenderer.invoke('backup:get-folder'),
+  getAppVersion: () => ipcRenderer.invoke('app:get-version'),
   toggleDevTools: () => ipcRenderer.send('toggle-dev-tools')
 });

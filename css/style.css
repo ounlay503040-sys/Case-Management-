@@ -4237,3 +4237,164 @@ body {
     .dsb-two-col { grid-template-columns: 1fr; }
     .dsb-hero-value { font-size: 30px; }
 }
+
+/* ==========================================================================
+   NADR BRANDING — sidebar brand block + Khmer-style login (kh-*)
+   ========================================================================== */
+:root {
+    --kh-gold: #c99a2e;
+    --kh-gold-light: #e8c25a;
+    --kh-maroon: #7a1f1f;
+    --kh-navy: #0b2a6b;
+    --kh-blue: #0b8fe0;
+    --kh-cream: #fffaf0;
+    --kh-ornament: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='26' viewBox='0 0 240 26'%3E%3Cg fill='none' stroke='%23c99a2e' stroke-width='1.6' stroke-linecap='round'%3E%3Cpath d='M8 13 H92'/%3E%3Cpath d='M148 13 H232'/%3E%3Cpath d='M60 13 C70 5 80 5 90 13 C80 21 70 21 60 13Z'/%3E%3Cpath d='M180 13 C170 5 160 5 150 13 C160 21 170 21 180 13Z'/%3E%3C/g%3E%3Cg fill='%23c99a2e' transform='translate(120 13)'%3E%3Cpath d='M0 -11 C5 -6 5 -2 0 0 C-5 -2 -5 -6 0 -11Z'/%3E%3Cpath d='M0 11 C5 6 5 2 0 0 C-5 2 -5 6 0 11Z'/%3E%3Cpath d='M-11 0 C-6 -5 -2 -5 0 0 C-2 5 -6 5 -11 0Z'/%3E%3Cpath d='M11 0 C6 -5 2 -5 0 0 C2 5 6 5 11 0Z'/%3E%3Ccircle r='2.4' fill='%23fffaf0'/%3E%3C/g%3E%3Ccircle cx='98' cy='13' r='2.2' fill='%23c99a2e'/%3E%3Ccircle cx='142' cy='13' r='2.2' fill='%23c99a2e'/%3E%3C/svg%3E");
+    --kh-ornament-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='26' viewBox='0 0 240 26'%3E%3Cg fill='none' stroke='%23e8c25a' stroke-width='1.6' stroke-linecap='round'%3E%3Cpath d='M8 13 H92'/%3E%3Cpath d='M148 13 H232'/%3E%3Cpath d='M60 13 C70 5 80 5 90 13 C80 21 70 21 60 13Z'/%3E%3Cpath d='M180 13 C170 5 160 5 150 13 C160 21 170 21 180 13Z'/%3E%3C/g%3E%3Cg fill='%23e8c25a' transform='translate(120 13)'%3E%3Cpath d='M0 -11 C5 -6 5 -2 0 0 C-5 -2 -5 -6 0 -11Z'/%3E%3Cpath d='M0 11 C5 6 5 2 0 0 C-5 2 -5 6 0 11Z'/%3E%3Cpath d='M-11 0 C-6 -5 -2 -5 0 0 C-2 5 -6 5 -11 0Z'/%3E%3Cpath d='M11 0 C6 -5 2 -5 0 0 C2 5 6 5 11 0Z'/%3E%3Ccircle r='2.4' fill='%230b2a6b'/%3E%3C/g%3E%3Ccircle cx='98' cy='13' r='2.2' fill='%23e8c25a'/%3E%3Ccircle cx='142' cy='13' r='2.2' fill='%23e8c25a'/%3E%3C/svg%3E");
+    --kh-kbach: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='18' viewBox='0 0 36 18'%3E%3Crect width='36' height='18' fill='%237a1f1f'/%3E%3Cpath d='M18 2 C21.5 6 24 8.5 24 11.5 C24 14.5 21.2 16 18 16 C14.8 16 12 14.5 12 11.5 C12 8.5 14.5 6 18 2Z' fill='none' stroke='%23e8c25a' stroke-width='1.3'/%3E%3Cpath d='M18 6.5 C19.6 8.6 21 9.8 21 11.6 C21 13.2 19.6 14 18 14 C16.4 14 15 13.2 15 11.6 C15 9.8 16.4 8.6 18 6.5Z' fill='%23e8c25a'/%3E%3Cpath d='M0 13 C3 13 5.5 10 6.5 5 M36 13 C33 13 30.5 10 29.5 5' fill='none' stroke='%23e8c25a' stroke-width='1.2' stroke-linecap='round'/%3E%3Ccircle cx='6.5' cy='4' r='1.3' fill='%23e8c25a'/%3E%3Ccircle cx='29.5' cy='4' r='1.3' fill='%23e8c25a'/%3E%3C/svg%3E");
+}
+.kh-moul { font-family: 'Moul', 'Kantumruy Pro', serif; font-weight: 400; }
+
+/* ---------- Sidebar brand ---------- */
+.sidebar-header.nadr-brand { flex-direction: column; align-items: stretch; gap: 10px; padding: 16px 14px 14px; }
+.nadr-brand-plate {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 8px 10px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25), inset 0 0 0 1px rgba(201, 154, 46, 0.35);
+    border-bottom: 3px solid var(--kh-gold);
+}
+.nadr-brand-plate img { display: block; width: 100%; height: auto; }
+.nadr-brand-meta { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.nadr-brand-abbr { font-family: 'Moul', serif; font-size: 15px; color: var(--kh-gold-light); letter-spacing: 1px; line-height: 1.6; }
+.nadr-brand-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--kh-gold); flex-shrink: 0; }
+.nadr-brand-app { font-size: 12px; color: #cbd5e1; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ---------- Khmer login ---------- */
+#login-overlay.kh-login {
+    padding: 0;
+    background: #0b1530;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(420px, 1fr);
+    align-items: stretch;
+    justify-content: stretch;
+    overflow-y: auto;
+}
+.kh-login-hero {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 48px 56px 36px;
+    color: #fff;
+    background:
+        linear-gradient(180deg, rgba(8, 28, 78, 0.98) 0%, rgba(8, 28, 78, 0.94) 16%, rgba(11, 42, 107, 0.62) 42%, rgba(11, 42, 107, 0.6) 60%, rgba(8, 20, 52, 0.93) 100%),
+        url("../images/nadr-building.webp") center 35% / cover no-repeat;
+}
+.kh-login-hero::after {
+    content: "";
+    position: absolute; top: 0; right: 0; bottom: 0; width: 6px;
+    background: linear-gradient(180deg, var(--kh-gold-light), var(--kh-gold), var(--kh-gold-light));
+}
+.kh-hero-top { text-align: center; }
+.kh-kingdom { margin: 0; font-size: 20px; color: #fff; letter-spacing: 0.5px; line-height: 1.8; text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4); }
+.kh-motto { margin: 2px 0 0; font-size: 15px; color: var(--kh-gold-light); line-height: 1.8; text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4); }
+.kh-ornament { height: 26px; margin: 14px auto 18px; background: var(--kh-ornament) center / contain no-repeat; max-width: 240px; }
+.kh-ornament-light { background-image: var(--kh-ornament-light); margin-bottom: 0; }
+.kh-hero-center { text-align: center; }
+.kh-banner-plate {
+    display: inline-block;
+    width: min(620px, 100%);
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    padding: 14px 22px;
+    box-shadow: 0 18px 40px -12px rgba(0, 0, 0, 0.55);
+    border-bottom: 4px solid var(--kh-gold);
+}
+.kh-banner-plate img { display: block; width: 100%; height: auto; }
+.kh-hero-title { margin: 28px 0 8px; font-size: 30px; line-height: 1.8; color: #fff; text-shadow: 0 3px 10px rgba(0, 0, 0, 0.45); }
+.kh-hero-sub { margin: 0 auto; max-width: 560px; font-size: 15px; line-height: 1.7; color: #dbeafe; }
+.kh-hero-bottom { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 26px; font-size: 13px; color: #cbd5e1; }
+.kh-hero-bottom i { color: var(--kh-gold-light); margin-right: 6px; }
+
+.kh-login-side {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 36px 40px;
+    background:
+        radial-gradient(circle at 20% 10%, rgba(11, 143, 224, 0.10), transparent 45%),
+        radial-gradient(circle at 85% 90%, rgba(201, 154, 46, 0.14), transparent 45%),
+        #f5efe2;
+}
+.kh-login-card {
+    width: 100%;
+    max-width: 460px;
+    background: var(--kh-cream);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 30px 60px -20px rgba(60, 30, 10, 0.35), 0 0 0 1px rgba(201, 154, 46, 0.45);
+    animation: loginModalSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.kh-kbach-band {
+    height: 18px;
+    background: var(--kh-kbach) left center / 36px 18px repeat-x;
+    border-bottom: 2px solid var(--kh-gold);
+}
+.kh-kbach-band.kh-kbach-bottom { border-bottom: none; border-top: 2px solid var(--kh-gold); transform: scaleY(-1); }
+.kh-card-body { padding: 28px 38px 22px; text-align: center; }
+.kh-logo-wrap {
+    width: 118px; height: 118px; margin: 0 auto;
+    border-radius: 50%;
+    padding: 5px;
+    background: conic-gradient(from 0deg, var(--kh-gold-light), var(--kh-gold), var(--kh-gold-light), var(--kh-gold), var(--kh-gold-light));
+    box-shadow: 0 10px 24px -8px rgba(11, 42, 107, 0.45);
+}
+.kh-logo { width: 100%; height: 100%; border-radius: 50%; background: #fff; display: block; }
+.kh-abbr { margin: 12px 0 2px; font-size: 22px; color: #d11; letter-spacing: 2px; line-height: 1.7; }
+.kh-card-title { margin: 0; font-size: 16.5px; font-weight: 800; color: var(--kh-navy); line-height: 1.6; }
+.kh-card-sub { margin: 2px 0 0; font-size: 12px; font-weight: 600; color: #8a7752; letter-spacing: 0.3px; }
+.kh-card-body .kh-ornament { margin: 14px auto 18px; }
+
+.kh-form { text-align: left; }
+.kh-label { display: block; font-size: 14px; font-weight: 700; color: var(--kh-navy); margin-bottom: 8px; }
+.kh-label i { color: var(--kh-gold); margin-right: 6px; }
+.kh-input-wrap { position: relative; display: flex; align-items: center; }
+.kh-input-icon { position: absolute; left: 16px; color: #9a8a66; font-size: 15px; pointer-events: none; }
+.kh-input {
+    width: 100%; height: 52px;
+    padding: 10px 48px 10px 44px;
+    font-size: 15.5px; font-family: inherit;
+    color: #0f172a; background: #ffffff;
+    border: 1.5px solid #dccba3; border-radius: 12px;
+    outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+}
+.kh-input::placeholder { color: #a8a29e; }
+.kh-input:focus { border-color: var(--kh-blue); box-shadow: 0 0 0 4px rgba(11, 143, 224, 0.15); }
+.kh-eye { position: absolute; right: 12px; background: none; border: none; color: #8a7752; cursor: pointer; padding: 6px; font-size: 16px; }
+.kh-remember { display: flex; align-items: center; gap: 9px; margin: 14px 0 18px; font-size: 13.5px; color: #57534e; cursor: pointer; user-select: none; }
+.kh-remember input { width: 17px; height: 17px; accent-color: var(--kh-navy); cursor: pointer; }
+.kh-error { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; padding: 11px 14px; border-radius: 10px; font-size: 13.5px; background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+.kh-error.d-none { display: none; }
+.kh-submit {
+    width: 100%; height: 54px;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    font-family: inherit; font-size: 17px; font-weight: 800; color: #fff;
+    border: none; border-radius: 12px; cursor: pointer;
+    background: linear-gradient(135deg, var(--kh-navy) 0%, #1d4ed8 60%, var(--kh-blue) 100%);
+    box-shadow: 0 10px 22px -8px rgba(11, 42, 107, 0.6), inset 0 -3px 0 var(--kh-gold);
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+.kh-submit:hover { transform: translateY(-1px); box-shadow: 0 14px 26px -8px rgba(11, 42, 107, 0.7), inset 0 -3px 0 var(--kh-gold-light); }
+.kh-submit:active { transform: translateY(0); }
+.kh-card-footer { margin-top: 22px; padding-top: 14px; border-top: 1px dashed #dccba3; font-size: 12.5px; color: #78716c; }
+.kh-card-footer p { margin: 2px 0; }
+.kh-card-footer p:first-child { font-weight: 700; color: var(--kh-navy); }
+.kh-card-footer i { color: var(--kh-gold); margin-right: 5px; }
+
+@media (max-width: 1100px) {
+    #login-overlay.kh-login { grid-template-columns: 1fr; }
+    .kh-login-hero { display: none; }
+    .kh-login-side { padding: 28px 16px 40px; }
+}

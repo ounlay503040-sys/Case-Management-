@@ -148,57 +148,71 @@
 </head>
 
 <body class="light-theme">
-    <!-- AUTHENTICATION OVERLAY -->
-    <div id="login-overlay" class="login-overlay">
-        <div class="login-box card-panel" style="max-width: 480px; padding: 40px 35px; border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.15);">
-            <div class="login-header text-center" style="margin-bottom: 24px;">
-                <div class="login-logo-circle" style="width: 70px; height: 70px; margin: 0 auto; font-size: 32px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); color: #1d4ed8; border-radius: 50%; box-shadow: 0 8px 16px -4px rgba(37, 99, 235, 0.2); border: 2px solid #ffffff;">
-                    <i class="fa-solid fa-scale-balanced"></i>
+    <!-- AUTHENTICATION OVERLAY (Khmer-style login) -->
+    <div id="login-overlay" class="login-overlay kh-login">
+        <!-- Left: institution panel with building photo -->
+        <section class="kh-login-hero" aria-hidden="true">
+            <div class="kh-hero-top">
+                <p class="kh-moul kh-kingdom">ព្រះរាជាណាចក្រកម្ពុជា</p>
+                <p class="kh-moul kh-motto">ជាតិ សាសនា ព្រះមហាក្សត្រ</p>
+                <div class="kh-ornament kh-ornament-light"></div>
+            </div>
+            <div class="kh-hero-center">
+                <div class="kh-banner-plate">
+                    <img src="images/nadr-logo-banner.png" alt="អាជ្ញាធរជាតិដោះស្រាយវិវាទក្រៅប្រព័ន្ធតុលាការ">
                 </div>
-                <h3 style="font-size: 18px; font-weight: 700; margin-top: 16px; color: #1e3a8a; letter-spacing: 0.2px; line-height: 1.5;">កម្មវិធីគ្រប់គ្រងសំណុំរឿង របស់ ម.ស.វ.</h3>
-                <p style="font-size: 13.5px; font-weight: 500; color: var(--text-muted); margin: 4px 0 0;">ប្រព័ន្ធគ្រប់គ្រងសំណុំរឿងគោល (CMS Pro)</p>
+                <h1 class="kh-moul kh-hero-title">កម្មវិធីគ្រប់គ្រងសំណុំរឿង</h1>
+                <p class="kh-hero-sub">ប្រព័ន្ធគ្រប់គ្រង តាមដាន និងវិភាគសំណុំរឿងដោះស្រាយវិវាទក្រៅប្រព័ន្ធតុលាការ</p>
             </div>
-            
-            <!-- Welcome Text Section (No Images) -->
-            <div class="login-welcome-section text-center" style="margin: 0 0 28px 0; padding: 16px 20px; border-radius: 14px; background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%); border: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                <h4 class="login-welcome-title" style="font-size: 16px; margin: 0; line-height: 1.6; font-family: 'Kantumruy Pro', 'Battambang', sans-serif; font-weight: 700; color: #1e3a8a; letter-spacing: 0.3px;">
-                    សូមស្វាគមន៍ មកកាន់កម្មវិធីគ្រប់គ្រងសំណុំរឿង
-                </h4>
-                <div style="width: 50px; height: 3px; background: linear-gradient(90deg, #1e3a8a, #3b82f6); margin: 8px auto 6px auto; border-radius: 2px;"></div>
-                <span style="font-size: 11px; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">(Master Case Management System)</span>
+            <div class="kh-hero-bottom">
+                <span><i class="fa-solid fa-shield-halved"></i> ទិន្នន័យរក្សាទុកក្នុងកុំព្យូទ័រ</span>
+                <span><i class="fa-solid fa-lock"></i> ពាក្យសម្ងាត់ត្រូវបានការពារ</span>
             </div>
+        </section>
 
-            <form id="login-form" class="login-form">
+        <!-- Right: login card -->
+        <section class="kh-login-side">
+            <div class="kh-login-card">
+                <div class="kh-kbach-band"></div>
+                <div class="kh-card-body">
+                    <div class="kh-logo-wrap">
+                        <img src="images/nadr-logo-round.webp" alt="ស្លាកសញ្ញា អ.ដ.ក." class="kh-logo">
+                    </div>
+                    <p class="kh-moul kh-abbr">អ.ដ.ក.</p>
+                    <h2 class="kh-card-title">សូមស្វាគមន៍មកកាន់ប្រព័ន្ធគ្រប់គ្រងសំណុំរឿង</h2>
+                    <p class="kh-card-sub">Master Case Management System · CMS Pro</p>
+                    <div class="kh-ornament"></div>
 
-                <div class="form-group" style="margin-bottom: 24px;">
-                    <label style="font-size: 14px; font-weight: 600; color: var(--text-main); margin-bottom: 8px; display: block;"><i class="fa-solid fa-lock text-primary" style="margin-right: 6px;"></i> ពាក្យសម្ងាត់ (Password) <span class="text-danger">*</span></label>
-                    <div class="password-input-group" style="position: relative; display: flex; align-items: center;">
-                        <input type="password" id="login-password" class="form-control" placeholder="វាយពាក្យសម្ងាត់របស់អ្នក..." required autocomplete="current-password" style="height: 50px; font-size: 15px; padding: 10px 45px 10px 16px; border-radius: 10px; border: 1.5px solid #cbd5e1; background: var(--bg-body); width: 100%; transition: all 0.2s ease;">
-                        <button type="button" id="toggle-login-pwd" class="btn-eye" title="បង្ហាញ/លាក់ពាក្យសម្ងាត់" style="position: absolute; right: 14px; background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; font-size: 16px;"><i class="fa-regular fa-eye"></i></button>
+                    <form id="login-form" class="login-form kh-form">
+                        <label for="login-password" class="kh-label"><i class="fa-solid fa-key"></i> ពាក្យសម្ងាត់ (Password)</label>
+                        <div class="kh-input-wrap">
+                            <i class="fa-solid fa-lock kh-input-icon"></i>
+                            <input type="password" id="login-password" class="kh-input" placeholder="វាយពាក្យសម្ងាត់របស់អ្នក..." required autocomplete="current-password">
+                            <button type="button" id="toggle-login-pwd" class="kh-eye" title="បង្ហាញ/លាក់ពាក្យសម្ងាត់"><i class="fa-regular fa-eye"></i></button>
+                        </div>
+
+                        <label class="kh-remember">
+                            <input type="checkbox" id="login-remember" checked>
+                            <span>ចងចាំការចូលប្រើលើកក្រោយ</span>
+                        </label>
+
+                        <div id="login-error-msg" class="alert alert-danger d-none kh-error">
+                            <i class="fa-solid fa-triangle-exclamation"></i> <span>ពាក្យសម្ងាត់មិនត្រឹមត្រូវទេ! សូមពិនិត្យម្តងទៀត។</span>
+                        </div>
+
+                        <button type="submit" class="kh-submit login-btn-submit">
+                            <i class="fa-solid fa-right-to-bracket"></i> ចូលប្រព័ន្ធ
+                        </button>
+                    </form>
+
+                    <div class="kh-card-footer">
+                        <p><i class="fa-solid fa-code"></i> អភិវឌ្ឍន៍កម្មវិធីដោយ លោក ឡាយ អូន</p>
+                        <p class="kh-copy"><i class="fa-regular fa-copyright"></i> រក្សាសិទ្ធិគ្រប់យ៉ាង ២០២៦</p>
                     </div>
                 </div>
-                
-                <div class="login-options" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 26px;">
-                    <label class="remember-checkbox" style="display: flex; align-items: center; cursor: pointer; font-size: 13.5px; color: var(--text-muted); font-weight: 500; margin: 0; user-select: none;">
-                        <input type="checkbox" id="login-remember" checked style="width: 17px; height: 17px; margin-right: 9px; cursor: pointer; accent-color: #2563eb;">
-                        <span>ចងចាំការចូលប្រើលើកក្រោយ</span>
-                    </label>
-                </div>
-
-                <div id="login-error-msg" class="alert alert-danger d-none" style="margin-bottom: 22px; font-size: 13.5px; padding: 12px 16px; border-radius: 8px; background: #fef2f2; border: 1px solid color-mix(in srgb, #ef4444 30%, transparent); color: #dc2626; display: flex; align-items: center; gap: 8px;">
-                    <i class="fa-solid fa-triangle-exclamation" style="font-size: 16px;"></i> <span>ឈ្មោះគណនី ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវទេ! សូមពិនិត្យម្តងទៀត។</span>
-                </div>
-
-                <button type="submit" class="btn btn-primary w-100 login-btn-submit" style="height: 52px; font-size: 16.5px; font-weight: 700; justify-content: center; border-radius: 10px; background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); border: none; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3); transition: all 0.2s ease; cursor: pointer; display: flex; align-items: center; gap: 8px;">
-                    <i class="fa-solid fa-right-to-bracket"></i> ចូលប្រព័ន្ធគ្រប់គ្រង (Login)
-                </button>
-            </form>
-
-            <div class="login-footer text-center" style="margin-top: 30px; font-size: 13px; border-top: 1px dashed #cbd5e1; padding-top: 18px; color: var(--text-muted);">
-                <p class="mb-1" style="font-weight: 600; color: #1e3a8a; font-size: 13.5px;"><i class="fa-solid fa-code text-primary" style="margin-right: 5px;"></i> អភិវឌ្ឍន៍កម្មវិធីដោយ លោក ឡាយ អូន</p>
-                <p class="mb-0" style="margin-top: 5px; font-weight: 500; color: var(--text-muted); font-size: 12.5px;"><i class="fa-regular fa-copyright" style="margin-right: 4px;"></i> រក្សាសិទ្ធិគ្រប់យ៉ាង @ ២០២៦</p>
+                <div class="kh-kbach-band kh-kbach-bottom"></div>
             </div>
-        </div>
+        </section>
     </div>
 
     <!-- APP CONTAINER -->
@@ -206,13 +220,14 @@
         
         <!-- SIDEBAR NAVIGATION -->
         <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <div class="logo-box">
-                    <i class="fa-solid fa-balance-scale"></i>
+            <div class="sidebar-header nadr-brand">
+                <div class="nadr-brand-plate">
+                    <img src="images/nadr-logo-banner.png" alt="អាជ្ញាធរជាតិដោះស្រាយវិវាទក្រៅប្រព័ន្ធតុលាការ">
                 </div>
-                <div class="logo-text">
-                    <h2>NADR - CMS Pro</h2>
-                    <p data-i18n="sidebar.subtitle">កម្មវិធីគ្រប់គ្រងសំណុំរឿង របស់ ម.ស.វ.</p>
+                <div class="nadr-brand-meta">
+                    <span class="nadr-brand-abbr">អ.ដ.ក.</span>
+                    <span class="nadr-brand-dot"></span>
+                    <span class="nadr-brand-app">កម្មវិធីគ្រប់គ្រងសំណុំរឿង</span>
                 </div>
             </div>
 
@@ -266,9 +281,7 @@
                         <i class="fa-solid fa-right-from-bracket"></i>
                     </button>
                 </div>
-                <div style="text-align: center; margin-top: 10px; color: var(--text-muted); font-size: 11px;">
-                    v1.1.82
-                </div>
+                <div id="app-version-label" style="text-align: center; margin-top: 10px; color: var(--text-muted); font-size: 11px;"></div>
             </div>
         </aside>
 

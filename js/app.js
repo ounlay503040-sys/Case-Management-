@@ -72,6 +72,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // 0. Initialize Authentication Layer
     initAuth();
 
+    // Show the real app version in the sidebar footer.
+    const versionLabel = document.getElementById('app-version-label');
+    if (versionLabel && window.electronAPI && typeof window.electronAPI.getAppVersion === 'function') {
+        window.electronAPI.getAppVersion().then(v => { versionLabel.textContent = 'v' + v; }).catch(() => {});
+    }
+
     // 1. Initialize data
     loadCases();
     if (typeof scheduleAutoBackup === 'function') scheduleAutoBackup(15000); // daily backup on startup
@@ -4827,7 +4833,7 @@ function initAuth() {
             }
         } catch (err) { console.error('Password policy check failed:', err); }
     } else {
-        if (overlay) overlay.style.display = 'flex';
+        if (overlay) overlay.style.display = 'grid';
     }
 
     // 2. Toggle password visibility
@@ -4979,7 +4985,7 @@ window.saveHotfixPassword = async function() {
             sessionStorage.removeItem('nadr_auth_logged_in');
             if (typeof logAuditAction === 'function') logAuditAction('ចាកចេញពីប្រព័ន្ធ', 'បានចាកចេញពីប្រព័ន្ធ (Logout)');
             
-            if (overlay) overlay.style.display = 'flex';
+            if (overlay) overlay.style.display = 'grid';
             const pwd = document.getElementById('login-password');
             if (pwd) pwd.value = '';
             if (errorMsg) errorMsg.classList.add('d-none');
