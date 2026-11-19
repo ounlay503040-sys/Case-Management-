@@ -332,7 +332,7 @@
             mission_members: [{ no: '១', title: s.mediator_title, name: s.mediator_name, position: 'មន្ត្រីសម្រុះសម្រួលដោះស្រាយវិវាទ' }],
             mission_members_text: [s.mediator_title, s.mediator_name].filter(Boolean).join(' '),
             mission_cases_count: '១', mission_cases_ref: [{ case_no: caseNo(c), case_date: khDate(c.filingDate || c.dateReceived) }],
-            mission_case_results: [{ letter: 'ក', meeting_date: khDate(extras.meetingDate), meeting_kind: '', case_no: caseNo(c), case_date: khDate(c.filingDate || c.dateReceived),
+            mission_case_results: [{ letter: 'ក', meeting_date: khDate(extras.meetingDate), meeting_kind: extras.missionMeetingKind || '', case_no: caseNo(c), case_date: khDate(c.filingDate || c.dateReceived),
                 dispute_subject: disputeSubject(c), dispute_location: disputeLocation(c), result_text: '', conclusion_text: '', requests: blankList({}).map(x => ({ text: x.text })) }],
             mission_schedule: [{ day: '', activity: '' }],
             report_signer_name: s.mediator_name,

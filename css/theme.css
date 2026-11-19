@@ -1001,7 +1001,7 @@ body #case-modal.modal-overlay { left: 270px !important; right: 0 !important; wi
 .rp2-warn li { margin: 2px 0; }
 .rp2-fix { border: 1px solid #d97706; background: #fff; color: #92400e; border-radius: 6px; padding: 0 7px; font-weight: 700; cursor: pointer; font-family: inherit; }
 .rp2-fix:hover { background: #d97706; color: #fff; }
-.oc-in.oc-missing { border-color: #dc2626 !important; box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.22) !important; animation: ocPulse 1s ease-in-out 3; }
+.oc-in.oc-missing, .lt-field .oc-missing, #case-modal input.oc-missing, #case-modal select.oc-missing { border-color: #dc2626 !important; box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.22) !important; animation: ocPulse 1s ease-in-out 3; }
 @keyframes ocPulse { 50% { box-shadow: 0 0 0 6px rgba(220, 38, 38, 0.12); } }
 @media print { .rp2-warn { display: none !important; } }
 
@@ -1058,3 +1058,38 @@ body #case-modal.modal-overlay { left: 270px !important; right: 0 !important; wi
 .lt-folder-row { display: flex; gap: 6px; align-items: center; }
 .lt-folder-row input { flex: 1; min-width: 0; }
 .lt-folder-row .kt-btn { white-space: nowrap; }
+
+/* ===== Letters: case page section + dialog (letters.js) ===== */
+.lt-section .lt-folder-note { font-size: 12px; color: #475569; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 6px 10px; margin-bottom: 10px; word-break: break-all; }
+.lt-stage + .lt-stage { margin-top: 12px; }
+.lt-stage-h { font-weight: 700; font-size: 12.5px; color: var(--kt-navy, #0b2a6b); border-left: 3px solid var(--kt-gold, #c99a2e); padding-left: 8px; margin-bottom: 6px; }
+.lt-btns { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 6px; }
+.lt-btn { display: flex; align-items: center; gap: 8px; text-align: left; padding: 8px 10px; border-radius: 9px; border: 1px solid #dbe3ef; background: #fff; color: #0f172a; font-size: 12.5px; line-height: 1.5; cursor: pointer; transition: .15s; }
+.lt-btn i { color: #2b579a; font-size: 15px; flex: none; }
+.lt-btn:hover:not(:disabled) { border-color: var(--kt-gold, #c99a2e); background: #fffbeb; box-shadow: 0 2px 6px rgba(11,42,107,.08); }
+.lt-btn:disabled { opacity: .45; cursor: not-allowed; }
+.lt-dlg { position: fixed; inset: 0; z-index: 2147482000; display: none; align-items: center; justify-content: center; background: rgba(7,22,64,.45); padding: 16px; }
+.lt-dlg.open { display: flex; }
+.lt-dlg-box { width: min(620px, 100%); max-height: calc(100vh - 32px); display: flex; flex-direction: column; background: #fff; border-radius: 14px; border-top: 4px solid var(--kt-gold, #c99a2e); box-shadow: 0 20px 50px rgba(0,0,0,.25); overflow: hidden; }
+.lt-dlg-h { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border-bottom: 1px solid #eef2f7; }
+.lt-dlg-h > i { font-size: 22px; color: #2b579a; }
+.lt-dlg-h b { display: block; font-size: 14.5px; color: #071640; }
+.lt-dlg-h small { color: #64748b; font-size: 12px; }
+.lt-warn-h > i { color: #d97706; }
+.lt-dlg-body { padding: 14px 18px; overflow: auto; }
+.lt-fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px 12px; }
+.lt-field { display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; font-weight: 600; color: #334155; }
+.lt-field-wide { margin-bottom: 10px; }
+.lt-target-one, .lt-tpl-note { font-size: 12.5px; color: #334155; margin-bottom: 8px; }
+.lt-tpl-note b { font-family: monospace; color: #0b2a6b; }
+.lt-muted { font-size: 11.5px; color: #64748b; margin: 10px 0 0; }
+.lt-dlg-f { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 18px; border-top: 1px solid #eef2f7; background: #f8fafc; }
+.lt-miss-group { margin-bottom: 8px; }
+.lt-miss-place { font-weight: 700; font-size: 12.5px; color: #0b2a6b; }
+.lt-miss-group ul { margin: 4px 0 0 18px; padding: 0; font-size: 12.5px; color: #b91c1c; list-style: disc; }
+.lt-warn-line { font-size: 12.5px; color: #92400e; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 6px 10px; margin-bottom: 8px; }
+.dark-theme .lt-btn { background: #0f1a33; color: #e2e8f0; border-color: #24365e; }
+.dark-theme .lt-dlg-box, .dark-theme .lt-dlg-f { background: #0f1a33; color: #e2e8f0; }
+.dark-theme .lt-dlg-h b, .dark-theme .lt-miss-place, .dark-theme .lt-stage-h { color: #e8c25a; }
+.dark-theme .lt-field { color: #cbd5e1; }
+.dark-theme .lt-section .lt-folder-note { background: #0b1427; color: #cbd5e1; }

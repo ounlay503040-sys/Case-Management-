@@ -162,6 +162,38 @@ if (!gotTheLock) {
     try { return !!p && require('fs').statSync(p).isDirectory(); } catch (e) { return false; }
   });
 
+  // ---- Letters: fill a .docx template and open it in Word ----
+  let letterEngine = null;
+  const engine = () => (letterEngine = letterEngine || require('./lib/letter-engine.js'));
+  ipcMain.handle('letters:tags', (event, templateId) => {
+    try {
+      const p = engine().listTemplates()[templateId];
+      if (!p) return { ok: false, error: 'រកគម្រូមិនឃើញ៖ ' + templateId };
+      return { ok: true, tags: engine().inspectTemplate(p) };
+    } catch (e) { return { ok: false, error: e.message }; }
+  });
+  ipcMain.handle('letters:generate', async (event, req) => {
+    const fs = require('fs');
+    try {
+      const { templateId, data, dir, fileName, open } = req || {};
+      const p = engine().listTemplates()[templateId];
+      if (!p) return { ok: false, error: 'រកគម្រូមិនឃើញ៖ ' + templateId };
+      if (!dir || !fileName) return { ok: false, error: 'មិនទាន់មានទីតាំងរក្សាទុក' };
+      const r = engine().renderTemplate(p, data || {});
+      fs.mkdirSync(dir, { recursive: true });
+      // Never overwrite: "name.docx" → "name (2).docx" → "name (3).docx" …
+      const base = fileName.replace(/\.docx$/i, '');
+      let out = path.join(dir, base + '.docx');
+      for (let i = 2; fs.existsSync(out); i++) out = path.join(dir, `${base} (${i}).docx`);
+      fs.writeFileSync(out, r.buffer, { flag: 'wx' });
+      if (open !== false) {
+        const err = await shell.openPath(out);
+        if (err) return { ok: true, path: out, openError: err };
+      }
+      return { ok: true, path: out };
+    } catch (e) { return { ok: false, error: e.message, details: e.details || [] }; }
+  });
+
   // Native PDF Generation Handler (Prints the current window to PDF, ensuring all fonts are loaded)
   ipcMain.handle('generate-pdf', async (event, customOptions = {}) => {
     // The window's navy background colour shows in the PDF page margins; print on white.

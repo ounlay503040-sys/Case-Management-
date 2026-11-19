@@ -8,6 +8,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   openFolder: (folderPath) => ipcRenderer.send('open-folder', folderPath),
   pickFolder: (startPath) => ipcRenderer.invoke('dialog:pick-folder', startPath || ''),
   folderExists: (p) => ipcRenderer.invoke('fs:folder-exists', p),
+  letterTags: (templateId) => ipcRenderer.invoke('letters:tags', templateId),
+  generateLetter: (req) => ipcRenderer.invoke('letters:generate', req),
   exportAll: (data) => ipcRenderer.send('data:export-all', data),
   autoBackup: (json) => ipcRenderer.invoke('backup:auto-save', json),
   getBackupFolder: () => ipcRenderer.invoke('backup:get-folder'),
