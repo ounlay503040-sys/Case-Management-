@@ -16,6 +16,10 @@ function createWindow() {
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js')
     },
+    // Custom title bar: the page draws the bar, Windows draws the real
+    // minimize / maximize (with Snap Layouts) / close buttons on top of it.
+    titleBarStyle: 'hidden',
+    titleBarOverlay: { color: '#0b2a6b', symbolColor: '#ffffff', height: 42 },
     show: false, // Wait until ready-to-show to prevent visual flash
     backgroundColor: '#0a1128'
   });
@@ -94,6 +98,17 @@ if (!gotTheLock) {
 
     ipcMain.handle('app:get-version', () => app.getVersion());
 
+    // Match the native window buttons to the light/dark title bar.
+    ipcMain.on('titlebar:set-theme', (event, dark) => {
+      if (mainWindow && typeof mainWindow.setTitleBarOverlay === 'function') {
+        try {
+          mainWindow.setTitleBarOverlay(dark
+            ? { color: '#071435', symbolColor: '#e8c25a', height: 42 }
+            : { color: '#0b2a6b', symbolColor: '#ffffff', height: 42 });
+        } catch (e) { /* not supported on this platform */ }
+      }
+    });
+
     // Toggle DevTools for admins
     ipcMain.on('toggle-dev-tools', (event) => {
       if (mainWindow && mainWindow.webContents) {
@@ -137,6 +152,10 @@ if (!gotTheLock) {
 
   // Native PDF Generation Handler (Prints the current window to PDF, ensuring all fonts are loaded)
   ipcMain.handle('generate-pdf', async (event, customOptions = {}) => {
+    // The window's navy background colour shows in the PDF page margins; print on white.
+    const win = BrowserWindow.fromWebContents(event.sender);
+    const prevBg = win ? win.getBackgroundColor() : null;
+    if (win) win.setBackgroundColor('#ffffff');
     try {
       const options = {
         landscape: true,
@@ -150,6 +169,8 @@ if (!gotTheLock) {
     } catch (error) {
       console.error('Failed to generate PDF:', error);
       throw error;
+    } finally {
+      if (win && prevBg) win.setBackgroundColor(prevBg);
     }
   });
 

@@ -3587,93 +3587,6 @@ body {
     background-color: #ffffff !important;
 }
 
-/* Master Cases Registry Top Toolbar & Filters Typography Hierarchy */
-#cases-view .bg-gradient-to-r h2 {
-    font-family: 'Kantumruy Pro', sans-serif !important;
-    font-size: 19px !important;
-    font-weight: 800 !important;
-    letter-spacing: 0.2px;
-}
-
-#cases-view button[onclick="openAddModal()"] {
-    font-family: 'Kantumruy Pro', sans-serif !important;
-    font-size: 13px !important;
-    font-weight: 700 !important;
-    padding: 8px 18px !important;
-    background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%) !important;
-    color: #ffffff !important;
-    border-radius: 10px !important;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    transition: all 0.2s ease !important;
-}
-
-#cases-view button[onclick="shareMasterTableToTelegramBot()"] {
-    font-family: 'Kantumruy Pro', sans-serif !important;
-    font-size: 12.5px !important;
-    font-weight: 600 !important;
-    padding: 8px 16px !important;
-    background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%) !important;
-    color: #ffffff !important;
-    border-radius: 10px !important;
-    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-}
-
-#cases-view button[onclick="exportReportToExcel()"] {
-    font-family: 'Kantumruy Pro', sans-serif !important;
-    font-size: 12.5px !important;
-    font-weight: 600 !important;
-    padding: 8px 16px !important;
-    background: rgba(255, 255, 255, 0.12) !important;
-    color: #ffffff !important;
-    border-radius: 10px !important;
-    border: 1px solid rgba(255, 255, 255, 0.25) !important;
-    backdrop-filter: blur(4px) !important;
-}
-
-/* Tab filter pills typography */
-.mt-type-tab {
-    font-family: 'Kantumruy Pro', sans-serif !important;
-    font-size: 12.5px !important;
-    font-weight: 600 !important;
-    cursor: pointer !important;
-}
-
-.sched-filter-tab {
-    font-family: 'Kantumruy Pro', sans-serif !important;
-    font-size: 12px !important;
-    font-weight: 600 !important;
-    cursor: pointer !important;
-}
-
-/* Master Cases Inputs and Selects */
-#cases-view #mt-search,
-#cases-view #mt-filter-status,
-#cases-view #mt-filter-cat,
-#cases-view #mt-filter-highlight,
-#cases-view #mt-filter-prov {
-    font-family: 'Kantumruy Pro', sans-serif !important;
-    font-size: 12.5px !important;
-    font-weight: 500 !important;
-    height: 38px !important;
-    border-radius: 8px !important;
-    border: 1px solid #cbd5e1 !important;
-}
-
-#cases-view #mt-search:focus,
-#cases-view select:focus {
-    border-color: #2563eb !important;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
-    outline: none !important;
-}
-
-
-/* Dropdown arrow padding & clean ellipsis in Cases View */
-#cases-view select {
-  padding-right: 28px !important;
-  text-overflow: ellipsis;
-}
 
 
 /* ==========================================================================
@@ -3729,22 +3642,6 @@ body {
   padding: 18px 20px 44px 20px !important;
 }
 
-#cases-view button[onclick*="toggleSectionMaximize"] {
-  font-family: 'Kantumruy Pro', sans-serif !important;
-  font-size: 12.5px !important;
-  font-weight: 600 !important;
-  padding: 8px 16px !important;
-  background: rgba(255, 255, 255, 0.12) !important;
-  color: #ffffff !important;
-  border-radius: 10px !important;
-  border: 1px solid rgba(255, 255, 255, 0.25) !important;
-  backdrop-filter: blur(4px) !important;
-  transition: all 0.2s ease !important;
-}
-
-#cases-view button[onclick*="toggleSectionMaximize"]:hover {
-  background: rgba(255, 255, 255, 0.22) !important;
-}
 
 /* Attached Legend Header Strip inside .master-table-frame */
 .master-legend-attached {
@@ -4397,4 +4294,30 @@ body {
     #login-overlay.kh-login { grid-template-columns: 1fr; }
     .kh-login-hero { display: none; }
     .kh-login-side { padding: 28px 16px 40px; }
+}
+
+/* Login: always exactly one screen, sizes scale with window height (no scrolling) */
+#login-overlay.kh-login { height: 100vh; overflow: hidden; }
+.kh-login-hero { padding: clamp(18px, 4vh, 48px) clamp(24px, 4vw, 56px) clamp(14px, 3vh, 36px); min-height: 0; }
+.kh-kingdom { font-size: clamp(15px, 2.2vh, 20px); line-height: 1.7; }
+.kh-motto { font-size: clamp(12px, 1.7vh, 15px); line-height: 1.7; }
+.kh-hero-top .kh-ornament { margin-top: clamp(4px, 1.2vh, 14px); height: clamp(18px, 2.6vh, 26px); }
+.kh-banner-plate { width: min(620px, 100%, 62vh * 1.6); padding: clamp(8px, 1.4vh, 14px) clamp(12px, 2vh, 22px); }
+.kh-hero-title { font-size: clamp(20px, 3.2vh, 30px); margin: clamp(10px, 2.6vh, 28px) 0 clamp(4px, 1vh, 8px); line-height: 1.7; }
+.kh-hero-sub { font-size: clamp(12px, 1.6vh, 15px); }
+.kh-login-side { padding: clamp(12px, 2.5vh, 36px) clamp(16px, 2.5vw, 40px); min-height: 0; overflow: hidden; }
+.kh-login-card { max-height: calc(100vh - 2 * clamp(12px, 2.5vh, 36px)); display: flex; flex-direction: column; }
+.kh-card-body { padding: clamp(12px, 2.4vh, 28px) clamp(20px, 2.6vw, 38px) clamp(10px, 1.8vh, 22px); overflow: hidden; }
+.kh-logo-wrap { width: clamp(64px, 11vh, 118px); height: clamp(64px, 11vh, 118px); padding: clamp(3px, 0.5vh, 5px); }
+.kh-abbr { font-size: clamp(16px, 2.4vh, 22px); margin: clamp(4px, 1vh, 12px) 0 0; line-height: 1.6; }
+.kh-card-title { font-size: clamp(14px, 1.9vh, 16.5px); }
+.kh-card-sub { font-size: clamp(10.5px, 1.3vh, 12px); }
+.kh-card-body .kh-ornament { margin: clamp(6px, 1.2vh, 14px) auto clamp(8px, 1.6vh, 18px); height: clamp(16px, 2.4vh, 26px); }
+.kh-label { margin-bottom: clamp(4px, 0.7vh, 8px); font-size: clamp(12.5px, 1.6vh, 14px); }
+.kh-input { height: clamp(40px, 5.4vh, 52px); }
+.kh-remember { margin: clamp(8px, 1.4vh, 14px) 0 clamp(10px, 1.8vh, 18px); }
+.kh-submit { height: clamp(42px, 5.6vh, 54px); }
+.kh-card-footer { margin-top: clamp(10px, 2vh, 22px); padding-top: clamp(6px, 1.2vh, 14px); }
+@media (max-height: 640px) {
+    .kh-card-footer, .kh-hero-bottom, .kh-hero-sub, .kh-card-sub { display: none; }
 }

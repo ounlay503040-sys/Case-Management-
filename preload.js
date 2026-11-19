@@ -10,5 +10,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   autoBackup: (json) => ipcRenderer.invoke('backup:auto-save', json),
   getBackupFolder: () => ipcRenderer.invoke('backup:get-folder'),
   getAppVersion: () => ipcRenderer.invoke('app:get-version'),
+  setTitleBarTheme: (dark) => ipcRenderer.send('titlebar:set-theme', !!dark),
   toggleDevTools: () => ipcRenderer.send('toggle-dev-tools')
 });
