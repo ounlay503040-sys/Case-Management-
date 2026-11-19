@@ -1,0 +1,256 @@
+{
+ "mediator_title": "លោក",
+ "mediator_name": "ឡាយ អូន",
+ "mediator_pronoun": "ខ្ញុំបាទ",
+ "mediator_pronoun_short": "ខ្ញុំ",
+ "mediator_phone": "០៧០ ៥០៣ ០៤០",
+ "sg_honorific": "ឯកឧត្តម",
+ "sg_name": "យ៉ម ផារ៉ូត",
+ "issue_lunar_date": "ថ្ងៃ                    ខែ                ឆ្នាំមមី អដ្ឋស័ក ព.ស.២៥៧០",
+ "issue_date": "ថ្ងៃទី          ខែ          ឆ្នាំ២០២៦",
+ "case_no": "១២១២/២៦",
+ "case_date": "ថ្ងៃទី៩ ខែកក្កដា ឆ្នាំ២០២៦",
+ "dispute_subject": "កិច្ចសន្យាខ្ចីប្រាក់",
+ "dispute_location": "ភូមិពេជ្រចិន្តា ឃុំពេជ្រចិន្តា ស្រុកភ្នំព្រឹក ខេត្តបាត់ដំបង",
+ "meeting_date": "ថ្ងៃទី១៦ ខែវិច្ឆិកា ឆ្នាំ២០២៦",
+ "meeting_time": "១:០០ នាទីរសៀល",
+ "meeting_date_full": "ថ្ងៃចន្ទ ទី១៦ ខែវិច្ឆិកា ឆ្នាំ២០២៦",
+ "meeting_time_start": "២ និង ០០ នាទីរសៀល",
+ "meeting_time_end": "៥ និង ០០ នាទីរសៀល",
+ "meeting_location": "អាជ្ញាធរជាតិដោះស្រាយវិវាទក្រៅប្រព័ន្ធតុលាការ ក្នុងបរិវេណបណ្ឌិត្យសភាភូមិន្ទយុត្តិធម៌កម្ពុជា ដែលស្ថិតនៅមហាវិថីឈ្នះឈ្នះ ភូមិព្រែកតារ័ត្ន សង្កាត់ព្រែកតាសេក ខណ្ឌជ្រោយចង្វារ រាជធានីភ្នំពេញ",
+ "recipient_org_name": "ធនាគារ ហត្ថា ម.ក សាខាខណ្ឌដង្កោ",
+ "recipient_address": "ភូមិបុរីកម្មករ សង្កាត់ជើងឯក ខណ្ឌដង្កោ រាជធានីភ្នំពេញ",
+ "recipient_representative": "មេធាវី មាឃ វ៉ុន អត្តលេខ២១៩៧ នៅក្រុមមេធាវី ដឺហ្វ្លេក",
+ "recipient_phone": "០៨១ ៧៥២ ០៥១",
+ "recipient_honorific": "លោក-លោកស្រី",
+ "recipient_persons": [
+  {
+   "name": "លឹម សុផាត",
+   "gender": "ប្រុស",
+   "nationality": "ខ្មែរ",
+   "dob": "ថ្ងៃទី១២ ខែកក្កដា ឆ្នាំ១៩៩២",
+   "sep": ", "
+  },
+  {
+   "name": "លឹម ថានី",
+   "gender": "ស្រី",
+   "nationality": "ខ្មែរ",
+   "dob": "ថ្ងៃទី១៩ ខែកញ្ញា ឆ្នាំ១៩៩៥",
+   "sep": " និង"
+  },
+  {
+   "name": "វ៉ុន ថន",
+   "gender": "ប្រុស",
+   "nationality": "ខ្មែរ",
+   "dob": "ថ្ងៃទី២១ ខែកុម្ភៈ ឆ្នាំ១៩៤៩",
+   "sep": ""
+  }
+ ],
+ "applicant_org_name": "ធនាគារ ហត្ថា ម.ក សាខាខណ្ឌដង្កោ",
+ "applicant_address": "ភូមិបុរីកម្មករ សង្កាត់ជើងឯក ខណ្ឌដង្កោ រាជធានីភ្នំពេញ",
+ "applicant_representative": "មេធាវី មាឃ វ៉ុន អត្តលេខ២១៩៧",
+ "applicant_phone": "០៨១ ៧៥២ ០៥១",
+ "applicant_persons": [
+  {
+   "name": "គ្រុយ គឹមស៊",
+   "gender": "ប្រុស",
+   "nationality": "ខ្មែរ",
+   "address": "ភូមិស្វាយតាមេឃ ឃុំកោះធំខ ស្រុកកោះធំ ខេត្តកណ្តាល",
+   "sep": ""
+  }
+ ],
+ "witness_name": "បូ ប៊ិន",
+ "witness_gender": "ប្រុស",
+ "witness_nationality": "ខ្មែរ",
+ "witness_position": "មេភូមិអូរអង្គំ",
+ "witness_address": "ភូមិអូរអង្គំ ឃុំអមលាំង ស្រុកថ្ពង ខេត្តកំពង់ស្ពឺ",
+ "witness_honorific": "លោក",
+ "applicant_short_names": "ធនាគារ ហត្ថា ម.ក",
+ "respondent_short_names": "ឈ្មោះ លឹម សុផាត",
+ "assignment_letter_no": "២០៩៨/២៦ រប.អ.ដ.ក.",
+ "assignment_letter_date": "ថ្ងៃទី១០ ខែកក្កដា ឆ្នាំ២០២៦",
+ "parties_designation": "ភាគីស្នើសុំ ធនាគារ ហត្ថា ម.ក ហៅកាត់ថា ភាគី “ក” និងភាគីម្ខាងទៀត ឈ្មោះ លឹម សុផាត ហៅកាត់ថា ភាគី “ខ”",
+ "meetings_total": "៥",
+ "info_meetings_count": "២",
+ "mediation_meetings_count": "៣",
+ "last_mediation_no": "៣",
+ "last_mediation_date": "ថ្ងៃទី១៦ ខែវិច្ឆិកា ឆ្នាំ២០២៦",
+ "negotiation_results": [
+  {
+   "no": "១",
+   "text": "ការចរចា រវាងភាគី “ក” និង ភាគី “ខ” ......"
+  }
+ ],
+ "close_reason": "ដោយគូភាគីបានស្នើសុំបិទបញ្ចប់សំណុំរឿងនេះ ......",
+ "mission_place": "ក្រុងអរិយក្សត្រ ខេត្តកណ្តាល",
+ "mission_background": "ភាគីម្ខាងទៀតស្នើសុំឱ្យចុះដោះស្រាយនៅមូលដ្ឋាន។",
+ "mission_purpose": "រៀបចំកិច្ចប្រជុំផ្តល់ព័ត៌មានភាគីម្ខាងទៀត",
+ "mission_expected_result": "នឹងទទួលបានព័ត៌មានគ្រប់ជ្រុងជ្រោយ",
+ "mission_schedule": [
+  {
+   "day": "ថ្ងៃទី២៦ ខែឧសភា ឆ្នាំ២០២៦ ពេលព្រឹក",
+   "activity": "ចេញដំណើរ និងប្រជុំផ្តល់ព័ត៌មាន"
+  }
+ ],
+ "mission_members": [
+  {
+   "no": "១",
+   "title": "លោក",
+   "name": "ឡាយ អូន",
+   "position": "មន្ត្រីសម្រុះសម្រួលដោះស្រាយវិវាទ"
+  }
+ ],
+ "room_purpose": "សាកសួរព័ត៌មានប្រមូលធាតុចូលបន្ថែម",
+ "authority_addressee": "លោកប្រធានក្រុមប្រឹក្សា សង្កាត់ពាមឧកញ៉ាអុង",
+ "authority_short": "លោកប្រធានក្រុមប្រឹក្សា",
+ "hall_name": "សាលប្រជុំសាលាសង្កាត់ពាមឧកញ៉ាអុង",
+ "meeting_kind": "ប្រមូលព័ត៌មាន",
+ "coop_reason": "ដោយហេតុថាមានការស្នើសុំពីភាគីម្ខាងទៀត",
+ "invited_participants": [
+  {
+   "no": "១",
+   "text": "តំណាងគណៈអភិបាលស្រុក"
+  }
+ ],
+ "mediation_meetings": [
+  {
+   "no": "១",
+   "date": "ថ្ងៃទី១៣ ខែធ្នូ ឆ្នាំ២០២៤",
+   "time": "៩ និង ០០ នាទីព្រឹក",
+   "place": "បន្ទប់ប្រជុំសម្រុះសម្រួលផ្សះផ្សាវិវាទនៃ អ.ដ.ក."
+  }
+ ],
+ "attendees": [
+  {
+   "title": "លោក",
+   "name": "លឹម សុផាត",
+   "role": "ភាគីម្ខាងទៀត ហៅកាត់ថា ភាគី “ខ”"
+  }
+ ],
+ "facts": [
+  {
+   "text": "អង្គហេតុ ......"
+  }
+ ],
+ "meeting_results": [
+  {
+   "no": "១",
+   "summary": "គូភាគីបានពិភាក្សាគ្នាលើជម្រើសដូចខាងក្រោម៖",
+   "points": [
+    {
+     "text": "......"
+    }
+   ]
+  }
+ ],
+ "final_conclusion": "សេចក្តីសន្និដ្ឋាន ......",
+ "mission_cases_count": "៣",
+ "intro_letter_no": "៣៣០/២៦ ឧទន. អ.ដ.ក.",
+ "intro_letter_date": "ថ្ងៃទី១ ខែមិថុនា ឆ្នាំ២០២៦",
+ "mission_letter_no": "៣៣០/២៦ បសក. អ.ដ.ក.",
+ "mission_letter_date": "ថ្ងៃទី១ ខែមិថុនា ឆ្នាំ២០២៦",
+ "mission_cases_ref": [
+  {
+   "case_no": "២៤៥/២៦",
+   "case_date": "ថ្ងៃទី២៧ ខែកុម្ភៈ ឆ្នាំ២០២៦"
+  }
+ ],
+ "mission_members_text": "លោក ឡាយ អូន",
+ "mission_period": "ថ្ងៃទី៧-១០ ខែមិថុនា ឆ្នាំ២០២៦",
+ "mission_case_results": [
+  {
+   "letter": "ក",
+   "meeting_date": "ថ្ងៃទី៨ ខែមិថុនា ឆ្នាំ២០២៦",
+   "meeting_kind": "សម្រុះសម្រួលវិវាទ",
+   "case_no": "៣២១/២៦",
+   "case_date": "ថ្ងៃទី២៥ ខែកុម្ភៈ ឆ្នាំ២០២៦",
+   "dispute_subject": "ទាមទារប្រាក់",
+   "dispute_location": "ខេត្តស្វាយរៀង",
+   "result_text": "......",
+   "conclusion_text": "......",
+   "requests": [
+    {
+     "text": "......"
+    }
+   ]
+  }
+ ],
+ "report_signer_name": "ឡាយ អូន",
+ "issue_summary": "ដីធ្លី ......",
+ "options": [
+  {
+   "no": "១",
+   "text": "......"
+  }
+ ],
+ "meeting_round": "១",
+ "party_options": [
+  {
+   "party_label": "ក",
+   "options": [
+    {
+     "no": "១",
+     "text": "......"
+    }
+   ]
+  }
+ ],
+ "meeting_outcome": "......",
+ "minutes_no": "       /២៦ កពវ.អ.ដ.ក.",
+ "minutes_date": "ថ្ងៃទី       ខែ       ឆ្នាំ២០២៦",
+ "mediators": [
+  {
+   "title": "លោក",
+   "name": "ឡាយ អូន"
+  }
+ ],
+ "party_a_description": "ធនាគារ ហត្ថា ម.ក ......",
+ "party_a_label": "ភាគី “ក”",
+ "party_b_description": "ឈ្មោះ លឹម សូផាត ......",
+ "party_b_label": "សហភាគី “ខ”",
+ "application_date": "ថ្ងៃទី២៩ ខែមិថុនា ឆ្នាំ២០២៦",
+ "agreement_terms": [
+  {
+   "no": "១",
+   "text": "គូភាគី ព្រមព្រៀងបញ្ចប់វិវាទខាងលើដោយ......"
+  }
+ ],
+ "withdrawal_clause_no": "២",
+ "party_a_signer": "មាឃ វ៉ុន",
+ "party_b_signer": "លឹម សូផាត",
+ "copies_count": "៣ (បី)",
+ "minutes_pages": "៥ (ប្រាំ)",
+ "meeting_title": "ផ្តល់ព័ត៌មាន ភាគីស្នើសុំ",
+ "grantors": [
+  {
+   "name": "យស់ ធី",
+   "gender": "ស្រី",
+   "dob": "ថ្ងៃទី១៣ ខែមីនា ឆ្នាំ១៩៥៧",
+   "id_no": "១៧០៣០០៣៩៨ (០១)",
+   "sep": " និងខ្ញុំ"
+  },
+  {
+   "name": "វ៉ុន ថន",
+   "gender": "ប្រុស",
+   "dob": "ថ្ងៃទី២១ ខែកុម្ភៈ ឆ្នាំ១៩៤៩",
+   "id_no": "១៧០៣០០៣៩៦ (០១)",
+   "sep": ""
+  }
+ ],
+ "grantor_address": "ភូមិពេជ្រចិន្តា ឃុំពេជ្រចិន្តា ស្រុកភ្នំព្រឹក ខេត្តបាត់ដំបង",
+ "grantor_pronoun": "យើងខ្ញុំ",
+ "grantee_name": "លឹម សូផាត",
+ "grantee_gender": "ប្រុស",
+ "grantee_dob": "ថ្ងៃទី១២ ខែកក្កដា ឆ្នាំ១៩៩២",
+ "grantee_id_no": "១៧០៩៤៤២៧៥ (០១)",
+ "grantee_address": "ភូមិពេជ្រចិន្តា ...",
+ "counterparty_name": "ធនាគារ ហត្ថា ម.ក",
+ "grantor_names": "យស់ ធី និង វ៉ុន ថន",
+ "envelope1_recipient": "លោក-លោកស្រី ជាប្រធានធនាគារ ហត្ថា ម.ក",
+ "envelope1_address": "ភូមិបុរីកម្មករ ...",
+ "envelope1_phone": "០៨១ ៧៥២ ០៥១",
+ "envelope2_recipient": "ឈ្មោះ លឹម សុផាត",
+ "envelope2_address": "ភូមិពេជ្រចិន្តា ...",
+ "envelope2_phone": "",
+ "mediator_gender": "ប្រុស"
+}

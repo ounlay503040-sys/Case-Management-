@@ -26,6 +26,8 @@
       "css/*.css",
       "images/**/*",
       "vendor/**/*",
+      "templates/**/*",
+      "lib/*.js",
       "js/*.js",
       "!js/*.bak*",
       "package.json"
