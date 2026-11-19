@@ -850,7 +850,7 @@ body #case-modal.modal-overlay { top: var(--kt-titlebar-h) !important; bottom: 0
 .dark-theme #tab-panel-outcome .oc-dim label { color: #64748b !important; }
 .dark-theme #tab-panel-outcome .oc-mt { border-top-color: #24345f; }
 /* The entry modal forces Kantumruy on headings; keep icon glyphs on Font Awesome. */
-#modal-new-case .oc-h i.fa-solid, #modal-new-case .oc-panel i.fa-solid { font-family: "Font Awesome 6 Free" !important; font-weight: 900 !important; font-style: normal; }
+#modal-new-case .oc-h i.fa-solid, #modal-new-case .oc-panel i.fa-solid, #modal-new-case .lt-folder i.fa-solid { font-family: "Font Awesome 6 Free" !important; font-weight: 900 !important; font-style: normal; }
 /* Period report controls */
 .rp-period { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
 .rp-period label { display: flex; flex-direction: column; font-size: 12px; font-weight: 700; color: #334155; gap: 3px; }
@@ -1051,3 +1051,10 @@ body #case-modal.modal-overlay { left: 270px !important; right: 0 !important; wi
 .cw-btn-primary:hover { filter: brightness(1.12); }
 .dark-theme .cw-leave-box h3 { color: #e8c25a; }
 .dark-theme .cw-leave-box p { color: #cbd5e1; }
+
+/* ===== Letters: settings tab + case folder (letters.js) ===== */
+.lt-settings .lt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px 16px; }
+.lt-settings textarea.kt-input { resize: vertical; min-height: 70px; line-height: 1.7; }
+.lt-folder-row { display: flex; gap: 6px; align-items: center; }
+.lt-folder-row input { flex: 1; min-width: 0; }
+.lt-folder-row .kt-btn { white-space: nowrap; }

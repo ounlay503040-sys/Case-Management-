@@ -2125,7 +2125,12 @@ function addPartyCard(role) {
     repName: '',
     repPhone: '',
     repId: '',
-    repDocDate: ''
+    repDocDate: '',
+    nationality: 'ខ្មែរ',
+    comBranch: '',
+    repGender: 'ប្រុស',
+    repFirm: '',
+    position: ''
   };
 
   if (role === 'claimant') claimants.push(item);
@@ -2236,10 +2241,14 @@ function renderPartyGroup(role, list, container) {
 
       ${party.type === 'individual' ? `
         <div class="space-y-3">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
             <div>
               <label class="block font-bold text-slate-800 mb-1">គោត្តនាម និងនាម (ឈ្មោះខ្មែរ) *</label>
               <input type="text" oninput="updatePartyValue('${role}', ${idx}, 'name', this.value)" value="${party.name || ''}" placeholder="ឧ. សេង វិបុល" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 text-xs font-semibold">
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">សញ្ជាតិ</label>
+              <input type="text" oninput="updatePartyValue('${role}', ${idx}, 'nationality', this.value)" value="${party.nationality || 'ខ្មែរ'}" placeholder="ខ្មែរ" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs">
             </div>
             <div>
               <label class="block font-semibold text-slate-700 mb-1">ភេទ</label>
@@ -2279,10 +2288,14 @@ function renderPartyGroup(role, list, container) {
         </div>
       ` : `
         <div class="space-y-3">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
               <label class="block font-bold text-slate-800 mb-1">ឈ្មោះស្ថាប័ន / ក្រុមហ៊ុន / ធនាគារ *</label>
               <input type="text" oninput="updatePartyValue('${role}', ${idx}, 'comName', this.value)" value="${party.comName || ''}" placeholder="ឧ. ធនាគារ អេស៊ីលីដា ភីអិលស៊ី" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-semibold">
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">សាខា</label>
+              <input type="text" oninput="updatePartyValue('${role}', ${idx}, 'comBranch', this.value)" value="${party.comBranch || ''}" placeholder="ឧ. សាខាខណ្ឌដង្កោ" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs">
             </div>
             <div>
               <label class="block font-semibold text-slate-700 mb-1">លេខចុះបញ្ជីពាណិជ្ជកម្ម</label>
@@ -2290,10 +2303,16 @@ function renderPartyGroup(role, list, container) {
             </div>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-            <input type="text" oninput="updatePartyValue('${role}', ${idx}, 'comAddress', this.value)" value="${party.comAddress || ''}" placeholder="អាសយដ្ឋានទីស្នាក់ការកណ្តាល" class="md:col-span-2 px-3 py-2 rounded-lg border border-slate-300 text-xs">
+            <input type="text" oninput="updatePartyValue('${role}', ${idx}, 'comAddress', this.value)" value="${party.comAddress || ''}" placeholder="អាសយដ្ឋានទីស្នាក់ការ (សម្រាប់ផ្ញើលិខិត)" class="md:col-span-2 px-3 py-2 rounded-lg border border-slate-300 text-xs">
             <select onchange="updatePartyValue('${role}', ${idx}, 'province', this.value)" class="px-3 py-2 rounded-lg border border-blue-300 bg-white text-xs font-semibold text-blue-900">
               ${provOptions}
             </select>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">លេខទូរស័ព្ទស្ថាប័ន</label>
+              <input type="text" oninput="updatePartyValue('${role}', ${idx}, 'comPhone', this.value)" value="${party.comPhone || ''}" placeholder="ឧ. 081 752 051" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-mono">
+            </div>
           </div>
         </div>
       `}
@@ -2322,6 +2341,19 @@ function renderPartyGroup(role, list, container) {
               <div>
                 <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">លេខទូរស័ព្ទ *</label>
                 <input type="text" oninput="updatePartyValue('${role}', ${idx}, 'repPhone', this.value)" value="${party.repPhone || ''}" placeholder="ឧ. 012 334 455" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-xs font-mono">
+              </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">ភេទអ្នកតំណាង</label>
+                <select onchange="updatePartyValue('${role}', ${idx}, 'repGender', this.value)" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-xs">
+                  <option value="ប្រុស" ${(party.repGender || 'ប្រុស') === 'ប្រុស' ? 'selected' : ''}>ប្រុស</option>
+                  <option value="ស្រី" ${party.repGender === 'ស្រី' ? 'selected' : ''}>ស្រី</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">ក្រុមមេធាវី / ការិយាល័យមេធាវី</label>
+                <input type="text" oninput="updatePartyValue('${role}', ${idx}, 'repFirm', this.value)" value="${party.repFirm || ''}" placeholder="ឧ. ក្រុមមេធាវី ដឺហ្វ្លេក" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-xs">
               </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
@@ -2412,6 +2444,24 @@ function renderThirdPartyGroup() {
         <div>
           <label class="block font-semibold text-slate-700 mb-1">លេខអត្តសញ្ញាណប័ណ្ណ</label>
           <input type="text" oninput="updatePartyValue('thirdparty', ${idx}, 'idNo', this.value)" value="${party.idNo || ''}" placeholder="ឧ. ០៣០៥៩៨១២៤" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-mono">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">ភេទ</label>
+          <select onchange="updatePartyValue('thirdparty', ${idx}, 'gender', this.value)" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs">
+            <option value="ប្រុស" ${(party.gender || 'ប្រុស') === 'ប្រុស' ? 'selected' : ''}>ប្រុស</option>
+            <option value="ស្រី" ${party.gender === 'ស្រី' ? 'selected' : ''}>ស្រី</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">សញ្ជាតិ</label>
+          <input type="text" oninput="updatePartyValue('thirdparty', ${idx}, 'nationality', this.value)" value="${party.nationality || 'ខ្មែរ'}" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">មុខតំណែង (បើមាន)</label>
+          <input type="text" oninput="updatePartyValue('thirdparty', ${idx}, 'position', this.value)" value="${party.position || ''}" placeholder="ឧ. មេភូមិអូរអង្គំ" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs">
         </div>
       </div>
 
@@ -2876,6 +2926,8 @@ function handleCaseSubmit(e, opts) {
   };
   // Step 4 fields: meetings, outcome, amounts, activities, support
   if (typeof window.collectOutcomeFields === 'function') Object.assign(casePayload, window.collectOutcomeFields());
+  // Letter fields: subject, assignment letter, application date, case folder — see letters.js
+  if (typeof window.collectLetterFields === 'function') Object.assign(casePayload, window.collectLetterFields());
 
   if (editId) {
     if (typeof updateCase === 'function') updateCase(editId, casePayload);

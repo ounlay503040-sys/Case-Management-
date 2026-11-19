@@ -150,6 +150,18 @@ if (!gotTheLock) {
     }
   });
 
+  // Pick a case folder on this computer (letters are saved inside it)
+  ipcMain.handle('dialog:pick-folder', async (event, startPath) => {
+    const fs = require('fs');
+    const opts = { title: 'ជ្រើស Folder សំណុំរឿង', properties: ['openDirectory'] };
+    if (startPath && fs.existsSync(startPath)) opts.defaultPath = startPath;
+    const r = await dialog.showOpenDialog(mainWindow, opts);
+    return (r.canceled || !r.filePaths.length) ? '' : r.filePaths[0];
+  });
+  ipcMain.handle('fs:folder-exists', (event, p) => {
+    try { return !!p && require('fs').statSync(p).isDirectory(); } catch (e) { return false; }
+  });
+
   // Native PDF Generation Handler (Prints the current window to PDF, ensuring all fonts are loaded)
   ipcMain.handle('generate-pdf', async (event, customOptions = {}) => {
     // The window's navy background colour shows in the PDF page margins; print on white.

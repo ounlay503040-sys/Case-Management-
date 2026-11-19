@@ -1232,6 +1232,9 @@
                         <button type="button" class="st-tab tab-btn active" data-tab="tab-org" data-title="ស្ថាប័ន និងលេខកូដសំណុំរឿង" data-desc="ឈ្មោះស្ថាប័នសម្រាប់របាយការណ៍ និងទម្រង់លេខកូដសំណុំរឿងស្វ័យប្រវត្តិ" data-icon="fa-building-columns">
                             <span class="st-tab-icon"><i class="fa-solid fa-building-columns"></i></span><span>ស្ថាប័ន និងលេខកូដ</span>
                         </button>
+                        <button type="button" class="st-tab tab-btn" data-tab="tab-letters" data-title="ព័ត៌មានសម្រាប់លិខិត" data-desc="ព័ត៌មាន ម.ស.វ. អគ្គលេខាធិការ ឆ្នាំចន្ទគតិ និងអាសយដ្ឋាន អ.ដ.ក. ដែលប្រើក្នុងគម្រូលិខិតទាំងអស់" data-icon="fa-envelope-open-text">
+                            <span class="st-tab-icon"><i class="fa-solid fa-envelope-open-text"></i></span><span>ព័ត៌មានលិខិត</span>
+                        </button>
                         <button type="button" class="st-tab tab-btn" data-tab="tab-categories" data-title="ប្រភេទវិវាទ" data-desc="បន្ថែម កែ ឬលុបប្រភេទវិវាទក្នុងប្រព័ន្ធ" data-icon="fa-tags">
                             <span class="st-tab-icon"><i class="fa-solid fa-tags"></i></span><span>ប្រភេទវិវាទ</span>
                         </button>
@@ -1288,6 +1291,53 @@
                                         </div>
                                     </div>
                                     <button type="button" class="kt-btn-primary" onclick="saveOrgSettings()"><i class="fa-solid fa-floppy-disk"></i> រក្សាទុក</button>
+                                </div>
+                            </div>
+
+                            <!-- 1b. Letter settings -->
+                            <div class="settings-tab-pane" id="tab-letters" style="display: none;">
+                                <div class="st-form lt-settings">
+                                    <div class="lt-grid">
+                                        <div class="kt-field">
+                                            <label class="kt-label" for="lt-mediator-title">ងារ ម.ស.វ.</label>
+                                            <select id="lt-mediator-title" class="kt-input"><option>លោក</option><option>លោកស្រី</option><option>កញ្ញា</option></select>
+                                        </div>
+                                        <div class="kt-field">
+                                            <label class="kt-label" for="lt-mediator-name">ឈ្មោះ ម.ស.វ.</label>
+                                            <input type="text" id="lt-mediator-name" class="kt-input" placeholder="ឧ. ឡាយ អូន">
+                                        </div>
+                                        <div class="kt-field">
+                                            <label class="kt-label" for="lt-mediator-gender">ភេទ</label>
+                                            <select id="lt-mediator-gender" class="kt-input"><option>ប្រុស</option><option>ស្រី</option></select>
+                                        </div>
+                                        <div class="kt-field">
+                                            <label class="kt-label" for="lt-mediator-pronoun">សព្វនាម</label>
+                                            <select id="lt-mediator-pronoun" class="kt-input"><option>ខ្ញុំបាទ</option><option>នាងខ្ញុំ</option></select>
+                                            <span class="kt-hint">សព្វនាមខ្លី «ខ្ញុំ» ប្រើស្វ័យប្រវត្តិ</span>
+                                        </div>
+                                        <div class="kt-field">
+                                            <label class="kt-label" for="lt-mediator-phone">ទូរសព្ទ ម.ស.វ. (តេឡេក្រាម)</label>
+                                            <input type="text" id="lt-mediator-phone" class="kt-input" placeholder="ឧ. ០៧០ ៥០៣ ០៤០">
+                                            <span class="kt-hint">លេខឡាតាំងនឹងបំប្លែងជាលេខខ្មែរ</span>
+                                        </div>
+                                        <div class="kt-field">
+                                            <label class="kt-label" for="lt-sg-honorific">ងារអគ្គលេខាធិការ</label>
+                                            <input type="text" id="lt-sg-honorific" class="kt-input" placeholder="ឧ. ឯកឧត្តម">
+                                        </div>
+                                        <div class="kt-field">
+                                            <label class="kt-label" for="lt-sg-name">ឈ្មោះអគ្គលេខាធិការ</label>
+                                            <input type="text" id="lt-sg-name" class="kt-input" placeholder="ឧ. យ៉ម ផារ៉ូត">
+                                        </div>
+                                        <div class="kt-field">
+                                            <label class="kt-label" for="lt-lunar-year">ឈ្មោះឆ្នាំចន្ទគតិ (កំណត់ប្រចាំឆ្នាំ)</label>
+                                            <input type="text" id="lt-lunar-year" class="kt-input" placeholder="ឧ. ឆ្នាំមមី អដ្ឋស័ក ព.ស.២៥៧០">
+                                        </div>
+                                    </div>
+                                    <div class="kt-field">
+                                        <label class="kt-label" for="lt-nadr-address">អាសយដ្ឋាន អ.ដ.ក. (ទីតាំងប្រជុំលំនាំដើម)</label>
+                                        <textarea id="lt-nadr-address" class="kt-input" rows="3"></textarea>
+                                    </div>
+                                    <button type="button" class="kt-btn-primary" onclick="ltSaveSettings()"><i class="fa-solid fa-floppy-disk"></i> រក្សាទុក</button>
                                 </div>
                             </div>
 
@@ -1903,6 +1953,24 @@
           </div>
         </div>
 
+        <!-- ព័ត៌មានសម្រាប់លិខិត -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1" for="intake-dispute-subject">កម្មវត្ថុវិវាទ (សម្រាប់លិខិត)</label>
+            <input type="text" id="intake-dispute-subject" placeholder="ឧ. កិច្ចសន្យាខ្ចីប្រាក់" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 bg-white text-xs">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1" for="intake-assign-letter-no">លេខលិខិតចាត់តាំង</label>
+            <input type="text" id="intake-assign-letter-no" placeholder="ឧ. ២០៩៨/២៦ រប.អ.ដ.ក." class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 bg-white text-xs">
+            <p class="text-[10px] text-slate-500 mt-0.5">ចុះថ្ងៃ = ថ្ងៃខែឆ្នាំចាត់តាំងខាងលើ</p>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1" for="intake-application-date">ថ្ងៃភាគី «ក» ដាក់ពាក្យ</label>
+            <input type="date" id="intake-application-date" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 bg-white text-xs">
+            <p class="text-[10px] text-slate-500 mt-0.5">បើទុកទទេ ប្រើថ្ងៃចុះបញ្ជី</p>
+          </div>
+        </div>
+
         <!-- ទីតាំងវិវាទលម្អិត (ជាមួយ Dropdown រាជធានី-ខេត្តទាំង ២៥) -->
         <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
           <label class="block font-bold text-slate-800 text-xs flex items-center justify-between">
@@ -2040,6 +2108,17 @@
         <div>
           <label for="intake-drive-link" class="block font-bold text-slate-800 mb-1.5 text-[12.5px]">តំណភ្ជាប់ Folder ឯកសារ (Google Drive ឬទីតាំងក្នុងកុំព្យូទ័រ)</label>
           <input type="url" id="intake-drive-link" placeholder="https://drive.google.com/drive/folders/..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-xs font-mono">
+        </div>
+
+        <div class="lt-folder">
+          <label for="intake-case-folder" class="block font-bold text-slate-800 mb-1.5 text-[12.5px]">ទីតាំង Folder សំណុំរឿង នៅលើកុំព្យូទ័រ (សម្រាប់រក្សាទុកលិខិត)</label>
+          <div class="lt-folder-row">
+            <input type="text" id="intake-case-folder" readonly placeholder="មិនទាន់ជ្រើស Folder" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-xs font-mono">
+            <button type="button" class="kt-btn kt-btn-sm" onclick="ltPickCaseFolder()"><i class="fa-solid fa-folder-open"></i> ជ្រើស Folder សំណុំរឿង</button>
+            <button type="button" class="kt-btn kt-btn-sm" onclick="ltOpenCaseFolder()" title="បើក Folder"><i class="fa-solid fa-arrow-up-right-from-square"></i></button>
+            <button type="button" class="kt-btn kt-btn-sm" onclick="ltClearCaseFolder()" title="ដក Folder ចេញ"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+          <p class="text-[10px] text-slate-500 mt-1">ឧ. D:\1-អដក\1-ការងារដោះស្រាយវិវាទ\1-សំណុំរឿង\...\98-3400-20.11.26 ...</p>
         </div>
       </div>
 
@@ -2784,5 +2863,6 @@
     <script src="js/reports.js?v=18.0"></script>
     <script src="js/app.js?v=18.0"></script>
     <script src="js/casework.js?v=18.0"></script>
+    <script src="js/letters.js?v=1.0"></script>
 </body>
 </html>
