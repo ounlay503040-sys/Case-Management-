@@ -368,3 +368,105 @@ html.pt-fullscreen .mac-controls { display: none !important; }
 .pt-actions .pt-ibtn.pt-pdf { background: linear-gradient(135deg, #f87171, #dc2626) !important; color: #fff !important; border-color: #b91c1c !important; }
 .pt-actions .pt-ibtn.pt-word i, .pt-actions .pt-ibtn.pt-excel i, .pt-actions .pt-ibtn.pt-pdf i { color: #fff !important; }
 .pt-actions .pt-ibtn:disabled { opacity: .45; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+
+/* ==========================================================================
+   Window buttons on the right of the title bar (space kept for them)
+   ========================================================================== */
+.mac-controls { left: auto !important; right: 18px; top: 15px; }
+.top-header.kt-titlebar { position: relative; padding-right: 98px !important; }
+.tb-right { margin-right: 6px; }
+.top-header.kt-titlebar::after {
+    content: ""; position: absolute; right: 86px; top: 11px; bottom: 11px; width: 1px; background: rgba(255, 255, 255, .28);
+}
+
+/* ==========================================================================
+   One owner: the accounts and activity-log settings are not used
+   ========================================================================== */
+#settings-view .st-tab[data-tab="tab-admins"], #settings-view .st-tab[data-tab="tab-audit"] { display: none !important; }
+.owner-setup-note {
+    font-size: 13px; line-height: 1.7; color: var(--sky-ink); background: var(--sky-50);
+    border: 1px solid var(--sky-200); border-left: 4px solid var(--gold-2); border-radius: 10px; padding: 8px 12px; margin: 0 0 12px;
+}
+.owner-setup-note i { color: var(--sky-600); margin-right: 4px; }
+
+/* ==========================================================================
+   Case form: section titles and footer buttons
+   ========================================================================== */
+#case-modal #case-form .oc-h,
+#case-modal #case-form h4.font-bold.text-slate-900 {
+    font-family: var(--font-title) !important; font-weight: 400 !important; font-size: 15px !important; line-height: 1.9 !important;
+    color: var(--sky-ink) !important; display: flex !important; align-items: center; gap: 10px; letter-spacing: .2px;
+}
+#case-modal #case-form .oc-h { padding-bottom: 8px !important; margin-bottom: 12px !important; border-bottom: none !important; position: relative; }
+#case-modal #case-form .oc-h::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; border-radius: 2px;
+    background: linear-gradient(90deg, var(--gold-2), var(--gold-1) 30%, rgba(14, 165, 233, .25) 70%, transparent);
+}
+#case-modal #case-form .oc-h > i.fa-solid {
+    width: 32px; height: 32px; min-width: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    font-size: 14px !important; color: #fff !important; background: linear-gradient(135deg, var(--sky-400), var(--sky-700));
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--gold-1), 0 4px 10px -4px rgba(3, 105, 161, .6);
+}
+#case-modal #tab-panel-general > div.p-3.5 > label > span { font-family: var(--font-title); font-weight: 400; font-size: 14px; color: var(--sky-ink); }
+#case-modal #case-modal-footer i.fa-solid, #case-modal #case-modal-footer i.fa-regular { font-family: "Font Awesome 6 Free" !important; font-style: normal; }
+#case-modal #case-modal-footer i.fa-solid { font-weight: 900 !important; }
+#case-modal #case-modal-footer i.fa-regular { font-weight: 400 !important; }
+html.dark-theme #case-modal #case-form .oc-h, html.dark-theme #case-modal #case-form h4.font-bold.text-slate-900 { color: #e6f6ff !important; }
+
+#case-modal #case-modal-footer .cf-btn {
+    display: inline-flex !important; align-items: center; justify-content: center; gap: 8px;
+    height: 44px; padding: 0 20px !important; border-radius: 999px !important;
+    font-family: var(--font-menu) !important; font-size: 14.5px !important; font-weight: 700 !important;
+    cursor: pointer; transition: transform .12s, box-shadow .12s, filter .12s; white-space: nowrap;
+}
+#case-modal #case-modal-footer .cf-btn.hidden { display: none !important; }
+#case-modal #case-modal-footer .cf-btn:hover { transform: translateY(-1px); }
+#case-modal #case-modal-footer .cf-btn:active { transform: scale(.97); }
+#case-modal #case-modal-footer .cf-ghost { background: transparent !important; color: #5b7a94 !important; border: 1.5px solid transparent !important; }
+#case-modal #case-modal-footer .cf-ghost:hover { background: rgba(255, 255, 255, .7) !important; color: #b91c1c !important; border-color: #fecaca !important; }
+#case-modal #case-modal-footer .cf-draft { background: #fff !important; color: var(--gold-3) !important; border: 1.5px solid var(--gold-1) !important; box-shadow: 0 3px 10px -6px rgba(185, 134, 26, .7) !important; }
+#case-modal #case-modal-footer .cf-draft:hover { background: #fffbeb !important; }
+#case-modal #case-modal-footer .cf-back { background: #fff !important; color: var(--sky-700) !important; border: 1.5px solid #bfe0f5 !important; box-shadow: 0 3px 10px -6px rgba(3, 105, 161, .5) !important; }
+#case-modal #case-modal-footer #btn-wizard-next.cf-next {
+    background: linear-gradient(115deg, var(--sky-700), var(--sky-500)) !important; color: #fff !important; border: none !important;
+    box-shadow: 0 8px 18px -8px rgba(3, 105, 161, .8), inset 0 -2px 0 var(--gold-2) !important; padding: 0 26px !important;
+}
+#case-modal #btn-wizard-submit.btn-create-case-exec:not(.hidden) {
+    display: inline-flex !important; align-items: center; gap: 8px; height: 44px; padding: 0 26px !important; border-radius: 999px !important;
+    background: linear-gradient(115deg, var(--gold-3), var(--gold-2) 55%, var(--gold-1)) !important; color: #3d2900 !important; border: none !important;
+    font-family: var(--font-menu) !important; font-size: 15px !important; font-weight: 800 !important;
+    box-shadow: 0 8px 18px -8px rgba(185, 134, 26, .9) !important;
+}
+
+/* ==========================================================================
+   About & guide page
+   ========================================================================== */
+.ab-body { display: flex; flex-direction: column; gap: 16px; max-width: 1100px; }
+.ab-hero {
+    display: flex; align-items: center; gap: 18px; padding: 18px 22px; border-radius: 18px; background: #fff;
+    border: 1px solid rgba(2, 132, 199, .15); box-shadow: 0 8px 22px -16px rgba(3, 105, 161, .6);
+}
+.ab-hero img { width: 82px; height: 82px; border-radius: 50%; box-shadow: 0 0 0 3px var(--gold-2), 0 6px 14px rgba(0, 0, 0, .18); }
+.ab-name { font-family: var(--font-title); font-size: 19px; line-height: 1.9; color: var(--sky-ink); }
+.ab-app { font: 900 13px/1.4 'Inter', sans-serif; letter-spacing: 3px; color: var(--sky-600); }
+.ab-org { font-size: 13.5px; color: #5b7a94; margin-top: 2px; }
+.ab-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.ab-fact { display: flex; flex-direction: column; gap: 2px; padding: 12px 16px; border-radius: 14px; background: #fff; border: 1px solid rgba(2, 132, 199, .14); }
+.ab-fact i { color: var(--gold-2); font-size: 16px; margin-bottom: 4px; }
+.ab-fact span { font-size: 12.5px; color: #5b7a94; }
+.ab-fact b { font-size: 14px; color: var(--sky-ink); word-break: break-all; }
+.ab-intro { margin: 0; font-size: 14px; line-height: 1.9; color: #36556e; }
+.ab-guides { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 12px; align-items: start; }
+.ab-guide { background: #fff; border-radius: 14px; border: 1px solid rgba(2, 132, 199, .15); border-left: 4px solid var(--gold-2); overflow: hidden; }
+.ab-guide summary { list-style: none; display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: pointer; }
+.ab-guide summary::-webkit-details-marker { display: none; }
+.ab-gi { width: 34px; height: 34px; min-width: 34px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: #fff; background: linear-gradient(135deg, var(--sky-400), var(--sky-700)); }
+.ab-gt { flex: 1; font-family: var(--font-title); font-size: 14.5px; line-height: 1.9; color: var(--sky-ink); }
+.ab-chev { color: var(--sky-600); transition: transform .15s; }
+.ab-guide[open] .ab-chev { transform: rotate(180deg); }
+.ab-guide ol { margin: 0; padding: 0 20px 14px 42px; font-size: 14px; line-height: 1.9; color: #2b4a63; }
+.ab-guide li { margin-bottom: 4px; }
+.ab-copy { text-align: center; color: #7b93a8; font-size: 12.5px; }
+html.dark-theme .ab-hero, html.dark-theme .ab-fact, html.dark-theme .ab-guide { background: #0f1d33; border-color: #24406a; }
+html.dark-theme .ab-name, html.dark-theme .ab-gt, html.dark-theme .ab-fact b { color: #e6f6ff; }
+html.dark-theme .ab-guide ol, html.dark-theme .ab-intro { color: #c6d6e6; }

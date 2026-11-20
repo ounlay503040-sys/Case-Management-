@@ -4826,7 +4826,7 @@ function initAuth() {
 
             if (!foundUser) {
                 if (errorMsg) {
-                    errorMsg.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> <span>ឈ្មោះគណនី ឬពាក្យសម្ងាត់មិនត្រឹមត្រូវ។ សូមពិនិត្យម្តងទៀត។</span>';
+                    errorMsg.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> <span>ពាក្យសម្ងាត់មិនត្រឹមត្រូវ។ សូមពិនិត្យម្តងទៀត។</span>';
                     errorMsg.classList.remove('d-none');
                 }
                 if (pwdInput) {
