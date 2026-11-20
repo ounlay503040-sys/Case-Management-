@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keydown', (e) => {
         if (e.ctrlKey && e.shiftKey && e.altKey && (e.key === 'd' || e.key === 'D')) {
             const role = localStorage.getItem('nadr_auth_user_role') || sessionStorage.getItem('nadr_auth_user_role') || '';
-            if (role.toLowerCase().includes('admin') || role.includes('គ្រប់គ្រង')) {
+            if (localStorage.getItem('nadr_owner_username') || role.toLowerCase().includes('admin') || role.includes('គ្រប់គ្រង')) {
                 if (window.electronAPI && window.electronAPI.toggleDevTools) {
                     window.electronAPI.toggleDevTools();
                 }
@@ -4965,7 +4965,9 @@ function updateSidebarUser(name, role) {
  */
 function applyRBAC() {
     const role = localStorage.getItem('nadr_auth_user_role') || sessionStorage.getItem('nadr_auth_user_role') || '';
-    const isAdmin = role.toLowerCase().includes('admin') || role.includes('រដ្ឋបាល') || role.includes('អ្នកគ្រប់គ្រង');
+    // One-owner app (see owner-login.js): whoever signs in owns the app and has full access.
+    const isOwnerApp = !!localStorage.getItem('nadr_owner_username');
+    const isAdmin = isOwnerApp || role.toLowerCase().includes('admin') || role.includes('រដ្ឋបាល') || role.includes('អ្នកគ្រប់គ្រង');
     
     // In Settings view, control tab visibility
     const adminTabs = ['tab-org', 'tab-categories', 'tab-columns', 'tab-admins', 'tab-audit'];

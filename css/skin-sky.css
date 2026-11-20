@@ -620,3 +620,68 @@ html:not(.dark-theme) #settings-view .st-content input:focus, html:not(.dark-the
     background: linear-gradient(115deg, var(--sky-700), var(--sky-500)) !important; color: #fff !important; border: none !important;
     border-radius: 999px !important; padding: 9px 22px !important; box-shadow: 0 8px 16px -10px rgba(3, 105, 161, .8), inset 0 -2px 0 var(--gold-2) !important;
 }
+
+/* ==========================================================================
+   Round 4: one bright look on every page
+   ========================================================================== */
+/* login: keep the window buttons clear of the login card */
+#login-overlay .kh-login-side { padding-top: 56px !important; }
+
+/* old "ពង្រីក" buttons that the app may still add late are hidden; the page tools sit at the right end */
+.view-section .section-title-box > .section-actions:not(.pt-actions) { display: none !important; }
+.view-section button:not(.pt-ibtn):has(> i.fa-expand), .view-section button:not(.pt-ibtn):has(> i.fa-maximize) { display: none !important; }
+.view-section .pt-actions { margin-left: auto !important; justify-content: flex-end; }
+.view-section .pt-actions > .pt-group { order: 99; }
+
+/* settings: the grid always keeps the menu left and the page right */
+#settings-view .st-layout > #rbac-officer-notice { grid-column: 1 / -1; }
+#settings-view .st-layout > .st-menu { grid-column: 1; }
+#settings-view .st-layout > .st-content { grid-column: 2; }
+@media (max-width: 1000px) {
+    #settings-view .st-layout > .st-menu, #settings-view .st-layout > .st-content { grid-column: 1; }
+    #settings-view .st-menu { position: static !important; flex-direction: row !important; flex-wrap: wrap; }
+}
+#settings-view .st-menu { top: 12px !important; }
+
+/* page background: light sky instead of cream; the building photo stays very faint */
+html:not(.dark-theme) .main-content { background: linear-gradient(180deg, #eef8ff 0%, #e6f4fd 45%, #dceffb 100%) !important; }
+html:not(.dark-theme) .main-content::before { opacity: 0.05 !important; filter: saturate(0.4) !important; }
+html:not(.dark-theme) .main-content::after {
+    background: linear-gradient(180deg, rgba(238, 248, 255, .7) 0%, rgba(238, 248, 255, 0) 35%, rgba(238, 248, 255, 0) 70%, rgba(220, 239, 251, .6) 100%) !important;
+}
+
+/* every card on every page: white, sky edge, soft shadow (like the case form) */
+html:not(.dark-theme) .view-section .dsb-card,
+html:not(.dark-theme) .view-section .kt-card,
+html:not(.dark-theme) .view-section .card-panel,
+html:not(.dark-theme) .view-section .data-mgmt-grid > div,
+html:not(.dark-theme) .view-section .pf-grid > div {
+    background: #ffffff !important;
+    border: 1px solid rgba(2, 132, 199, 0.15) !important;
+    border-radius: 18px !important;
+    box-shadow: 0 10px 26px -18px rgba(3, 105, 161, 0.55) !important;
+}
+/* card titles: clear, bold Kantumruy in the sky ink colour */
+html:not(.dark-theme) .view-section .dsb-card-head h3,
+html:not(.dark-theme) .view-section .kt-card-title,
+html:not(.dark-theme) .view-section .card-panel > h3,
+html:not(.dark-theme) .view-section .data-mgmt-grid h3 {
+    font-family: var(--font-menu) !important; font-weight: 700 !important; color: var(--sky-ink) !important; letter-spacing: .1px;
+}
+/* inputs on every page */
+html:not(.dark-theme) .view-section input:not([type=checkbox]):not([type=radio]):not([type=color]):not([type=range]):not([type=file]),
+html:not(.dark-theme) .view-section select,
+html:not(.dark-theme) .view-section textarea {
+    background-color: #ffffff !important; color: var(--sky-ink) !important;
+    border: 1.5px solid #bfe0f5 !important; border-radius: 11px !important;
+    transition: border-color .12s, box-shadow .12s;
+}
+html:not(.dark-theme) .view-section input:not([type=checkbox]):not([type=radio]):focus,
+html:not(.dark-theme) .view-section select:focus,
+html:not(.dark-theme) .view-section textarea:focus {
+    outline: none !important; border-color: var(--sky-500) !important; box-shadow: 0 0 0 4px rgba(14, 165, 233, .16) !important;
+}
+/* text weights: body text normal, labels semi-bold, numbers bold */
+.view-section { font-family: var(--font-menu); }
+.view-section label { font-weight: 600; }
+html:not(.dark-theme) .view-section label { color: #23445f; }
