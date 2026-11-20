@@ -34,7 +34,7 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css?v=18.0">
     <link rel="stylesheet" href="css/theme.css">
-    <link rel="stylesheet" href="css/skin-sky.css?v=1.11">
+    <link rel="stylesheet" href="css/skin-sky.css?v=1.13">
 
     <style id="case-type-themes">
         /* Personal Case Theme (Default) */
@@ -1799,7 +1799,8 @@
       <!-- TAB 1: ព័ត៌មានទូទៅនៃសំណុំរឿង -->
       <!-- ========================================== -->
       <div id="tab-panel-general" class="space-y-4">
-        <h4 class="oc-h oc-h-step"><i class="fa-solid fa-diagram-project"></i> ក. ប្រភេទ និងដំណើរការចាត់ការ</h4>
+        <div class="step-head"><span class="step-head-ic"><i class="fa-solid fa-folder-open"></i></span><div class="step-head-txt"><h3>ផ្ទាំងបញ្ចូលព័ត៌មានទូទៅនៃសំណុំរឿង</h3><p>សូមបញ្ចូលប្រភេទសំណុំរឿង លេខសំណុំរឿង កាលបរិច្ឆេទ ប្រភេទវិវាទ និងទីតាំងវិវាទ។ ប្រអប់ដែលមានសញ្ញា * ត្រូវតែបំពេញ។</p></div></div>
+        <h4 class="oc-h oc-h-step"><i class="fa-solid fa-diagram-project"></i> ក. ប្រភេទសំណុំរឿង</h4>
         
         <!-- TOP COMPACT TOOLBAR (ប្រភេទសំណុំរឿង: ផ្ទាល់ខ្លួន vs អម + ប៊ូតុងចម្លង) -->
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-slate-200">
@@ -1843,8 +1844,8 @@
           <p class="text-[10px] text-purple-700">ទិន្នន័យសំណុំរឿងអម នឹងត្រូវរក្សាទុក និងបង្ហាញដាច់ដោយឡែកពីសំណុំរឿងផ្ទាល់ខ្លួន</p>
         </div>
 
-        <!-- SLEEK & MODERN WORKFLOW STAGES STEPPER (រចនាថ្មី ស្រឡះភ្នែក តាមស្តង់ដារអន្តរជាតិ) -->
-        <div class="p-3.5 bg-slate-50/80 rounded-2xl border border-slate-200/90 shadow-2xs">
+        <!-- SLEEK & MODERN WORKFLOW STAGES STEPPER (hidden: the stage is set in step 4) -->
+        <div class="wf-card p-3.5 bg-slate-50/80 rounded-2xl border border-slate-200/90 shadow-2xs">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2 pb-2 border-b border-slate-200/60 text-xs">
             <div class="flex items-center gap-2">
               <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold">🔄</span>
@@ -2034,14 +2035,9 @@
       <!-- ============================================================== -->
       <div id="tab-panel-parties" class="space-y-6 hidden">
         
-        <div class="p-3.5 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-xl border border-blue-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-          <div class="flex items-center gap-2.5">
-            <span class="text-xl">👥</span>
-            <div>
-              <h4 class="font-bold text-slate-900 text-[13.5px]">បញ្ចូលព័ត៌មានរបស់គូភាគីវិវាទ "ក", "ខ", "គ"</h4>
-              <p class="text-[11px] text-slate-600">អ្នកអាចបញ្ចូលភាគី ក, ភាគី ខ និងភាគី គ ក្នុងទំព័រតែមួយ និងអាចចុច «+ បន្ថែមភាគី» បានច្រើននាក់តាមតម្រូវការ</p>
-            </div>
-          </div>
+        <div class="step-head step-head-parties">
+          <span class="step-head-ic"><i class="fa-solid fa-people-group"></i></span>
+          <div class="step-head-txt"><h3>ផ្ទាំងបញ្ចូលព័ត៌មានភាគីវិវាទ</h3><p>សូមបញ្ចូលព័ត៌មានភាគី «ក» និងភាគី «ខ»។ បើមានអ្នកធានា ម្ចាស់ដីជាប់ព្រំ ឬភាគីពាក់ព័ន្ធផ្សេង ចុច «បន្ថែមភាគី «គ»»។</p></div>
           <div class="flex items-center gap-1.5 self-start sm:self-auto text-[11px] font-bold">
             <span class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 border border-emerald-300" id="count-badge-k">ភាគី ក: 1</span>
             <span class="px-2.5 py-1 rounded-lg bg-rose-100 text-rose-800 border border-rose-300" id="count-badge-kh">ភាគី ខ: 1</span>
@@ -2101,17 +2097,8 @@
       <!-- TAB 3: អង្គហេតុ & ឯកសារភ្ជាប់ -->
       <!-- ============================================== -->
       <div id="tab-panel-facts" class="space-y-4 hidden">
-        <!-- Tab 3 Top Banner Header -->
-        <div class="p-3.5 bg-gradient-to-r from-emerald-50 via-teal-50 to-sky-50 rounded-xl border border-emerald-200/90 flex items-center gap-3 shadow-2xs">
-          <div class="w-9 h-9 rounded-xl bg-emerald-600/10 border border-emerald-500/20 text-emerald-700 flex items-center justify-center flex-shrink-0">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-            </svg>
-          </div>
-          <div>
-            <h4 class="font-bold text-slate-900 text-[13.5px] leading-snug">បញ្ចូលព័ត៌មាន អង្គហេតុវិវាទ, ការទាមទារ/សំណូមពរ និងបង្កើតតំណលីងទៅកាន់Folder សំណុំរឿង</h4>
-          </div>
-        </div>
+        <!-- Tab 3 header -->
+        <div class="step-head"><span class="step-head-ic"><i class="fa-solid fa-file-lines"></i></span><div class="step-head-txt"><h3>ផ្ទាំងបញ្ចូលអង្គហេតុ និងឯកសារ</h3><p>សូមពិពណ៌នាអង្គហេតុវិវាទ និងការទាមទាររបស់ភាគី ហើយភ្ជាប់ Folder ឯកសារសំណុំរឿង (សម្រាប់រក្សាទុកលិខិត)។</p></div></div>
 
         <h4 class="oc-h oc-h-step"><i class="fa-solid fa-file-lines"></i> ក. អង្គហេតុ និងការទាមទារ</h4>
         <div>
@@ -2146,6 +2133,7 @@
       <!-- TAB 4: ចំណាត់ការ លទ្ធផល និងសកម្មភាព (តាមតារាង Case Manage) -->
       <!-- ============================================== -->
       <div id="tab-panel-outcome" class="oc-panel hidden">
+        <div class="step-head"><span class="step-head-ic"><i class="fa-solid fa-flag-checkered"></i></span><div class="step-head-txt"><h3>ផ្ទាំងបញ្ចូលចំណាត់ការ និងលទ្ធផល</h3><p>សូមកត់ត្រាកិច្ចប្រជុំ លទ្ធផលរួម ការបិទបញ្ចប់ និងសកម្មភាពនានានៃសំណុំរឿង។ ដំណាក់កាលសំណុំរឿង ត្រូវបានកំណត់នៅទីនេះ។</p></div></div>
         <section class="oc-card">
           <h4 class="oc-h"><i class="fa-solid fa-people-arrows"></i> ក. ចំណាត់ការសំណុំរឿង (កិច្ចប្រជុំ)</h4>
           <div class="oc-meet-grid">

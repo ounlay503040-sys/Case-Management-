@@ -526,3 +526,97 @@ html:not(.dark-theme) #case-modal #case-form .oc-panel {
 #tab-panel-facts > h4.oc-h-step { grid-column: 1 / -1; }
 #tab-panel-facts:not(.hidden) > div:nth-child(3), #tab-panel-facts:not(.hidden) > div:nth-child(4) { grid-column: auto !important; display: flex; flex-direction: column; }
 #tab-panel-facts:not(.hidden) > div:nth-child(n+5) { grid-column: 1 / -1; }
+
+/* ==========================================================================
+   Case form, round 3: a header that stays on top of every step
+   ========================================================================== */
+#case-modal .step-head {
+    position: sticky; top: 0; z-index: 8;
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    padding: 12px 18px !important; margin: 0 0 6px !important; border-radius: 16px !important;
+    background: linear-gradient(115deg, #ffffff 0%, #f0f9ff 55%, #e0f2fe 100%) !important;
+    border: 1px solid rgba(2, 132, 199, .2) !important; border-left: 5px solid var(--gold-2) !important;
+    box-shadow: 0 8px 20px -14px rgba(3, 105, 161, .65) !important;
+    grid-column: 1 / -1;
+}
+#case-modal .step-head-ic {
+    width: 44px; height: 44px; min-width: 44px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 18px; background: linear-gradient(135deg, var(--sky-400), var(--sky-700));
+    box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--gold-1), 0 6px 14px -6px rgba(3, 105, 161, .7);
+    margin-left: 4px;
+}
+#case-modal .step-head-ic i { font-family: "Font Awesome 6 Free" !important; font-weight: 900 !important; font-style: normal; }
+#case-modal .step-head-txt { flex: 1; min-width: 260px; }
+#case-modal .step-head-txt h3 { margin: 0; font-family: var(--font-title) !important; font-weight: 400 !important; font-size: 17px; line-height: 1.9; color: var(--sky-ink); }
+#case-modal .step-head-txt p { margin: 0; font-size: 12.5px; line-height: 1.7; color: #4f6f88; }
+html.dark-theme #case-modal .step-head { background: linear-gradient(115deg, #0f1d33, #12294a) !important; border-color: #24406a !important; }
+html.dark-theme #case-modal .step-head-txt h3 { color: #e6f6ff; }
+html.dark-theme #case-modal .step-head-txt p { color: #b9cde0; }
+/* step 2 header keeps the counts and the "+ ភាគី «គ»" button on the right */
+#tab-panel-parties > .step-head-parties { padding: 12px 18px !important; }
+/* step 1: the stage card is not used here (the stage is set in step 4) */
+#case-modal #tab-panel-general > div.wf-card, #case-modal .wf-card { display: none !important; }
+/* stepper: no party count on step 2 */
+#badge-total-parties { display: none !important; }
+/* section titles: keep the gold ring of the round icon fully visible */
+#case-modal #case-form .oc-h.oc-h-step { padding-left: 6px !important; }
+#case-modal #case-form .oc-h > i.fa-solid { margin-left: 2px; }
+/* step 4: the panel scrolls under its sticky header */
+#case-modal #tab-panel-outcome:not(.hidden) { overflow-y: auto; }
+
+/* ==========================================================================
+   Settings: one full-screen button (the page ⛶), cleaner menu and card
+   ========================================================================== */
+#btn-toggle-fit-settings { display: none !important; }
+html:not(.dark-theme) #settings-view .st-menu {
+    background: #fff !important; border: 1px solid rgba(2, 132, 199, .15) !important; border-radius: 18px !important;
+    box-shadow: 0 10px 24px -18px rgba(3, 105, 161, .7) !important; padding: 14px 12px !important;
+}
+#settings-view .st-menu-title { font-family: var(--font-title) !important; font-weight: 400 !important; font-size: 13.5px !important; color: var(--gold-3) !important; margin: 2px 8px 10px !important; }
+#settings-view .st-tab {
+    border-radius: 12px !important; padding: 9px 12px !important; margin-bottom: 4px !important; gap: 12px !important;
+    font-family: var(--font-menu) !important; font-size: 14.5px !important; font-weight: 600 !important; border: 1px solid transparent !important;
+    transition: background .12s, transform .12s;
+}
+html:not(.dark-theme) #settings-view .st-tab { color: var(--sky-ink) !important; background: transparent !important; }
+html:not(.dark-theme) #settings-view .st-tab:hover { background: var(--sky-50) !important; transform: translateX(2px); }
+#settings-view .st-tab .st-tab-icon {
+    width: 32px !important; height: 32px !important; min-width: 32px; border-radius: 50% !important;
+    display: inline-flex !important; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, var(--sky-400), var(--sky-600)) !important; color: #fff !important; box-shadow: 0 3px 8px -3px rgba(2, 132, 199, .6);
+}
+#settings-view .st-tab .st-tab-icon i { color: #fff !important; }
+html:not(.dark-theme) #settings-view .st-tab.active {
+    background: linear-gradient(100deg, var(--sky-700), var(--sky-500)) !important; color: #fff !important;
+    border-color: var(--gold-2) !important; box-shadow: 0 8px 16px -10px rgba(3, 105, 161, .8) !important;
+}
+#settings-view .st-tab.active .st-tab-icon { background: linear-gradient(135deg, var(--gold-1), var(--gold-2)) !important; }
+#settings-view .st-tab.active .st-tab-icon i { color: var(--sky-800) !important; }
+html:not(.dark-theme) #settings-view .st-content {
+    background: #fff !important; border: 1px solid rgba(2, 132, 199, .15) !important; border-radius: 18px !important;
+    box-shadow: 0 10px 24px -18px rgba(3, 105, 161, .7) !important;
+}
+#settings-view .st-head { position: relative; padding-bottom: 14px !important; margin-bottom: 16px !important; border-bottom: none !important; }
+#settings-view .st-head::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; border-radius: 2px;
+    background: linear-gradient(90deg, var(--gold-2), var(--gold-1) 30%, rgba(14, 165, 233, .25) 70%, transparent);
+}
+#settings-view .st-head-icon {
+    width: 48px !important; height: 48px !important; border-radius: 50% !important; color: #fff !important;
+    background: linear-gradient(135deg, var(--sky-400), var(--sky-700)) !important;
+    box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--gold-1), 0 6px 14px -6px rgba(3, 105, 161, .7) !important;
+}
+#settings-view .st-head-icon i { color: #fff !important; }
+#settings-view .st-head-title { font-family: var(--font-title) !important; font-weight: 400 !important; font-size: 17px !important; line-height: 1.9 !important; color: var(--sky-ink) !important; }
+html:not(.dark-theme) #settings-view .st-content input:not([type=checkbox]):not([type=radio]):not([type=color]),
+html:not(.dark-theme) #settings-view .st-content select,
+html:not(.dark-theme) #settings-view .st-content textarea {
+    background: #fff !important; border: 1.5px solid #bfe0f5 !important; border-radius: 11px !important; color: var(--sky-ink) !important;
+}
+html:not(.dark-theme) #settings-view .st-content input:focus, html:not(.dark-theme) #settings-view .st-content select:focus, html:not(.dark-theme) #settings-view .st-content textarea:focus {
+    outline: none !important; border-color: var(--sky-500) !important; box-shadow: 0 0 0 4px rgba(14, 165, 233, .16) !important;
+}
+#settings-view .st-content .btn-primary, #settings-view .st-content button.kt-btn-primary {
+    background: linear-gradient(115deg, var(--sky-700), var(--sky-500)) !important; color: #fff !important; border: none !important;
+    border-radius: 999px !important; padding: 9px 22px !important; box-shadow: 0 8px 16px -10px rgba(3, 105, 161, .8), inset 0 -2px 0 var(--gold-2) !important;
+}
