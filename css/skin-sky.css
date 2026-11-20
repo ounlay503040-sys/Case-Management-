@@ -1,0 +1,193 @@
+/* ==========================================================================
+   NADR CMS Pro — "Sky & Gold" skin
+   Light sky-blue surfaces with gold accents; one look for the sidebar,
+   the title bar and the header of every page. Loaded after theme.css.
+   Dark mode keeps its own colours (only layout rules apply there).
+   ========================================================================== */
+:root {
+    --sky-50: #f0f9ff;
+    --sky-100: #e0f2fe;
+    --sky-200: #bae6fd;
+    --sky-300: #7dd3fc;
+    --sky-400: #38bdf8;
+    --sky-500: #0ea5e9;
+    --sky-600: #0284c7;
+    --sky-700: #0369a1;
+    --sky-800: #075985;
+    --sky-ink: #0b3a63;      /* text on light sky */
+    --gold-1: #f6d77a;       /* light gold */
+    --gold-2: #e3b23c;       /* gold */
+    --gold-3: #b9861a;       /* deep gold */
+    --font-menu: 'Kantumruy Pro', 'Noto Sans Khmer', 'Khmer OS Siemreap', sans-serif;
+    --font-title: 'Khmer OS Muol Light', 'Moul', 'Kantumruy Pro', serif;
+}
+
+/* ---------- Sidebar: brand block (one logo in the middle) ---------- */
+.sidebar-header.sky-brand {
+    flex-direction: column; align-items: center; justify-content: center; text-align: center;
+    gap: 0; padding: 14px 12px 12px !important; position: relative;
+}
+.sky-brand-logo {
+    width: 70px; height: 70px; border-radius: 50%; padding: 3px; margin-bottom: 6px;
+    background: conic-gradient(from 200deg, var(--gold-1), var(--gold-2), var(--gold-3), var(--gold-2), var(--gold-1));
+    box-shadow: 0 6px 18px -4px rgba(3, 105, 161, 0.45), 0 0 0 4px rgba(255, 255, 255, 0.7);
+}
+.sky-brand-logo img { width: 100%; height: 100%; border-radius: 50%; display: block; background: #fff; object-fit: cover; }
+.sky-brand-title { font-family: var(--font-title); font-size: 13.5px; line-height: 1.8; color: var(--sky-ink); letter-spacing: .2px; }
+.sky-brand-org { font-family: var(--font-menu); font-weight: 800; font-size: 15px; color: var(--gold-3); letter-spacing: 1px; line-height: 1.4; }
+.sky-brand-app {
+    font-family: 'Inter', var(--font-menu); font-weight: 900; font-size: 12.5px; letter-spacing: 3px; margin-top: 2px;
+    background: linear-gradient(90deg, var(--sky-700), var(--sky-500)); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.sidebar-header.sky-brand::after {
+    content: ""; position: absolute; left: 22px; right: 22px; bottom: 0; height: 2px; border-radius: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold-2), transparent);
+}
+
+/* ---------- Sidebar: menu ---------- */
+.nav-group-label {
+    font-family: var(--font-menu); font-size: 12px; font-weight: 700; letter-spacing: .3px;
+    color: var(--gold-3); margin: 10px 6px 4px; display: flex; align-items: center; gap: 8px;
+}
+.nav-group-label::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(185, 134, 26, .45), transparent); }
+.sidebar-nav .nav-group-label:first-child { margin-top: 2px; }
+.sidebar-nav { padding: 10px 12px !important; }
+.nav-item { font-family: var(--font-menu) !important; font-size: 15px !important; font-weight: 600 !important; letter-spacing: .1px; padding: 6px 12px !important; margin-bottom: 5px !important; gap: 12px !important; }
+.nav-item i {
+    width: 30px; height: 30px; min-width: 30px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center;
+    font-size: 15px;
+}
+
+html:not(.dark-theme) .sidebar {
+    background: linear-gradient(180deg, #eaf7ff 0%, var(--sky-100) 35%, var(--sky-200) 100%) !important;
+    color: var(--sky-ink); box-shadow: 4px 0 18px rgba(3, 105, 161, 0.18);
+}
+html:not(.dark-theme) .sidebar::after { background: linear-gradient(180deg, var(--gold-1), var(--gold-2) 50%, var(--gold-1)); opacity: 1; }
+html:not(.dark-theme) .sidebar-header.sky-brand { border-bottom: none; background: radial-gradient(120% 90% at 50% 0%, rgba(255,255,255,.9), rgba(255,255,255,0) 70%); }
+html:not(.dark-theme) .nav-item {
+    color: var(--sky-ink) !important; background: rgba(255, 255, 255, 0.55); border: 1px solid rgba(2, 132, 199, 0.14);
+    box-shadow: 0 1px 2px rgba(3, 105, 161, 0.06);
+}
+html:not(.dark-theme) .nav-item i { color: #fff !important; background: linear-gradient(135deg, var(--sky-400), var(--sky-600)); box-shadow: 0 3px 8px -3px rgba(2, 132, 199, .6); }
+html:not(.dark-theme) .nav-item:hover { background: #fff; border-color: rgba(227, 178, 60, 0.6); color: var(--sky-800) !important; transform: translateX(2px); }
+html:not(.dark-theme) .nav-item.active {
+    color: #fff !important; background: linear-gradient(100deg, var(--sky-700) 0%, var(--sky-600) 55%, var(--sky-500) 100%);
+    border: 1px solid var(--gold-2); box-shadow: 0 8px 18px -8px rgba(3, 105, 161, 0.8), inset 0 1px 0 rgba(255, 255, 255, .25);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .25);
+}
+html:not(.dark-theme) .nav-item.active::before { background: var(--gold-2); }
+html:not(.dark-theme) .nav-item.active i { color: var(--sky-800) !important; background: linear-gradient(135deg, var(--gold-1), var(--gold-2)); }
+
+/* Sidebar footer on the light sky background */
+html:not(.dark-theme) .sidebar-footer { background: rgba(255, 255, 255, 0.45); border-top: 1px solid rgba(227, 178, 60, 0.45); }
+html:not(.dark-theme) .sidebar-footer .sb-tools { background: rgba(255, 255, 255, 0.75) !important; border-color: rgba(2, 132, 199, .18) !important; }
+html:not(.dark-theme) .sidebar-footer .sb-zoom button,
+html:not(.dark-theme) .sidebar-footer .sb-theme { color: var(--sky-ink) !important; }
+html:not(.dark-theme) .sidebar-footer .sb-zoom button:hover,
+html:not(.dark-theme) .sidebar-footer .sb-theme:hover { background: var(--sky-100) !important; color: var(--sky-800) !important; }
+html:not(.dark-theme) .sidebar-footer .sb-zoom #zoom-level-display { color: var(--sky-ink) !important; }
+html:not(.dark-theme) .sidebar-footer .sb-zoom-icon,
+html:not(.dark-theme) .sidebar-footer .sb-theme i { color: var(--gold-3) !important; }
+html:not(.dark-theme) .sidebar-footer .sb-divider { background: rgba(185, 134, 26, .35); }
+html:not(.dark-theme) .user-profile-card { background: #fff !important; border: 1px solid rgba(2, 132, 199, .18) !important; box-shadow: 0 2px 6px rgba(3, 105, 161, .08); }
+html:not(.dark-theme) .user-profile-card .user-info h4 { color: var(--sky-ink) !important; }
+html:not(.dark-theme) .user-profile-card .user-info span { color: #4b6b88 !important; }
+html:not(.dark-theme) .user-profile-card .avatar { background: var(--sky-100) !important; color: var(--sky-700); }
+html:not(.dark-theme) #app-version-label { color: #4b6b88 !important; }
+
+/* ---------- Title bar ---------- */
+html:not(.dark-theme) .top-header {
+    background: linear-gradient(90deg, var(--sky-800) 0%, var(--sky-700) 45%, var(--sky-600) 100%) !important;
+    border-bottom: 3px solid var(--gold-2) !important;
+}
+
+/* ---------- Page header: the same banner on every page ---------- */
+.dsb-header,
+.view-section .section-title-box,
+.view-section .kt-page-head {
+    position: relative; overflow: hidden;
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 16px;
+    padding: 16px 22px 16px 98px !important; margin-bottom: 20px !important;
+    border-radius: 18px !important; border: 1px solid rgba(227, 178, 60, 0.75) !important;
+    border-bottom: 3px solid var(--gold-2) !important;
+    background:
+        radial-gradient(140% 120% at 100% 0%, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0) 45%),
+        linear-gradient(115deg, var(--sky-800) 0%, var(--sky-600) 50%, var(--sky-400) 100%) !important;
+    box-shadow: 0 10px 24px -14px rgba(3, 105, 161, 0.75) !important;
+    min-height: 92px;
+}
+.dsb-header { display: block; }
+/* the round logo on the left */
+.dsb-header::before,
+.view-section .section-title-box::before,
+.view-section .kt-page-head::before {
+    content: ""; position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
+    width: 60px; height: 60px; border-radius: 50%;
+    background: #fff url('../images/nadr-logo-round.webp') center / cover no-repeat;
+    box-shadow: 0 0 0 3px var(--gold-2), 0 0 0 6px rgba(255, 255, 255, 0.35), 0 6px 14px rgba(0, 0, 0, 0.25);
+}
+.dsb-header::before { top: 46px; transform: none; }
+/* gold sweep under the banner instead of the old short underline */
+.view-section .section-title-box::after,
+.view-section .kt-page-head::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; width: auto; height: 3px; border-radius: 0;
+    background: linear-gradient(90deg, var(--gold-3), var(--gold-1) 40%, var(--gold-2) 70%, transparent);
+}
+/* titles */
+.dsb-header .dsb-title,
+.view-section .section-title-box h1,
+.view-section .kt-page-head .kt-page-title {
+    font-family: var(--font-title) !important; font-weight: 400 !important;
+    font-size: 23px !important; line-height: 1.9 !important; margin: 0 !important;
+    color: #ffffff !important; letter-spacing: .3px;
+    text-shadow: 0 2px 0 rgba(3, 60, 100, .35), 0 0 18px rgba(246, 215, 122, .35);
+}
+.view-section .section-title-box h1 i,
+.view-section .kt-page-head .kt-page-title i { display: none; }
+.dsb-header .dsb-subtitle,
+.view-section .section-title-box p,
+.view-section .kt-page-head .kt-page-sub { color: #e6f6ff !important; font-size: 13.5px; margin: 0 !important; opacity: .95; }
+.view-section .kt-page-head .kt-page-sub strong { color: var(--gold-1); }
+/* buttons sitting on the banner */
+.dsb-header .btn-outline,
+.view-section .kt-page-head .kt-btn { background: rgba(255, 255, 255, 0.95) !important; border-color: rgba(255, 255, 255, 0.9) !important; color: var(--sky-ink) !important; }
+.dsb-header .btn-outline:hover,
+.view-section .kt-page-head .kt-btn:hover { background: #fff !important; box-shadow: 0 0 0 2px var(--gold-1); }
+.view-section .kt-page-head .kt-btn-primary { background: linear-gradient(135deg, var(--gold-1), var(--gold-2)) !important; color: #4a3200 !important; border: none !important; }
+/* dashboard: filters strip inside the banner */
+.dsb-header .dsb-header-controls {
+    margin-top: 12px; padding: 8px 10px; border-radius: 12px;
+    background: rgba(255, 255, 255, 0.92); box-shadow: inset 0 0 0 1px rgba(227, 178, 60, .5);
+}
+
+/* Dark mode: same layout, deeper colours */
+html.dark-theme .dsb-header,
+html.dark-theme .view-section .section-title-box,
+html.dark-theme .view-section .kt-page-head {
+    background:
+        radial-gradient(140% 120% at 100% 0%, rgba(232, 194, 90, 0.12) 0%, rgba(0, 0, 0, 0) 45%),
+        linear-gradient(115deg, #06243f 0%, #0b3a63 55%, #0f4c7f 100%) !important;
+}
+html.dark-theme .sky-brand-title { color: #e6f6ff; }
+html.dark-theme .sky-brand-org { color: var(--gold-1); }
+html.dark-theme .sky-brand-app { background: linear-gradient(90deg, var(--sky-300), var(--sky-400)); -webkit-background-clip: text; background-clip: text; }
+html.dark-theme .nav-group-label { color: var(--gold-1); }
+html.dark-theme .nav-item i { background: rgba(255, 255, 255, 0.06); }
+html.dark-theme .dsb-header .dsb-header-controls { background: rgba(255, 255, 255, 0.08); }
+
+/* Narrow windows: smaller banner */
+@media (max-width: 760px) {
+    .dsb-header, .view-section .section-title-box, .view-section .kt-page-head { padding-left: 84px !important; }
+    .dsb-header::before, .view-section .section-title-box::before, .view-section .kt-page-head::before { width: 48px; height: 48px; left: 16px; }
+    .dsb-header .dsb-title, .view-section .section-title-box h1, .view-section .kt-page-head .kt-page-title { font-size: 19px !important; }
+}
+
+/* ---------- Case form (full-screen "បញ្ចូលសំណុំរឿង") header ---------- */
+#modal-new-case > div.sky-modal-head .sky-modal-logo { width: 46px !important; height: 46px !important; min-width: 46px; border-radius: 50% !important; background: #fff !important; padding: 0 !important; box-shadow: 0 0 0 3px var(--gold-2), 0 4px 10px rgba(0,0,0,.25); overflow: hidden; }
+.sky-modal-logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+html:not(.dark-theme) #modal-new-case > div.sky-modal-head {
+    background: linear-gradient(115deg, var(--sky-800) 0%, var(--sky-600) 55%, var(--sky-400) 100%) !important;
+    border-bottom: 3px solid var(--gold-2) !important;
+}
+.sky-modal-head #modal-title { font-family: var(--font-title) !important; font-weight: 400 !important; font-size: 18px !important; line-height: 1.9; text-shadow: 0 2px 0 rgba(3, 60, 100, .35); }
+html:not(.dark-theme) .sky-modal-head #modal-guide-text { color: #eaf7ff !important; }

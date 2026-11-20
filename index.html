@@ -34,6 +34,7 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css?v=18.0">
     <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/skin-sky.css?v=1.2">
 
     <style id="case-type-themes">
         /* Personal Case Theme (Default) */
@@ -226,19 +227,18 @@
         
         <!-- SIDEBAR NAVIGATION -->
         <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header nadr-brand">
-                <div class="nadr-brand-plate">
-                    <img src="images/nadr-logo-banner.png" alt="អាជ្ញាធរជាតិដោះស្រាយវិវាទក្រៅប្រព័ន្ធតុលាការ">
+            <div class="sidebar-header nadr-brand sky-brand">
+                <div class="sky-brand-logo">
+                    <img src="images/nadr-logo-round.webp" alt="អាជ្ញាធរជាតិដោះស្រាយវិវាទក្រៅប្រព័ន្ធតុលាការ">
                 </div>
-                <div class="nadr-brand-meta">
-                    <span class="nadr-brand-abbr">អ.ដ.ក.</span>
-                    <span class="nadr-brand-dot"></span>
-                    <span class="nadr-brand-app">កម្មវិធីគ្រប់គ្រងសំណុំរឿង</span>
-                </div>
+                <div class="sky-brand-title">កម្មវិធីគ្រប់គ្រងសំណុំរឿង</div>
+                <div class="sky-brand-org">ម.ស.វ.</div>
+                <div class="sky-brand-app">NADR CMS PRO</div>
             </div>
 
             <nav class="sidebar-nav">
 
+                <div class="nav-group-label" data-i18n="nav.groupCases">គ្រប់គ្រងសំណុំរឿង</div>
                 <a href="#dashboard-view" class="nav-item active" data-view="dashboard-view">
                     <i class="fa-solid fa-chart-pie"></i>
                     <span data-i18n="nav.dashboard">ស្ថិតិសំណុំរឿង</span>
@@ -249,27 +249,29 @@
                 </a>
                 <a href="#entry-view" class="nav-item" data-view="entry-view">
                     <i class="fa-solid fa-folder-plus"></i>
-                    <span data-i18n="nav.entry">បញ្ចូលសំណុំរឿង</span>
+                    <span data-i18n="nav.entry">បញ្ចូលសំណុំរឿងថ្មី</span>
                 </a>
                 <a href="#calendar-view" class="nav-item" data-view="calendar-view">
                     <i class="fa-regular fa-calendar-days"></i>
-                    <span data-i18n="nav.calendar">កម្មវិធីសំណុំរឿង</span>
+                    <span data-i18n="nav.calendar">កាលវិភាគប្រជុំ</span>
                 </a>
+                <div class="nav-group-label" data-i18n="nav.groupAnalytics">របាយការណ៍ និងវិភាគ</div>
                 <a href="#reports-view" class="nav-item" data-view="reports-view">
                     <i class="fa-solid fa-file-invoice"></i>
-                    <span data-i18n="nav.reports">របាយការណ៍សំណុំរឿង</span>
+                    <span data-i18n="nav.reports">របាយការណ៍</span>
                 </a>
                 <a href="#analytics-view" class="nav-item" data-view="analytics-view">
                     <i class="fa-solid fa-chart-simple"></i>
-                    <span data-i18n="nav.analytics">វិភាគ វាយតម្លៃ</span>
+                    <span data-i18n="nav.analytics">វិភាគ និងវាយតម្លៃ</span>
                 </a>
+                <div class="nav-group-label" data-i18n="nav.groupSettings">រដ្ឋបាល</div>
                 <a href="#settings-view" class="nav-item" data-view="settings-view">
                     <i class="fa-solid fa-gears"></i>
-                    <span data-i18n="nav.settings">ការកំណត់ប្រព័ន្ធ</span>
+                    <span data-i18n="nav.settings">ការកំណត់</span>
                 </a>
                 <a href="#data-mgmt-view" class="nav-item" data-view="data-mgmt-view">
                     <i class="fa-solid fa-database"></i>
-                    <span data-i18n="nav.data">ទាញទិន្នន័យចូល &amp; បម្រុង</span>
+                    <span data-i18n="nav.data">ទិន្នន័យ និងការបម្រុងទុក</span>
                 </a>
             </nav>
 
@@ -478,7 +480,7 @@
             <section class="view-section" id="entry-view">
                 <div class="section-title-box">
                     <div>
-                        <h1 data-i18n="entry.title">បញ្ជាក់ និងបញ្ចូលសំណុំរឿងថ្មី</h1>
+                        <h1 data-i18n="entry.title">បញ្ចូលសំណុំរឿងថ្មី</h1>
                         <p data-i18n="entry.subtitle">ទទួលពាក្យបណ្តឹង ចាត់បែងចែកលេខកូដ និងបញ្ចូលទិន្នន័យសំណុំរឿងវិវាទចូលក្នុងប្រព័ន្ធ NADR</p>
                     </div>
                 </div>
@@ -710,7 +712,7 @@
                 </style>
                 <div class="section-title-box" style="margin-bottom: 12px;">
                     <div>
-                        <h1><i class="fa-regular fa-calendar-days text-primary"></i> កម្មវិធីសំណុំរឿង</h1>
+                        <h1><i class="fa-regular fa-calendar-days"></i> កាលវិភាគប្រជុំ</h1>
                     </div>
                 </div>
                 
@@ -800,7 +802,7 @@
             <section class="view-section" id="analytics-view">
                 <div class="kt-page-head">
                     <div>
-                        <h1 class="kt-page-title"><i class="fa-solid fa-chart-column"></i> វិភាគវាយតម្លៃចំណាត់ការសំណុំរឿង</h1>
+                        <h1 class="kt-page-title"><i class="fa-solid fa-chart-column"></i> វិភាគ និងវាយតម្លៃ</h1>
                         <p class="kt-page-sub">វាយតម្លៃអត្រាជោគជ័យ ប្រសិទ្ធភាពការសម្រុះសម្រួល និងអនុសាសន៍យុទ្ធសាស្ត្រ</p>
                     </div>
                     <div class="kt-page-actions">
@@ -993,7 +995,7 @@
             <section class="view-section" id="reports-view">
                 <div class="section-title-box">
                     <div>
-                        <h1 data-i18n="reports.title">របាយការណ៍សំណុំរឿង</h1>
+                        <h1 data-i18n="reports.title">របាយការណ៍</h1>
                         <p data-i18n="reports.subtitle">បង្កើតរបាយការណ៍រដ្ឋបាល បោះពុម្ព និងបញ្ចេញឯកសារ Excel (.xlsx)</p>
                     </div>
                 </div>
@@ -1111,7 +1113,7 @@
             <section class="view-section" id="data-mgmt-view">
                 <div class="section-title-box">
                     <div>
-                        <h1 data-i18n="dataMgmt.title">ទាញទិន្នន័យចូល & បម្រុងទុក</h1>
+                        <h1 data-i18n="dataMgmt.title">ទិន្នន័យ និងការបម្រុងទុក</h1>
                         <p data-i18n="dataMgmt.subtitle">ទាញបញ្ចូលទិន្នន័យពីឯកសារ Excel គោលរបស់អ្នក និងគ្រប់គ្រងទិន្នន័យសុវត្ថិភាព</p>
                     </div>
                 </div>
@@ -1220,7 +1222,7 @@
             <section class="view-section" id="settings-view">
                 <div class="kt-page-head">
                     <div>
-                        <h1 class="kt-page-title"><i class="fa-solid fa-gears"></i> ការកំណត់ប្រព័ន្ធ</h1>
+                        <h1 class="kt-page-title"><i class="fa-solid fa-gears"></i> ការកំណត់</h1>
                         <p class="kt-page-sub">គ្រប់គ្រងព័ត៌មានស្ថាប័ន ប្រភេទវិវាទ គណនីអ្នកប្រើ និងការភ្ជាប់ប្រព័ន្ធ</p>
                     </div>
                 </div>
@@ -1688,11 +1690,9 @@
       <div id="modal-new-case" class="bg-white w-screen h-screen max-w-full max-h-full flex flex-col overflow-hidden transform transition-all">
     
     <!-- ១. ក្បាល MODAL រចនាថ្មីកម្រិតខ្ពស់ -->
-    <div class="px-6 py-4 bg-gradient-to-r from-slate-900 via-blue-950 to-indigo-950 text-white flex items-center justify-between border-b border-slate-800 flex-shrink-0 shadow-sm">
+    <div class="sky-modal-head px-6 py-4 bg-gradient-to-r from-slate-900 via-blue-950 to-indigo-950 text-white flex items-center justify-between border-b border-slate-800 flex-shrink-0 shadow-sm">
       <div class="flex items-center gap-3.5">
-        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 border border-white/20 flex items-center justify-center text-xl shadow-lg shadow-blue-500/25">
-          ⚖️
-        </div>
+        <div class="sky-modal-logo"><img src="images/nadr-logo-round.webp" alt=""></div>
         <div>
           <div class="flex items-center gap-2">
             <h3 class="font-bold text-base text-white tracking-wide flex items-center gap-2" id="modal-title">

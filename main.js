@@ -19,7 +19,7 @@ function createWindow() {
     // Custom title bar: the page draws the bar, Windows draws the real
     // minimize / maximize (with Snap Layouts) / close buttons on top of it.
     titleBarStyle: 'hidden',
-    titleBarOverlay: { color: '#0b2a6b', symbolColor: '#ffffff', height: 42 },
+    titleBarOverlay: { color: '#0284c7', symbolColor: '#ffffff', height: 42 },
     show: false, // Wait until ready-to-show to prevent visual flash
     backgroundColor: '#0a1128'
   });
@@ -104,7 +104,7 @@ if (!gotTheLock) {
         try {
           mainWindow.setTitleBarOverlay(dark
             ? { color: '#071435', symbolColor: '#e8c25a', height: 42 }
-            : { color: '#0b2a6b', symbolColor: '#ffffff', height: 42 });
+            : { color: '#0284c7', symbolColor: '#ffffff', height: 42 });
         } catch (e) { /* not supported on this platform */ }
       }
     });

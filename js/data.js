@@ -813,16 +813,16 @@ let currentLang = localStorage.getItem('nadr_app_lang') || 'km';
 const I18N = {
     // ------------ Sidebar Navigation ------------
     'nav.main': { km: 'មេនុយទូទៅ', en: 'MAIN MENU' },
-    'nav.entry': { km: 'បញ្ចូលសំណុំរឿង', en: 'Case Entry' },
-    'entry.title': { km: 'បញ្ជាក់ និងបញ្ចូលសំណុំរឿងថ្មី', en: 'Case Intake & Registration Center' },
+    'nav.entry': { km: 'បញ្ចូលសំណុំរឿងថ្មី', en: 'Case Entry' },
+    'entry.title': { km: 'បញ្ចូលសំណុំរឿងថ្មី', en: 'Case Intake & Registration Center' },
     'entry.subtitle': { km: 'ទទួលពាក្យបណ្តឹង ចាត់បែងចែកលេខកូដ និងបញ្ចូលទិន្នន័យសំណុំរឿងវិវាទចូលក្នុងប្រព័ន្ធ NADR', en: 'Receive complaints, assign case numbers, and register dispute records into NADR system' },
-    'nav.dashboard': { km: 'ផ្ទាំងស្ថិតិសង្ខេប', en: 'Dashboard' },
+    'nav.dashboard': { km: 'ស្ថិតិសំណុំរឿង', en: 'Dashboard' },
     'nav.cases': { km: 'បញ្ជីសំណុំរឿង', en: 'Case List' },
-    'nav.analytics': { km: 'វិភាគវាយតម្លៃចំណាត់ការ', en: 'Analytics & Assessment' },
+    'nav.analytics': { km: 'វិភាគ និងវាយតម្លៃ', en: 'Analytics & Assessment' },
     'nav.admin': { km: 'រដ្ឋបាល & ទិន្នន័យ', en: 'ADMIN & DATA' },
-    'nav.reports': { km: 'ផលិតរបាយការណ៍', en: 'Report Generator' },
-    'nav.data': { km: 'ទាញទិន្នន័យចូល & បម្រុង', en: 'Import & Backup' },
-    'nav.settings': { km: 'ការកំណត់ប្រព័ន្ធ', en: 'System Settings' },
+    'nav.reports': { km: 'របាយការណ៍', en: 'Report Generator' },
+    'nav.data': { km: 'ទិន្នន័យ និងការបម្រុងទុក', en: 'Import & Backup' },
+    'nav.settings': { km: 'ការកំណត់', en: 'System Settings' },
     'sidebar.subtitle': { km: 'កម្មវិធីគ្រប់គ្រងសំណុំរឿង របស់ ម.ស.វ.', en: 'M.S.V Case Management System' },
 
     // ------------ Top Header ------------
@@ -831,7 +831,7 @@ const I18N = {
     'header.logout': { km: 'ចាកចេញ', en: 'Logout' },
 
     // ------------ Dashboard Section ------------
-    'dashboard.title': { km: 'ផ្ទាំងស្ថិតិសង្ខេបទូទៅ', en: 'General Statistics Dashboard' },
+    'dashboard.title': { km: 'ស្ថិតិសំណុំរឿង', en: 'General Statistics Dashboard' },
     'dashboard.subtitle': { km: 'តាមដានស្ថានភាពសំណុំរឿង និងលំហូរដោះស្រាយវិវាទប្រចាំស្ថាប័ន', en: 'Track case statuses and institutional dispute resolution workflows' },
     'dashboard.refresh': { km: 'ធ្វើបច្ចុប្បន្នភាព', en: 'Refresh' },
     'dashboard.section1': { km: '១. ស្ថិតិសង្ខេបតាមស្ថានភាពកាត (៥ ស្ថានភាព - ដូចក្នុងរូប)', en: '1. Summary Statistics by Status (5 Statuses)' },
@@ -902,15 +902,15 @@ const I18N = {
     'view.genDoc': { km: 'បង្កើតលិខិត', en: 'Generate Legal Docs (5)' },
 
     // ------------ Analytics View ------------
-    'analytics.title': { km: 'វិភាគវាយតម្លៃចំណាត់ការសំណុំរឿង', en: 'Case Disposition Analytics' },
+    'analytics.title': { km: 'វិភាគ និងវាយតម្លៃ', en: 'Case Disposition Analytics' },
     'analytics.subtitle': { km: 'ផ្ទាំងវិភាគការអនុវត្តន៍ បង្ហាញដោយតារាង និងក្រាហ្វិក', en: 'Performance analytics with charts and graphs' },
 
     // ------------ Reports View ------------
-    'reports.title': { km: 'ផលិតរបាយការណ៍ និងការវិភាគ', en: 'Report Generation & Analysis' },
+    'reports.title': { km: 'របាយការណ៍', en: 'Report Generation & Analysis' },
     'reports.subtitle': { km: 'បង្កើតរបាយការណ៍ និងនាំចេញទិន្នន័យស្ថាប័ន', en: 'Generate reports and export institutional data' },
 
     // ------------ Data Management View ------------
-    'dataMgmt.title': { km: 'ទាញទិន្នន័យចូល & បម្រុងសុវត្ថិភាព', en: 'Data Import & Security Backup' },
+    'dataMgmt.title': { km: 'ទិន្នន័យ និងការបម្រុងទុក', en: 'Data Import & Security Backup' },
     'dataMgmt.subtitle': { km: 'នាំចូល នាំចេញ ឬបម្រុងទុកទិន្នន័យក្នុងទម្រង់ JSON/Excel', en: 'Import, export, or backup data in JSON/Excel format' },
     'dataMgmt.exportJSON': { km: 'នាំចេញ JSON', en: 'Export JSON' },
     'dataMgmt.importJSON': { km: 'នាំចូល JSON', en: 'Import JSON' },
@@ -978,9 +978,9 @@ const I18N = {
     'nav.profileTitle': { km: 'ប្រវត្តិរូបមន្ត្រី', en: 'My Profile' },
     'nav.profileSub': { km: 'គ្រប់គ្រងគណនី & រូបភាព', en: 'Manage Account & Avatar' },
     'nav.groupCases': { km: 'គ្រប់គ្រងសំណុំរឿង', en: 'Case Management' },
-    'nav.groupAnalytics': { km: 'ស្ថិតិ និងវាយតម្លៃ', en: 'Statistics & Analytics' },
-    'nav.groupSettings': { km: 'ការកំណត់', en: 'Settings' },
-    'nav.calendar': { km: 'កម្មវិធីសំណុំរឿង', en: 'Case Schedule' },
+    'nav.groupAnalytics': { km: 'របាយការណ៍ និងវិភាគ', en: 'Statistics & Analytics' },
+    'nav.groupSettings': { km: 'រដ្ឋបាល', en: 'Settings' },
+    'nav.calendar': { km: 'កាលវិភាគប្រជុំ', en: 'Case Schedule' },
     'nav.strategic': { km: 'ផែនការយុទ្ធសាស្ត្រ', en: 'Strategic Plan' }
 };
 
