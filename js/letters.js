@@ -491,9 +491,22 @@
         document.querySelector('#settings-view .tab-btn[data-tab="tab-letters"]')?.addEventListener('click', fillSettingsForm);
     }
 
+    // Old "ផលិតលិខិត" entry points now lead here: open the case page at its «លិខិត» section.
+    function ltGoToLetters(caseId) {
+        const vm = $('view-modal');
+        if (!(vm && vm.classList.contains('open')) && typeof openViewModal === 'function') openViewModal(caseId);
+        setTimeout(() => {
+            const s = document.querySelector('#view-modal .lt-section');
+            if (!s) return;
+            s.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            s.classList.add('lt-flash');
+            setTimeout(() => s.classList.remove('lt-flash'), 1600);
+        }, 250);
+    }
+
     Object.assign(window, {
         ltGetSettings, ltSaveSettings, collectLetterFields, populateLetterFields,
-        ltPickCaseFolder, ltOpenCaseFolder, ltClearCaseFolder, ltStartLetter
+        ltPickCaseFolder, ltOpenCaseFolder, ltClearCaseFolder, ltStartLetter, ltGoToLetters
     });
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
     else init();

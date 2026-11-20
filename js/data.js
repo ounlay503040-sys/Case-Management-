@@ -899,7 +899,7 @@ const I18N = {
     'view.print': { km: 'បោះពុម្ពប័ណ្ណ', en: 'Print Card' },
     'view.edit': { km: 'កែសម្រួល', en: 'Edit' },
     'view.delete': { km: 'លុប', en: 'Delete' },
-    'view.genDoc': { km: 'ផលិតលិខិតគតិយុត្ត (5 Docs)', en: 'Generate Legal Docs (5)' },
+    'view.genDoc': { km: 'បង្កើតលិខិត', en: 'Generate Legal Docs (5)' },
 
     // ------------ Analytics View ------------
     'analytics.title': { km: 'វិភាគវាយតម្លៃចំណាត់ការសំណុំរឿង', en: 'Case Disposition Analytics' },
@@ -934,7 +934,7 @@ const I18N = {
     'login.btn': { km: 'ចូលប្រព័ន្ធ', en: 'Sign In' },
 
     // ------------ Legal Docs Modal ------------
-    'docs.title': { km: 'ផលិតលិខិតបទដ្ឋានគតិយុត្តផ្លូវការ', en: 'Official Legal Document Generator' },
+    'docs.title': { km: 'បង្កើតលិខិត', en: 'Official Legal Document Generator' },
     'docs.selectType': { km: 'ប្រភេទលិខិតគតិយុត្ត (៥ ទម្រង់ផ្លូវការ)៖', en: 'Document Type (5 Official Formats):' },
     'docs.date': { km: 'កាលបរិច្ឆេទលិខិត / កិច្ចប្រជុំ៖', en: 'Document / Meeting Date:' },
     'docs.room': { km: 'ទីតាំង / សាលកិច្ចប្រជុំ៖', en: 'Location / Meeting Room:' },

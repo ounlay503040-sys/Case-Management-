@@ -1065,7 +1065,7 @@ function generateMasterCaseRowHTML(c, rowNum) {
             <td class="text-center" style="white-space: nowrap; min-width: 150px;">
                 <div class="action-btns" style="display: flex; gap: 4px; justify-content: center; flex-wrap: nowrap;">
                     <button type="button" class="btn-icon system-action-btn" data-action="view" data-id="${c.id}" title="មើលប័ណ្ណ"><i class="fa-solid fa-eye" style="pointer-events: none;"></i></button>
-                    <button type="button" class="btn-icon text-success system-action-btn" data-action="legal" data-id="${c.id}" title="ផលិតលិខិតគតិយុត្ត"><i class="fa-solid fa-file-signature" style="pointer-events: none;"></i></button>
+                    <button type="button" class="btn-icon text-success system-action-btn" data-action="legal" data-id="${c.id}" title="បង្កើតលិខិត"><i class="fa-solid fa-file-signature" style="pointer-events: none;"></i></button>
                     <button type="button" class="btn-icon text-info system-action-btn" data-action="telegram" data-id="${c.id}" title="ចែករំលែកទៅ Telegram"><i class="fab fa-telegram-plane" style="pointer-events: none;"></i></button>
                     <button type="button" class="btn-icon system-action-btn" data-action="clone" data-id="${c.id}" title="ចម្លងសំណុំរឿង" style="color: #f59e0b;"><i class="fa-solid fa-copy" style="pointer-events: none;"></i></button>
                     <button type="button" class="btn-icon system-action-btn" data-action="edit" data-id="${c.id}" title="កែសម្រួល"><i class="fa-solid fa-pen" style="pointer-events: none;"></i></button>
@@ -1091,7 +1091,7 @@ document.addEventListener('click', function(e) {
     if (action === 'view') {
         if(typeof openViewModal === 'function') openViewModal(id);
     } else if (action === 'legal') {
-        if(typeof openLegalDocModal === 'function') openLegalDocModal(id);
+        if (typeof ltGoToLetters === 'function') ltGoToLetters(id);
     } else if (action === 'telegram') {
         if(typeof shareCaseToTelegram === 'function') shareCaseToTelegram(id);
     } else if (action === 'clone') {
@@ -1470,7 +1470,7 @@ function renderMasterTable() {
                     <div class="cl-more">
                         <button type="button" class="kt-icon-btn" title="សកម្មភាពផ្សេងទៀត" onclick="event.stopPropagation(); this.parentElement.classList.toggle('open')"><i class="fa-solid fa-ellipsis"></i></button>
                         <div class="cl-menu" onclick="event.stopPropagation(); this.parentElement.classList.remove('open')">
-                            <button type="button" onclick="if (typeof openLegalDocModal === 'function') openLegalDocModal('${id}');"><i class="fa-regular fa-file-lines"></i> ផលិតលិខិតផ្លូវការ</button>
+                            <button type="button" onclick="if (typeof ltGoToLetters === 'function') ltGoToLetters('${id}');"><i class="fa-regular fa-file-lines"></i> បង្កើតលិខិត</button>
                             <button type="button" onclick="cloneCaseFromNo('${id}')"><i class="fa-regular fa-copy"></i> ចម្លងសំណុំរឿង</button>
                             <button type="button" onclick="openEditEventModal('${id}')"><i class="fa-regular fa-calendar-plus"></i> ដាក់/កែកម្មវិធី</button>
                             <button type="button" class="danger" onclick="if (typeof confirmDeleteCase === 'function') confirmDeleteCase('${id}');"><i class="fa-regular fa-trash-can"></i> លុបសំណុំរឿង</button>
@@ -3375,7 +3375,7 @@ function openViewModal(id) {
     const btnGenDoc = document.getElementById('btn-generate-doc-from-view');
     if (btnGenDoc) {
         btnGenDoc.onclick = () => {
-            if (typeof openLegalDocModal === 'function') openLegalDocModal(c.id);
+            if (typeof ltGoToLetters === 'function') ltGoToLetters(c.id);
         };
     }
     const btnTelegram = document.getElementById('btn-telegram-from-view');

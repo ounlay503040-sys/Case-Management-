@@ -1093,3 +1093,5 @@ body #case-modal.modal-overlay { left: 270px !important; right: 0 !important; wi
 .dark-theme .lt-dlg-h b, .dark-theme .lt-miss-place, .dark-theme .lt-stage-h { color: #e8c25a; }
 .dark-theme .lt-field { color: #cbd5e1; }
 .dark-theme .lt-section .lt-folder-note { background: #0b1427; color: #cbd5e1; }
+/* «លិខិត» section highlight when reached from an old "ផលិតលិខិត" button */
+.lt-section.lt-flash { box-shadow: 0 0 0 3px #f59e0b, 0 0 18px rgba(245, 158, 11, .45); transition: box-shadow .3s; }
