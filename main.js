@@ -8,8 +8,8 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 800,
-    minWidth: 1024,
-    minHeight: 768,
+    minWidth: 640,
+    minHeight: 480,
     icon: path.join(__dirname, 'favicon.ico'),
     webPreferences: {
       nodeIntegration: false,
@@ -110,6 +110,7 @@ if (!gotTheLock) {
       if (mainWindow.isMaximized()) mainWindow.unmaximize(); else mainWindow.maximize();
     });
     ipcMain.on('win:close', () => { if (mainWindow) mainWindow.close(); });
+    ipcMain.on('win:set-fullscreen', (e, on) => { if (mainWindow) mainWindow.setFullScreen(!!on); });
     ipcMain.handle('win:is-maximized', () => !!(mainWindow && mainWindow.isMaximized()));
 
     // Toggle DevTools for admins

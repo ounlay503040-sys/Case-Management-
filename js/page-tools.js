@@ -74,6 +74,9 @@
         btn.classList.add('pt-ibtn');
         if (btn.classList.contains('kt-btn-primary')) btn.classList.add('pt-primary');
         if (icon.classList.contains('fa-telegram-plane') || icon.classList.contains('fa-telegram')) btn.classList.add('pt-telegram');
+        if (icon.classList.contains('fa-file-word')) btn.classList.add('pt-word');
+        if (icon.classList.contains('fa-file-excel')) btn.classList.add('pt-excel');
+        if (icon.classList.contains('fa-file-pdf') || (icon.classList.contains('fa-print') && btn.closest('#reports-view'))) btn.classList.add('pt-pdf');
         btn.setAttribute('data-tip', label);
         btn.setAttribute('aria-label', label);
         btn.removeAttribute('title');
@@ -108,14 +111,58 @@
             if (typeof currentZoom !== 'undefined' && typeof applyZoom === 'function') { currentZoom = 1; applyZoom(); }
             refreshZoomLabels();
         };
-        g.querySelector('.pt-fs').onclick = () => {
-            hideTip();
-            section.__maxBtn = null;
-            if (typeof window.toggleSectionMaximize === 'function') window.toggleSectionMaximize(section.id, null);
-            setFsIcon(section);
-        };
+        g.querySelector('.pt-fs').onclick = () => toggleFullScreen(section);
         return g;
     }
+    function toggleFullScreen(section) {
+        hideTip();
+        section.__maxBtn = null;
+        if (typeof window.toggleSectionMaximize === 'function') window.toggleSectionMaximize(section.id, null);
+        const on = section.classList.contains('fullscreen-overlay');
+        document.documentElement.classList.toggle('pt-fullscreen', on);
+        if (api().winSetFullScreen) api().winSetFullScreen(on);
+        setFsIcon(section);
+    }
+    document.addEventListener('keydown', e => {
+        if (e.key !== 'Escape') return;
+        const s = document.querySelector('section.view-section.fullscreen-overlay');
+        if (s && document.documentElement.classList.contains('pt-fullscreen')) toggleFullScreen(s);
+    });
+
+    /* ---------- Reports: file/share buttons go to the banner; the report refreshes by itself ---------- */
+    function setupReports() {
+        const sec = $('reports-view');
+        if (!sec || sec.__ptReports) return;
+        sec.__ptReports = true;
+        const box = bannerActions(sec);
+        if (box) ['btn-print-report', 'btn-export-word', 'btn-export-excel', 'btn-share-report-telegram'].forEach(id => {
+            const b = $(id); if (!b) return;
+            b.removeAttribute('style');
+            b.className = 'kt-btn';
+            box.appendChild(b);
+        });
+        let timer = null;
+        const regen = () => { clearTimeout(timer); timer = setTimeout(() => { if (typeof generateReport === 'function') generateReport(true); }, 150); };
+        sec.addEventListener('change', e => { if (e.target.closest('.pt-actions')) return; if (e.target.matches('select, input')) regen(); });
+        sec.addEventListener('click', e => { if (e.target.closest('[data-months]')) regen(); });
+    }
+
+    /* ---------- Night mode: a round button in the title bar ---------- */
+    function setupThemeButton() {
+        const btn = $('theme-toggle'), right = document.querySelector('.top-header .tb-right');
+        if (!btn || !right || btn.__pt) return;
+        btn.__pt = true;
+        btn.className = 'pt-theme';
+        right.insertBefore(btn, right.firstChild);
+        const sync = () => {
+            const dark = document.documentElement.classList.contains('dark-theme');
+            const tip = dark ? 'ប្ដូរទៅពណ៌ភ្លឺ' : 'ប្ដូរទៅពណ៌ងងឹត';
+            btn.setAttribute('data-tip', tip); btn.setAttribute('aria-label', tip);
+        };
+        sync();
+        btn.addEventListener('click', () => setTimeout(sync, 0));
+    }
+
     function bannerActions(section) {
         const dsb = section.querySelector('.dsb-header');
         if (dsb) return dsb.querySelector('.dsb-actions');
@@ -140,6 +187,8 @@
         setFsIcon(section);
     }
     function setupAll() {
+        setupThemeButton();
+        setupReports();
         document.querySelectorAll('section.view-section').forEach(setupPage);
         document.querySelectorAll('#view-modal .cp-actions button').forEach(iconize);
         refreshZoomLabels();
