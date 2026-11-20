@@ -16,10 +16,9 @@ function createWindow() {
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js')
     },
-    // Custom title bar: the page draws the bar, Windows draws the real
-    // minimize / maximize (with Snap Layouts) / close buttons on top of it.
+    // Custom title bar: the page draws the bar and its own Mac-style
+    // close / minimize / maximize buttons (see "win:*" handlers below).
     titleBarStyle: 'hidden',
-    titleBarOverlay: { color: '#0284c7', symbolColor: '#ffffff', height: 42 },
     show: false, // Wait until ready-to-show to prevent visual flash
     backgroundColor: '#0a1128'
   });
@@ -38,6 +37,9 @@ function createWindow() {
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
   });
+  const sendMax = () => { try { mainWindow.webContents.send('win:maximized', mainWindow.isMaximized()); } catch (e) {} };
+  mainWindow.on('maximize', sendMax);
+  mainWindow.on('unmaximize', sendMax);
 
   mainWindow.on('closed', function () {
     mainWindow = null;
@@ -98,16 +100,17 @@ if (!gotTheLock) {
 
     ipcMain.handle('app:get-version', () => app.getVersion());
 
-    // Match the native window buttons to the light/dark title bar.
-    ipcMain.on('titlebar:set-theme', (event, dark) => {
-      if (mainWindow && typeof mainWindow.setTitleBarOverlay === 'function') {
-        try {
-          mainWindow.setTitleBarOverlay(dark
-            ? { color: '#071435', symbolColor: '#e8c25a', height: 42 }
-            : { color: '#0284c7', symbolColor: '#ffffff', height: 42 });
-        } catch (e) { /* not supported on this platform */ }
-      }
+    // The window buttons are drawn by the page now; kept so older calls do nothing.
+    ipcMain.on('titlebar:set-theme', () => {});
+
+    // Mac-style window buttons drawn by the page
+    ipcMain.on('win:minimize', () => { if (mainWindow) mainWindow.minimize(); });
+    ipcMain.on('win:toggle-maximize', () => {
+      if (!mainWindow) return;
+      if (mainWindow.isMaximized()) mainWindow.unmaximize(); else mainWindow.maximize();
     });
+    ipcMain.on('win:close', () => { if (mainWindow) mainWindow.close(); });
+    ipcMain.handle('win:is-maximized', () => !!(mainWindow && mainWindow.isMaximized()));
 
     // Toggle DevTools for admins
     ipcMain.on('toggle-dev-tools', (event) => {

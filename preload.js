@@ -15,5 +15,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getBackupFolder: () => ipcRenderer.invoke('backup:get-folder'),
   getAppVersion: () => ipcRenderer.invoke('app:get-version'),
   setTitleBarTheme: (dark) => ipcRenderer.send('titlebar:set-theme', !!dark),
-  toggleDevTools: () => ipcRenderer.send('toggle-dev-tools')
+  toggleDevTools: () => ipcRenderer.send('toggle-dev-tools'),
+  winMinimize: () => ipcRenderer.send('win:minimize'),
+  winToggleMaximize: () => ipcRenderer.send('win:toggle-maximize'),
+  winClose: () => ipcRenderer.send('win:close'),
+  winIsMaximized: () => ipcRenderer.invoke('win:is-maximized'),
+  onWinMaximized: (cb) => ipcRenderer.on('win:maximized', (e, v) => cb(!!v))
 });

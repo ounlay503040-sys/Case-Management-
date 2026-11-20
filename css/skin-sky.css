@@ -191,3 +191,96 @@ html:not(.dark-theme) #modal-new-case > div.sky-modal-head {
 }
 .sky-modal-head #modal-title { font-family: var(--font-title) !important; font-weight: 400 !important; font-size: 18px !important; line-height: 1.9; text-shadow: 0 2px 0 rgba(3, 60, 100, .35); }
 html:not(.dark-theme) .sky-modal-head #modal-guide-text { color: #eaf7ff !important; }
+
+/* ==========================================================================
+   Mac-style window buttons (top-left, over the sidebar / login panel)
+   ========================================================================== */
+.mac-controls {
+    position: fixed; top: 14px; left: 16px; z-index: 2147483000;
+    display: flex; gap: 9px; -webkit-app-region: no-drag;
+}
+.mac-btn {
+    width: 14px; height: 14px; border-radius: 50%; padding: 0; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 0.5px solid rgba(0, 0, 0, 0.18); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 1px 2px rgba(0, 0, 0, .18);
+    transition: filter .12s, transform .12s;
+}
+.mac-close { background: #ff5f57; }
+.mac-min { background: #febc2e; }
+.mac-max { background: #28c840; }
+.mac-btn svg { width: 8px; height: 8px; opacity: 0; transition: opacity .12s; }
+.mac-btn svg path { fill: none; stroke: rgba(70, 20, 10, .75); stroke-width: 1.5; stroke-linecap: round; }
+.mac-min svg path { stroke: rgba(110, 70, 0, .8); }
+.mac-max svg path { stroke: rgba(5, 80, 20, .8); }
+.mac-controls:hover .mac-btn svg { opacity: 1; }
+.mac-btn:active { filter: brightness(.85); transform: scale(.94); }
+.mac-max .i-restore { display: none; }
+.mac-controls.is-max .mac-max .i-max { display: none; }
+.mac-controls.is-max .mac-max .i-restore { display: inline; }
+/* the native buttons are gone: the title bar no longer keeps space for them */
+.top-header.kt-titlebar { padding-right: 18px !important; }
+
+/* ==========================================================================
+   Icon buttons + tooltips + per-page tools
+   ========================================================================== */
+.pt-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.pt-ibtn {
+    width: 38px !important; height: 38px !important; min-width: 38px; padding: 0 !important; border-radius: 50% !important;
+    display: inline-flex !important; align-items: center; justify-content: center; gap: 0 !important;
+    font-size: 15px !important; cursor: pointer; line-height: 1;
+    background: #fff !important; color: var(--sky-700) !important;
+    border: 1px solid rgba(2, 132, 199, 0.22) !important;
+    box-shadow: 0 3px 8px -3px rgba(3, 60, 100, 0.35) !important;
+    transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+}
+.pt-ibtn .pt-label { display: none !important; }
+.pt-ibtn i { margin: 0 !important; color: inherit; }
+.pt-ibtn:hover { transform: translateY(-1px); box-shadow: 0 0 0 3px rgba(246, 215, 122, .55), 0 6px 14px -6px rgba(3, 60, 100, .55) !important; }
+.pt-ibtn:active { transform: scale(.95); }
+.pt-ibtn.pt-primary { background: linear-gradient(135deg, var(--gold-1), var(--gold-2)) !important; color: #4a3200 !important; border-color: rgba(185, 134, 26, .6) !important; }
+.pt-ibtn.pt-telegram { background: linear-gradient(135deg, #3fb7f0, #229ed9) !important; color: #fff !important; border-color: #1c8cc4 !important; }
+.pt-ibtn.pt-telegram i { color: #fff !important; }
+.pt-ibtn#btn-delete-from-view { color: #b91c1c !important; }
+/* the group: − 100% + | ⛶ */
+.pt-group {
+    display: inline-flex; align-items: center; gap: 4px; padding: 3px; border-radius: 999px;
+    background: rgba(255, 255, 255, 0.22); border: 1px solid rgba(255, 255, 255, 0.45);
+    -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+}
+.pt-group .pt-ibtn { width: 32px !important; height: 32px !important; min-width: 32px; font-size: 13px !important; }
+.pt-zoom-val {
+    min-width: 46px; text-align: center; font: 800 13px/1 'Inter', var(--font-menu); color: #fff; cursor: pointer;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .3); user-select: none;
+}
+.pt-sep { width: 1px; height: 20px; background: rgba(255, 255, 255, 0.55); margin: 0 3px; }
+html.dark-theme .pt-ibtn { background: #10223a !important; color: var(--sky-300) !important; border-color: rgba(125, 211, 252, .25) !important; }
+/* case page footer: icons in a row, edit stays gold */
+#view-modal .cp-actions { gap: 8px !important; align-items: center; }
+/* tooltip bubble */
+.pt-tip {
+    position: fixed; z-index: 2147483600; pointer-events: none; max-width: 260px;
+    padding: 6px 10px; border-radius: 8px; font: 600 12.5px/1.5 var(--font-menu);
+    color: #fff; background: rgba(8, 47, 79, 0.96); box-shadow: 0 6px 18px rgba(0, 0, 0, .25);
+    border: 1px solid rgba(246, 215, 122, .5);
+    opacity: 0; transform: translateY(-3px); transition: opacity .1s, transform .1s;
+}
+.pt-tip.show { opacity: 1; transform: none; }
+
+/* ==========================================================================
+   Sidebar brand: ម.ស.វ. in the title font
+   ========================================================================== */
+.sky-brand-org { font-family: var(--font-title) !important; font-weight: 400 !important; font-size: 16px !important; letter-spacing: 1.5px !important; line-height: 1.8 !important; }
+
+/* ==========================================================================
+   Login: the NADR banner sits over the building's name sign
+   (the photo fills the panel height, so the sign is always ~28.6% down, centred)
+   ========================================================================== */
+.kh-login-hero .kh-banner-plate {
+    position: absolute; z-index: 2; left: 50%; top: 28.6%; transform: translate(-50%, -50%);
+    width: min(calc(100% - 48px), 72vh) !important; margin: 0;
+}
+.kh-login-hero .kh-hero-center { padding-top: 8vh; }
+/* banner buttons: beat the older ".view-section .kt-page-head .kt-btn" colours */
+.pt-actions .pt-ibtn.pt-primary, #view-modal .cp-actions .pt-ibtn.pt-primary { background: linear-gradient(135deg, var(--gold-1), var(--gold-2)) !important; color: #4a3200 !important; border-color: rgba(185, 134, 26, .6) !important; }
+.pt-actions .pt-ibtn.pt-telegram, #view-modal .cp-actions .pt-ibtn.pt-telegram { background: linear-gradient(135deg, #3fb7f0, #229ed9) !important; color: #fff !important; border-color: #1c8cc4 !important; }
+.pt-actions .pt-ibtn.pt-telegram i, #view-modal .cp-actions .pt-ibtn.pt-telegram i { color: #fff !important; }
