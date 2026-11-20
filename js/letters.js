@@ -45,6 +45,7 @@
         if (!s.meeting_location) s.meeting_location = NADR_ADDRESS;
         localStorage.setItem(LT_SETTINGS_KEY, JSON.stringify(s));
         if (typeof showToast === 'function') showToast('បានរក្សាទុកព័ត៌មានសម្រាប់លិខិត', 'success');
+        if (pendingReturn && pendingReturn.place === 'settings') setTimeout(resumeLetter, 300);
     }
 
     /* ---------- Case fields used by the letters ---------- */
@@ -329,7 +330,8 @@
     }
 
     /** Build the data, list what is missing, then make the letter(s). */
-    async function checkAndMake(caseId, it, v, targets) {
+    async function checkAndMake(caseId, it, v, targets, opts) {
+        opts = opts || {};
         const c = getCase(caseId);
         const api = window.electronAPI;
         if (!api || !api.generateLetter) { toast('ការបង្កើតលិខិត ប្រើបានតែក្នុងកម្មវិធី Desktop', 'warning'); return; }
@@ -345,12 +347,21 @@
         const missing = [];
         jobs.forEach(j => j.missing.forEach(m => { if (!missing.some(x => x.key === m.key)) missing.push(Object.assign({ place: placeOf(m.key) }, m)); }));
         const warnings = [...new Set(jobs.flatMap(j => j.warnings))];
-        if (!missing.length && !warnings.length) return makeLetters(c, it, v, jobs);
+        if (!missing.length && !warnings.length) {
+            if (!opts.resume) return makeLetters(c, it, v, jobs);
+            return showDialog(`
+            <div class="lt-dlg-h lt-ok-h"><i class="fa-solid fa-circle-check"></i><div><b>ព័ត៌មានគ្រប់គ្រាន់ហើយ</b><small>${esc(it.label)}</small></div></div>
+            <div class="lt-dlg-body"><p>ព័ត៌មានដែលលិខិតនេះត្រូវការ ត្រូវបានបំពេញគ្រប់ហើយ។ ចុច «បង្កើតលិខិត» ដើម្បីបង្កើត ហើយបើកក្នុង Word។</p></div>
+            <div class="lt-dlg-f">
+                <button type="button" class="kt-btn" data-close>ពេលក្រោយ</button>
+                <button type="button" class="kt-btn-primary lt-primary" id="lt-make-now"><i class="fa-solid fa-file-word"></i> បង្កើតលិខិត</button>
+            </div>`, d => { d.querySelector('#lt-make-now').onclick = () => { closeDialog(); makeLetters(c, it, v, jobs); }; });
+        }
         const byPlace = {};
         missing.forEach(m => { (byPlace[m.place] = byPlace[m.place] || []).push(m); });
         const first = ['dialog', 'settings', 'general', 'parties', 'outcome'].find(p => byPlace[p]);
         showDialog(`
-            <div class="lt-dlg-h lt-warn-h"><i class="fa-solid fa-triangle-exclamation"></i><div><b>${missing.length ? 'ព័ត៌មានមិនទាន់គ្រប់' : 'សូមពិនិត្យ'}</b><small>${esc(it.label)}</small></div></div>
+            <div class="lt-dlg-h lt-warn-h"><i class="fa-solid fa-triangle-exclamation"></i><div><b>${missing.length ? (opts.resume ? 'នៅខ្វះព័ត៌មានខ្លះទៀត' : 'ព័ត៌មានមិនទាន់គ្រប់') : 'សូមពិនិត្យ'}</b><small>${esc(it.label)}</small></div></div>
             <div class="lt-dlg-body">
                 ${warnings.map(w => `<div class="lt-warn-line">${esc(w)}</div>`).join('')}
                 ${Object.keys(byPlace).map(p => `<div class="lt-miss-group"><div class="lt-miss-place">${esc(PLACE_LABEL[p])}</div><ul>${byPlace[p].map(m => `<li>${esc(m.label)}</li>`).join('')}</ul></div>`).join('')}
@@ -361,11 +372,11 @@
                 <button type="button" class="kt-btn-primary lt-primary" id="lt-blank"><i class="fa-solid fa-file-word"></i> ${missing.length ? 'បង្កើតដោយទុកចន្លោះទទេ' : 'បង្កើតលិខិត'}</button>
             </div>`, d => {
             const fix = d.querySelector('#lt-fix');
-            if (fix) fix.onclick = () => { closeDialog(); goFix(c, it, first, byPlace[first]); };
+            if (fix) fix.onclick = () => { closeDialog(); goFix(c, it, first, byPlace[first], v, targets); };
             d.querySelector('#lt-blank').onclick = () => { closeDialog(); jobs.forEach(j => fillBlanks(j.data, j.missing)); makeLetters(c, it, v, jobs); };
         });
     }
-    function goFix(c, it, place, items) {
+    function goFix(c, it, place, items, v, targets) {
         if (place === 'dialog') {
             ltStartLetter(c.id, it.key);
             const DIALOG_KEY = { meeting_date: 'meetingDate', meeting_date_full: 'meetingDate', meeting_time: 'meetingTime', meeting_time_start: 'timeStart', meeting_time_end: 'timeEnd', meeting_round: 'round' };
@@ -374,8 +385,10 @@
             if (els[0]) setTimeout(() => els[0].focus(), 60);
             return;
         }
+        pendingReturn = { caseId: c.id, key: it.key, v, targets, place, view: activeView() };
         $('view-modal')?.classList.remove('open');
         if (place === 'settings') {
+            toast('សូមបំពេញ៖ ' + items.map(m => m.label).join(', ') + ' ហើយចុច «រក្សាទុក»។ កម្មវិធីនឹងនាំលោកត្រឡប់ទៅលិខិតវិញ។', 'warning');
             if (typeof switchView === 'function') switchView('settings-view');
             setTimeout(() => document.querySelector('#settings-view .tab-btn[data-tab="tab-letters"]')?.click(), 100);
             return;
@@ -387,9 +400,44 @@
             const ids = { dispute_subject: 'intake-dispute-subject', assignment_letter_no: 'intake-assign-letter-no', assignment_letter_date: 'intake-assigned-date', application_date: 'intake-application-date', case_date: 'intake-filing-date', dispute_location: 'intake-loc-commune' };
             const el = items.map(m => $(ids[m.key])).find(Boolean);
             if (el) { el.classList.add('oc-missing'); el.scrollIntoView({ block: 'center' }); el.focus(); setTimeout(() => el.classList.remove('oc-missing'), 6000); }
-            toast('សូមបំពេញ៖ ' + items.map(m => m.label).join(', '), 'warning');
+            toast('សូមបំពេញ៖ ' + items.map(m => m.label).join(', ') + ' ហើយចុចរក្សាទុក។ កម្មវិធីនឹងនាំលោកត្រឡប់ទៅលិខិតវិញ។', 'warning');
         }, 300);
     }
+    /* ---------- Coming back after filling the missing information ---------- */
+    let pendingReturn = null;   // { caseId, key, v, targets, place, view } set by "បំពេញឥឡូវ"
+    let editReturn = null;      // { caseId, view, viewWasOpen } set when the case form opens for editing
+    const activeView = () => (document.querySelector('section.view-section.active') || {}).id || '';
+    function itemByKey(key) { for (const g of LETTERS) for (const x of g.items) if (x.key === key) return x; return null; }
+    function backToView(view) { if (view && activeView() !== view && typeof switchView === 'function') switchView(view); }
+    function resumeLetter() {
+        const p = pendingReturn; pendingReturn = null; editReturn = null;
+        if (!p) return;
+        backToView(p.view);
+        if (typeof openViewModal === 'function') openViewModal(p.caseId);
+        setTimeout(() => {
+            document.querySelector('#view-modal .lt-section')?.scrollIntoView({ block: 'start' });
+            const it = itemByKey(p.key);
+            if (it) checkAndMake(p.caseId, it, p.v || {}, p.targets || [null], { resume: true });
+        }, 350);
+    }
+    function onCaseFormClosed() {
+        setTimeout(() => {
+            if (pendingReturn && pendingReturn.place !== 'settings') return resumeLetter();
+            const r = editReturn; editReturn = null;
+            if (!r) return;
+            backToView(r.view);
+            if (r.viewWasOpen && typeof openViewModal === 'function') openViewModal(r.caseId);
+        }, 150);
+    }
+    function watchCaseForm() {
+        const cm = $('case-modal');
+        if (!cm || cm.__ltWatch) return;
+        cm.__ltWatch = true;
+        let was = cm.classList.contains('open');
+        new MutationObserver(() => { const now = cm.classList.contains('open'); if (was && !now) onCaseFormClosed(); was = now; })
+            .observe(cm, { attributes: true, attributeFilter: ['class'] });
+    }
+
     /** "Make it with blanks": empty places get dots so they can be written by hand. */
     function fillBlanks(data, missing) {
         const D = LC().DOTS;
@@ -475,6 +523,7 @@
         }
         if (typeof oe === 'function' && !oe.__lt) {
             window.openEditModal = function (id) {
+                editReturn = { caseId: id, view: activeView(), viewWasOpen: !!$('view-modal')?.classList.contains('open') };
                 const r = oe.apply(this, arguments);
                 populateLetterFields((window.casesData || (typeof casesData !== 'undefined' ? casesData : [])).find(x => String(x.id) === String(id)));
                 return r;
@@ -487,6 +536,7 @@
     function init() {
         wrapOpeners();
         wrapProfile();
+        watchCaseForm();
         fillSettingsForm();
         document.querySelector('#settings-view .tab-btn[data-tab="tab-letters"]')?.addEventListener('click', fillSettingsForm);
     }

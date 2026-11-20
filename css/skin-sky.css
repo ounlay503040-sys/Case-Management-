@@ -470,3 +470,59 @@ html.dark-theme #case-modal #case-form .oc-h, html.dark-theme #case-modal #case-
 html.dark-theme .ab-hero, html.dark-theme .ab-fact, html.dark-theme .ab-guide { background: #0f1d33; border-color: #24406a; }
 html.dark-theme .ab-name, html.dark-theme .ab-gt, html.dark-theme .ab-fact b { color: #e6f6ff; }
 html.dark-theme .ab-guide ol, html.dark-theme .ab-intro { color: #c6d6e6; }
+
+/* ==========================================================================
+   Case form, round 2
+   ========================================================================== */
+/* step 4: only the inner card keeps the gold edge (no double line on the left) */
+html:not(.dark-theme) #case-modal #case-form .oc-panel {
+    background: transparent !important; border: none !important; box-shadow: none !important; padding-left: 0 !important; padding-right: 0 !important;
+}
+/* numbered section titles on every step */
+#case-modal #case-form .oc-h.oc-h-step { margin: 2px 0 10px !important; }
+#case-modal #case-form .oc-sub { font-size: 12.5px !important; font-weight: 700; color: #5b7a94 !important; font-family: var(--font-menu) !important; }
+/* letter-info "letter result" dialog: ok header */
+.lt-dlg .lt-ok-h { background: linear-gradient(115deg, #047857, #10b981) !important; color: #fff !important; }
+.lt-dlg .lt-ok-h i { color: #fff !important; }
+
+/* ---------- Step 2 (parties): ក and ខ side by side, «គ» only when added ---------- */
+#tab-panel-parties:not(.hidden) {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important; grid-template-rows: none !important;
+    align-content: start; overflow-y: auto !important; gap: 14px !important; padding-right: 4px;
+}
+#tab-panel-parties > div:not(:first-child) { overflow: visible !important; }
+#tab-panel-parties #container-claimants, #tab-panel-parties #container-respondents, #tab-panel-parties #container-thirdparties { flex: none !important; overflow: visible !important; }
+#tab-panel-parties > div:nth-child(4) { grid-column: 1 / -1; }
+#tab-panel-parties > div:nth-child(4) #container-thirdparties { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+#tab-panel-parties > div:nth-child(4) #container-thirdparties > * { margin-top: 0 !important; }
+#tab-panel-parties > div:nth-child(4):has(#container-thirdparties > .border-dashed) { display: none !important; }
+/* group titles */
+#tab-panel-parties .pp-title { font-family: var(--font-title) !important; font-weight: 400 !important; font-size: 15px !important; line-height: 1.9 !important; white-space: nowrap; }
+#tab-panel-parties .pp-title small { font-family: var(--font-menu); font-size: 12px; font-weight: 600; color: #5b7a94; margin-left: 6px; }
+#tab-panel-parties > div:not(:first-child) > div:first-child { border-bottom-width: 2px !important; }
+#tab-panel-parties > div:not(:first-child) > div:first-child > button {
+    display: inline-flex !important; align-items: center; gap: 6px; white-space: nowrap;
+    height: 32px; padding: 0 14px !important; border-radius: 999px !important; font-size: 12.5px !important;
+}
+#tab-panel-parties button i.fa-solid { font-family: "Font Awesome 6 Free" !important; font-weight: 900 !important; font-style: normal; }
+/* the one "+ ភាគី «គ»" button in the top bar */
+#tab-panel-parties .pp-add-third {
+    display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 14px; border-radius: 999px; white-space: nowrap;
+    background: linear-gradient(135deg, #a855f7, #7e22ce); color: #fff; font-weight: 700; font-size: 12px; border: none; cursor: pointer;
+    box-shadow: 0 4px 10px -4px rgba(126, 34, 206, .6);
+}
+#tab-panel-parties .pp-add-third:hover { filter: brightness(1.08); }
+/* inside each party card: buttons never wrap */
+#tab-panel-parties #container-claimants button, #tab-panel-parties #container-respondents button, #tab-panel-parties #container-thirdparties button {
+    white-space: nowrap !important; line-height: 1.4;
+}
+#tab-panel-parties #container-claimants > div > div:first-child, #tab-panel-parties #container-respondents > div > div:first-child, #tab-panel-parties #container-thirdparties > div > div:first-child {
+    flex-direction: row !important; align-items: center !important; flex-wrap: wrap;
+}
+#tab-panel-parties:not(.hidden) { grid-auto-rows: max-content !important; }
+#tab-panel-parties > div { height: auto !important; max-height: none !important; min-height: max-content !important; }
+/* step 3: titles span the row; facts and claims side by side */
+#tab-panel-facts:not(.hidden) { grid-template-rows: none !important; grid-auto-rows: max-content; overflow-y: auto; }
+#tab-panel-facts > h4.oc-h-step { grid-column: 1 / -1; }
+#tab-panel-facts:not(.hidden) > div:nth-child(3), #tab-panel-facts:not(.hidden) > div:nth-child(4) { grid-column: auto !important; display: flex; flex-direction: column; }
+#tab-panel-facts:not(.hidden) > div:nth-child(n+5) { grid-column: 1 / -1; }
