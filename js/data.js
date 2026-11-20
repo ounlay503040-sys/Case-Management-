@@ -4,7 +4,7 @@
    Local Storage CRUD, Mock Data, and Excel/JSON Data Import Engine.
    ========================================================================== */
 
-// 1. បញ្ជី ២៥ រាជធានី-ខេត្ត ជាមួយអក្សរកាត់ (Provinces & Capital List)
+// 1. បញ្ជី ២៥ រាជធានី-ខេត្ត ជាមួយអក្សរកាត់
 const DEFAULT_PROVINCES = [
     { code: 'PNH', name: 'ភ្នំពេញ' },
     { code: 'BMC', name: 'បន្ទាយមានជ័យ' },
@@ -65,7 +65,7 @@ try {
 }
 if (!Array.isArray(AUDIT_LOGS) || AUDIT_LOGS.length === 0) {
     AUDIT_LOGS = [
-        { timestamp: new Date().toLocaleString('km-KH'), user: 'Admin', action: 'ចូលប្រព័ន្ធ (Login)', details: 'បានចូលប្រើប្រព័ន្ធគ្រប់គ្រងសំណុំរឿង NADR' }
+        { timestamp: new Date().toLocaleString('km-KH'), user: 'Admin', action: 'ចូលប្រព័ន្ធ', details: 'បានចូលប្រើប្រព័ន្ធគ្រប់គ្រងសំណុំរឿង NADR' }
     ];
 }
 
@@ -116,7 +116,7 @@ const REMARKS_OPTIONS = [
 // LocalStorage Key
 const STORAGE_KEY = 'nadr_master_cases_data_v3_empty';
 
-// 8. ទិន្នន័យគំរូសំណុំរឿងគោល NADR ចំនួន ១០ ករណី (Mock Data matching Master Excel)
+// 8. ទិន្នន័យគំរូសំណុំរឿងគោល NADR ចំនួន ១០ ករណី
 const mockCasesData = [];
 
 let casesData = [];
@@ -180,6 +180,7 @@ function loadCases() {
                 currentNo = Math.max(currentNo, casesData[i].originalListNo || 0) + 1;
             }
 
+            if (backfillClosedDates(casesData)) needsSave = true;
             if (needsSave) saveCases();
             
         } else {
@@ -192,11 +193,81 @@ function loadCases() {
     }
 }
 
+
+/* --------------------------------------------------------------------------
+   CLOSING DATE (closedAt)
+   A case is "closed" when its result is Settle or No Settle. closedAt (YYYY-MM-DD)
+   is stamped with today's date the first time a case is saved as closed and is
+   cleared if the case is reopened. Older closed cases get an estimated date from
+   their meeting/event history (closedAtEstimated = true).
+   -------------------------------------------------------------------------- */
+function isClosedStatus(status) {
+    const s = String(status || '');
+    return s.startsWith('Settle') || s.startsWith('No Settle') || s.startsWith('Close') || (s.includes('ព្រមព្រៀង') && !s.startsWith('Active') && !s.startsWith('Pending'));
+}
+
+function toIsoDay(v) {
+    const s = String(v || '').trim();
+    let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+    if (m) return `${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}`;
+    m = s.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})/);
+    if (m) return `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
+    return '';
+}
+
+/** Best guess of when an already-closed case was closed: the latest dated activity on it. */
+function estimateClosedDate(c) {
+    const received = toIsoDay(c.dateReceived);
+    const today = getTodayDateString();
+    const dates = [c.eventOutcomeDate, c.mediationMeetingDate, c.meetingPartyBDate, c.meetingPartyADate, c.caseEventDate]
+        .concat(Array.isArray(c.eventHistory) ? c.eventHistory.map(h => h && h.eventDate) : [])
+        .map(toIsoDay)
+        .filter(d => d && d <= today && (!received || d >= received));
+    // No dated activity: the closing date cannot be known, so do not guess.
+    return dates.length ? dates.sort().pop() : '';
+}
+
+/** Fill missing closedAt on closed cases with an estimate (used on load and import). */
+function backfillClosedDates(list) {
+    let changed = false;
+    (list || []).forEach(c => {
+        if (isClosedStatus(c.status) && !c.closedAt && !c.closedAtUnknown) {
+            const est = estimateClosedDate(c);
+            if (est) { c.closedAt = est; c.closedAtEstimated = true; }
+            else { c.closedAtUnknown = true; }
+            changed = true;
+        }
+    });
+    return changed;
+}
+
+/** Keep closedAt in step with status on every save: stamp newly closed cases, clear reopened ones. */
+function syncClosedDates(list) {
+    (list || []).forEach(c => {
+        if (isClosedStatus(c.status)) {
+            if (!c.closedAt && !c.closedAtUnknown) { c.closedAt = getTodayDateString(); delete c.closedAtEstimated; }
+        } else if (c.closedAt || c.closedAtUnknown) {
+            delete c.closedAt;
+            delete c.closedAtEstimated;
+            delete c.closedAtUnknown;
+        }
+    });
+}
+
+/** Days from received to closed, or null. */
+function caseResolutionDays(c) {
+    const a = toIsoDay(c.dateReceived), b = toIsoDay(c.closedAt);
+    if (!a || !b) return null;
+    const d = Math.round((new Date(b) - new Date(a)) / 86400000);
+    return d >= 0 ? d : null;
+}
+
 /**
  * Save current casesData array to LocalStorage
  */
 function saveCases() {
     try {
+        syncClosedDates(casesData);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(casesData));
     } catch (e) {
         console.error('Error saving NADR cases:', e);
@@ -532,6 +603,7 @@ function importBackupJSON(file) {
             const importedData = JSON.parse(e.target.result);
             if (Array.isArray(importedData) && importedData.length > 0) {
                 casesData = importedData;
+                backfillClosedDates(casesData);
                 saveCases();
                 if (typeof renderAllViews === 'function') {
                     renderAllViews();
@@ -740,26 +812,26 @@ let currentLang = localStorage.getItem('nadr_app_lang') || 'km';
 
 const I18N = {
     // ------------ Sidebar Navigation ------------
-    'nav.main': { km: 'មេនុយទូទៅ (MAIN)', en: 'MAIN MENU' },
-    'nav.entry': { km: 'បញ្ចូលសំណុំរឿង', en: 'Case Entry' },
-    'entry.title': { km: 'បញ្ជាក់ និងបញ្ចូលសំណុំរឿងថ្មី (Case Intake & Registration Center)', en: 'Case Intake & Registration Center' },
+    'nav.main': { km: 'មេនុយទូទៅ', en: 'MAIN MENU' },
+    'nav.entry': { km: 'បញ្ចូលសំណុំរឿងថ្មី', en: 'Case Entry' },
+    'entry.title': { km: 'បញ្ចូលសំណុំរឿងថ្មី', en: 'Case Intake & Registration Center' },
     'entry.subtitle': { km: 'ទទួលពាក្យបណ្តឹង ចាត់បែងចែកលេខកូដ និងបញ្ចូលទិន្នន័យសំណុំរឿងវិវាទចូលក្នុងប្រព័ន្ធ NADR', en: 'Receive complaints, assign case numbers, and register dispute records into NADR system' },
-    'nav.dashboard': { km: 'ផ្ទាំងស្ថិតិសង្ខេប', en: 'Dashboard' },
+    'nav.dashboard': { km: 'ស្ថិតិសំណុំរឿង', en: 'Dashboard' },
     'nav.cases': { km: 'បញ្ជីសំណុំរឿង', en: 'Case List' },
-    'nav.analytics': { km: 'វិភាគវាយតម្លៃចំណាត់ការ', en: 'Analytics & Assessment' },
-    'nav.admin': { km: 'រដ្ឋបាល & ទិន្នន័យ (ADMIN)', en: 'ADMIN & DATA' },
-    'nav.reports': { km: 'ផលិតរបាយការណ៍', en: 'Report Generator' },
-    'nav.data': { km: 'ទាញទិន្នន័យចូល & បម្រុង', en: 'Import & Backup' },
-    'nav.settings': { km: 'ការកំណត់ប្រព័ន្ធ', en: 'System Settings' },
+    'nav.analytics': { km: 'វិភាគ និងវាយតម្លៃ', en: 'Analytics & Assessment' },
+    'nav.admin': { km: 'រដ្ឋបាល & ទិន្នន័យ', en: 'ADMIN & DATA' },
+    'nav.reports': { km: 'របាយការណ៍', en: 'Report Generator' },
+    'nav.data': { km: 'ទិន្នន័យ និងការបម្រុងទុក', en: 'Import & Backup' },
+    'nav.settings': { km: 'ការកំណត់', en: 'System Settings' },
     'sidebar.subtitle': { km: 'កម្មវិធីគ្រប់គ្រងសំណុំរឿង របស់ ម.ស.វ.', en: 'M.S.V Case Management System' },
 
     // ------------ Top Header ------------
     'header.search': { km: 'ស្វែងរកលេខកូដសំណុំរឿង ឬឈ្មោះភាគី ក/ខ...', en: 'Search case code or party name...' },
     'header.addCase': { km: 'បង្កើតសំណុំរឿងថ្មី', en: 'New Case' },
-    'header.logout': { km: 'ចាកចេញ (Logout)', en: 'Logout' },
+    'header.logout': { km: 'ចាកចេញ', en: 'Logout' },
 
     // ------------ Dashboard Section ------------
-    'dashboard.title': { km: 'ផ្ទាំងស្ថិតិសង្ខេបទូទៅ', en: 'General Statistics Dashboard' },
+    'dashboard.title': { km: 'ស្ថិតិសំណុំរឿង', en: 'General Statistics Dashboard' },
     'dashboard.subtitle': { km: 'តាមដានស្ថានភាពសំណុំរឿង និងលំហូរដោះស្រាយវិវាទប្រចាំស្ថាប័ន', en: 'Track case statuses and institutional dispute resolution workflows' },
     'dashboard.refresh': { km: 'ធ្វើបច្ចុប្បន្នភាព', en: 'Refresh' },
     'dashboard.section1': { km: '១. ស្ថិតិសង្ខេបតាមស្ថានភាពកាត (៥ ស្ថានភាព - ដូចក្នុងរូប)', en: '1. Summary Statistics by Status (5 Statuses)' },
@@ -771,7 +843,7 @@ const I18N = {
     'dashboard.pending': { km: 'តម្កល់', en: 'Pending' },
 
     // ------------ Cases View ------------
-    'cases.title': { km: 'បញ្ជីសំណុំរឿង (Master Case Directory)', en: 'Master Case Directory' },
+    'cases.title': { km: 'បញ្ជីសំណុំរឿង', en: 'Master Case Directory' },
     'cases.subtitle': { km: 'រក្សាទុក ស្វែងរក និងគ្រប់គ្រងសំណុំរឿងទាំងអស់ ក្នុងស្ថាប័ន NADR', en: 'Store, search, and manage all cases at NADR' },
     'cases.filter.all': { km: 'ទាំងអស់', en: 'All' },
     'cases.filter.active': { km: 'Active', en: 'Active' },
@@ -801,11 +873,11 @@ const I18N = {
     'modal.section4': { km: '៤. សេចក្តីសង្ខេប និងវឌ្ឍនភាពសំណុំរឿង', en: '4. Case Summary & Progress' },
     'modal.section5': { km: '៥. លទ្ធផល និងចំណាត់ការសំណុំរឿង', en: '5. Case Result & Disposition' },
     'modal.save': { km: 'រក្សាទុកសំណុំរឿង', en: 'Save Case' },
-    'modal.cancel': { km: 'បោះបង់ (Cancel)', en: 'Cancel' },
+    'modal.cancel': { km: 'បោះបង់', en: 'Cancel' },
 
     // ------------ Form Labels ------------
-    'form.caseCode': { km: 'លេខកូដសំណុំរឿង (Case Code)', en: 'Case Code' },
-    'form.dateReceived': { km: 'កាលបរិច្ឆេទទទួល (Date Received)', en: 'Date Received' },
+    'form.caseCode': { km: 'លេខកូដសំណុំរឿង', en: 'Case Code' },
+    'form.dateReceived': { km: 'កាលបរិច្ឆេទទទួល', en: 'Date Received' },
     'form.category': { km: 'ប្រភេទសំណុំរឿង (៨ ប្រភេទ)', en: 'Case Category (8 Types)' },
     'form.disputeLocation': { km: 'ទីតាំងវិវាទ (២៥ រាជធានី-ខេត្ត ជាមួយលេខកូដ)', en: 'Dispute Location (25 Provinces)' },
     'form.partyName': { km: 'ឈ្មោះ', en: 'Name' },
@@ -817,9 +889,9 @@ const I18N = {
     'form.meetingA': { km: '៧.១ កិច្ចប្រជុំប្រមូលព័ត៌មាន ភាគី "ក"', en: '7.1 Meeting Party A' },
     'form.meetingB': { km: '៧.២ កិច្ចប្រជុំប្រមូលព័ត៌មាន ភាគី "ខ"', en: '7.2 Meeting Party B' },
     'form.mediation': { km: '៧.៣ ប្រជុំសម្រុះសម្រួល', en: '7.3 Mediation Meeting' },
-    'form.actionGroup': { km: 'ចំណាត់ការរួម (Action Group)', en: 'Action Group' },
+    'form.actionGroup': { km: 'ចំណាត់ការរួម', en: 'Action Group' },
     'form.status': { km: 'លទ្ធផលសំណុំរឿង (៤ ស្ថានភាព)', en: 'Case Status (4 Types)' },
-    'form.remarks': { km: 'កំណត់ចំណាំ / មូលហេតុ (Remarks / Sub-reason)', en: 'Remarks / Sub-reason' },
+    'form.remarks': { km: 'កំណត់ចំណាំ / មូលហេតុ', en: 'Remarks / Sub-reason' },
 
     // ------------ View Modal (Dossier) ------------
     'view.title': { km: 'ប័ណ្ណព័ត៌មាន និងចំណាត់ការសំណុំរឿងគោល', en: 'Case Information Card & Disposition' },
@@ -827,18 +899,18 @@ const I18N = {
     'view.print': { km: 'បោះពុម្ពប័ណ្ណ', en: 'Print Card' },
     'view.edit': { km: 'កែសម្រួល', en: 'Edit' },
     'view.delete': { km: 'លុប', en: 'Delete' },
-    'view.genDoc': { km: 'ផលិតលិខិតគតិយុត្ត (5 Docs)', en: 'Generate Legal Docs (5)' },
+    'view.genDoc': { km: 'បង្កើតលិខិត', en: 'Generate Legal Docs (5)' },
 
     // ------------ Analytics View ------------
-    'analytics.title': { km: 'វិភាគវាយតម្លៃចំណាត់ការសំណុំរឿង', en: 'Case Disposition Analytics' },
+    'analytics.title': { km: 'វិភាគ និងវាយតម្លៃ', en: 'Case Disposition Analytics' },
     'analytics.subtitle': { km: 'ផ្ទាំងវិភាគការអនុវត្តន៍ បង្ហាញដោយតារាង និងក្រាហ្វិក', en: 'Performance analytics with charts and graphs' },
 
     // ------------ Reports View ------------
-    'reports.title': { km: 'ផលិតរបាយការណ៍ និងការវិភាគ', en: 'Report Generation & Analysis' },
+    'reports.title': { km: 'របាយការណ៍', en: 'Report Generation & Analysis' },
     'reports.subtitle': { km: 'បង្កើតរបាយការណ៍ និងនាំចេញទិន្នន័យស្ថាប័ន', en: 'Generate reports and export institutional data' },
 
     // ------------ Data Management View ------------
-    'dataMgmt.title': { km: 'ទាញទិន្នន័យចូល & បម្រុងសុវត្ថិភាព', en: 'Data Import & Security Backup' },
+    'dataMgmt.title': { km: 'ទិន្នន័យ និងការបម្រុងទុក', en: 'Data Import & Security Backup' },
     'dataMgmt.subtitle': { km: 'នាំចូល នាំចេញ ឬបម្រុងទុកទិន្នន័យក្នុងទម្រង់ JSON/Excel', en: 'Import, export, or backup data in JSON/Excel format' },
     'dataMgmt.exportJSON': { km: 'នាំចេញ JSON', en: 'Export JSON' },
     'dataMgmt.importJSON': { km: 'នាំចូល JSON', en: 'Import JSON' },
@@ -848,7 +920,7 @@ const I18N = {
     'dataMgmt.downloadTemplate': { km: 'ទាញយកគម្រូបញ្ចូលទិន្នន័យ Excel', en: 'Download Excel Template' },
 
     // ------------ AI Assistant ------------
-    'ai.title': { km: 'AI ជំនួយការស្វ័យប្រវត្តិ (Smart Case Extraction)', en: 'AI Smart Case Extraction' },
+    'ai.title': { km: 'AI ជំនួយការស្វ័យប្រវត្តិ', en: 'AI Smart Case Extraction' },
     'ai.hint': { km: 'ទាញយកអត្តសញ្ញាណភាគី ក/ខ និងសេចក្តីសង្ខេប', en: 'Extract Party A/B identity & case summary' },
     'ai.placeholder': { km: 'វាយ ឬ Paste អត្ថបទពាក្យបណ្តឹង / កំណត់ហេតុនៅទីនេះ ដើម្បីឱ្យ AI វិភាគទាញយកអត្តសញ្ញាណភាគី និងទីតាំងស្វ័យប្រវត្តិ...', en: 'Type or paste complaint/notes here for AI auto-extraction of party details...' },
     'ai.upload': { km: 'Upload ឯកសារ (.txt, .doc...)', en: 'Upload File (.txt, .doc...)' },
@@ -857,19 +929,19 @@ const I18N = {
     // ------------ Login Screen ------------
     'login.title': { km: 'សូមចូលគណនី', en: 'Sign In' },
     'login.subtitle': { km: 'ប្រព័ន្ធគ្រប់គ្រងសំណុំរឿង NADR-CMS Pro', en: 'NADR Case Management System (CMS Pro)' },
-    'login.username': { km: 'ឈ្មោះអ្នកប្រើប្រាស់ (Username)', en: 'Username' },
-    'login.password': { km: 'ពាក្យសម្ងាត់ (Password)', en: 'Password' },
+    'login.username': { km: 'ឈ្មោះអ្នកប្រើប្រាស់', en: 'Username' },
+    'login.password': { km: 'ពាក្យសម្ងាត់', en: 'Password' },
     'login.btn': { km: 'ចូលប្រព័ន្ធ', en: 'Sign In' },
 
     // ------------ Legal Docs Modal ------------
-    'docs.title': { km: 'ផលិតលិខិតបទដ្ឋានគតិយុត្តផ្លូវការ (Official Legal Documents)', en: 'Official Legal Document Generator' },
+    'docs.title': { km: 'បង្កើតលិខិត', en: 'Official Legal Document Generator' },
     'docs.selectType': { km: 'ប្រភេទលិខិតគតិយុត្ត (៥ ទម្រង់ផ្លូវការ)៖', en: 'Document Type (5 Official Formats):' },
     'docs.date': { km: 'កាលបរិច្ឆេទលិខិត / កិច្ចប្រជុំ៖', en: 'Document / Meeting Date:' },
     'docs.room': { km: 'ទីតាំង / សាលកិច្ចប្រជុំ៖', en: 'Location / Meeting Room:' },
     'docs.officer': { km: 'មន្ត្រីសម្របសម្រួល / ជំនាញទទួលបន្ទុក៖', en: 'Mediator / Officer in Charge:' },
     'docs.notes': { km: 'ខ្លឹមសារកែសម្រួល / លក្ខខណ្ឌព្រមព្រៀង / ចំណាំ៖', en: 'Custom Content / Agreement Terms / Notes:' },
     'docs.preview': { km: 'ធ្វើបច្ចុប្បន្នភាពគំរូ', en: 'Refresh Preview' },
-    'docs.print': { km: 'បោះពុម្ព (Print / PDF)', en: 'Print / Save PDF' },
+    'docs.print': { km: 'បោះពុម្ព', en: 'Print / Save PDF' },
 
     // ------------ Misc / Common ------------
     'common.male': { km: 'ប្រុស', en: 'Male' },
@@ -883,9 +955,9 @@ const I18N = {
     'sidebar.office': { km: 'ការិយាល័យរដ្ឋបាល NADR', en: 'NADR Admin Office' },
 
     // ------------ Form Dynamic Keys ------------
-    'form.section6': { km: '៦. អង្គហេតុ (Dispute Summary / Facts)', en: '6. Dispute Summary & Facts' },
+    'form.section6': { km: '៦. អង្គហេតុ', en: '6. Dispute Summary & Facts' },
     'form.section7': { km: '៧. ចំណាត់ការនីតិវិធី និងលទ្ធផល', en: '7. Procedures and Results' },
-    'form.section8': { km: '៨. បញ្ចូលឯកសារពាក់ព័ន្ធនឹងសំណុំរឿង (Case Documents & Evidence)', en: '8. Case Documents & Evidence Folder' },
+    'form.section8': { km: '៨. បញ្ចូលឯកសារពាក់ព័ន្ធនឹងសំណុំរឿង', en: '8. Case Documents & Evidence Folder' },
     'form.date': { km: 'កាលបរិច្ឆេទ៖', en: 'Date:' },
     'form.count': { km: 'ចំនួនលើកនៃកិច្ចប្រជុំ៖', en: 'Number of Meetings:' },
 
@@ -903,12 +975,12 @@ const I18N = {
     'table.officials': { km: 'មសវ អម (តាមលិខិតចាត់តាំង)', en: 'Assisting Officials' },
 
     // ------------ Sidebar Missing Keys ------------
-    'nav.profileTitle': { km: 'ប្រវត្តិរូបមន្ត្រី (My Profile)', en: 'My Profile' },
+    'nav.profileTitle': { km: 'ប្រវត្តិរូបមន្ត្រី', en: 'My Profile' },
     'nav.profileSub': { km: 'គ្រប់គ្រងគណនី & រូបភាព', en: 'Manage Account & Avatar' },
     'nav.groupCases': { km: 'គ្រប់គ្រងសំណុំរឿង', en: 'Case Management' },
-    'nav.groupAnalytics': { km: 'ស្ថិតិ និងវាយតម្លៃ', en: 'Statistics & Analytics' },
-    'nav.groupSettings': { km: 'ការកំណត់', en: 'Settings' },
-    'nav.calendar': { km: 'កម្មវិធីសំណុំរឿង', en: 'Case Schedule' },
+    'nav.groupAnalytics': { km: 'របាយការណ៍ និងវិភាគ', en: 'Statistics & Analytics' },
+    'nav.groupSettings': { km: 'រដ្ឋបាល', en: 'Settings' },
+    'nav.calendar': { km: 'កាលវិភាគប្រជុំ', en: 'Case Schedule' },
     'nav.strategic': { km: 'ផែនការយុទ្ធសាស្ត្រ', en: 'Strategic Plan' }
 };
 

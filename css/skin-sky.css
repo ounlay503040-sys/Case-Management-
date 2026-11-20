@@ -1,0 +1,687 @@
+/* ==========================================================================
+   NADR CMS Pro — "Sky & Gold" skin
+   Light sky-blue surfaces with gold accents; one look for the sidebar,
+   the title bar and the header of every page. Loaded after theme.css.
+   Dark mode keeps its own colours (only layout rules apply there).
+   ========================================================================== */
+:root {
+    --sky-50: #f0f9ff;
+    --sky-100: #e0f2fe;
+    --sky-200: #bae6fd;
+    --sky-300: #7dd3fc;
+    --sky-400: #38bdf8;
+    --sky-500: #0ea5e9;
+    --sky-600: #0284c7;
+    --sky-700: #0369a1;
+    --sky-800: #075985;
+    --sky-ink: #0b3a63;      /* text on light sky */
+    --gold-1: #f6d77a;       /* light gold */
+    --gold-2: #e3b23c;       /* gold */
+    --gold-3: #b9861a;       /* deep gold */
+    --font-menu: 'Kantumruy Pro', 'Noto Sans Khmer', 'Khmer OS Siemreap', sans-serif;
+    --font-title: 'Khmer OS Muol Light', 'Moul', 'Kantumruy Pro', serif;
+}
+
+/* ---------- Sidebar: brand block (one logo in the middle) ---------- */
+.sidebar-header.sky-brand {
+    flex-direction: column; align-items: center; justify-content: center; text-align: center;
+    gap: 0; padding: 14px 12px 12px !important; position: relative;
+}
+.sky-brand-logo {
+    width: 70px; height: 70px; border-radius: 50%; padding: 3px; margin-bottom: 6px;
+    background: conic-gradient(from 200deg, var(--gold-1), var(--gold-2), var(--gold-3), var(--gold-2), var(--gold-1));
+    box-shadow: 0 6px 18px -4px rgba(3, 105, 161, 0.45), 0 0 0 4px rgba(255, 255, 255, 0.7);
+}
+.sky-brand-logo img { width: 100%; height: 100%; border-radius: 50%; display: block; background: #fff; object-fit: cover; }
+.sky-brand-title { font-family: var(--font-title); font-size: 13.5px; line-height: 1.8; color: var(--sky-ink); letter-spacing: .2px; }
+.sky-brand-org { font-family: var(--font-menu); font-weight: 800; font-size: 15px; color: var(--gold-3); letter-spacing: 1px; line-height: 1.4; }
+.sky-brand-app {
+    font-family: 'Inter', var(--font-menu); font-weight: 900; font-size: 12.5px; letter-spacing: 3px; margin-top: 2px;
+    background: linear-gradient(90deg, var(--sky-700), var(--sky-500)); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.sidebar-header.sky-brand::after {
+    content: ""; position: absolute; left: 22px; right: 22px; bottom: 0; height: 2px; border-radius: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold-2), transparent);
+}
+
+/* ---------- Sidebar: menu ---------- */
+.nav-group-label {
+    font-family: var(--font-menu); font-size: 12px; font-weight: 700; letter-spacing: .3px;
+    color: var(--gold-3); margin: 10px 6px 4px; display: flex; align-items: center; gap: 8px;
+}
+.nav-group-label::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(185, 134, 26, .45), transparent); }
+.sidebar-nav .nav-group-label:first-child { margin-top: 2px; }
+.sidebar-nav { padding: 10px 12px !important; }
+.nav-item { font-family: var(--font-menu) !important; font-size: 15px !important; font-weight: 600 !important; letter-spacing: .1px; padding: 6px 12px !important; margin-bottom: 5px !important; gap: 12px !important; }
+.nav-item i {
+    width: 30px; height: 30px; min-width: 30px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center;
+    font-size: 15px;
+}
+
+html:not(.dark-theme) .sidebar {
+    background: linear-gradient(180deg, #eaf7ff 0%, var(--sky-100) 35%, var(--sky-200) 100%) !important;
+    color: var(--sky-ink); box-shadow: 4px 0 18px rgba(3, 105, 161, 0.18);
+}
+html:not(.dark-theme) .sidebar::after { background: linear-gradient(180deg, var(--gold-1), var(--gold-2) 50%, var(--gold-1)); opacity: 1; }
+html:not(.dark-theme) .sidebar-header.sky-brand { border-bottom: none; background: radial-gradient(120% 90% at 50% 0%, rgba(255,255,255,.9), rgba(255,255,255,0) 70%); }
+html:not(.dark-theme) .nav-item {
+    color: var(--sky-ink) !important; background: rgba(255, 255, 255, 0.55); border: 1px solid rgba(2, 132, 199, 0.14);
+    box-shadow: 0 1px 2px rgba(3, 105, 161, 0.06);
+}
+html:not(.dark-theme) .nav-item i { color: #fff !important; background: linear-gradient(135deg, var(--sky-400), var(--sky-600)); box-shadow: 0 3px 8px -3px rgba(2, 132, 199, .6); }
+html:not(.dark-theme) .nav-item:hover { background: #fff; border-color: rgba(227, 178, 60, 0.6); color: var(--sky-800) !important; transform: translateX(2px); }
+html:not(.dark-theme) .nav-item.active {
+    color: #fff !important; background: linear-gradient(100deg, var(--sky-700) 0%, var(--sky-600) 55%, var(--sky-500) 100%);
+    border: 1px solid var(--gold-2); box-shadow: 0 8px 18px -8px rgba(3, 105, 161, 0.8), inset 0 1px 0 rgba(255, 255, 255, .25);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .25);
+}
+html:not(.dark-theme) .nav-item.active::before { background: var(--gold-2); }
+html:not(.dark-theme) .nav-item.active i { color: var(--sky-800) !important; background: linear-gradient(135deg, var(--gold-1), var(--gold-2)); }
+
+/* Sidebar footer on the light sky background */
+html:not(.dark-theme) .sidebar-footer { background: rgba(255, 255, 255, 0.45); border-top: 1px solid rgba(227, 178, 60, 0.45); }
+html:not(.dark-theme) .sidebar-footer .sb-tools { background: rgba(255, 255, 255, 0.75) !important; border-color: rgba(2, 132, 199, .18) !important; }
+html:not(.dark-theme) .sidebar-footer .sb-zoom button,
+html:not(.dark-theme) .sidebar-footer .sb-theme { color: var(--sky-ink) !important; }
+html:not(.dark-theme) .sidebar-footer .sb-zoom button:hover,
+html:not(.dark-theme) .sidebar-footer .sb-theme:hover { background: var(--sky-100) !important; color: var(--sky-800) !important; }
+html:not(.dark-theme) .sidebar-footer .sb-zoom #zoom-level-display { color: var(--sky-ink) !important; }
+html:not(.dark-theme) .sidebar-footer .sb-zoom-icon,
+html:not(.dark-theme) .sidebar-footer .sb-theme i { color: var(--gold-3) !important; }
+html:not(.dark-theme) .sidebar-footer .sb-divider { background: rgba(185, 134, 26, .35); }
+html:not(.dark-theme) .user-profile-card { background: #fff !important; border: 1px solid rgba(2, 132, 199, .18) !important; box-shadow: 0 2px 6px rgba(3, 105, 161, .08); }
+html:not(.dark-theme) .user-profile-card .user-info h4 { color: var(--sky-ink) !important; }
+html:not(.dark-theme) .user-profile-card .user-info span { color: #4b6b88 !important; }
+html:not(.dark-theme) .user-profile-card .avatar { background: var(--sky-100) !important; color: var(--sky-700); }
+html:not(.dark-theme) #app-version-label { color: #4b6b88 !important; }
+
+/* ---------- Title bar ---------- */
+html:not(.dark-theme) .top-header {
+    background: linear-gradient(90deg, var(--sky-800) 0%, var(--sky-700) 45%, var(--sky-600) 100%) !important;
+    border-bottom: 3px solid var(--gold-2) !important;
+}
+
+/* ---------- Page header: the same banner on every page ---------- */
+.dsb-header,
+.view-section .section-title-box,
+.view-section .kt-page-head {
+    position: relative; overflow: hidden;
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 16px;
+    padding: 16px 22px 16px 98px !important; margin-bottom: 20px !important;
+    border-radius: 18px !important; border: 1px solid rgba(227, 178, 60, 0.75) !important;
+    border-bottom: 3px solid var(--gold-2) !important;
+    background:
+        radial-gradient(140% 120% at 100% 0%, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0) 45%),
+        linear-gradient(115deg, var(--sky-800) 0%, var(--sky-600) 50%, var(--sky-400) 100%) !important;
+    box-shadow: 0 10px 24px -14px rgba(3, 105, 161, 0.75) !important;
+    min-height: 92px;
+}
+.dsb-header { display: block; }
+/* the round logo on the left */
+.dsb-header::before,
+.view-section .section-title-box::before,
+.view-section .kt-page-head::before {
+    content: ""; position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
+    width: 60px; height: 60px; border-radius: 50%;
+    background: #fff url('../images/nadr-logo-round.webp') center / cover no-repeat;
+    box-shadow: 0 0 0 3px var(--gold-2), 0 0 0 6px rgba(255, 255, 255, 0.35), 0 6px 14px rgba(0, 0, 0, 0.25);
+}
+.dsb-header::before { top: 46px; transform: none; }
+/* gold sweep under the banner instead of the old short underline */
+.view-section .section-title-box::after,
+.view-section .kt-page-head::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; width: auto; height: 3px; border-radius: 0;
+    background: linear-gradient(90deg, var(--gold-3), var(--gold-1) 40%, var(--gold-2) 70%, transparent);
+}
+/* titles */
+.dsb-header .dsb-title,
+.view-section .section-title-box h1,
+.view-section .kt-page-head .kt-page-title {
+    font-family: var(--font-title) !important; font-weight: 400 !important;
+    font-size: 23px !important; line-height: 1.9 !important; margin: 0 !important;
+    color: #ffffff !important; letter-spacing: .3px;
+    text-shadow: 0 2px 0 rgba(3, 60, 100, .35), 0 0 18px rgba(246, 215, 122, .35);
+}
+.view-section .section-title-box h1 i,
+.view-section .kt-page-head .kt-page-title i { display: none; }
+.dsb-header .dsb-subtitle,
+.view-section .section-title-box p,
+.view-section .kt-page-head .kt-page-sub { color: #e6f6ff !important; font-size: 13.5px; margin: 0 !important; opacity: .95; }
+.view-section .kt-page-head .kt-page-sub strong { color: var(--gold-1); }
+/* buttons sitting on the banner */
+.dsb-header .btn-outline,
+.view-section .kt-page-head .kt-btn { background: rgba(255, 255, 255, 0.95) !important; border-color: rgba(255, 255, 255, 0.9) !important; color: var(--sky-ink) !important; }
+.dsb-header .btn-outline:hover,
+.view-section .kt-page-head .kt-btn:hover { background: #fff !important; box-shadow: 0 0 0 2px var(--gold-1); }
+.view-section .kt-page-head .kt-btn-primary { background: linear-gradient(135deg, var(--gold-1), var(--gold-2)) !important; color: #4a3200 !important; border: none !important; }
+/* dashboard: filters strip inside the banner */
+.dsb-header .dsb-header-controls {
+    margin-top: 12px; padding: 8px 10px; border-radius: 12px;
+    background: rgba(255, 255, 255, 0.92); box-shadow: inset 0 0 0 1px rgba(227, 178, 60, .5);
+}
+
+/* Dark mode: same layout, deeper colours */
+html.dark-theme .dsb-header,
+html.dark-theme .view-section .section-title-box,
+html.dark-theme .view-section .kt-page-head {
+    background:
+        radial-gradient(140% 120% at 100% 0%, rgba(232, 194, 90, 0.12) 0%, rgba(0, 0, 0, 0) 45%),
+        linear-gradient(115deg, #06243f 0%, #0b3a63 55%, #0f4c7f 100%) !important;
+}
+html.dark-theme .sky-brand-title { color: #e6f6ff; }
+html.dark-theme .sky-brand-org { color: var(--gold-1); }
+html.dark-theme .sky-brand-app { background: linear-gradient(90deg, var(--sky-300), var(--sky-400)); -webkit-background-clip: text; background-clip: text; }
+html.dark-theme .nav-group-label { color: var(--gold-1); }
+html.dark-theme .nav-item i { background: rgba(255, 255, 255, 0.06); }
+html.dark-theme .dsb-header .dsb-header-controls { background: rgba(255, 255, 255, 0.08); }
+
+/* Narrow windows: smaller banner */
+@media (max-width: 760px) {
+    .dsb-header, .view-section .section-title-box, .view-section .kt-page-head { padding-left: 84px !important; }
+    .dsb-header::before, .view-section .section-title-box::before, .view-section .kt-page-head::before { width: 48px; height: 48px; left: 16px; }
+    .dsb-header .dsb-title, .view-section .section-title-box h1, .view-section .kt-page-head .kt-page-title { font-size: 19px !important; }
+}
+
+/* ---------- Case form (full-screen "បញ្ចូលសំណុំរឿង") header ---------- */
+#modal-new-case > div.sky-modal-head .sky-modal-logo { width: 46px !important; height: 46px !important; min-width: 46px; border-radius: 50% !important; background: #fff !important; padding: 0 !important; box-shadow: 0 0 0 3px var(--gold-2), 0 4px 10px rgba(0,0,0,.25); overflow: hidden; }
+.sky-modal-logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+html:not(.dark-theme) #modal-new-case > div.sky-modal-head {
+    background: linear-gradient(115deg, var(--sky-800) 0%, var(--sky-600) 55%, var(--sky-400) 100%) !important;
+    border-bottom: 3px solid var(--gold-2) !important;
+}
+.sky-modal-head #modal-title { font-family: var(--font-title) !important; font-weight: 400 !important; font-size: 18px !important; line-height: 1.9; text-shadow: 0 2px 0 rgba(3, 60, 100, .35); }
+html:not(.dark-theme) .sky-modal-head #modal-guide-text { color: #eaf7ff !important; }
+
+/* ==========================================================================
+   Mac-style window buttons (top-left, over the sidebar / login panel)
+   ========================================================================== */
+.mac-controls {
+    position: fixed; top: 14px; left: 16px; z-index: 2147483000;
+    display: flex; gap: 9px; -webkit-app-region: no-drag;
+}
+.mac-btn {
+    width: 14px; height: 14px; border-radius: 50%; padding: 0; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 0.5px solid rgba(0, 0, 0, 0.18); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 1px 2px rgba(0, 0, 0, .18);
+    transition: filter .12s, transform .12s;
+}
+.mac-close { background: #ff5f57; }
+.mac-min { background: #febc2e; }
+.mac-max { background: #28c840; }
+.mac-btn svg { width: 8px; height: 8px; opacity: 0; transition: opacity .12s; }
+.mac-btn svg path { fill: none; stroke: rgba(70, 20, 10, .75); stroke-width: 1.5; stroke-linecap: round; }
+.mac-min svg path { stroke: rgba(110, 70, 0, .8); }
+.mac-max svg path { stroke: rgba(5, 80, 20, .8); }
+.mac-controls:hover .mac-btn svg { opacity: 1; }
+.mac-btn:active { filter: brightness(.85); transform: scale(.94); }
+.mac-max .i-restore { display: none; }
+.mac-controls.is-max .mac-max .i-max { display: none; }
+.mac-controls.is-max .mac-max .i-restore { display: inline; }
+/* the native buttons are gone: the title bar no longer keeps space for them */
+.top-header.kt-titlebar { padding-right: 18px !important; }
+
+/* ==========================================================================
+   Icon buttons + tooltips + per-page tools
+   ========================================================================== */
+.pt-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.pt-ibtn {
+    width: 38px !important; height: 38px !important; min-width: 38px; padding: 0 !important; border-radius: 50% !important;
+    display: inline-flex !important; align-items: center; justify-content: center; gap: 0 !important;
+    font-size: 15px !important; cursor: pointer; line-height: 1;
+    background: #fff !important; color: var(--sky-700) !important;
+    border: 1px solid rgba(2, 132, 199, 0.22) !important;
+    box-shadow: 0 3px 8px -3px rgba(3, 60, 100, 0.35) !important;
+    transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+}
+.pt-ibtn .pt-label { display: none !important; }
+.pt-ibtn i { margin: 0 !important; color: inherit; }
+.pt-ibtn:hover { transform: translateY(-1px); box-shadow: 0 0 0 3px rgba(246, 215, 122, .55), 0 6px 14px -6px rgba(3, 60, 100, .55) !important; }
+.pt-ibtn:active { transform: scale(.95); }
+.pt-ibtn.pt-primary { background: linear-gradient(135deg, var(--gold-1), var(--gold-2)) !important; color: #4a3200 !important; border-color: rgba(185, 134, 26, .6) !important; }
+.pt-ibtn.pt-telegram { background: linear-gradient(135deg, #3fb7f0, #229ed9) !important; color: #fff !important; border-color: #1c8cc4 !important; }
+.pt-ibtn.pt-telegram i { color: #fff !important; }
+.pt-ibtn#btn-delete-from-view { color: #b91c1c !important; }
+/* the group: − 100% + | ⛶ */
+.pt-group {
+    display: inline-flex; align-items: center; gap: 4px; padding: 3px; border-radius: 999px;
+    background: rgba(255, 255, 255, 0.22); border: 1px solid rgba(255, 255, 255, 0.45);
+    -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+}
+.pt-group .pt-ibtn { width: 32px !important; height: 32px !important; min-width: 32px; font-size: 13px !important; }
+.pt-zoom-val {
+    min-width: 46px; text-align: center; font: 800 13px/1 'Inter', var(--font-menu); color: #fff; cursor: pointer;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .3); user-select: none;
+}
+.pt-sep { width: 1px; height: 20px; background: rgba(255, 255, 255, 0.55); margin: 0 3px; }
+html.dark-theme .pt-ibtn { background: #10223a !important; color: var(--sky-300) !important; border-color: rgba(125, 211, 252, .25) !important; }
+/* case page footer: icons in a row, edit stays gold */
+#view-modal .cp-actions { gap: 8px !important; align-items: center; }
+/* tooltip bubble */
+.pt-tip {
+    position: fixed; z-index: 2147483600; pointer-events: none; max-width: 260px;
+    padding: 6px 10px; border-radius: 8px; font: 600 12.5px/1.5 var(--font-menu);
+    color: #fff; background: rgba(8, 47, 79, 0.96); box-shadow: 0 6px 18px rgba(0, 0, 0, .25);
+    border: 1px solid rgba(246, 215, 122, .5);
+    opacity: 0; transform: translateY(-3px); transition: opacity .1s, transform .1s;
+}
+.pt-tip.show { opacity: 1; transform: none; }
+
+/* ==========================================================================
+   Sidebar brand: ម.ស.វ. in the title font
+   ========================================================================== */
+.sky-brand-org { font-family: var(--font-title) !important; font-weight: 400 !important; font-size: 16px !important; letter-spacing: 1.5px !important; line-height: 1.8 !important; }
+
+/* ==========================================================================
+   Login: the NADR banner sits over the building's name sign
+   (the photo fills the panel height, so the sign is always ~28.6% down, centred)
+   ========================================================================== */
+.kh-login-hero .kh-banner-plate {
+    position: absolute; z-index: 2; left: 50%; top: 28.6%; transform: translate(-50%, -50%);
+    width: min(calc(100% - 48px), 72vh) !important; margin: 0;
+}
+.kh-login-hero .kh-hero-center { padding-top: 8vh; }
+/* banner buttons: beat the older ".view-section .kt-page-head .kt-btn" colours */
+.pt-actions .pt-ibtn.pt-primary, #view-modal .cp-actions .pt-ibtn.pt-primary { background: linear-gradient(135deg, var(--gold-1), var(--gold-2)) !important; color: #4a3200 !important; border-color: rgba(185, 134, 26, .6) !important; }
+.pt-actions .pt-ibtn.pt-telegram, #view-modal .cp-actions .pt-ibtn.pt-telegram { background: linear-gradient(135deg, #3fb7f0, #229ed9) !important; color: #fff !important; border-color: #1c8cc4 !important; }
+.pt-actions .pt-ibtn.pt-telegram i, #view-modal .cp-actions .pt-ibtn.pt-telegram i { color: #fff !important; }
+
+/* ==========================================================================
+   Case form ("បញ្ចូលសំណុំរឿងថ្មី"): bright sky page, white cards, clear inputs
+   ========================================================================== */
+/* round logo, same as the page banners (beats theme.css "> div > div > div" box) */
+#modal-new-case > div.sky-modal-head > div:first-child > div.sky-modal-logo {
+    width: 52px !important; height: 52px !important; min-width: 52px; border-radius: 50% !important; padding: 0 !important;
+    background: #fff !important; overflow: hidden; border: none !important;
+    box-shadow: 0 0 0 3px var(--gold-2), 0 0 0 6px rgba(255, 255, 255, .35), 0 6px 14px rgba(0, 0, 0, .25) !important;
+}
+#modal-new-case > div.sky-modal-head > div:first-child > div.sky-modal-logo img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+html:not(.dark-theme) #case-modal #modal-new-case,
+html:not(.dark-theme) #case-modal #case-form {
+    background: linear-gradient(180deg, #f2faff 0%, #e8f5fd 55%, #dff0fb 100%) !important;
+}
+html:not(.dark-theme) #modal-new-case .chevron-stepper-container {
+    background: linear-gradient(180deg, #dff1fc, #d2ebfa) !important; border-bottom: 2px solid var(--gold-2) !important;
+}
+html:not(.dark-theme) #modal-new-case .chevron-wrapper.active .chevron-item { background: linear-gradient(115deg, var(--sky-800), var(--sky-600) 60%, var(--sky-500)) !important; }
+html:not(.dark-theme) #modal-new-case .chevron-wrapper.pending .chevron-item { background: #ffffff !important; }
+html:not(.dark-theme) #modal-new-case .chevron-wrapper.pending .chevron-title { color: var(--sky-ink) !important; }
+html:not(.dark-theme) #modal-new-case .chevron-wrapper.pending .chevron-sub { color: #5b7a94 !important; }
+html:not(.dark-theme) #modal-new-case .chevron-wrapper.pending .chevron-badge { border-color: var(--sky-600) !important; color: var(--sky-700) !important; }
+/* field groups become white cards with a soft sky shadow and a gold edge */
+html:not(.dark-theme) #case-modal #case-form .oc-card,
+html:not(.dark-theme) #case-modal #case-form .oc-panel,
+html:not(.dark-theme) #case-modal #tab-panel-general > div.p-3\.5,
+html:not(.dark-theme) #case-modal #tab-panel-general > div[class*="bg-slate-50"] {
+    background: #ffffff !important; border-radius: 14px !important;
+    border: 1px solid rgba(2, 132, 199, 0.14) !important; border-left: 4px solid var(--gold-2) !important;
+    box-shadow: 0 6px 18px -12px rgba(3, 105, 161, 0.45) !important;
+}
+/* inputs */
+html:not(.dark-theme) #case-modal #case-form input:not([type=checkbox]):not([type=radio]):not([type=hidden]),
+html:not(.dark-theme) #case-modal #case-form select,
+html:not(.dark-theme) #case-modal #case-form textarea {
+    background: #ffffff !important; color: var(--sky-ink) !important;
+    border: 1.5px solid #bfe0f5 !important; border-radius: 11px !important;
+    box-shadow: inset 0 1px 2px rgba(3, 105, 161, 0.06) !important;
+    transition: border-color .12s, box-shadow .12s;
+}
+html:not(.dark-theme) #case-modal #case-form input:not([type=checkbox]):not([type=radio]):hover,
+html:not(.dark-theme) #case-modal #case-form select:hover,
+html:not(.dark-theme) #case-modal #case-form textarea:hover { border-color: var(--sky-400) !important; }
+html:not(.dark-theme) #case-modal #case-form input:not([type=checkbox]):not([type=radio]):focus,
+html:not(.dark-theme) #case-modal #case-form select:focus,
+html:not(.dark-theme) #case-modal #case-form textarea:focus {
+    outline: none !important; border-color: var(--sky-500) !important;
+    box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.16), 0 0 0 1px var(--gold-1) !important;
+}
+html:not(.dark-theme) #case-modal #case-form input::placeholder,
+html:not(.dark-theme) #case-modal #case-form textarea::placeholder { color: #8fb0c8 !important; }
+html:not(.dark-theme) #case-modal #case-form label { color: var(--sky-ink) !important; }
+html:not(.dark-theme) #case-modal #case-modal-footer {
+    background: linear-gradient(180deg, #e6f4fd, #d8eefb) !important; border-top: 2px solid var(--gold-2) !important;
+}
+
+/* ==========================================================================
+   Page full screen: covers the whole monitor (window goes full screen too)
+   ========================================================================== */
+html.pt-fullscreen body > .view-section.fullscreen-overlay { top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; }
+html.pt-fullscreen #cases-view.fullscreen-overlay { height: calc(100vh / var(--kt-zoom, 1)) !important; }
+html.pt-fullscreen .mac-controls { display: none !important; }
+
+/* ==========================================================================
+   Sidebar: zoom lives on every page now; night mode moves to the title bar
+   ========================================================================== */
+.sidebar-footer .sb-tools { display: none !important; }
+.tb-right .pt-theme {
+    width: 32px !important; height: 32px !important; border-radius: 50% !important; padding: 0 !important;
+    display: inline-flex !important; align-items: center; justify-content: center; cursor: pointer;
+    background: rgba(255, 255, 255, 0.14) !important; border: 1px solid rgba(255, 255, 255, 0.35) !important;
+    color: var(--gold-1) !important; -webkit-app-region: no-drag; font-size: 14px;
+}
+.tb-right .pt-theme span { display: none !important; }
+.tb-right .pt-theme:hover { background: rgba(255, 255, 255, 0.26) !important; box-shadow: 0 0 0 3px rgba(246, 215, 122, .35); }
+
+/* Reports: the "បង្កើតរបាយការណ៍" bar is gone (reports refresh by themselves) */
+#reports-view .report-btn-bar { display: none !important; }
+.pt-actions .pt-ibtn.pt-word { background: linear-gradient(135deg, #3b82f6, #1d4ed8) !important; color: #fff !important; border-color: #1e40af !important; }
+.pt-actions .pt-ibtn.pt-excel { background: linear-gradient(135deg, #22c55e, #059669) !important; color: #fff !important; border-color: #047857 !important; }
+.pt-actions .pt-ibtn.pt-pdf { background: linear-gradient(135deg, #f87171, #dc2626) !important; color: #fff !important; border-color: #b91c1c !important; }
+.pt-actions .pt-ibtn.pt-word i, .pt-actions .pt-ibtn.pt-excel i, .pt-actions .pt-ibtn.pt-pdf i { color: #fff !important; }
+.pt-actions .pt-ibtn:disabled { opacity: .45; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+
+/* ==========================================================================
+   Window buttons on the right of the title bar (space kept for them)
+   ========================================================================== */
+.mac-controls { left: auto !important; right: 18px; top: 15px; }
+.top-header.kt-titlebar { position: relative; padding-right: 98px !important; }
+.tb-right { margin-right: 6px; }
+.top-header.kt-titlebar::after {
+    content: ""; position: absolute; right: 86px; top: 11px; bottom: 11px; width: 1px; background: rgba(255, 255, 255, .28);
+}
+
+/* ==========================================================================
+   One owner: the accounts and activity-log settings are not used
+   ========================================================================== */
+#settings-view .st-tab[data-tab="tab-admins"], #settings-view .st-tab[data-tab="tab-audit"] { display: none !important; }
+.owner-setup-note {
+    font-size: 13px; line-height: 1.7; color: var(--sky-ink); background: var(--sky-50);
+    border: 1px solid var(--sky-200); border-left: 4px solid var(--gold-2); border-radius: 10px; padding: 8px 12px; margin: 0 0 12px;
+}
+.owner-setup-note i { color: var(--sky-600); margin-right: 4px; }
+
+/* ==========================================================================
+   Case form: section titles and footer buttons
+   ========================================================================== */
+#case-modal #case-form .oc-h,
+#case-modal #case-form h4.font-bold.text-slate-900 {
+    font-family: var(--font-title) !important; font-weight: 400 !important; font-size: 15px !important; line-height: 1.9 !important;
+    color: var(--sky-ink) !important; display: flex !important; align-items: center; gap: 10px; letter-spacing: .2px;
+}
+#case-modal #case-form .oc-h { padding-bottom: 8px !important; margin-bottom: 12px !important; border-bottom: none !important; position: relative; }
+#case-modal #case-form .oc-h::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; border-radius: 2px;
+    background: linear-gradient(90deg, var(--gold-2), var(--gold-1) 30%, rgba(14, 165, 233, .25) 70%, transparent);
+}
+#case-modal #case-form .oc-h > i.fa-solid {
+    width: 32px; height: 32px; min-width: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    font-size: 14px !important; color: #fff !important; background: linear-gradient(135deg, var(--sky-400), var(--sky-700));
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--gold-1), 0 4px 10px -4px rgba(3, 105, 161, .6);
+}
+#case-modal #tab-panel-general > div.p-3.5 > label > span { font-family: var(--font-title); font-weight: 400; font-size: 14px; color: var(--sky-ink); }
+#case-modal #case-modal-footer i.fa-solid, #case-modal #case-modal-footer i.fa-regular { font-family: "Font Awesome 6 Free" !important; font-style: normal; }
+#case-modal #case-modal-footer i.fa-solid { font-weight: 900 !important; }
+#case-modal #case-modal-footer i.fa-regular { font-weight: 400 !important; }
+html.dark-theme #case-modal #case-form .oc-h, html.dark-theme #case-modal #case-form h4.font-bold.text-slate-900 { color: #e6f6ff !important; }
+
+#case-modal #case-modal-footer .cf-btn {
+    display: inline-flex !important; align-items: center; justify-content: center; gap: 8px;
+    height: 44px; padding: 0 20px !important; border-radius: 999px !important;
+    font-family: var(--font-menu) !important; font-size: 14.5px !important; font-weight: 700 !important;
+    cursor: pointer; transition: transform .12s, box-shadow .12s, filter .12s; white-space: nowrap;
+}
+#case-modal #case-modal-footer .cf-btn.hidden { display: none !important; }
+#case-modal #case-modal-footer .cf-btn:hover { transform: translateY(-1px); }
+#case-modal #case-modal-footer .cf-btn:active { transform: scale(.97); }
+#case-modal #case-modal-footer .cf-ghost { background: transparent !important; color: #5b7a94 !important; border: 1.5px solid transparent !important; }
+#case-modal #case-modal-footer .cf-ghost:hover { background: rgba(255, 255, 255, .7) !important; color: #b91c1c !important; border-color: #fecaca !important; }
+#case-modal #case-modal-footer .cf-draft { background: #fff !important; color: var(--gold-3) !important; border: 1.5px solid var(--gold-1) !important; box-shadow: 0 3px 10px -6px rgba(185, 134, 26, .7) !important; }
+#case-modal #case-modal-footer .cf-draft:hover { background: #fffbeb !important; }
+#case-modal #case-modal-footer .cf-back { background: #fff !important; color: var(--sky-700) !important; border: 1.5px solid #bfe0f5 !important; box-shadow: 0 3px 10px -6px rgba(3, 105, 161, .5) !important; }
+#case-modal #case-modal-footer #btn-wizard-next.cf-next {
+    background: linear-gradient(115deg, var(--sky-700), var(--sky-500)) !important; color: #fff !important; border: none !important;
+    box-shadow: 0 8px 18px -8px rgba(3, 105, 161, .8), inset 0 -2px 0 var(--gold-2) !important; padding: 0 26px !important;
+}
+#case-modal #btn-wizard-submit.btn-create-case-exec:not(.hidden) {
+    display: inline-flex !important; align-items: center; gap: 8px; height: 44px; padding: 0 26px !important; border-radius: 999px !important;
+    background: linear-gradient(115deg, var(--gold-3), var(--gold-2) 55%, var(--gold-1)) !important; color: #3d2900 !important; border: none !important;
+    font-family: var(--font-menu) !important; font-size: 15px !important; font-weight: 800 !important;
+    box-shadow: 0 8px 18px -8px rgba(185, 134, 26, .9) !important;
+}
+
+/* ==========================================================================
+   About & guide page
+   ========================================================================== */
+.ab-body { display: flex; flex-direction: column; gap: 16px; max-width: 1100px; }
+.ab-hero {
+    display: flex; align-items: center; gap: 18px; padding: 18px 22px; border-radius: 18px; background: #fff;
+    border: 1px solid rgba(2, 132, 199, .15); box-shadow: 0 8px 22px -16px rgba(3, 105, 161, .6);
+}
+.ab-hero img { width: 82px; height: 82px; border-radius: 50%; box-shadow: 0 0 0 3px var(--gold-2), 0 6px 14px rgba(0, 0, 0, .18); }
+.ab-name { font-family: var(--font-title); font-size: 19px; line-height: 1.9; color: var(--sky-ink); }
+.ab-app { font: 900 13px/1.4 'Inter', sans-serif; letter-spacing: 3px; color: var(--sky-600); }
+.ab-org { font-size: 13.5px; color: #5b7a94; margin-top: 2px; }
+.ab-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.ab-fact { display: flex; flex-direction: column; gap: 2px; padding: 12px 16px; border-radius: 14px; background: #fff; border: 1px solid rgba(2, 132, 199, .14); }
+.ab-fact i { color: var(--gold-2); font-size: 16px; margin-bottom: 4px; }
+.ab-fact span { font-size: 12.5px; color: #5b7a94; }
+.ab-fact b { font-size: 14px; color: var(--sky-ink); word-break: break-all; }
+.ab-intro { margin: 0; font-size: 14px; line-height: 1.9; color: #36556e; }
+.ab-guides { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 12px; align-items: start; }
+.ab-guide { background: #fff; border-radius: 14px; border: 1px solid rgba(2, 132, 199, .15); border-left: 4px solid var(--gold-2); overflow: hidden; }
+.ab-guide summary { list-style: none; display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: pointer; }
+.ab-guide summary::-webkit-details-marker { display: none; }
+.ab-gi { width: 34px; height: 34px; min-width: 34px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: #fff; background: linear-gradient(135deg, var(--sky-400), var(--sky-700)); }
+.ab-gt { flex: 1; font-family: var(--font-title); font-size: 14.5px; line-height: 1.9; color: var(--sky-ink); }
+.ab-chev { color: var(--sky-600); transition: transform .15s; }
+.ab-guide[open] .ab-chev { transform: rotate(180deg); }
+.ab-guide ol { margin: 0; padding: 0 20px 14px 42px; font-size: 14px; line-height: 1.9; color: #2b4a63; }
+.ab-guide li { margin-bottom: 4px; }
+.ab-copy { text-align: center; color: #7b93a8; font-size: 12.5px; }
+html.dark-theme .ab-hero, html.dark-theme .ab-fact, html.dark-theme .ab-guide { background: #0f1d33; border-color: #24406a; }
+html.dark-theme .ab-name, html.dark-theme .ab-gt, html.dark-theme .ab-fact b { color: #e6f6ff; }
+html.dark-theme .ab-guide ol, html.dark-theme .ab-intro { color: #c6d6e6; }
+
+/* ==========================================================================
+   Case form, round 2
+   ========================================================================== */
+/* step 4: only the inner card keeps the gold edge (no double line on the left) */
+html:not(.dark-theme) #case-modal #case-form .oc-panel {
+    background: transparent !important; border: none !important; box-shadow: none !important; padding-left: 0 !important; padding-right: 0 !important;
+}
+/* numbered section titles on every step */
+#case-modal #case-form .oc-h.oc-h-step { margin: 2px 0 10px !important; }
+#case-modal #case-form .oc-sub { font-size: 12.5px !important; font-weight: 700; color: #5b7a94 !important; font-family: var(--font-menu) !important; }
+/* letter-info "letter result" dialog: ok header */
+.lt-dlg .lt-ok-h { background: linear-gradient(115deg, #047857, #10b981) !important; color: #fff !important; }
+.lt-dlg .lt-ok-h i { color: #fff !important; }
+
+/* ---------- Step 2 (parties): ក and ខ side by side, «គ» only when added ---------- */
+#tab-panel-parties:not(.hidden) {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important; grid-template-rows: none !important;
+    align-content: start; overflow-y: auto !important; gap: 14px !important; padding-right: 4px;
+}
+#tab-panel-parties > div:not(:first-child) { overflow: visible !important; }
+#tab-panel-parties #container-claimants, #tab-panel-parties #container-respondents, #tab-panel-parties #container-thirdparties { flex: none !important; overflow: visible !important; }
+#tab-panel-parties > div:nth-child(4) { grid-column: 1 / -1; }
+#tab-panel-parties > div:nth-child(4) #container-thirdparties { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+#tab-panel-parties > div:nth-child(4) #container-thirdparties > * { margin-top: 0 !important; }
+#tab-panel-parties > div:nth-child(4):has(#container-thirdparties > .border-dashed) { display: none !important; }
+/* group titles */
+#tab-panel-parties .pp-title { font-family: var(--font-title) !important; font-weight: 400 !important; font-size: 15px !important; line-height: 1.9 !important; white-space: nowrap; }
+#tab-panel-parties .pp-title small { font-family: var(--font-menu); font-size: 12px; font-weight: 600; color: #5b7a94; margin-left: 6px; }
+#tab-panel-parties > div:not(:first-child) > div:first-child { border-bottom-width: 2px !important; }
+#tab-panel-parties > div:not(:first-child) > div:first-child > button {
+    display: inline-flex !important; align-items: center; gap: 6px; white-space: nowrap;
+    height: 32px; padding: 0 14px !important; border-radius: 999px !important; font-size: 12.5px !important;
+}
+#tab-panel-parties button i.fa-solid { font-family: "Font Awesome 6 Free" !important; font-weight: 900 !important; font-style: normal; }
+/* the one "+ ភាគី «គ»" button in the top bar */
+#tab-panel-parties .pp-add-third {
+    display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 14px; border-radius: 999px; white-space: nowrap;
+    background: linear-gradient(135deg, #a855f7, #7e22ce); color: #fff; font-weight: 700; font-size: 12px; border: none; cursor: pointer;
+    box-shadow: 0 4px 10px -4px rgba(126, 34, 206, .6);
+}
+#tab-panel-parties .pp-add-third:hover { filter: brightness(1.08); }
+/* inside each party card: buttons never wrap */
+#tab-panel-parties #container-claimants button, #tab-panel-parties #container-respondents button, #tab-panel-parties #container-thirdparties button {
+    white-space: nowrap !important; line-height: 1.4;
+}
+#tab-panel-parties #container-claimants > div > div:first-child, #tab-panel-parties #container-respondents > div > div:first-child, #tab-panel-parties #container-thirdparties > div > div:first-child {
+    flex-direction: row !important; align-items: center !important; flex-wrap: wrap;
+}
+#tab-panel-parties:not(.hidden) { grid-auto-rows: max-content !important; }
+#tab-panel-parties > div { height: auto !important; max-height: none !important; min-height: max-content !important; }
+/* step 3: titles span the row; facts and claims side by side */
+#tab-panel-facts:not(.hidden) { grid-template-rows: none !important; grid-auto-rows: max-content; overflow-y: auto; }
+#tab-panel-facts > h4.oc-h-step { grid-column: 1 / -1; }
+#tab-panel-facts:not(.hidden) > div:nth-child(3), #tab-panel-facts:not(.hidden) > div:nth-child(4) { grid-column: auto !important; display: flex; flex-direction: column; }
+#tab-panel-facts:not(.hidden) > div:nth-child(n+5) { grid-column: 1 / -1; }
+
+/* ==========================================================================
+   Case form, round 3: a header that stays on top of every step
+   ========================================================================== */
+#case-modal .step-head {
+    position: sticky; top: 0; z-index: 8;
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    padding: 12px 18px !important; margin: 0 0 6px !important; border-radius: 16px !important;
+    background: linear-gradient(115deg, #ffffff 0%, #f0f9ff 55%, #e0f2fe 100%) !important;
+    border: 1px solid rgba(2, 132, 199, .2) !important; border-left: 5px solid var(--gold-2) !important;
+    box-shadow: 0 8px 20px -14px rgba(3, 105, 161, .65) !important;
+    grid-column: 1 / -1;
+}
+#case-modal .step-head-ic {
+    width: 44px; height: 44px; min-width: 44px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 18px; background: linear-gradient(135deg, var(--sky-400), var(--sky-700));
+    box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--gold-1), 0 6px 14px -6px rgba(3, 105, 161, .7);
+    margin-left: 4px;
+}
+#case-modal .step-head-ic i { font-family: "Font Awesome 6 Free" !important; font-weight: 900 !important; font-style: normal; }
+#case-modal .step-head-txt { flex: 1; min-width: 260px; }
+#case-modal .step-head-txt h3 { margin: 0; font-family: var(--font-title) !important; font-weight: 400 !important; font-size: 17px; line-height: 1.9; color: var(--sky-ink); }
+#case-modal .step-head-txt p { margin: 0; font-size: 12.5px; line-height: 1.7; color: #4f6f88; }
+html.dark-theme #case-modal .step-head { background: linear-gradient(115deg, #0f1d33, #12294a) !important; border-color: #24406a !important; }
+html.dark-theme #case-modal .step-head-txt h3 { color: #e6f6ff; }
+html.dark-theme #case-modal .step-head-txt p { color: #b9cde0; }
+/* step 2 header keeps the counts and the "+ ភាគី «គ»" button on the right */
+#tab-panel-parties > .step-head-parties { padding: 12px 18px !important; }
+/* step 1: the stage card is not used here (the stage is set in step 4) */
+#case-modal #tab-panel-general > div.wf-card, #case-modal .wf-card { display: none !important; }
+/* stepper: no party count on step 2 */
+#badge-total-parties { display: none !important; }
+/* section titles: keep the gold ring of the round icon fully visible */
+#case-modal #case-form .oc-h.oc-h-step { padding-left: 6px !important; }
+#case-modal #case-form .oc-h > i.fa-solid { margin-left: 2px; }
+/* step 4: the panel scrolls under its sticky header */
+#case-modal #tab-panel-outcome:not(.hidden) { overflow-y: auto; }
+
+/* ==========================================================================
+   Settings: one full-screen button (the page ⛶), cleaner menu and card
+   ========================================================================== */
+#btn-toggle-fit-settings { display: none !important; }
+html:not(.dark-theme) #settings-view .st-menu {
+    background: #fff !important; border: 1px solid rgba(2, 132, 199, .15) !important; border-radius: 18px !important;
+    box-shadow: 0 10px 24px -18px rgba(3, 105, 161, .7) !important; padding: 14px 12px !important;
+}
+#settings-view .st-menu-title { font-family: var(--font-title) !important; font-weight: 400 !important; font-size: 13.5px !important; color: var(--gold-3) !important; margin: 2px 8px 10px !important; }
+#settings-view .st-tab {
+    border-radius: 12px !important; padding: 9px 12px !important; margin-bottom: 4px !important; gap: 12px !important;
+    font-family: var(--font-menu) !important; font-size: 14.5px !important; font-weight: 600 !important; border: 1px solid transparent !important;
+    transition: background .12s, transform .12s;
+}
+html:not(.dark-theme) #settings-view .st-tab { color: var(--sky-ink) !important; background: transparent !important; }
+html:not(.dark-theme) #settings-view .st-tab:hover { background: var(--sky-50) !important; transform: translateX(2px); }
+#settings-view .st-tab .st-tab-icon {
+    width: 32px !important; height: 32px !important; min-width: 32px; border-radius: 50% !important;
+    display: inline-flex !important; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, var(--sky-400), var(--sky-600)) !important; color: #fff !important; box-shadow: 0 3px 8px -3px rgba(2, 132, 199, .6);
+}
+#settings-view .st-tab .st-tab-icon i { color: #fff !important; }
+html:not(.dark-theme) #settings-view .st-tab.active {
+    background: linear-gradient(100deg, var(--sky-700), var(--sky-500)) !important; color: #fff !important;
+    border-color: var(--gold-2) !important; box-shadow: 0 8px 16px -10px rgba(3, 105, 161, .8) !important;
+}
+#settings-view .st-tab.active .st-tab-icon { background: linear-gradient(135deg, var(--gold-1), var(--gold-2)) !important; }
+#settings-view .st-tab.active .st-tab-icon i { color: var(--sky-800) !important; }
+html:not(.dark-theme) #settings-view .st-content {
+    background: #fff !important; border: 1px solid rgba(2, 132, 199, .15) !important; border-radius: 18px !important;
+    box-shadow: 0 10px 24px -18px rgba(3, 105, 161, .7) !important;
+}
+#settings-view .st-head { position: relative; padding-bottom: 14px !important; margin-bottom: 16px !important; border-bottom: none !important; }
+#settings-view .st-head::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; border-radius: 2px;
+    background: linear-gradient(90deg, var(--gold-2), var(--gold-1) 30%, rgba(14, 165, 233, .25) 70%, transparent);
+}
+#settings-view .st-head-icon {
+    width: 48px !important; height: 48px !important; border-radius: 50% !important; color: #fff !important;
+    background: linear-gradient(135deg, var(--sky-400), var(--sky-700)) !important;
+    box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--gold-1), 0 6px 14px -6px rgba(3, 105, 161, .7) !important;
+}
+#settings-view .st-head-icon i { color: #fff !important; }
+#settings-view .st-head-title { font-family: var(--font-title) !important; font-weight: 400 !important; font-size: 17px !important; line-height: 1.9 !important; color: var(--sky-ink) !important; }
+html:not(.dark-theme) #settings-view .st-content input:not([type=checkbox]):not([type=radio]):not([type=color]),
+html:not(.dark-theme) #settings-view .st-content select,
+html:not(.dark-theme) #settings-view .st-content textarea {
+    background: #fff !important; border: 1.5px solid #bfe0f5 !important; border-radius: 11px !important; color: var(--sky-ink) !important;
+}
+html:not(.dark-theme) #settings-view .st-content input:focus, html:not(.dark-theme) #settings-view .st-content select:focus, html:not(.dark-theme) #settings-view .st-content textarea:focus {
+    outline: none !important; border-color: var(--sky-500) !important; box-shadow: 0 0 0 4px rgba(14, 165, 233, .16) !important;
+}
+#settings-view .st-content .btn-primary, #settings-view .st-content button.kt-btn-primary {
+    background: linear-gradient(115deg, var(--sky-700), var(--sky-500)) !important; color: #fff !important; border: none !important;
+    border-radius: 999px !important; padding: 9px 22px !important; box-shadow: 0 8px 16px -10px rgba(3, 105, 161, .8), inset 0 -2px 0 var(--gold-2) !important;
+}
+
+/* ==========================================================================
+   Round 4: one bright look on every page
+   ========================================================================== */
+/* login: keep the window buttons clear of the login card */
+#login-overlay .kh-login-side { padding-top: 56px !important; }
+
+/* old "ពង្រីក" buttons that the app may still add late are hidden; the page tools sit at the right end */
+.view-section .section-title-box > .section-actions:not(.pt-actions) { display: none !important; }
+.view-section button:not(.pt-ibtn):has(> i.fa-expand), .view-section button:not(.pt-ibtn):has(> i.fa-maximize) { display: none !important; }
+.view-section .pt-actions { margin-left: auto !important; justify-content: flex-end; }
+.view-section .pt-actions > .pt-group { order: 99; }
+
+/* settings: the grid always keeps the menu left and the page right */
+#settings-view .st-layout > #rbac-officer-notice { grid-column: 1 / -1; }
+#settings-view .st-layout > .st-menu { grid-column: 1; }
+#settings-view .st-layout > .st-content { grid-column: 2; }
+@media (max-width: 1000px) {
+    #settings-view .st-layout > .st-menu, #settings-view .st-layout > .st-content { grid-column: 1; }
+    #settings-view .st-menu { position: static !important; flex-direction: row !important; flex-wrap: wrap; }
+}
+#settings-view .st-menu { top: 12px !important; }
+
+/* page background: light sky instead of cream; the building photo stays very faint */
+html:not(.dark-theme) .main-content { background: linear-gradient(180deg, #eef8ff 0%, #e6f4fd 45%, #dceffb 100%) !important; }
+html:not(.dark-theme) .main-content::before { opacity: 0.05 !important; filter: saturate(0.4) !important; }
+html:not(.dark-theme) .main-content::after {
+    background: linear-gradient(180deg, rgba(238, 248, 255, .7) 0%, rgba(238, 248, 255, 0) 35%, rgba(238, 248, 255, 0) 70%, rgba(220, 239, 251, .6) 100%) !important;
+}
+
+/* every card on every page: white, sky edge, soft shadow (like the case form) */
+html:not(.dark-theme) .view-section .dsb-card,
+html:not(.dark-theme) .view-section .kt-card,
+html:not(.dark-theme) .view-section .card-panel,
+html:not(.dark-theme) .view-section .data-mgmt-grid > div,
+html:not(.dark-theme) .view-section .pf-grid > div {
+    background: #ffffff !important;
+    border: 1px solid rgba(2, 132, 199, 0.15) !important;
+    border-radius: 18px !important;
+    box-shadow: 0 10px 26px -18px rgba(3, 105, 161, 0.55) !important;
+}
+/* card titles: clear, bold Kantumruy in the sky ink colour */
+html:not(.dark-theme) .view-section .dsb-card-head h3,
+html:not(.dark-theme) .view-section .kt-card-title,
+html:not(.dark-theme) .view-section .card-panel > h3,
+html:not(.dark-theme) .view-section .data-mgmt-grid h3 {
+    font-family: var(--font-menu) !important; font-weight: 700 !important; color: var(--sky-ink) !important; letter-spacing: .1px;
+}
+/* inputs on every page */
+html:not(.dark-theme) .view-section input:not([type=checkbox]):not([type=radio]):not([type=color]):not([type=range]):not([type=file]),
+html:not(.dark-theme) .view-section select,
+html:not(.dark-theme) .view-section textarea {
+    background-color: #ffffff !important; color: var(--sky-ink) !important;
+    border: 1.5px solid #bfe0f5 !important; border-radius: 11px !important;
+    transition: border-color .12s, box-shadow .12s;
+}
+html:not(.dark-theme) .view-section input:not([type=checkbox]):not([type=radio]):focus,
+html:not(.dark-theme) .view-section select:focus,
+html:not(.dark-theme) .view-section textarea:focus {
+    outline: none !important; border-color: var(--sky-500) !important; box-shadow: 0 0 0 4px rgba(14, 165, 233, .16) !important;
+}
+/* text weights: body text normal, labels semi-bold, numbers bold */
+.view-section { font-family: var(--font-menu); }
+.view-section label { font-weight: 600; }
+html:not(.dark-theme) .view-section label { color: #23445f; }

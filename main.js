@@ -8,14 +8,17 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 800,
-    minWidth: 1024,
-    minHeight: 768,
+    minWidth: 640,
+    minHeight: 480,
     icon: path.join(__dirname, 'favicon.ico'),
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js')
     },
+    // Custom title bar: the page draws the bar and its own Mac-style
+    // close / minimize / maximize buttons (see "win:*" handlers below).
+    titleBarStyle: 'hidden',
     show: false, // Wait until ready-to-show to prevent visual flash
     backgroundColor: '#0a1128'
   });
@@ -34,6 +37,9 @@ function createWindow() {
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
   });
+  const sendMax = () => { try { mainWindow.webContents.send('win:maximized', mainWindow.isMaximized()); } catch (e) {} };
+  mainWindow.on('maximize', sendMax);
+  mainWindow.on('unmaximize', sendMax);
 
   mainWindow.on('closed', function () {
     mainWindow = null;
@@ -94,6 +100,19 @@ if (!gotTheLock) {
 
     ipcMain.handle('app:get-version', () => app.getVersion());
 
+    // The window buttons are drawn by the page now; kept so older calls do nothing.
+    ipcMain.on('titlebar:set-theme', () => {});
+
+    // Mac-style window buttons drawn by the page
+    ipcMain.on('win:minimize', () => { if (mainWindow) mainWindow.minimize(); });
+    ipcMain.on('win:toggle-maximize', () => {
+      if (!mainWindow) return;
+      if (mainWindow.isMaximized()) mainWindow.unmaximize(); else mainWindow.maximize();
+    });
+    ipcMain.on('win:close', () => { if (mainWindow) mainWindow.close(); });
+    ipcMain.on('win:set-fullscreen', (e, on) => { if (mainWindow) mainWindow.setFullScreen(!!on); });
+    ipcMain.handle('win:is-maximized', () => !!(mainWindow && mainWindow.isMaximized()));
+
     // Toggle DevTools for admins
     ipcMain.on('toggle-dev-tools', (event) => {
       if (mainWindow && mainWindow.webContents) {
@@ -135,8 +154,70 @@ if (!gotTheLock) {
     }
   });
 
+  // Pick a case folder on this computer (letters are saved inside it)
+  ipcMain.handle('dialog:pick-folder', async (event, startPath) => {
+    const fs = require('fs');
+    const opts = { title: 'ជ្រើស Folder សំណុំរឿង', properties: ['openDirectory'] };
+    if (startPath && fs.existsSync(startPath)) opts.defaultPath = startPath;
+    const r = await dialog.showOpenDialog(mainWindow, opts);
+    return (r.canceled || !r.filePaths.length) ? '' : r.filePaths[0];
+  });
+  ipcMain.handle('fs:folder-exists', (event, p) => {
+    try { return !!p && require('fs').statSync(p).isDirectory(); } catch (e) { return false; }
+  });
+
+  // ---- Letters: fill a .docx template and open it in Word ----
+  let letterEngine = null;
+  const engine = () => (letterEngine = letterEngine || require('./lib/letter-engine.js'));
+  ipcMain.handle('letters:tags', (event, templateId) => {
+    try {
+      const p = engine().listTemplates()[templateId];
+      if (!p) return { ok: false, error: 'រកគម្រូមិនឃើញ៖ ' + templateId };
+      return { ok: true, tags: engine().inspectTemplate(p) };
+    } catch (e) { return { ok: false, error: e.message }; }
+  });
+  ipcMain.handle('letters:generate', async (event, req) => {
+    const fs = require('fs');
+    try {
+      const { templateId, data, dir, fileName, open } = req || {};
+      const p = engine().listTemplates()[templateId];
+      if (!p) return { ok: false, error: 'រកគម្រូមិនឃើញ៖ ' + templateId };
+      if (!dir || !fileName) return { ok: false, error: 'មិនទាន់មានទីតាំងរក្សាទុក' };
+      const ZW = /[​-‍⁠﻿]/g;
+      const cleanDir = path.normalize(String(dir).replace(ZW, ''));
+      let base = String(fileName).replace(ZW, '').replace(/[\\/:*?"<>|]/g, '-').replace(/\.docx$/i, '').trim();
+      // Keep the full path ≤ 240 characters, leaving room for " (99).docx".
+      const MAX = 240, room = MAX - (cleanDir.length + 1) - ' (99).docx'.length;
+      if (room < 12) return { ok: false, error: `ផ្លូវ Folder វែងពេក (${cleanDir.length} តួអក្សរ)។ សូមជ្រើស Folder សំណុំរឿងដែលខ្លីជាងនេះ។` };
+      let shortened = false;
+      if (base.length > room) {
+        base = base.slice(0, room).replace(/[\p{M}្]+$/u, '');
+        // Don't leave a half "(…" at the end.
+        const open = base.lastIndexOf('(');
+        if (open > 8 && open > base.lastIndexOf(')')) base = base.slice(0, open);
+        base = base.replace(/[\s\-–,(]+$/, '').trim();
+        shortened = true;
+      }
+      const r = engine().renderTemplate(p, data || {});
+      fs.mkdirSync(cleanDir, { recursive: true });
+      // Never overwrite: "name.docx" → "name (2).docx" → "name (3).docx" …
+      let out = path.join(cleanDir, base + '.docx');
+      for (let i = 2; fs.existsSync(out); i++) out = path.join(cleanDir, `${base} (${i}).docx`);
+      fs.writeFileSync(out, r.buffer, { flag: 'wx' });
+      if (open !== false) {
+        const err = await shell.openPath(out);
+        if (err) return { ok: true, path: out, shortened, openError: err };
+      }
+      return { ok: true, path: out, shortened };
+    } catch (e) { return { ok: false, error: e.message, details: e.details || [] }; }
+  });
+
   // Native PDF Generation Handler (Prints the current window to PDF, ensuring all fonts are loaded)
   ipcMain.handle('generate-pdf', async (event, customOptions = {}) => {
+    // The window's navy background colour shows in the PDF page margins; print on white.
+    const win = BrowserWindow.fromWebContents(event.sender);
+    const prevBg = win ? win.getBackgroundColor() : null;
+    if (win) win.setBackgroundColor('#ffffff');
     try {
       const options = {
         landscape: true,
@@ -150,6 +231,8 @@ if (!gotTheLock) {
     } catch (error) {
       console.error('Failed to generate PDF:', error);
       throw error;
+    } finally {
+      if (win && prevBg) win.setBackgroundColor(prevBg);
     }
   });
 

@@ -106,11 +106,11 @@ function renderDocumentPreview() {
         <div class="official-doc-header" style="text-align: center; margin-bottom: 24px; font-family: 'Khmer OS Muol Light', 'Moul', cursive; color: #000;">
             <h3 style="font-size: 15pt; margin-bottom: 4px; font-weight: normal;">ព្រះរាជាណាចក្រកម្ពុជា</h3>
             <h4 style="font-size: 13pt; margin-bottom: 6px; font-weight: normal;">ជាតិ សាសនា ព្រះមហាក្សត្រ</h4>
-            <div style="width: 100px; border-bottom: 2px solid #000; margin: 0 auto 16px auto;"></div>
+            ${typeof window.nadrOrnamentHTML === 'function' ? window.nadrOrnamentHTML(170) : ''}
             
             <div style="display: flex; justify-content: space-between; align-items: flex-end; text-align: left; font-family: 'Inter', 'Khmer OS Battambang', sans-serif; font-size: 10.5pt; line-height: 1.6;">
                 <div>
-                    <b style="font-family: 'Khmer OS Muol Light', 'Moul', cursive; font-size: 11pt;">អាជ្ញាធរជាតិដោះស្រាយវិវាទ (NADR)</b><br>
+                    <b style="font-family: 'Khmer OS Muol Light', 'Moul', cursive; font-size: 11pt;">អាជ្ញាធរជាតិដោះស្រាយវិវាទ</b><br>
                     អគ្គលេខាធិការដ្ឋាន / ផ្នែករដ្ឋបាលសំណុំរឿង<br>
                     លេខ៖ <b style="font-family: 'Khmer OS Muol Light', 'Moul', cursive; color: #1e3a8a;">${caseItem.caseNumber}</b> / អ.ជ.ដ.វ
                 </div>
@@ -140,7 +140,7 @@ function renderDocumentPreview() {
                 
                 <p style="text-indent: 40px;">កម្មវត្ថុ៖ អញ្ជើញចូលរួមក្នុងកិច្ចប្រជុំសម្រុះសម្រួលដោះស្រាយ<b>${caseItem.category}</b> តាមពាក្យបណ្តឹងរបស់ លោក/លោកស្រី <b>${caseItem.partyA.name}</b> (ដើមបណ្តឹង)។</p>
                 
-                <p style="text-indent: 40px;">សេចក្តីដូចបានជម្រាបជូនក្នុងកម្មវត្ថុខាងលើ អាជ្ញាធរជាតិដោះស្រាយវិវាទ (NADR) សូមជម្រាបជូន លោក/លោកស្រី មេត្តាជ្រាបថា ស្ថាប័នបានទទួលពាក្យបណ្តឹងចុះកាលបរិច្ឆេទ ${caseItem.date} ដែលមានខ្លឹមសារសង្ខេប៖ <i>«${caseItem.summary || customNotes}»</i>។</p>
+                <p style="text-indent: 40px;">សេចក្តីដូចបានជម្រាបជូនក្នុងកម្មវត្ថុខាងលើ អាជ្ញាធរជាតិដោះស្រាយវិវាទ សូមជម្រាបជូន លោក/លោកស្រី មេត្តាជ្រាបថា ស្ថាប័នបានទទួលពាក្យបណ្តឹងចុះកាលបរិច្ឆេទ ${caseItem.date} ដែលមានខ្លឹមសារសង្ខេប៖ <i>«${caseItem.summary || customNotes}»</i>។</p>
                 
                 <p style="text-indent: 40px;">ដើម្បីឱ្យដំណើរការផ្សះផ្សា និងដោះស្រាយវិវាទនេះប្រព្រឹត្តទៅដោយស្មើភាព យុត្តិធម៌ និងតម្លាភាព សូម លោក/លោកស្រី អញ្ជើញមកដល់ទីស្នាក់ការអាជ្ញាធរជាតិដោះស្រាយវិវាទ នៅ៖</p>
                 
@@ -195,7 +195,7 @@ function renderDocumentPreview() {
                 <div style="background: #f8fafc; border-left: 4px solid #3b82f6; padding: 10px 16px; margin: 10px 0;">
                     • <b>ស្ថានភាពប្រជុំភាគី ក៖</b> ${caseItem.partyA.status || 'បានចូលរួមបំភ្លឺ និងផ្តល់ភស្តុតាងរួចរាល់'}<br>
                     • <b>ស្ថានភាពប្រជុំភាគី ខ៖</b> ${caseItem.partyB.status || 'បានចូលរួមបំភ្លឺ និងផ្តល់ភស្តុតាងរួចរាល់'}<br>
-                    • <b>កិច្ចប្រជុំរួម (Mediation)៖</b> ${caseItem.mediationStatus || 'បានបើកកិច្ចប្រជុំចរចា និងស្វែងរកចំណុចរួម'}
+                    • <b>កិច្ចប្រជុំរួម៖</b> ${caseItem.mediationStatus || 'បានបើកកិច្ចប្រជុំចរចា និងស្វែងរកចំណុចរួម'}
                 </div>
 
                 <h4 style="font-size: 12pt; margin-top: 16px; color: #1e3a8a; border-bottom: 1px dashed #94a3b8; padding-bottom: 4px;">៤. លទ្ធផល និងការសម្រេចចិត្តនៃកិច្ចប្រជុំ៖</h4>
@@ -243,7 +243,7 @@ function renderDocumentPreview() {
                 <h4 style="font-size: 12pt; margin-top: 16px; color: #15803d;">ប្រការ ១. កម្មវត្ថុនៃការព្រមព្រៀង</h4>
                 <p style="text-indent: 40px;">ភាគីទាំងពីរបានយល់ព្រមបញ្ចប់<b>${caseItem.category}</b> នៅទីតាំង៖ ${caseItem.location || 'ភ្នំពេញ'} ដែលមានខ្លឹមសារដើម៖ <i>«${caseItem.summary || 'វិវាទផលប្រយោជន៍ និងសិទ្ធិ'}»</i>។</p>
 
-                <h4 style="font-size: 12pt; margin-top: 16px; color: #15803d;">ប្រការ ២. លក្ខខណ្ឌនៃការសះជា (Settlement Terms)</h4>
+                <h4 style="font-size: 12pt; margin-top: 16px; color: #15803d;">ប្រការ ២. លក្ខខណ្ឌនៃការសះជា</h4>
                 <p style="text-indent: 40px; background: #fffbeb; border-left: 4px solid #f59e0b; padding: 10px 15px; font-weight: 500;">
                     ${customNotes !== 'ពុំមានបញ្ជាក់បន្ថែម' ? customNotes : 'ភាគីទាំងពីរយល់ព្រមអនុវត្តតាមការសម្រុះសម្រួល បង្ហាញសាមគ្គីភាព និងលះបង់ការទាមទារបន្ថែមទាំងឡាយដើម្បីបញ្ចប់បញ្ហាដោយសន្តិវិធី។'}
                 </p>
@@ -289,7 +289,7 @@ function renderDocumentPreview() {
                 • <b>ដើមបណ្តឹង (ក)៖</b> ឈ្មោះ <b>${caseItem.partyA.name}</b> (${caseItem.partyA.gender}, អាយុ ${caseItem.partyA.age || '..'} ឆ្នាំ) - ស្ថានភាពប្រជុំ៖ <i>${caseItem.partyA.status || 'រួចរាល់'}</i><br>
                 • <b>ចុងបណ្តឹង (ខ)៖</b> ឈ្មោះ <b>${caseItem.partyB.name}</b> (${caseItem.partyB.gender}, អាយុ ${caseItem.partyB.age || '..'} ឆ្នាំ) - ស្ថានភាពប្រជុំ៖ <i>${caseItem.partyB.status || 'រួចរាល់'}</i></p>
                 
-                <p><b>៣. ការវិភាគអង្គហេតុ និងចំណុចវិវាទ (Legal Issue Analysis)៖</b><br>
+                <p><b>៣. ការវិភាគអង្គហេតុ និងចំណុចវិវាទ៖</b><br>
                 <span style="display: block; background: #f8fafc; padding: 12px; border-left: 4px solid #4338ca; margin-top: 6px; text-align: justify;">
                     ${caseItem.summary || customNotes}
                 </span></p>
@@ -322,7 +322,7 @@ function renderDocumentPreview() {
             </div>
 
             <div style="font-size: 11.5pt; line-height: 2; color: #000; text-align: justify;">
-                <p><b>អគ្គលេខាធិការដ្ឋាននៃអាជ្ញាធរជាតិដោះស្រាយវិវាទ (NADR) សូមជម្រាបជូន លោក/លោកស្រី ជាភាគីទាំងពីរ៖</b></p>
+                <p><b>អគ្គលេខាធិការដ្ឋាននៃអាជ្ញាធរជាតិដោះស្រាយវិវាទ សូមជម្រាបជូន លោក/លោកស្រី ជាភាគីទាំងពីរ៖</b></p>
                 
                 <ul style="list-style-type: none; padding-left: 20px;">
                     <li>• <b>លោក/លោកស្រី ${caseItem.partyA.name}</b> (ដើមបណ្តឹង)</li>
@@ -331,7 +331,7 @@ function renderDocumentPreview() {
 
                 <p style="text-indent: 40px;">កម្មវត្ថុ៖ ការប្រកាសបិទបញ្ចប់ជាស្ថាពរនូវចំណាត់ការលើសំណុំរឿងលេខ៖ <b>${caseItem.caseNumber}</b> ដែលជាប្រភេទ <b>${caseItem.category}</b>។</p>
                 
-                <p style="text-indent: 40px;">តបតាមកម្មវត្ថុខាងលើ ស្ថាប័នសូមបញ្ជាក់ថា ក្រោយពីបានអនុវត្តនីតិវិធីសម្រុះសម្រួល និងពិនិត្យយ៉ាងយកចិត្តទុកដាក់រួចមក សំណុំរឿងនេះត្រូវបានសម្រេច <b>បិទបញ្ចប់ជាស្ថាពរ (Closed Case)</b> ចាប់ពីថ្ងៃចុះកាលបរិច្ឆេទនេះតទៅ ដោយមូលហេតុ៖</p>
+                <p style="text-indent: 40px;">តបតាមកម្មវត្ថុខាងលើ ស្ថាប័នសូមបញ្ជាក់ថា ក្រោយពីបានអនុវត្តនីតិវិធីសម្រុះសម្រួល និងពិនិត្យយ៉ាងយកចិត្តទុកដាក់រួចមក សំណុំរឿងនេះត្រូវបានសម្រេច <b>បិទបញ្ចប់ជាស្ថាពរ</b> ចាប់ពីថ្ងៃចុះកាលបរិច្ឆេទនេះតទៅ ដោយមូលហេតុ៖</p>
                 
                 <div style="background: #fef2f2; border: 1px solid #fecaca; padding: 14px 20px; border-radius: 8px; margin: 16px 0; font-size: 11.5pt; font-weight: bold; color: #b91c1c; text-align: center;">
                     « លទ្ធផលស្ថាពរ៖ ${caseItem.status} - ${caseItem.remarks || 'បានបញ្ចប់នីតិវិធីផ្លូវការ'} »

@@ -1,6 +1,6 @@
 {
   "name": "nadr-cms-pro",
-  "version": "1.1.85",
+  "version": "1.1.105",
   "description": "NADR Master Case Management System Desktop App",
   "main": "main.js",
   "scripts": {
@@ -23,9 +23,11 @@
       "index.html",
       "manifest.json",
       "favicon.ico",
-      "css/style.css",
+      "css/*.css",
       "images/**/*",
       "vendor/**/*",
+      "templates/**/*",
+      "lib/*.js",
       "js/*.js",
       "!js/*.bak*",
       "package.json"

@@ -162,8 +162,8 @@ function renderDashboardMonthlyChart(labels, months) {
             labels,
             datasets: [
                 line('សំណុំរឿងចូល', months.map(m => m.total), '#2563eb', true),
-                line('ព្រមព្រៀង', months.map(m => m.settle), '#10b981'),
-                line('មិនព្រមព្រៀង', months.map(m => m.nosettle), '#ef4444')
+                line('សំណុំរឿងបិទក្នុងខែ', months.map(m => m.closed || 0), '#059669'),
+                line('ព្រមព្រៀង (តាមខែចូល)', months.map(m => m.settle), '#a3a3a3')
             ]
         },
         options: {

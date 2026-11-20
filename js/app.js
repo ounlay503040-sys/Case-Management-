@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keydown', (e) => {
         if (e.ctrlKey && e.shiftKey && e.altKey && (e.key === 'd' || e.key === 'D')) {
             const role = localStorage.getItem('nadr_auth_user_role') || sessionStorage.getItem('nadr_auth_user_role') || '';
-            if (role.toLowerCase().includes('admin') || role.includes('គ្រប់គ្រង')) {
+            if (localStorage.getItem('nadr_owner_username') || role.toLowerCase().includes('admin') || role.includes('គ្រប់គ្រង')) {
                 if (window.electronAPI && window.electronAPI.toggleDevTools) {
                     window.electronAPI.toggleDevTools();
                 }
@@ -131,7 +131,7 @@ function populateProvinceDropdowns() {
     if (quickLoc) quickLoc.innerHTML = optHTML;
 
     if (filterLoc) {
-        filterLoc.innerHTML = `<option value="ALL">គ្រប់ទីតាំងទាំងអស់ (All Locations)</option>` + optHTML;
+        filterLoc.innerHTML = `<option value="ALL">គ្រប់ទីតាំងទាំងអស់</option>` + optHTML;
     }
 }
 
@@ -151,7 +151,7 @@ function populateCategoryDropdowns() {
     if (mainCat) mainCat.innerHTML = optHTML;
     if (quickCat) quickCat.innerHTML = optHTML;
     if (filterCat) {
-        filterCat.innerHTML = `<option value="ALL">ទាំងអស់ (All Categories)</option>` + optHTML;
+        filterCat.innerHTML = `<option value="ALL">ទាំងអស់</option>` + optHTML;
     }
 }
 
@@ -645,7 +645,7 @@ function dsbSyncSelectors() {
 
     const periodSel = document.getElementById('dashboard-date-filter');
     if (periodSel) {
-        const opts = [['all', 'គ្រប់រយៈពេល (All Time)'], ['this_month', 'ខែនេះ (This Month)']]
+        const opts = [['all', 'គ្រប់រយៈពេល'], ['this_month', 'ខែនេះ']]
             .concat(years.map(y => [String(y), `ឆ្នាំ ${y}`]));
         if (!opts.some(o => o[0] === window.dashboardPeriod)) window.dashboardPeriod = 'all';
         periodSel.innerHTML = opts.map(([v, t]) => `<option value="${v}">${t}</option>`).join('');
@@ -716,10 +716,17 @@ function dsbRenderMonthly() {
         m[dsbStatusKey(c.status)]++;
     });
 
+    const closedPerMonth = Array(12).fill(0);
+    getDashboardScopeCases().forEach(c => {
+        const d = c.closedAt ? dsbParseDay(c.closedAt) : null;
+        if (d && d.getFullYear() === year) closedPerMonth[d.getMonth()]++;
+    });
+    months.forEach((m, i) => { m.closed = closedPerMonth[i]; });
+
     // Hide trailing empty months of the current year so the table ends at "now".
     const now = new Date();
     const lastMonth = year === now.getFullYear() ? now.getMonth() : 11;
-    const sum = dsbEmptyCounts();
+    const sum = { ...dsbEmptyCounts(), closed: 0 };
     let html = '';
     for (let i = 0; i <= lastMonth; i++) {
         const m = months[i];
@@ -737,6 +744,7 @@ function dsbRenderMonthly() {
             <td class="tc">${cell(m.pending)}</td>
             <td class="tc">${cell(m.settle)}</td>
             <td class="tc">${cell(m.nosettle)}</td>
+            <td class="tc"><strong>${cell(m.closed)}</strong></td>
         </tr>`;
     }
     tbody.innerHTML = html;
@@ -748,6 +756,7 @@ function dsbRenderMonthly() {
             <td class="tc">${sum.pending}</td>
             <td class="tc">${sum.settle}</td>
             <td class="tc">${sum.nosettle}</td>
+            <td class="tc">${sum.closed}</td>
         </tr>`;
     }
     if (typeof renderDashboardMonthlyChart === 'function') {
@@ -833,6 +842,85 @@ function dsbRenderLocations(list) {
     renderDashboardLocationChart(byLoc, ctx);
 }
 
+/** Parse a YYYY-MM-DD (or DD/MM/YYYY) string to a local Date at midnight, or null. */
+function dsbParseDay(s) {
+    if (!s) return null;
+    const str = String(s).trim();
+    let m = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+    if (m) return new Date(+m[1], +m[2] - 1, +m[3]);
+    m = str.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})/);
+    if (m) return new Date(+m[3], +m[2] - 1, +m[1]);
+    return null;
+}
+
+function dsbDaysBetween(a, b) {
+    return Math.round((b - a) / 86400000);
+}
+
+/**
+ * Work queue: groups of cases that need action, based on today's date.
+ * Each group: { key, title, hint, icon, color, items: [{ c, note }] }
+ */
+function getAttentionGroups(list) {
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const upcoming = [], noEvent = [], pastEvent = [], longPending = [];
+    list.forEach(c => {
+        const key = dsbStatusKey(c.status);
+        if (key === 'settle' || key === 'nosettle' || c.isDraft) return;
+        const hasEvt = checkCaseHasEvent(c);
+        const evtDay = hasEvt ? dsbParseDay(getCaseEventDetails(c).date) : null;
+        if (evtDay) {
+            const diff = dsbDaysBetween(today, evtDay);
+            if (diff >= 0 && diff <= 7) upcoming.push({ c, sort: diff, note: diff === 0 ? 'ថ្ងៃនេះ' : diff === 1 ? 'ថ្ងៃស្អែក' : `${diff} ថ្ងៃទៀត` });
+            else if (diff < 0 && key === 'active') pastEvent.push({ c, sort: diff, note: `កន្លងផុត ${-diff} ថ្ងៃ` });
+        }
+        if (key === 'active' && !hasEvt) {
+            const rec = dsbParseDay(c.dateReceived);
+            const age = rec ? dsbDaysBetween(rec, today) : 0;
+            noEvent.push({ c, sort: -age, note: rec ? `ទទួល ${age} ថ្ងៃមុន` : '' });
+        }
+        if (key === 'pending') {
+            const rec = dsbParseDay(c.dateReceived);
+            const age = rec ? dsbDaysBetween(rec, today) : 0;
+            if (age > 90) longPending.push({ c, sort: -age, note: `${age} ថ្ងៃ` });
+        }
+    });
+    const by = arr => arr.sort((a, b) => a.sort - b.sort);
+    return [
+        { key: 'upcoming', title: 'កម្មវិធីក្នុង ៧ ថ្ងៃខាងមុខ', hint: 'ត្រៀមឯកសារ និងជូនដំណឹងភាគី', icon: 'fa-regular fa-calendar-check', color: '#1d4ed8', items: by(upcoming) },
+        { key: 'past', title: 'កម្មវិធីកន្លងផុត មិនទាន់កត់លទ្ធផល', hint: 'កត់ត្រាលទ្ធផល ឬដាក់កម្មវិធីថ្មី', icon: 'fa-solid fa-hourglass-end', color: '#b45309', items: by(pastEvent) },
+        { key: 'noevent', title: 'កំពុងសម្រុះសម្រួល តែគ្មានកម្មវិធី', hint: 'ដាក់កាលវិភាគប្រជុំបន្ទាប់', icon: 'fa-regular fa-calendar-xmark', color: '#dc2626', items: by(noEvent) },
+        { key: 'pending', title: 'តម្កល់យូរជាង ៩០ ថ្ងៃ', hint: 'ពិនិត្យថាអាចបន្ត ឬបិទសំណុំរឿង', icon: 'fa-solid fa-box-archive', color: '#7c3aed', items: by(longPending) }
+    ];
+}
+
+function dsbRenderAttention() {
+    const grid = document.getElementById('aq-grid');
+    if (!grid) return;
+    const groups = getAttentionGroups(getDashboardScopeCases());
+    const MAX = 6;
+    grid.innerHTML = groups.map(g => {
+        const rows = g.items.slice(0, MAX).map(({ c, note }) => {
+            const pA = c.partyA_name || 'ភាគី ក';
+            const pB = c.partyB_name || 'ភាគី ខ';
+            return `<button type="button" class="aq-item" onclick="openCaseProfile('${dsbEsc(c.id)}')">
+                <span class="aq-no">${dsbEsc(String(c.caseNumber || c.id).replace(/^#+/, ''))}</span>
+                <span class="aq-parties">${dsbEsc(pA)} <em>និង</em> ${dsbEsc(pB)}</span>
+                <span class="aq-note">${dsbEsc(note)}</span>
+            </button>`;
+        }).join('');
+        const more = g.items.length > MAX ? `<div class="aq-more">និង ${g.items.length - MAX} សំណុំរឿងទៀត</div>` : '';
+        return `<div class="aq-card" style="--c:${g.color}">
+            <div class="aq-head">
+                <span class="aq-icon"><i class="${g.icon}"></i></span>
+                <div class="aq-titles"><div class="aq-title">${g.title}</div><div class="aq-hint">${g.hint}</div></div>
+                <span class="aq-count">${g.items.length}</span>
+            </div>
+            <div class="aq-list">${rows || '<div class="aq-empty"><i class="fa-solid fa-circle-check"></i> គ្មានសំណុំរឿងក្នុងក្រុមនេះ</div>'}${more}</div>
+        </div>`;
+    }).join('');
+}
+
 /** Render every dashboard section. Called on navigation and after data changes. */
 function renderDashboardStats() {
     if (!document.getElementById('dashboard-view')) return;
@@ -840,6 +928,7 @@ function renderDashboardStats() {
     dsbSyncSelectors();
     const list = getDashboardCases();
     dsbRenderSummary(list);
+    dsbRenderAttention();
     dsbRenderMonthly();
     dsbRenderCategories(list);
     dsbRenderYearly();
@@ -976,9 +1065,9 @@ function generateMasterCaseRowHTML(c, rowNum) {
             <td class="text-center" style="white-space: nowrap; min-width: 150px;">
                 <div class="action-btns" style="display: flex; gap: 4px; justify-content: center; flex-wrap: nowrap;">
                     <button type="button" class="btn-icon system-action-btn" data-action="view" data-id="${c.id}" title="មើលប័ណ្ណ"><i class="fa-solid fa-eye" style="pointer-events: none;"></i></button>
-                    <button type="button" class="btn-icon text-success system-action-btn" data-action="legal" data-id="${c.id}" title="ផលិតលិខិតគតិយុត្ត"><i class="fa-solid fa-file-signature" style="pointer-events: none;"></i></button>
+                    <button type="button" class="btn-icon text-success system-action-btn" data-action="legal" data-id="${c.id}" title="បង្កើតលិខិត"><i class="fa-solid fa-file-signature" style="pointer-events: none;"></i></button>
                     <button type="button" class="btn-icon text-info system-action-btn" data-action="telegram" data-id="${c.id}" title="ចែករំលែកទៅ Telegram"><i class="fab fa-telegram-plane" style="pointer-events: none;"></i></button>
-                    <button type="button" class="btn-icon system-action-btn" data-action="clone" data-id="${c.id}" title="ចម្លងសំណុំរឿង (Clone)" style="color: #f59e0b;"><i class="fa-solid fa-copy" style="pointer-events: none;"></i></button>
+                    <button type="button" class="btn-icon system-action-btn" data-action="clone" data-id="${c.id}" title="ចម្លងសំណុំរឿង" style="color: #f59e0b;"><i class="fa-solid fa-copy" style="pointer-events: none;"></i></button>
                     <button type="button" class="btn-icon system-action-btn" data-action="edit" data-id="${c.id}" title="កែសម្រួល"><i class="fa-solid fa-pen" style="pointer-events: none;"></i></button>
                     <button type="button" class="btn-icon delete-btn system-action-btn" data-action="delete" data-id="${c.id}" title="លុប"><i class="fa-solid fa-trash" style="pointer-events: none;"></i></button>
                 </div>
@@ -1002,7 +1091,7 @@ document.addEventListener('click', function(e) {
     if (action === 'view') {
         if(typeof openViewModal === 'function') openViewModal(id);
     } else if (action === 'legal') {
-        if(typeof openLegalDocModal === 'function') openLegalDocModal(id);
+        if (typeof ltGoToLetters === 'function') ltGoToLetters(id);
     } else if (action === 'telegram') {
         if(typeof shareCaseToTelegram === 'function') shareCaseToTelegram(id);
     } else if (action === 'clone') {
@@ -1113,38 +1202,49 @@ function getCaseAmountDisplay(c) {
     return '-';
 }
 
+function clEsc(s) {
+    return String(s ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+}
+
+function clSetActive(selector, activeEl) {
+    document.querySelectorAll(selector).forEach(t => t.classList.toggle('active', t === activeEl));
+}
+
 function filterMasterType(type) {
     currentMtTypeFilter = type;
-    document.querySelectorAll('.mt-type-tab').forEach(t => {
-        t.className = 'mt-type-tab px-3 py-1.5 rounded-lg text-slate-600 hover:text-blue-700 hover:bg-slate-50 transition flex items-center gap-1 cursor-pointer';
-    });
-    const activeBtn = document.getElementById(`mt-tab-${type}`);
-    if (activeBtn) {
-        if (type === 'assisting') {
-            activeBtn.className = 'mt-type-tab px-3 py-1.5 rounded-lg bg-purple-700 text-white font-bold transition flex items-center gap-1 shadow-sm cursor-pointer';
-        } else {
-            activeBtn.className = 'mt-type-tab px-3 py-1.5 rounded-lg bg-blue-600 text-white font-bold transition flex items-center gap-1 shadow-sm cursor-pointer';
-        }
-    }
+    clSetActive('.mt-type-tab', document.getElementById(`mt-tab-${type}`));
     renderMasterTable();
 }
 
 function filterEventSchedule(type) {
     currentSchedFilter = type;
-    document.querySelectorAll('.sched-filter-tab').forEach(t => {
-        t.className = 'sched-filter-tab px-3 py-1 rounded-lg text-slate-600 hover:text-indigo-700 hover:bg-indigo-50 transition flex items-center gap-1 cursor-pointer';
-    });
-    const activeBtn = document.getElementById(`tab-sched-${type === 'scheduled' ? 'yes' : (type === 'unscheduled' ? 'no' : 'all')}`);
-    if (activeBtn) {
-        if (type === 'scheduled') {
-            activeBtn.className = 'sched-filter-tab px-3 py-1 rounded-lg bg-emerald-700 text-white font-bold transition flex items-center gap-1 shadow-sm cursor-pointer';
-        } else if (type === 'unscheduled') {
-            activeBtn.className = 'sched-filter-tab px-3 py-1 rounded-lg bg-amber-600 text-white font-bold transition flex items-center gap-1 shadow-sm cursor-pointer';
-        } else {
-            activeBtn.className = 'sched-filter-tab px-3 py-1 rounded-lg bg-slate-800 text-white font-bold transition cursor-pointer';
-        }
-    }
+    const id = type === 'scheduled' ? 'yes' : (type === 'unscheduled' ? 'no' : 'all');
+    clSetActive('.sched-filter-tab', document.getElementById(`tab-sched-${id}`));
     renderMasterTable();
+}
+
+function resetMasterFilters() {
+    ['mt-search'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    ['mt-filter-status', 'mt-filter-cat', 'mt-filter-prov', 'mt-filter-highlight'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.value = 'all';
+    });
+    currentMtTypeFilter = 'all';
+    currentSchedFilter = 'all';
+    clSetActive('.mt-type-tab', document.getElementById('mt-tab-all'));
+    clSetActive('.sched-filter-tab', document.getElementById('tab-sched-all'));
+    renderMasterTable();
+}
+
+function initMasterStatCards() {
+    document.querySelectorAll('#cases-view .cl-stat').forEach(btn => {
+        if (btn.dataset.bound) return;
+        btn.dataset.bound = '1';
+        btn.addEventListener('click', () => {
+            const sel = document.getElementById('mt-filter-status');
+            if (sel) sel.value = btn.dataset.status;
+            renderMasterTable();
+        });
+    });
 }
 
 function filterMasterData() {
@@ -1152,12 +1252,10 @@ function filterMasterData() {
 }
 
 function selectMasterCaseRow(caseId, event) {
-    if (selectedMasterCaseId === caseId) {
-        selectedMasterCaseId = null;
-    } else {
-        selectedMasterCaseId = caseId;
-    }
-    renderMasterTable();
+    selectedMasterCaseId = (selectedMasterCaseId === caseId) ? null : caseId;
+    document.querySelectorAll('#master-cases-tbody tr.cl-row').forEach(tr => {
+        tr.classList.toggle('is-selected', tr.dataset.id === String(selectedMasterCaseId));
+    });
 }
 
 function openCaseProfile(caseId) {
@@ -1218,9 +1316,18 @@ function exportMasterTableExcel() {
     if (typeof exportReportToExcel === 'function') {
         exportReportToExcel();
     } else if (typeof showToast === 'function') {
-        showToast('📥 កំពុងរៀបចំទាញចេញទិន្នន័យជាឯកសារ Excel...', 'info');
+        showToast('កំពុងរៀបចំទាញចេញទិន្នន័យជាឯកសារ Excel...', 'info');
     }
 }
+
+const CL_STATUS = {
+    mediating: { label: 'កំពុងសម្រុះសម្រួល', chip: 'kt-chip-blue', color: '#2563eb' },
+    settled: { label: 'ព្រមព្រៀង', chip: 'kt-chip-green', color: '#059669' },
+    shelved: { label: 'តម្កល់', chip: 'kt-chip-amber', color: '#d97706' },
+    unsuccessful: { label: 'មិនព្រមព្រៀង', chip: 'kt-chip-red', color: '#dc2626' },
+    draft: { label: 'សំណុំរឿងព្រាង', chip: 'kt-chip-gray', color: '#64748b' }
+};
+const CL_PHASE = { phase1: 'ដំណាក់កាល ១', phase2: 'ដំណាក់កាល ២', phase3: 'ដំណាក់កាល ៣' };
 
 function renderMasterTable() {
     const tbody = document.getElementById('master-cases-tbody');
@@ -1228,419 +1335,157 @@ function renderMasterTable() {
         applyFiltersAndRenderLegacyTable();
         return;
     }
+    initMasterStatCards();
 
     const data = casesData || [];
 
-    // 1. Update Summary Table (7 Columns with Personal / Assisting splits) & Tab Badges
-    const totalCases = data.length;
-    let personalCases = 0;
-    let assistingCases = 0;
-
-    let medTotal = 0, medPersonal = 0, medAssisting = 0;
-    let setTotal = 0, setPersonal = 0, setAssisting = 0;
-    let shvTotal = 0, shvPersonal = 0, shvAssisting = 0;
-    let clsTotal = 0, clsPersonal = 0, clsAssisting = 0;
+    // 1. Summary counts
+    const counts = { total: [0, 0], mediating: [0, 0], settled: [0, 0], shelved: [0, 0], unsuccessful: [0, 0] };
     let scheduledCount = 0;
-
     data.forEach(c => {
-        const isAssisting = c.caseType === 'assisting';
-        if (isAssisting) assistingCases++;
-        else personalCases++;
-
+        const k = c.caseType === 'assisting' ? 1 : 0;
+        counts.total[k]++;
         const st = normalizeCaseStatus(c.status, c.isDraft);
-        if (st === 'settled') {
-            setTotal++;
-            if (isAssisting) setAssisting++; else setPersonal++;
-        } else if (st === 'shelved') {
-            shvTotal++;
-            if (isAssisting) shvAssisting++; else shvPersonal++;
-        } else if (st === 'unsuccessful') {
-            clsTotal++;
-            if (isAssisting) clsAssisting++; else clsPersonal++;
-        } else {
-            medTotal++;
-            if (isAssisting) medAssisting++; else medPersonal++;
-        }
-
+        const bucket = counts[st] ? st : 'mediating';
+        if (st !== 'draft') counts[bucket][k]++;
         if (checkCaseHasEvent(c)) scheduledCount++;
     });
-    const unscheduledCount = totalCases - scheduledCount;
-
-    const setEl = (id, val) => {
-        const el = document.getElementById(id);
-        if (el) el.innerText = val;
-    };
-
-    // Summary Table (PDF 11-Subcolumn Standard)
+    const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    const totalCases = data.length;
     setEl('sum-total-all', totalCases);
-    setEl('sum-total-personal', personalCases);
-    setEl('sum-total-assisting', assistingCases);
-
-    setEl('sum-med-total', medTotal);
-    setEl('sum-med-personal', medPersonal);
-    setEl('sum-med-assisting', medAssisting);
-
-    setEl('sum-set-total', setTotal);
-    setEl('sum-set-personal', setPersonal);
-    setEl('sum-set-assisting', setAssisting);
-
-    setEl('sum-shv-total', shvTotal);
-    setEl('sum-shv-personal', shvPersonal);
-    setEl('sum-shv-assisting', shvAssisting);
-
-    setEl('sum-cls-total', clsTotal);
-    setEl('sum-cls-personal', clsPersonal);
-    setEl('sum-cls-assisting', clsAssisting);
-
-    // Filter Tab Counters
+    setEl('sum-total-personal', counts.total[0]);
+    setEl('sum-total-assisting', counts.total[1]);
+    [['med', 'mediating'], ['set', 'settled'], ['shv', 'shelved'], ['cls', 'unsuccessful']].forEach(([p, k]) => {
+        setEl(`sum-${p}-total`, counts[k][0] + counts[k][1]);
+        setEl(`sum-${p}-personal`, counts[k][0]);
+        setEl(`sum-${p}-assisting`, counts[k][1]);
+    });
     setEl('count-tab-all', totalCases);
-    setEl('count-tab-personal', personalCases);
-    setEl('count-tab-assisting', assistingCases);
+    setEl('count-tab-personal', counts.total[0]);
+    setEl('count-tab-assisting', counts.total[1]);
     setEl('count-sched-yes', scheduledCount);
-    setEl('count-sched-no', unscheduledCount);
+    setEl('count-sched-no', totalCases - scheduledCount);
 
-    // 2. Read Search & Filter Controls
-    const query = (document.getElementById('mt-search')?.value || document.getElementById('filter-search')?.value || '').trim().toLowerCase();
+    // 2. Filters
+    const query = (document.getElementById('mt-search')?.value || '').trim().toLowerCase();
     const catFilter = document.getElementById('mt-filter-cat')?.value || 'all';
     const provFilter = document.getElementById('mt-filter-prov')?.value || 'all';
     const statusFilter = document.getElementById('mt-filter-status')?.value || 'all';
     const hlFilter = document.getElementById('mt-filter-highlight')?.value || 'all';
+    document.querySelectorAll('#cases-view .cl-stat').forEach(b => b.classList.toggle('active', b.dataset.status === statusFilter));
 
-    // 3. Filter Dataset
     const filtered = data.filter(c => {
         const matchType = (currentMtTypeFilter === 'all') || (currentMtTypeFilter === 'assisting' ? (c.caseType === 'assisting') : (c.caseType !== 'assisting'));
-        
         const normStatus = normalizeCaseStatus(c.status, c.isDraft);
         let matchStatus = true;
         if (statusFilter !== 'all') {
-            if (statusFilter === 'draft') matchStatus = !!c.isDraft;
-            else matchStatus = !c.isDraft && (normStatus === statusFilter);
+            matchStatus = statusFilter === 'draft' ? !!c.isDraft : (!c.isDraft && normStatus === statusFilter);
         }
-
         const cat = (c.category || '').toLowerCase();
         const matchCat = (catFilter === 'all') || cat.includes(catFilter.toLowerCase());
-
         const loc = ((c.disputeLocation || '') + ' ' + (c.locationProvince || '') + ' ' + (c.disputeAddress || '')).toLowerCase();
         const matchProv = (provFilter === 'all') || loc.includes(provFilter.toLowerCase());
-
         let matchHl = true;
         if (hlFilter === 'priority') matchHl = !!c.isPriority;
         else if (hlFilter !== 'all') matchHl = (c.highlight === hlFilter);
-
         const hasEvt = checkCaseHasEvent(c);
-        let matchSched = true;
-        if (currentSchedFilter === 'scheduled') matchSched = hasEvt;
-        else if (currentSchedFilter === 'unscheduled') matchSched = !hasEvt;
-
-        const pA = (c.partyA_name || c.party1 || '').toLowerCase();
-        const pB = (c.partyB_name || c.party2 || '').toLowerCase();
-        const pC = (c.partyC_name || c.party3 || '').toLowerCase();
-        const cNo = (c.caseNumber || c.caseNo || '').toLowerCase();
-        const summ = (c.summary || c.note || c.remarks || '').toLowerCase();
-
-        const matchSearch = query === '' ||
-            cNo.includes(query) ||
-            pA.includes(query) ||
-            pB.includes(query) ||
-            pC.includes(query) ||
-            cat.includes(query) ||
-            loc.includes(query) ||
-            summ.includes(query);
-
+        const matchSched = currentSchedFilter === 'scheduled' ? hasEvt : (currentSchedFilter === 'unscheduled' ? !hasEvt : true);
+        const hay = [c.caseNumber, c.caseNo, c.partyA_name, c.party1, c.partyB_name, c.party2, c.partyC_name, c.party3, c.summary, c.note, c.remarks, c.leadOfficer]
+            .map(v => String(v || '').toLowerCase()).join(' ') + ' ' + cat + ' ' + loc;
+        const matchSearch = query === '' || hay.includes(query);
         return matchType && matchStatus && matchCat && matchProv && matchHl && matchSched && matchSearch;
     });
-
     window.filteredCasesCache = filtered;
 
-    // 4. Update Showing Count
     const countEl = document.getElementById('mt-showing-count');
-    if (countEl) countEl.innerHTML = `បង្ហាញសំណុំរឿងទាំងអស់ចំនួន <strong>${filtered.length}</strong> នៃ <strong>${totalCases}</strong> សំណុំរឿងសរុប`;
-
-    tbody.innerHTML = '';
+    if (countEl) countEl.innerHTML = `បង្ហាញសំណុំរឿង <strong>${filtered.length}</strong> នៃ <strong>${totalCases}</strong>`;
 
     if (filtered.length === 0) {
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="11" class="py-10 text-center text-slate-400">
-                    <div class="text-3xl mb-1">🔍</div>
-                    <div class="font-medium text-xs">រកមិនឃើញសំណុំរឿងត្រូវនឹងលក្ខខណ្ឌចម្រាញ់ឡើយ</div>
-                </td>
-            </tr>
-        `;
+        tbody.innerHTML = `<tr><td colspan="8"><div class="kt-empty"><i class="fa-solid fa-magnifying-glass"></i>រកមិនឃើញសំណុំរឿងត្រូវនឹងលក្ខខណ្ឌដែលបានជ្រើសរើសទេ</div></td></tr>`;
         return;
     }
 
-    // 5. Render Rows
-    filtered.forEach((item, index) => {
-        const tr = document.createElement('tr');
-        const isSelected = (selectedMasterCaseId === item.id);
+    const todayStr = new Date().toISOString().split('T')[0];
+    tbody.innerHTML = filtered.map((item, index) => {
         const normStatus = normalizeCaseStatus(item.status, item.isDraft);
-
-        let statusRowClass = 'status-mediating';
-        let circleBadgeClass = 'bg-blue-600 text-white ring-2 ring-blue-200 shadow-xs';
-
-        if (normStatus === 'unsuccessful') {
-            statusRowClass = 'status-unsuccessful';
-            circleBadgeClass = 'bg-rose-600 text-white ring-2 ring-rose-200 shadow-xs';
-        } else if (normStatus === 'settled') {
-            statusRowClass = 'status-settled';
-            circleBadgeClass = 'bg-emerald-600 text-white ring-2 ring-emerald-200 shadow-xs';
-        } else if (normStatus === 'shelved') {
-            statusRowClass = 'status-shelved';
-            circleBadgeClass = 'bg-amber-600 text-white ring-2 ring-amber-200 shadow-xs';
-        } else if (normStatus === 'draft') {
-            statusRowClass = 'status-draft';
-            circleBadgeClass = 'bg-slate-600 text-white ring-2 ring-slate-200 shadow-xs';
-        }
-
-        tr.className = `master-case-row ${statusRowClass} ${isSelected ? 'row-selected font-semibold' : ''}`;
-        tr.onclick = (e) => selectMasterCaseRow(item.id, e);
-        tr.ondblclick = (e) => {
-            e.stopPropagation();
-            openCaseProfile(item.id);
-        };
-        tr.title = "ចុច ១ ដងដើម្បីដិតពណ៌ • ចុច ២ ដង (Double Click) ដើម្បីបើកមើល Profile សំណុំរឿង";
-
+        const st = CL_STATUS[normStatus] || CL_STATUS.mediating;
+        const phase = normalizeCasePhase(item.phase, normStatus);
         const listNo = item.originalListNo || (index + 1);
-        const caseNumber = item.caseNumber || item.caseNo || `NADR-${item.id}`;
-        const cleanCaseNumber = String(caseNumber).replace(/^#+/, '');
-        const filingDate = item.filingDate || item.dateReceived || '-';
-        const category = item.category || 'វិវាទដីធ្លី';
-        const party1 = item.partyA_name || item.party1 || 'ភាគី ក';
-        const party2 = item.partyB_name || item.party2 || 'ភាគី ខ';
-        const party3 = item.partyC_name || item.party3 || '';
-        const location = item.disputeLocation || item.locationProvince || item.location || 'ភ្នំពេញ';
-        const amountDisplay = getCaseAmountDisplay(item);
-
-        const folderUrl = String(item.folderLink || item.driveLink || '').trim();
-        let folderBtn = '';
-        if (folderUrl) {
-            folderBtn = `<button type="button" onclick="event.stopPropagation(); openLinkedCaseFolder('${item.id}')" title="បើក Folder៖ ${folderUrl.replace(/"/g, '&quot;')}" class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-sky-50 hover:bg-sky-600 text-sky-600 hover:text-white border border-sky-200 shadow-2xs transition cursor-pointer">
-                <i class="fa-solid fa-folder-open text-xs"></i>
-            </button>`;
-        } else {
-            folderBtn = `<button type="button" onclick="event.stopPropagation(); openCaseFolderLinkInput('${item.id}')" onmouseenter="showFolderUnlinkedTooltip(this)" onmouseleave="hideFolderUnlinkedTooltip()" title="Folder មិនទាន់បានភ្ជាប់ Link — ចុចដើម្បីភ្ជាប់" class="folder-unlinked-btn inline-flex items-center justify-center w-7 h-7 rounded-lg bg-amber-50/80 hover:bg-amber-100 text-amber-600 hover:text-amber-800 border border-dashed border-amber-300 transition cursor-pointer">
-                <i class="fa-regular fa-folder-open text-xs"></i>
-            </button>`;
-        }
-
-        const normPhase = normalizeCasePhase(item.phase, normStatus);
-        let stageBadge = '';
-        if (normPhase === 'phase1') {
-            stageBadge = `
-                <div class="row-zoom-target-center">
-                    <div class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
-                        <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
-                        <span>① ដំណាក់កាល១</span>
-                    </div>
-                    <div class="text-[10.5px] text-slate-500 font-medium leading-tight mt-0.5">(ត្រៀមរៀបចំ)</div>
-                </div>
-            `;
-        } else if (normPhase === 'phase2') {
-            stageBadge = `
-                <div class="row-zoom-target-center">
-                    <div class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-300">
-                        <span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
-                        <span>② ដំណាក់កាល២</span>
-                    </div>
-                    <div class="text-[10.5px] text-slate-500 font-medium leading-tight mt-0.5">(សម្រុះសម្រួល)</div>
-                </div>
-            `;
-        } else {
-            stageBadge = `
-                <div class="row-zoom-target-center">
-                    <div class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-300">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
-                        <span>③ ដំណាក់កាល៣</span>
-                    </div>
-                    <div class="text-[10.5px] text-slate-500 font-medium leading-tight mt-0.5">(ក្រោយប្រជុំ/បិទ)</div>
-                </div>
-            `;
-        }
-
-        let statusBadge = '';
-        if (normStatus === 'draft') {
-            statusBadge = '<span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11.5px] font-bold bg-white/95 text-slate-700 border border-slate-400 shadow-2xs">📝 សំណុំរឿងព្រាង</span>';
-        } else if (normStatus === 'settled') {
-            statusBadge = '<span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11.5px] font-bold bg-white/95 text-emerald-800 border border-emerald-500 shadow-2xs">🟢 ព្រមព្រៀង</span>';
-        } else if (normStatus === 'shelved') {
-            statusBadge = '<span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11.5px] font-bold bg-white/95 text-amber-800 border border-amber-500 shadow-2xs">🟡 តម្កល់</span>';
-        } else if (normStatus === 'unsuccessful') {
-            statusBadge = '<span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11.5px] font-bold bg-white/95 text-rose-800 border border-rose-500 shadow-2xs">🔴 បិទសំណុំរឿង</span>';
-        } else {
-            statusBadge = '<span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11.5px] font-bold bg-white/95 text-blue-800 border border-blue-500 shadow-2xs">🔵 កំពុងសម្រុះសម្រួល</span>';
-        }
-
-        let catColor = 'bg-white/95 text-blue-800 border-blue-200';
-        if (category.includes('ដីធ្លី')) catColor = 'bg-white/95 text-emerald-800 border-emerald-200';
-        else if (category.includes('កិច្ចសន្យា')) catColor = 'bg-white/95 text-amber-800 border-amber-300';
-        else if (category.includes('ពាណិជ្ជកម្ម')) catColor = 'bg-white/95 text-purple-800 border-purple-200';
-        else if (category.includes('គ្រួសារ')) catColor = 'bg-white/95 text-pink-800 border-pink-200';
-
+        const caseNumber = String(item.caseNumber || item.caseNo || `NADR-${item.id}`).replace(/^#+/, '');
+        const filingDate = item.filingDate || item.dateReceived || '';
+        const category = item.category || '—';
+        const pA = item.partyA_name || item.party1 || 'ភាគី ក';
+        const pB = item.partyB_name || item.party2 || 'ភាគី ខ';
+        const pC = item.partyC_name || item.party3 || '';
+        const location = item.disputeLocation || item.locationProvince || item.location || '—';
+        const amount = getCaseAmountDisplay(item);
         const hasEvt = checkCaseHasEvent(item);
         const evt = getCaseEventDetails(item);
+        const note = item.note || item.summary || item.remarks || '';
+        const lastDate = item.lastActionDate === todayStr ? 'ថ្ងៃនេះ' : (item.lastActionDate || '');
+        const folderUrl = String(item.folderLink || item.driveLink || '').trim();
+        const id = clEsc(item.id);
+        const hl = ['yellow', 'green', 'rose'].includes(item.highlight) ? ` hl-${item.highlight}` : '';
 
-        let lastDateDisplay = item.lastActionDate || item.dateReceived || filingDate;
-        const todayStr = new Date().toISOString().split('T')[0];
-        if (item.lastActionDate === todayStr) {
-            lastDateDisplay = '<span class="text-blue-700 font-bold">ថ្ងៃនេះ</span>';
-        }
+        const folderBtn = folderUrl
+            ? `<button type="button" class="kt-icon-btn" title="បើក Folder សំណុំរឿង" onclick="event.stopPropagation(); openLinkedCaseFolder('${id}')"><i class="fa-solid fa-folder-open" style="color:#0284c7"></i></button>`
+            : `<button type="button" class="kt-icon-btn cl-folder-missing" title="មិនទាន់ភ្ជាប់ Folder — ចុចដើម្បីភ្ជាប់" onclick="event.stopPropagation(); openCaseFolderLinkInput('${id}')"><i class="fa-regular fa-folder"></i></button>`;
 
-        const noteText = item.note || item.summary || item.remarks || '';
+        const eventCell = hasEvt
+            ? `<div class="cl-event"><span class="cl-event-date"><i class="fa-regular fa-calendar"></i> ${clEsc(evt.date)}${evt.time ? ' · ' + clEsc(evt.time) : ''}</span><span class="cl-event-foot"><span class="cl-event-desc" title="${clEsc(evt.desc)}">${clEsc(evt.desc)}</span><button type="button" class="cl-link" onclick="event.stopPropagation(); openEditEventModal('${id}')">កែប្រែ</button></span></div>`
+            : `<button type="button" class="cl-add-event" onclick="event.stopPropagation(); openEditEventModal('${id}')"><i class="fa-solid fa-plus"></i> ដាក់កម្មវិធី</button>`;
 
-        tr.innerHTML = `
-            <!-- 1. ល.រ ក្នុងបញ្ជី (Freeze ទី១) -->
-            <td class="py-2 px-1.5 text-center align-middle whitespace-nowrap freeze-col-1">
-                <div class="row-zoom-target-center">
-                    <span class="w-7 h-7 rounded-full font-bold text-[12px] inline-flex items-center justify-center ${circleBadgeClass}">
-                        ${listNo}
-                    </span>
-                    <div class="mt-1 leading-none">
-                        ${item.caseType === 'assisting' ? 
-                            '<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-200">👥 អម</span>' : 
-                            '<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-white/95 text-slate-700 border border-slate-300">👤 ផ្ទាល់ខ្លួន</span>'
-                        }
-                    </div>
+        return `<tr class="cl-row${hl}${selectedMasterCaseId === item.id ? ' is-selected' : ''}" data-id="${id}" style="--st:${st.color}"
+                    onclick="selectMasterCaseRow('${id}', event)" ondblclick="event.stopPropagation(); openCaseProfile('${id}')">
+            <td class="tc"><span class="cl-no">${clEsc(listNo)}</span>${item.caseType === 'assisting' ? '<span class="cl-type">អម</span>' : ''}</td>
+            <td>
+                <button type="button" class="cl-case-no" onclick="event.stopPropagation(); openCaseProfile('${id}')" title="មើលព័ត៌មានលម្អិត">${clEsc(caseNumber)}</button>
+                ${item.isPriority ? '<i class="fa-solid fa-star cl-star" title="អាទិភាព"></i>' : ''}
+                <div class="cl-muted">${clEsc(filingDate)}</div>
+            </td>
+            <td>
+                <div class="cl-party"><span class="cl-tag cl-tag-a">ក</span><span>${clEsc(pA)}</span></div>
+                <div class="cl-party"><span class="cl-tag cl-tag-b">ខ</span><span>${clEsc(pB)}</span>${pC ? `<span class="cl-tag cl-tag-c" title="${clEsc(pC)}">គ</span>` : ''}</div>
+            </td>
+            <td>
+                <div class="cl-cat">${clEsc(category)}</div>
+                <div class="cl-muted"><i class="fa-solid fa-location-dot"></i> ${clEsc(location)}${amount && amount !== '-' ? ` · ${clEsc(amount)}` : ''}</div>
+            </td>
+            <td class="tc">
+                <span class="kt-chip ${st.chip}"><i class="kt-dot"></i> ${st.label}</span>
+                <div class="cl-muted" style="margin-top:4px">${CL_PHASE[phase] || ''}</div>
+            </td>
+            <td>${eventCell}</td>
+            <td>
+                <div class="cl-note" onclick="event.stopPropagation(); openQuickNoteModal('${id}')" title="${note ? clEsc(note) : 'ចុចដើម្បីសរសេរកំណត់ចំណាំ'}">
+                    ${note ? `<span class="cl-note-text">${clEsc(note)}</span>` : '<span class="cl-note-empty">+ សរសេរកំណត់ចំណាំ</span>'}
+                    ${lastDate ? `<span class="cl-muted">${clEsc(lastDate)}</span>` : ''}
                 </div>
             </td>
-
-            <!-- 2. ទៅកាន់ Folder (Freeze ទី២) -->
-            <td class="py-2 px-1.5 text-center align-middle whitespace-nowrap freeze-col-folder">
-                <div class="row-zoom-target-center">
+            <td class="tc">
+                <div class="cl-actions">
                     ${folderBtn}
-                </div>
-            </td>
-
-            <!-- 3. លេខសំណុំរឿង (Freeze ទី៣) -->
-            <td class="py-2 px-2.5 align-middle whitespace-nowrap freeze-col-2">
-                <div class="row-zoom-target">
-                    <div class="flex items-center gap-1.5 leading-tight">
-                        <button type="button" onclick="event.stopPropagation(); openCaseProfile('${item.id}')" class="font-mono font-bold text-slate-900 hover:text-blue-700 text-[13px] hover:underline flex items-center gap-1 cursor-pointer" title="មើល Profile សំណុំរឿង">
-                            <span>${cleanCaseNumber}</span>
-                        </button>
-                        ${item.isPriority ? '<span title="សំណុំរឿងអាទិភាព" class="text-amber-500 text-[11px]">⭐</span>' : ''}
-                    </div>
-                    <div class="flex items-center gap-1.5 mt-1 leading-none">
-                        <span class="text-[11px] text-slate-500 font-mono font-medium">${filingDate}</span>
-                        ${hasEvt ? '<span class="px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300" title="បានដាក់កម្មវិធីរួច">📅</span>' : ''}
-                    </div>
-                </div>
-            </td>
-
-            <!-- 4. ប្រភេទវិវាទ (Freeze ទី៤) -->
-            <td class="py-2 px-2.5 align-middle whitespace-nowrap freeze-col-3">
-                <div class="row-zoom-target">
-                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11.5px] font-semibold border shadow-2xs truncate max-w-full ${catColor}" title="${category}">
-                        ${category}
-                    </span>
-                </div>
-            </td>
-
-            <!-- 5. សមាសភាពភាគី (ក vs ខ / គ) (Freeze ទី៥) -->
-            <td class="py-2 px-3 align-middle freeze-col-4">
-                <div class="space-y-1.5 leading-snug row-zoom-target">
-                    <div class="font-bold text-blue-950 flex items-start gap-1.5" title="ភាគី ក៖ ${party1}">
-                        <span class="px-1.5 py-0.5 mt-0.5 rounded bg-blue-100 text-blue-800 text-[9.5px] font-extrabold shrink-0">ក</span>
-                        <span class="text-[12px] font-semibold leading-snug break-words">${party1}</span>
-                    </div>
-                    <div class="text-rose-900 flex items-start gap-1.5 font-medium" title="ភាគី ខ៖ ${party2}${party3 ? ' | ភាគី គ៖ ' + party3 : ''}">
-                        <span class="px-1.5 py-0.5 mt-0.5 rounded bg-rose-100 text-rose-800 text-[9.5px] font-extrabold shrink-0">ខ</span>
-                        <span class="text-[12px] font-semibold text-rose-950 leading-snug break-words">${party2}</span>
-                        ${party3 ? `<span class="px-1.5 py-0.5 mt-0.5 rounded bg-purple-100 text-purple-800 text-[9.5px] font-bold shrink-0" title="${party3}">+គ</span>` : ''}
-                    </div>
-                </div>
-            </td>
-
-            <!-- 6. ទីតាំង & ទំហំវិវាទ (Scrollable) -->
-            <td class="py-2 px-3 align-middle whitespace-nowrap leading-tight">
-                <div class="row-zoom-target space-y-1">
-                    <div class="flex items-center gap-1 text-slate-800 font-semibold truncate text-[12px]" title="${location}">
-                        <span class="text-rose-500 text-[11px]">📍</span>
-                        <span class="truncate">${location}</span>
-                    </div>
-                    <div class="text-[11.5px] text-slate-700 font-mono font-bold truncate" title="${amountDisplay}">
-                        💰 ${amountDisplay}
-                    </div>
-                </div>
-            </td>
-
-            <!-- 7. ដំណាក់កាលចាត់ការ (Scrollable) -->
-            <td class="py-2 px-2 text-center align-middle whitespace-nowrap">
-                ${stageBadge}
-            </td>
-
-            <!-- 8. លទ្ធផល (Scrollable) -->
-            <td class="py-2 px-2 text-center align-middle whitespace-nowrap">
-                <div class="row-zoom-target-center">
-                    ${statusBadge}
-                </div>
-            </td>
-
-            <!-- 9. កម្មវិធីសំណុំរឿង (Scrollable) -->
-            <td class="py-1.5 px-2.5 text-center align-middle border-x border-slate-200/60">
-                ${hasEvt ? `
-                    <div class="h-[48px] px-2.5 py-1 rounded-lg bg-white/95 border border-indigo-200 shadow-2xs flex flex-col justify-center text-left leading-tight row-zoom-target">
-                        <div class="flex items-center justify-between text-[11px] font-bold text-indigo-950">
-                            <span class="flex items-center gap-1 truncate">
-                                <span>📅</span>
-                                <span class="font-mono">${evt.date}</span>
-                            </span>
-                            <button type="button" onclick="event.stopPropagation(); openEditEventModal('${item.id}')" class="text-[10.5px] text-indigo-600 hover:text-indigo-900 font-bold hover:underline shrink-0 cursor-pointer">
-                                កែប្រែ
-                            </button>
-                        </div>
-                        <div class="text-[11.5px] font-medium text-slate-800 truncate mt-0.5" title="${evt.desc}">
-                            ${evt.desc}
+                    <button type="button" class="kt-icon-btn" title="មើលព័ត៌មានលម្អិត" onclick="event.stopPropagation(); openCaseProfile('${id}')"><i class="fa-regular fa-eye"></i></button>
+                    <button type="button" class="kt-icon-btn" title="កែសម្រួល" onclick="event.stopPropagation(); if (typeof openEditModal === 'function') openEditModal('${id}');"><i class="fa-solid fa-pen"></i></button>
+                    <div class="cl-more">
+                        <button type="button" class="kt-icon-btn" title="សកម្មភាពផ្សេងទៀត" onclick="event.stopPropagation(); this.parentElement.classList.toggle('open')"><i class="fa-solid fa-ellipsis"></i></button>
+                        <div class="cl-menu" onclick="event.stopPropagation(); this.parentElement.classList.remove('open')">
+                            <button type="button" onclick="if (typeof ltGoToLetters === 'function') ltGoToLetters('${id}');"><i class="fa-regular fa-file-lines"></i> បង្កើតលិខិត</button>
+                            <button type="button" onclick="cloneCaseFromNo('${id}')"><i class="fa-regular fa-copy"></i> ចម្លងសំណុំរឿង</button>
+                            <button type="button" onclick="openEditEventModal('${id}')"><i class="fa-regular fa-calendar-plus"></i> ដាក់/កែកម្មវិធី</button>
+                            <button type="button" class="danger" onclick="if (typeof confirmDeleteCase === 'function') confirmDeleteCase('${id}');"><i class="fa-regular fa-trash-can"></i> លុបសំណុំរឿង</button>
                         </div>
                     </div>
-                ` : `
-                    <div class="h-[48px] px-2.5 py-1 rounded-lg bg-white/70 border border-dashed border-slate-300 flex flex-col items-center justify-center leading-tight row-zoom-target-center">
-                        <div class="text-[10.5px] text-amber-800 font-semibold">⚠️ មិនទាន់ដាក់កម្មវិធី</div>
-                        <button type="button" onclick="event.stopPropagation(); openEditEventModal('${item.id}')" class="mt-0.5 text-[10.5px] text-indigo-700 hover:text-indigo-950 font-bold hover:underline cursor-pointer">
-                            + ដាក់កាលវិភាគ
-                        </button>
-                    </div>
-                `}
-            </td>
-
-            <!-- 10. កំណត់ចំណាំ (Scrollable) -->
-            <td class="py-1.5 px-2.5 align-middle">
-                <div class="h-[48px] px-2.5 py-1 rounded-lg bg-white/95 border border-slate-200 hover:border-blue-400 shadow-2xs flex flex-col justify-center leading-tight row-zoom-target cursor-pointer" onclick="event.stopPropagation(); openQuickNoteModal('${item.id}')" title="${noteText ? noteText : 'ចុចដើម្បីវាយបញ្ចូលបរិយាយកំណត់ចំណាំដោយសេរី'}">
-                    <div class="flex items-center justify-between text-[11px] text-indigo-950 font-bold">
-                        <span class="truncate">📝 បរិយាយចំណាំ</span>
-                        <span class="font-mono text-slate-500 text-[10.5px] shrink-0">${lastDateDisplay}</span>
-                    </div>
-                    <div class="text-[11.5px] text-slate-700 truncate mt-0.5 font-medium">
-                        ${noteText ? noteText : '<span class="text-slate-400 italic font-normal">+ ចុចវាយកំណត់ចំណាំ...</span>'}
-                    </div>
                 </div>
             </td>
-
-            <!-- 11. សកម្មភាព (Fit Compact) -->
-            <td class="py-2 px-1 text-center align-middle whitespace-nowrap border-l border-slate-200/60">
-                <div class="inline-flex items-center justify-center gap-[3px] row-zoom-target-center">
-                    <button type="button" onclick="event.stopPropagation(); openCaseProfile('${item.id}')" title="មើល Profile សំណុំរឿងលម្អិត" class="w-6 h-6 rounded-md bg-blue-50 hover:bg-blue-600 hover:text-white text-blue-700 border border-blue-200 flex items-center justify-center transition cursor-pointer">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                    </button>
-                    <button type="button" onclick="event.stopPropagation(); cloneCaseFromNo('${item.id}')" title="ចម្លងសំណុំរឿង (Clone)" class="w-6 h-6 rounded-md bg-white hover:bg-amber-100 text-amber-700 border border-slate-200 flex items-center justify-center transition cursor-pointer">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                    </button>
-                    <button type="button" onclick="event.stopPropagation(); if (typeof openLegalDocModal === 'function') openLegalDocModal('${item.id}');" title="ផលិតលិខិតផ្លូវការ" class="w-6 h-6 rounded-md bg-white hover:bg-indigo-100 text-indigo-700 border border-slate-200 flex items-center justify-center transition cursor-pointer">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                    </button>
-                    <button type="button" onclick="event.stopPropagation(); if (typeof openEditModal === 'function') openEditModal('${item.id}');" title="កែសម្រួល" class="w-6 h-6 rounded-md bg-white hover:bg-emerald-100 text-emerald-700 border border-slate-200 flex items-center justify-center transition cursor-pointer">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                    </button>
-                    <button type="button" onclick="event.stopPropagation(); if (typeof confirmDeleteCase === 'function') confirmDeleteCase('${item.id}');" title="លុប" class="w-6 h-6 rounded-md bg-white hover:bg-rose-100 text-rose-700 border border-slate-200 flex items-center justify-center transition cursor-pointer">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                    </button>
-                </div>
-            </td>
-        `;
-
-        tbody.appendChild(tr);
-    });
+        </tr>`;
+    }).join('');
 }
+
+// Close any open row menu when clicking elsewhere.
+document.addEventListener('click', () => {
+    document.querySelectorAll('.cl-more.open').forEach(m => m.classList.remove('open'));
+});
 
 function applyFiltersAndRenderMasterTable() {
     renderMasterTable();
@@ -1652,6 +1497,7 @@ window.applyFiltersAndRenderMasterTable = renderMasterTable;
 window.filterMasterType = filterMasterType;
 window.filterEventSchedule = filterEventSchedule;
 window.filterMasterData = filterMasterData;
+window.resetMasterFilters = resetMasterFilters;
 window.selectMasterCaseRow = selectMasterCaseRow;
 window.openCaseProfile = openCaseProfile;
 window.openNewCaseModal = openNewCaseModal;
@@ -1820,31 +1666,31 @@ function initFilterAndSearchEvents() {
    ========================================================================== */
 
 const cambodiaProvinces = [
-  ["ភ្នំពេញ", "រាជធានីភ្នំពេញ (Phnom Penh)"],
-  ["កណ្តាល", "ខេត្តកណ្តាល (Kandal)"],
-  ["កំពង់ចាម", "ខេត្តកំពង់ចាម (Kampong Cham)"],
-  ["កំពង់ឆ្នាំង", "ខេត្តកំពង់ឆ្នាំង (Kampong Chhnang)"],
-  ["កំពង់ស្ពឺ", "ខេត្តកំពង់ស្ពឺ (Kampong Speu)"],
-  ["កំពង់ធំ", "ខេត្តកំពង់ធំ (Kampong Thom)"],
-  ["កំពត", "ខេត្តកំពត (Kampot)"],
-  ["កែប", "ខេត្តកែប (Kep)"],
-  ["កោះកុង", "ខេត្តកោះកុង (Koh Kong)"],
-  ["ក្រចេះ", "ខេត្តក្រចេះ (Kratie)"],
-  ["តាកែវ", "ខេត្តតាកែវ (Takeo)"],
-  ["ត្បូងឃ្មុំ", "ខេត្តត្បូងឃ្មុំ (Tboung Khmum)"],
-  ["បន្ទាយមានជ័យ", "ខេត្តបន្ទាយមានជ័យ (Banteay Meanchey)"],
-  ["បាត់ដំបង", "ខេត្តបាត់ដំបង (Battambang)"],
-  ["ប៉ៃលិន", "ខេត្តប៉ៃលិន (Pailin)"],
-  ["ពោធិ៍សាត់", "ខេត្តពោធិ៍សាត់ (Pursat)"],
-  ["ព្រះវិហារ", "ខេត្តព្រះវិហារ (Preah Vihear)"],
-  ["ព្រះសីហនុ", "ខេត្តព្រះសីហនុ (Preah Sihanouk)"],
-  ["ព្រៃវែង", "ខេត្តព្រៃវែង (Prey Veng)"],
-  ["មណ្ឌលគិរី", "ខេត្តមណ្ឌលគិរី (Mondulkiri)"],
-  ["រតនគិរី", "ខេត្តរតនគិរី (Ratanakiri)"],
-  ["សៀមរាប", "ខេត្តសៀមរាប (Siem Reap)"],
-  ["ស្ទឹងត្រែង", "ខេត្តស្ទឹងត្រែង (Stung Treng)"],
-  ["ស្វាយរៀង", "ខេត្តស្វាយរៀង (Svay Rieng)"],
-  ["ឧត្តរមានជ័យ", "ខេត្តឧត្តរមានជ័យ (Oddar Meanchey)"]
+  ["ភ្នំពេញ", "រាជធានីភ្នំពេញ"],
+  ["កណ្តាល", "ខេត្តកណ្តាល"],
+  ["កំពង់ចាម", "ខេត្តកំពង់ចាម"],
+  ["កំពង់ឆ្នាំង", "ខេត្តកំពង់ឆ្នាំង"],
+  ["កំពង់ស្ពឺ", "ខេត្តកំពង់ស្ពឺ"],
+  ["កំពង់ធំ", "ខេត្តកំពង់ធំ"],
+  ["កំពត", "ខេត្តកំពត"],
+  ["កែប", "ខេត្តកែប"],
+  ["កោះកុង", "ខេត្តកោះកុង"],
+  ["ក្រចេះ", "ខេត្តក្រចេះ"],
+  ["តាកែវ", "ខេត្តតាកែវ"],
+  ["ត្បូងឃ្មុំ", "ខេត្តត្បូងឃ្មុំ"],
+  ["បន្ទាយមានជ័យ", "ខេត្តបន្ទាយមានជ័យ"],
+  ["បាត់ដំបង", "ខេត្តបាត់ដំបង"],
+  ["ប៉ៃលិន", "ខេត្តប៉ៃលិន"],
+  ["ពោធិ៍សាត់", "ខេត្តពោធិ៍សាត់"],
+  ["ព្រះវិហារ", "ខេត្តព្រះវិហារ"],
+  ["ព្រះសីហនុ", "ខេត្តព្រះសីហនុ"],
+  ["ព្រៃវែង", "ខេត្តព្រៃវែង"],
+  ["មណ្ឌលគិរី", "ខេត្តមណ្ឌលគិរី"],
+  ["រតនគិរី", "ខេត្តរតនគិរី"],
+  ["សៀមរាប", "ខេត្តសៀមរាប"],
+  ["ស្ទឹងត្រែង", "ខេត្តស្ទឹងត្រែង"],
+  ["ស្វាយរៀង", "ខេត្តស្វាយរៀង"],
+  ["ឧត្តរមានជ័យ", "ខេត្តឧត្តរមានជ័យ"]
 ];
 
 let currentWizardStep = 1;
@@ -1885,7 +1731,7 @@ function navWizardStep(dir) {
 
   currentWizardStep += dir;
   if (currentWizardStep < 1) currentWizardStep = 1;
-  if (currentWizardStep > 3) currentWizardStep = 3;
+  if (currentWizardStep > 4) currentWizardStep = 4;
   updateWizardUI();
 }
 window.navWizardStep = navWizardStep;
@@ -1897,6 +1743,7 @@ function switchCaseTab(tabKey) {
   if (tabKey === 'general') currentWizardStep = 1;
   else if (tabKey === 'parties') currentWizardStep = 2;
   else if (tabKey === 'facts') currentWizardStep = 3;
+  else if (tabKey === 'outcome') currentWizardStep = 4;
   updateWizardUI();
 }
 window.switchCaseTab = switchCaseTab;
@@ -1905,7 +1752,7 @@ window.switchCaseTab = switchCaseTab;
  * Update UI for Wizard Steps & Stepper Tabs (Sleek Executive Highlights)
  */
 function updateWizardUI() {
-  const tabs = ['general', 'parties', 'facts'];
+  const tabs = ['general', 'parties', 'facts', 'outcome'];
   tabs.forEach((key, i) => {
     const panel = document.getElementById(`tab-panel-${key}`);
     const wrap = document.getElementById(`step-wrap-${i+1}`);
@@ -1943,11 +1790,13 @@ function updateWizardUI() {
       btnPrev.classList.add('hidden');
       btnNext.classList.remove('hidden');
       btnSubmit.classList.add('hidden');
-    } else if (currentWizardStep === 2) {
+    } else if (currentWizardStep === 2 || currentWizardStep === 3) {
       btnPrev.classList.remove('hidden');
       btnNext.classList.remove('hidden');
-      btnSubmit.classList.add('hidden');
-    } else if (currentWizardStep === 3) {
+      // Editing an existing case can be saved from any step after the parties.
+      if (document.getElementById('case-id')?.value) btnSubmit.classList.remove('hidden');
+      else btnSubmit.classList.add('hidden');
+    } else if (currentWizardStep === 4) {
       btnPrev.classList.remove('hidden');
       btnNext.classList.add('hidden');
       btnSubmit.classList.remove('hidden');
@@ -2118,7 +1967,7 @@ function populateCloneCaseDropdown() {
   const cloneSelect = document.getElementById('select-clone-case');
   if (!cloneSelect) return;
 
-  let optionsHTML = '<option value="">-- ចម្លងទិន្នន័យ (Clone)... --</option>';
+  let optionsHTML = '<option value="">-- ចម្លងទិន្នន័យ... --</option>';
   if (Array.isArray(casesData)) {
     casesData.forEach(c => {
       const code = c.caseNumber || 'គ្មានលេខ';
@@ -2233,6 +2082,7 @@ window.renderAllPartyCards = renderAllPartyCards;
 /**
  * Update Party Badges
  */
+const khNum = n => String(n).replace(/\d/g, d => "០១២៣៤៥៦៧៨៩"[d]);
 function updatePartyBadgeCounts() {
   const c = claimants.length;
   const r = respondents.length;
@@ -2242,10 +2092,10 @@ function updatePartyBadgeCounts() {
   const badgeKo = document.getElementById('count-badge-ko');
   const badgeTotal = document.getElementById('badge-total-parties');
 
-  if (badgeK) badgeK.textContent = `ភាគី ក: ${c}`;
-  if (badgeKh) badgeKh.textContent = `ភាគី ខ: ${r}`;
-  if (badgeKo) badgeKo.textContent = `ភាគី គ: ${t}`;
-  if (badgeTotal) badgeTotal.textContent = `${c + r + t} ភាគី`;
+  if (badgeK) badgeK.textContent = `ភាគី ក: ${khNum(c)}`;
+  if (badgeKh) badgeKh.textContent = `ភាគី ខ: ${khNum(r)}`;
+  if (badgeKo) badgeKo.textContent = `ភាគី គ: ${khNum(t)}`;
+  if (badgeTotal) badgeTotal.textContent = `${khNum(c + r + t)} ភាគី`;
 }
 window.updatePartyBadgeCounts = updatePartyBadgeCounts;
 
@@ -2275,12 +2125,17 @@ function addPartyCard(role) {
     repName: '',
     repPhone: '',
     repId: '',
-    repDocDate: ''
+    repDocDate: '',
+    nationality: 'ខ្មែរ',
+    comBranch: '',
+    repGender: 'ប្រុស',
+    repFirm: '',
+    position: ''
   };
 
   if (role === 'claimant') claimants.push(item);
   else if (role === 'respondent') respondents.push(item);
-  else thirdParties.push({ ...item, thirdPartyRole: 'អ្នកធានា (Guarantor)' });
+  else thirdParties.push({ ...item, thirdPartyRole: 'អ្នកធានា' });
 
   renderAllPartyCards();
 }
@@ -2386,26 +2241,30 @@ function renderPartyGroup(role, list, container) {
 
       ${party.type === 'individual' ? `
         <div class="space-y-3">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
             <div>
               <label class="block font-bold text-slate-800 mb-1">គោត្តនាម និងនាម (ឈ្មោះខ្មែរ) *</label>
               <input type="text" oninput="updatePartyValue('${role}', ${idx}, 'name', this.value)" value="${party.name || ''}" placeholder="ឧ. សេង វិបុល" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 text-xs font-semibold">
             </div>
             <div>
+              <label class="block font-semibold text-slate-700 mb-1">សញ្ជាតិ</label>
+              <input type="text" oninput="updatePartyValue('${role}', ${idx}, 'nationality', this.value)" value="${party.nationality || 'ខ្មែរ'}" placeholder="ខ្មែរ" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs">
+            </div>
+            <div>
               <label class="block font-semibold text-slate-700 mb-1">ភេទ</label>
               <select onchange="updatePartyValue('${role}', ${idx}, 'gender', this.value)" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs">
-                <option value="ប្រុស" ${party.gender === 'ប្រុស' ? 'selected' : ''}>ប្រុស (Male)</option>
-                <option value="ស្រី" ${party.gender === 'ស្រី' ? 'selected' : ''}>ស្រី (Female)</option>
+                <option value="ប្រុស" ${party.gender === 'ប្រុស' ? 'selected' : ''}>ប្រុស</option>
+                <option value="ស្រី" ${party.gender === 'ស្រី' ? 'selected' : ''}>ស្រី</option>
               </select>
             </div>
             <div>
-              <label class="block font-semibold text-slate-700 mb-1">ថ្ងៃខែឆ្នាំកំណើត (DOB)</label>
+              <label class="block font-semibold text-slate-700 mb-1">ថ្ងៃខែឆ្នាំកំណើត</label>
               <input type="date" oninput="updatePartyValue('${role}', ${idx}, 'dob', this.value)" value="${party.dob || ''}" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs">
             </div>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
-              <label class="block font-semibold text-slate-700 mb-1">លេខអត្តសញ្ញាណប័ណ្ណ (ID Card)</label>
+              <label class="block font-semibold text-slate-700 mb-1">លេខអត្តសញ្ញាណប័ណ្ណ</label>
               <input type="text" oninput="updatePartyValue('${role}', ${idx}, 'idNo', this.value)" value="${party.idNo || ''}" placeholder="ឧ. ០១០៥៨៤៧២៩" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-mono">
             </div>
             <div>
@@ -2429,10 +2288,14 @@ function renderPartyGroup(role, list, container) {
         </div>
       ` : `
         <div class="space-y-3">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
               <label class="block font-bold text-slate-800 mb-1">ឈ្មោះស្ថាប័ន / ក្រុមហ៊ុន / ធនាគារ *</label>
               <input type="text" oninput="updatePartyValue('${role}', ${idx}, 'comName', this.value)" value="${party.comName || ''}" placeholder="ឧ. ធនាគារ អេស៊ីលីដា ភីអិលស៊ី" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-semibold">
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">សាខា</label>
+              <input type="text" oninput="updatePartyValue('${role}', ${idx}, 'comBranch', this.value)" value="${party.comBranch || ''}" placeholder="ឧ. សាខាខណ្ឌដង្កោ" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs">
             </div>
             <div>
               <label class="block font-semibold text-slate-700 mb-1">លេខចុះបញ្ជីពាណិជ្ជកម្ម</label>
@@ -2440,10 +2303,16 @@ function renderPartyGroup(role, list, container) {
             </div>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-            <input type="text" oninput="updatePartyValue('${role}', ${idx}, 'comAddress', this.value)" value="${party.comAddress || ''}" placeholder="អាសយដ្ឋានទីស្នាក់ការកណ្តាល" class="md:col-span-2 px-3 py-2 rounded-lg border border-slate-300 text-xs">
+            <input type="text" oninput="updatePartyValue('${role}', ${idx}, 'comAddress', this.value)" value="${party.comAddress || ''}" placeholder="អាសយដ្ឋានទីស្នាក់ការ (សម្រាប់ផ្ញើលិខិត)" class="md:col-span-2 px-3 py-2 rounded-lg border border-slate-300 text-xs">
             <select onchange="updatePartyValue('${role}', ${idx}, 'province', this.value)" class="px-3 py-2 rounded-lg border border-blue-300 bg-white text-xs font-semibold text-blue-900">
               ${provOptions}
             </select>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">លេខទូរស័ព្ទស្ថាប័ន</label>
+              <input type="text" oninput="updatePartyValue('${role}', ${idx}, 'comPhone', this.value)" value="${party.comPhone || ''}" placeholder="ឧ. 081 752 051" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs font-mono">
+            </div>
           </div>
         </div>
       `}
@@ -2472,6 +2341,19 @@ function renderPartyGroup(role, list, container) {
               <div>
                 <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">លេខទូរស័ព្ទ *</label>
                 <input type="text" oninput="updatePartyValue('${role}', ${idx}, 'repPhone', this.value)" value="${party.repPhone || ''}" placeholder="ឧ. 012 334 455" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-xs font-mono">
+              </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">ភេទអ្នកតំណាង</label>
+                <select onchange="updatePartyValue('${role}', ${idx}, 'repGender', this.value)" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-xs">
+                  <option value="ប្រុស" ${(party.repGender || 'ប្រុស') === 'ប្រុស' ? 'selected' : ''}>ប្រុស</option>
+                  <option value="ស្រី" ${party.repGender === 'ស្រី' ? 'selected' : ''}>ស្រី</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">ក្រុមមេធាវី / ការិយាល័យមេធាវី</label>
+                <input type="text" oninput="updatePartyValue('${role}', ${idx}, 'repFirm', this.value)" value="${party.repFirm || ''}" placeholder="ឧ. ក្រុមមេធាវី ដឺហ្វ្លេក" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-xs">
               </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
@@ -2529,9 +2411,9 @@ function renderThirdPartyGroup() {
           </span>
           <span class="font-bold text-purple-950 text-xs">ភាគីពាក់ព័ន្ធទី ${idx + 1} (តតិយជន)</span>
           <select onchange="updatePartyValue('thirdparty', ${idx}, 'thirdPartyRole', this.value)" class="text-[11px] px-2 py-0.5 rounded border border-purple-300 bg-purple-50 font-semibold text-purple-900">
-            <option value="អ្នកធានា (Guarantor)" ${party.thirdPartyRole === 'អ្នកធានា (Guarantor)' ? 'selected' : ''}>អ្នកធានា (Guarantor)</option>
-            <option value="ម្ចាស់ដីជាប់ព្រំ (Adjacent Landowner)" ${party.thirdPartyRole === 'ម្ចាស់ដីជាប់ព្រំ (Adjacent Landowner)' ? 'selected' : ''}>ម្ចាស់ដីជាប់ព្រំ (Adjacent Landowner)</option>
-            <option value="អាជ្ញាធរមូលដ្ឋាន (Local Authority)" ${party.thirdPartyRole === 'អាជ្ញាធរមូលដ្ឋាន (Local Authority)' ? 'selected' : ''}>អាជ្ញាធរមូលដ្ឋាន (Local Authority)</option>
+            <option value="អ្នកធានា" ${party.thirdPartyRole === 'អ្នកធានា' ? 'selected' : ''}>អ្នកធានា</option>
+            <option value="ម្ចាស់ដីជាប់ព្រំ" ${party.thirdPartyRole === 'ម្ចាស់ដីជាប់ព្រំ' ? 'selected' : ''}>ម្ចាស់ដីជាប់ព្រំ</option>
+            <option value="អាជ្ញាធរមូលដ្ឋាន" ${party.thirdPartyRole === 'អាជ្ញាធរមូលដ្ឋាន' ? 'selected' : ''}>អាជ្ញាធរមូលដ្ឋាន</option>
             <option value="សាក្សី / ភាគីបន្ទាប់បន្សំ" ${party.thirdPartyRole === 'សាក្សី / ភាគីបន្ទាប់បន្សំ' ? 'selected' : ''}>សាក្សី / ភាគីបន្ទាប់បន្សំ</option>
           </select>
         </div>
@@ -2565,6 +2447,24 @@ function renderThirdPartyGroup() {
         </div>
       </div>
 
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">ភេទ</label>
+          <select onchange="updatePartyValue('thirdparty', ${idx}, 'gender', this.value)" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs">
+            <option value="ប្រុស" ${(party.gender || 'ប្រុស') === 'ប្រុស' ? 'selected' : ''}>ប្រុស</option>
+            <option value="ស្រី" ${party.gender === 'ស្រី' ? 'selected' : ''}>ស្រី</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">សញ្ជាតិ</label>
+          <input type="text" oninput="updatePartyValue('thirdparty', ${idx}, 'nationality', this.value)" value="${party.nationality || 'ខ្មែរ'}" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">មុខតំណែង (បើមាន)</label>
+          <input type="text" oninput="updatePartyValue('thirdparty', ${idx}, 'position', this.value)" value="${party.position || ''}" placeholder="ឧ. មេភូមិអូរអង្គំ" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs">
+        </div>
+      </div>
+
       <div>
         <label class="block font-semibold text-slate-700 mb-1">អាសយដ្ឋានបច្ចុប្បន្ន</label>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
@@ -2591,7 +2491,7 @@ function openAddModal() {
 
   const titleEl = document.getElementById('modal-title');
   if (titleEl) {
-    titleEl.innerHTML = `<span>បញ្ចូលព័ត៌មានសំណុំរឿងគោលថ្មី (Master Case Registration)</span>`;
+    titleEl.innerHTML = `<span>បញ្ចូលព័ត៌មានសំណុំរឿងគោលថ្មី</span>`;
   
   // Set next list number in intake-list-no
   const nextListNum = (typeof casesData !== 'undefined' && casesData.length > 0) 
@@ -2824,7 +2724,7 @@ function openEditModal(id) {
       phone: c.partyC_phone || '',
       address: c.partyC_address || '',
       province: c.partyC_location || 'ភ្នំពេញ',
-      thirdPartyRole: c.partyC_role || 'អ្នកធានា (Guarantor)',
+      thirdPartyRole: c.partyC_role || 'អ្នកធានា',
       comName: '', comRegNo: '', comAddress: '', comPhone: '',
       hasRep: false, repRole: 'មេធាវី', repName: '', repPhone: '', repId: '', repDocDate: ''
     }];
@@ -2874,8 +2774,9 @@ window.closeCaseModal = closeCaseModal;
 /**
  * Handle Case Form Submission
  */
-function handleCaseSubmit(e) {
+function handleCaseSubmit(e, opts) {
   if (e && e.preventDefault) e.preventDefault();
+  const isDraftSave = !!(opts && opts.draft);
 
   const caseCodeEl = document.getElementById('intake-case-code');
   const caseNumber = caseCodeEl ? caseCodeEl.value.trim() : '';
@@ -2883,6 +2784,11 @@ function handleCaseSubmit(e) {
     if (typeof showToast === 'function') showToast('សូមបញ្ចូលលេខសំណុំរឿង!', 'error');
     switchCaseTab('general');
     if (caseCodeEl) caseCodeEl.focus();
+    return;
+  }
+
+  // Consistency checks (dates, duplicates, closing details) — see casework.js
+  if (!isDraftSave && typeof window.validateCaseForm === 'function' && !window.validateCaseForm()) {
     return;
   }
 
@@ -2928,13 +2834,13 @@ function handleCaseSubmit(e) {
     status = 'Settle (ព្រមព្រៀង)';
     remarks = 'ព្រមព្រៀង';
   } else if (legacyOutcome === 'unsuccessful_withdrawn') {
-    status = 'Close (មិនព្រមព្រៀង)';
+    status = 'No Settle (មិនព្រមព្រៀង)';
     remarks = 'ភាគីដកពាក្យ';
   } else if (legacyOutcome === 'unsuccessful_no_show') {
-    status = 'Close (មិនព្រមព្រៀង)';
+    status = 'No Settle (មិនព្រមព្រៀង)';
     remarks = 'ភាគីមិនចូលរួម';
   } else if (legacyOutcome === 'unsuccessful_no_agreement') {
-    status = 'Close (មិនព្រមព្រៀង)';
+    status = 'No Settle (មិនព្រមព្រៀង)';
     remarks = 'មិនព្រមព្រៀង';
   } else if (legacyOutcome === 'shelved') {
     status = 'Pending (តម្កល់)';
@@ -3018,6 +2924,10 @@ function handleCaseSubmit(e) {
     partyC_address,
     partyC_role
   };
+  // Step 4 fields: meetings, outcome, amounts, activities, support
+  if (typeof window.collectOutcomeFields === 'function') Object.assign(casePayload, window.collectOutcomeFields());
+  // Letter fields: subject, assignment letter, application date, case folder — see letters.js
+  if (typeof window.collectLetterFields === 'function') Object.assign(casePayload, window.collectLetterFields());
 
   if (editId) {
     if (typeof updateCase === 'function') updateCase(editId, casePayload);
@@ -3053,7 +2963,7 @@ window.handleCaseSubmit = handleCaseSubmit;
  * Save Draft
  */
 function handleSaveDraft() {
-  handleCaseSubmit();
+  handleCaseSubmit(null, { draft: true });
 }
 window.handleSaveDraft = handleSaveDraft;
 
@@ -3106,7 +3016,7 @@ function previewDoc(type) {
     <div class="text-center font-bold space-y-1 mb-4" style="line-height:1.6;">
       <div style="font-size:14px; font-weight:800;">ព្រះរាជាណាចក្រកម្ពុជា</div>
       <div style="font-size:12px; font-weight:700;">ជាតិ សាសនា ព្រះមហាក្សត្រ</div>
-      <div style="font-size:16px;">***</div>
+      ${typeof window.nadrOrnamentHTML === 'function' ? window.nadrOrnamentHTML(170) : ''}
     </div>
     <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; font-size:12px;">
       <div><strong>អាជ្ញាធរជាតិដោះស្រាយវិវាទក្រៅប្រព័ន្ធតុលាការ (អ.ដ.ក.)</strong><br>សំណុំរឿងលេខ៖ <strong>${code}</strong></div>
@@ -3115,7 +3025,7 @@ function previewDoc(type) {
   `;
 
   if (type === 'invitation' || type === 'summons_b') {
-    titleEl.innerHTML = '<span>✉️</span> គំរូលិខិតកោះអញ្ជើញចូលរួមប្រជុំសម្រុះសម្រួល (Summons / Invitation Letter)';
+    titleEl.innerHTML = '<span>✉️</span> គំរូលិខិតកោះអញ្ជើញចូលរួមប្រជុំសម្រុះសម្រួល';
     contentEl.innerHTML = `
       ${royalHeader}
       <div class="p-3 bg-white rounded-lg border border-slate-200 space-y-1 mb-3">
@@ -3136,7 +3046,7 @@ function previewDoc(type) {
       </div>
     `;
   } else if (type === 'settlement') {
-    titleEl.innerHTML = '<span>📝</span> គំរូកំណត់ហេតុបញ្ចប់វិវាទ (Settlement Agreement)';
+    titleEl.innerHTML = '<span>📝</span> គំរូកំណត់ហេតុបញ្ចប់វិវាទ';
     contentEl.innerHTML = `
       ${royalHeader}
       <div class="text-center font-bold text-sm my-3 text-emerald-900" style="font-size:15px;">កំណត់ហេតុព្រមព្រៀងបញ្ចប់វិវាទជាស្ថាពរ</div>
@@ -3157,7 +3067,7 @@ function previewDoc(type) {
       </div>
     `;
   } else if (type === 'meeting') {
-    titleEl.innerHTML = '<span>📊</span> កំណត់ហេតុនៃកិច្ចប្រជុំសម្រុះសម្រួល (Meeting Minutes)';
+    titleEl.innerHTML = '<span>📊</span> កំណត់ហេតុនៃកិច្ចប្រជុំសម្រុះសម្រួល';
     contentEl.innerHTML = `
       ${royalHeader}
       <div class="text-center font-bold text-sm my-3 text-blue-900">កំណត់ហេតុនៃកិច្ចប្រជុំសម្រុះសម្រួលផ្សះផ្សាវិវាទ</div>
@@ -3170,7 +3080,7 @@ function previewDoc(type) {
       </div>
     `;
   } else {
-    titleEl.innerHTML = '<span>📁</span> របាយការណ៍បិទបញ្ចប់សំណុំរឿង (Closing Report)';
+    titleEl.innerHTML = '<span>📁</span> របាយការណ៍បិទបញ្ចប់សំណុំរឿង';
     contentEl.innerHTML = `
       ${royalHeader}
       <div class="text-center font-bold text-sm my-3 text-slate-900">របាយការណ៍សង្ខេបស្តីពីការបិទបញ្ចប់សំណុំរឿង</div>
@@ -3266,6 +3176,171 @@ window.initModalEvents = initModalEvents;
 /**
  * Open Dossier Detail View Modal
  */
+/* ==========================================================================
+   CASE PROFILE (cp-*) — full read-only view of one case
+   ========================================================================== */
+function cpEsc(s) {
+    return String(s ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+}
+
+function cpVal(v, fallback = '—') {
+    const s = String(v ?? '').trim();
+    return s ? cpEsc(s) : `<span class="cp-empty">${fallback}</span>`;
+}
+
+function cpRow(label, value, icon) {
+    return `<div class="cp-kv"><span class="cp-k">${icon ? `<i class="${icon}"></i>` : ''}${label}</span><span class="cp-v">${value}</span></div>`;
+}
+
+function cpPartyCard(c, key, title, tone) {
+    const name = c[`party${key}_name`];
+    if (!name && key === 'C') return '';
+    const gender = c[`party${key}_gender`];
+    const age = c[`party${key}_age`];
+    const loc = [c[`party${key}_location`], c[`party${key}_address`]].filter(Boolean).join(' — ');
+    const extraNames = c[`party${key}_additional_names`];
+    const extraAddr = c[`party${key}_additional_addresses`];
+    const lawyer = c[`party${key}_lawyer_name`] ? `${c[`party${key}_lawyer_name`]}${c[`party${key}_lawyer_phone`] ? ' · ' + c[`party${key}_lawyer_phone`] : ''}` : '';
+    const meta = [gender, age ? `${age} ឆ្នាំ` : ''].filter(Boolean).join(' · ');
+    return `<div class="cp-party cp-party-${tone}">
+        <div class="cp-party-head">
+            <span class="cp-party-tag">${key === 'A' ? 'ក' : key === 'B' ? 'ខ' : 'គ'}</span>
+            <div><div class="cp-party-role">${title}${key === 'C' && c.partyC_role ? ' · ' + cpEsc(c.partyC_role) : ''}</div>
+            <div class="cp-party-name">${cpVal(name)}</div>${meta ? `<div class="cp-party-meta">${cpEsc(meta)}</div>` : ''}</div>
+        </div>
+        ${cpRow('ទូរស័ព្ទ', cpVal(c[`party${key}_phone`], 'ពុំមាន'), 'fa-solid fa-phone')}
+        ${c[`party${key}_idNo`] ? cpRow('អត្តសញ្ញាណប័ណ្ណ', cpVal(c[`party${key}_idNo`]), 'fa-regular fa-id-card') : ''}
+        ${cpRow('អាសយដ្ឋាន', cpVal(loc), 'fa-solid fa-location-dot')}
+        ${lawyer ? cpRow('មេធាវី', cpEsc(lawyer), 'fa-solid fa-scale-balanced') : ''}
+        ${extraNames ? `<div class="cp-party-extra"><span class="cp-k"><i class="fa-solid fa-users"></i>ភាគីបន្ថែម</span><div>${cpEsc(extraNames)}</div>${extraAddr ? `<div class="cp-muted">${cpEsc(extraAddr)}</div>` : ''}</div>` : ''}
+    </div>`;
+}
+
+function cpMeeting(label, status, date, count) {
+    const done = status && !/មិន|ទាន់/.test(status);
+    return `<div class="cp-meet${done ? ' done' : ''}">
+        <i class="fa-solid ${done ? 'fa-circle-check' : 'fa-circle'}"></i>
+        <div><div class="cp-meet-label">${label}</div>
+        <div class="cp-muted">${cpVal(status, 'មិនទាន់កត់ត្រា')}${date ? ' · ' + cpEsc(date) : ''}${done && count ? ` · ${cpEsc(count)} ដង` : ''}</div></div>
+    </div>`;
+}
+
+function renderCaseProfileHTML(c) {
+    const st = normalizeCaseStatus(c.status, c.isDraft);
+    const stInfo = (typeof CL_STATUS !== 'undefined' && CL_STATUS[st]) || { label: c.status, chip: 'kt-chip-gray', color: '#64748b' };
+    const amount = getCaseAmountDisplay(c);
+    const evt = getCaseEventDetails(c);
+    const hasEvt = checkCaseHasEvent(c);
+    const location = [c.locationHouse, c.locationCommune, c.locationProvince || c.disputeLocation].filter(Boolean).join(', ') || c.disputeLocation;
+    const officials = [c.leadOfficer, c.official1, c.official2, c.official3, c.official4, c.official5].filter(v => v && String(v).trim());
+    const history = Array.isArray(c.eventHistory) ? [...c.eventHistory].sort((a, b) => String(b.eventDate || '').localeCompare(String(a.eventDate || ''))) : [];
+    const facts = c.facts || c.summary || '';
+    const claims = c.claims || c.claimsRequests || '';
+    const folder = String(c.folderLink || c.driveLink || '').trim();
+    const curPhase = (c.casePhases && c.casePhases.currentPhase) || ({ phase1: 1, phase2: 2, phase3: 3 })[normalizeCasePhase(c.phase, st)] || 1;
+    const resDays = typeof caseResolutionDays === 'function' ? caseResolutionDays(c) : null;
+    const openDays = (() => { const r = typeof toIsoDay === 'function' ? toIsoDay(c.dateReceived) : ''; return r ? Math.max(0, Math.round((new Date(getTodayDateString()) - new Date(r)) / 86400000)) : null; })();
+    const durationText = c.closedAtUnknown ? '<span class="cp-empty">មិនអាចគណនាបាន (មិនដឹងថ្ងៃបិទ)</span>' : c.closedAt ? (resDays !== null ? `<strong>${resDays} ថ្ងៃ</strong>` : cpVal('')) : (openDays !== null ? `${openDays} ថ្ងៃ (មិនទាន់បិទ)` : cpVal(''));
+    const phaseLabel = `ដំណាក់កាល ${['១', '២', '៣', '៤'][curPhase - 1] || curPhase}`;
+
+    const custom = (typeof CUSTOM_COLUMNS !== 'undefined' && CUSTOM_COLUMNS.length)
+        ? `<section class="cp-section"><h4 class="cp-h"><i class="fa-solid fa-square-plus"></i> ព័ត៌មានបន្ថែម</h4><div class="cp-grid-2">${CUSTOM_COLUMNS.map(col => cpRow(cpEsc(col.labelKh), cpVal(c[col.key]))).join('')}</div></section>`
+        : '';
+
+    return `<div class="cp" style="--st:${stInfo.color}">
+        <header class="cp-hero">
+            <div class="cp-hero-main">
+                <div class="cp-hero-top">
+                    <span class="kt-chip ${stInfo.chip}"><i class="kt-dot"></i> ${stInfo.label}</span>
+                    <span class="kt-chip ${c.caseType === 'assisting' ? 'kt-chip-purple' : 'kt-chip-gold'}">${c.caseType === 'assisting' ? 'សំណុំរឿងអម' : 'សំណុំរឿងផ្ទាល់ខ្លួន'}</span>
+                    ${c.isPriority ? '<span class="kt-chip kt-chip-red"><i class="fa-solid fa-star"></i> អាទិភាព</span>' : ''}
+                    <span class="kt-chip kt-chip-gray"><i class="fa-solid fa-list-check"></i> ${phaseLabel}</span>
+                    ${c.originalListNo ? `<span class="cp-listno">ល.រ ${cpEsc(c.originalListNo)}</span>` : ''}
+                </div>
+                <h2 class="cp-case-no">${cpEsc(String(c.caseNumber || c.id).replace(/^#+/, ''))}</h2>
+                <div class="cp-hero-sub">${cpEsc(c.category || '')}</div>
+            </div>
+            <div class="cp-hero-facts">
+                <div><span>ថ្ងៃទទួលពាក្យ</span><strong>${cpVal(c.dateReceived || c.filingDate)}</strong></div>
+                <div><span>ទីតាំងវិវាទ</span><strong>${cpVal(location)}</strong></div>
+                <div><span>ទំហំទឹកប្រាក់</span><strong>${amount && amount !== '-' ? cpEsc(amount) : '<span class="cp-empty">—</span>'}</strong></div>
+                <div><span>Folder សំណុំរឿង</span><strong>${folder ? `<button type="button" class="cp-link" onclick="openLinkedCaseFolder('${cpEsc(c.id)}')"><i class="fa-solid fa-folder-open"></i> បើក</button>` : `<button type="button" class="cp-link" onclick="openCaseFolderLinkInput('${cpEsc(c.id)}')"><i class="fa-solid fa-link"></i> ភ្ជាប់</button>`}</strong></div>
+            </div>
+        </header>
+
+        <div class="cp-body">
+            <div class="cp-main">
+                <section class="cp-section">
+                    <h4 class="cp-h"><i class="fa-solid fa-people-arrows"></i> ភាគីវិវាទ</h4>
+                    <div class="cp-parties">
+                        ${cpPartyCard(c, 'A', 'ដើមបណ្ដឹង', 'a')}
+                        ${cpPartyCard(c, 'B', 'ចុងបណ្ដឹង', 'b')}
+                    </div>
+                    ${cpPartyCard(c, 'C', 'តតិយជន / អ្នកពាក់ព័ន្ធ', 'c')}
+                </section>
+
+                <section class="cp-section">
+                    <h4 class="cp-h"><i class="fa-solid fa-file-lines"></i> អង្គហេតុសង្ខេប</h4>
+                    <div class="cp-text">${facts ? cpEsc(facts) : '<span class="cp-empty">មិនទាន់បញ្ចូលអង្គហេតុ</span>'}</div>
+                    ${claims ? `<h4 class="cp-h" style="margin-top:16px"><i class="fa-solid fa-hand-holding-dollar"></i> ការទាមទារ និងសំណូមពរ</h4><div class="cp-text">${cpEsc(claims)}</div>` : ''}
+                    ${c.remarks ? `<div class="cp-remark"><i class="fa-regular fa-note-sticky"></i> <strong>កំណត់សម្គាល់៖</strong> ${cpEsc(c.remarks)}</div>` : ''}
+                </section>
+
+                <section class="cp-section">
+                    <h4 class="cp-h"><i class="fa-solid fa-clock-rotate-left"></i> ប្រវត្តិកម្មវិធី និងលទ្ធផល <span class="cp-count">${history.length}</span></h4>
+                    ${history.length ? `<ol class="cp-timeline">${history.map(h => `
+                        <li><span class="cp-tl-date">${cpVal(h.eventDate)}</span>
+                            <div class="cp-tl-body"><strong>${cpVal(h.eventName, 'កម្មវិធី')}</strong>
+                            ${h.result ? `<span class="kt-chip kt-chip-blue" style="margin-left:6px">${cpEsc(h.result)}</span>` : ''}
+                            ${h.details ? `<div class="cp-muted">${cpEsc(h.details)}</div>` : ''}</div></li>`).join('')}</ol>`
+                        : '<div class="cp-empty-box">មិនទាន់មានប្រវត្តិកម្មវិធី</div>'}
+                </section>
+
+                ${custom}
+
+                ${typeof generatePhaseTrackerHTML === 'function' ? `<details class="cp-section cp-details"><summary class="cp-h"><i class="fa-solid fa-list-check"></i> តាមដានដំណាក់កាលចាត់ការ <span class="cp-count">${phaseLabel}</span><span class="cp-toggle">ចុចដើម្បីបើក/បិទ</span></summary>${generatePhaseTrackerHTML(c, true)}</details>` : ''}
+
+                <section class="cp-section">${renderDossierFilesSection(c)}</section>
+            </div>
+
+            <aside class="cp-side">
+                <section class="cp-section cp-next ${hasEvt ? '' : 'none'}">
+                    <h4 class="cp-h"><i class="fa-regular fa-calendar-check"></i> កម្មវិធីបន្ទាប់</h4>
+                    ${hasEvt ? `<div class="cp-next-date">${cpEsc(evt.date)}${evt.time ? ` <span>ម៉ោង ${cpEsc(evt.time)}</span>` : ''}</div><div class="cp-muted">${cpEsc(evt.desc)}</div>`
+                        : '<div class="cp-muted">មិនទាន់ដាក់កម្មវិធី</div>'}
+                    <button type="button" class="kt-btn kt-btn-sm" style="margin-top:10px" onclick="openEditEventModal('${cpEsc(c.id)}')"><i class="fa-regular fa-calendar-plus"></i> ${hasEvt ? 'កែកម្មវិធី' : 'ដាក់កម្មវិធី'}</button>
+                </section>
+
+                <section class="cp-section">
+                    <h4 class="cp-h"><i class="fa-solid fa-circle-info"></i> ព័ត៌មានសំណុំរឿង</h4>
+                    ${cpRow('ថ្ងៃចុះបញ្ជី', cpVal(c.filingDate || c.dateReceived))}
+                    ${cpRow('ថ្ងៃចាត់តាំង', cpVal(c.assignedDate))}
+                    ${cpRow('ថ្ងៃមន្ត្រីទទួល', cpVal(c.receivedDate))}
+                    ${cpRow('ថ្ងៃបិទសំណុំរឿង', c.closedAt ? cpEsc(c.closedAt) + (c.closedAtEstimated ? ' <span class="cp-est">ប៉ាន់ស្មាន</span>' : '') + `<button type="button" class="cp-link cp-mini" onclick="setCaseClosedDate('${cpEsc(c.id)}')">កែ</button>` : (c.closedAtUnknown ? `<span class="cp-est">មិនដឹង</span><button type="button" class="cp-link cp-mini" onclick="setCaseClosedDate('${cpEsc(c.id)}')">កំណត់</button>` : cpVal('')))}
+                    ${cpRow((c.closedAt || c.closedAtUnknown) ? 'រយៈពេលដោះស្រាយ' : 'រយៈពេលដំណើរការ', durationText)}
+                    ${cpRow('បង្កើតនៅ', cpVal(c.createdAt ? formatAccountDateTime(c.createdAt) : ''))}
+                    ${cpRow('កែចុងក្រោយ', cpVal(c.updatedAt ? formatAccountDateTime(c.updatedAt) : ''))}
+                </section>
+
+                <section class="cp-section">
+                    <h4 class="cp-h"><i class="fa-solid fa-user-tie"></i> មន្ត្រីទទួលបន្ទុក</h4>
+                    ${c.caseType === 'assisting'
+                        ? `${cpRow('មន្ត្រីនាំមុខ', cpVal(c.leadOfficer, 'មិនទាន់បញ្ជាក់'))}<div class="cp-muted">អ្នកជាមន្ត្រីអមក្នុងសំណុំរឿងនេះ</div>`
+                        : `${cpRow('មន្ត្រីទទួលបន្ទុក', cpEsc(localStorage.getItem('nadr_user_profile_name') || 'ខ្លួនឯង'))}<div class="cp-muted">សំណុំរឿងផ្ទាល់ខ្លួន</div>`}
+                    ${officials.filter(o => o !== c.leadOfficer).length ? `<ul class="cp-list">${officials.filter(o => o !== c.leadOfficer).map(o => `<li>${cpEsc(o)}</li>`).join('')}</ul>` : ''}
+                </section>
+
+                <section class="cp-section">
+                    <h4 class="cp-h"><i class="fa-solid fa-handshake"></i> កិច្ចប្រជុំ</h4>
+                    ${cpMeeting('ប្រជុំភាគី «ក»', c.meetingPartyA, c.meetingPartyADate, c.meetingPartyACount)}
+                    ${cpMeeting('ប្រជុំភាគី «ខ»', c.meetingPartyB, c.meetingPartyBDate, c.meetingPartyBCount)}
+                    ${cpMeeting('ប្រជុំសម្រុះសម្រួល', c.mediationMeeting, c.mediationMeetingDate, c.mediationMeetingCount)}
+                </section>
+            </aside>
+        </div>
+    </div>`;
+}
+
 function openViewModal(id) {
     const c = getCaseById(id);
     if (!c) return;
@@ -3274,177 +3349,23 @@ function openViewModal(id) {
     const body = document.getElementById('view-modal-body');
     if (!modal || !body) return;
 
-    body.innerHTML = `
-        <div style="background-color: #f8fafc; margin: -20px; padding: 20px;">
-            <!-- Profile Header -->
-            <div style="background: white; padding: 24px; border-bottom: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-start; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                <div>
-                    <h2 style="font-size: 24px; font-weight: 800; color: #0f172a; margin: 0 0 8px 0;">${c.caseNumber}</h2>
-                    <div style="display: flex; gap: 12px; align-items: center; font-size: 14px; color: #64748b; flex-wrap: wrap;">
-                        <span><i class="fa-solid fa-calendar-days"></i> ទទួលពាក្យ៖ <span style="font-weight:600; color:#334155;">${c.dateReceived}</span></span>
-                        <span><i class="fa-solid fa-tag"></i> <span style="font-weight:600; color:#334155;">${c.category}</span></span>
-                        <span><i class="fa-solid fa-location-dot"></i> <span style="font-weight:600; color:#334155;">${c.disputeLocation}</span></span>
-                        ${c.folderLink ? `<a href="javascript:void(0)" onclick="window.electronAPI ? window.electronAPI.openFolder('${c.folderLink.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}') : window.open('${c.folderLink.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}')" class="btn btn-sm" style="background:#f0f9ff; color:#0ea5e9; border:1px solid #bae6fd; text-decoration:none; padding:4px 10px; font-size:12px; border-radius:6px;"><i class="fa-solid fa-folder-open"></i> បើក Folder</a>` : ''}
-                    </div>
-                </div>
-                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
-                    ${getStatusBadgeHTML(c.status)}
-                    <span class="badge ${c.remarks === 'បានបិទរួចរាល់' ? 'badge-settle' : 'badge-pending'}" style="font-size: 12px;">${c.remarks}</span>
-                </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
-                <!-- Party A Card -->
-                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
-                    <h4 style="color: #2563eb; font-weight: 700; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #eff6ff; padding-bottom: 8px;">
-                        <i class="fa-solid fa-user-shield"></i> ដើមបណ្ដឹង ភាគី "ក"
-                    </h4>
-                    <div style="margin-bottom: 12px;">
-                        <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block;">ឈ្មោះ</label>
-                        <div style="font-size: 15px; font-weight: 600; color: #334155;">${c.partyA_name} (${c.partyA_gender}, ${c.partyA_age || '?'} ឆ្នាំ)</div>
-                    </div>
-                    <div style="margin-bottom: 12px;">
-                        <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block;">លេខទូរស័ព្ទ</label>
-                        <div style="font-size: 14px; color: #334155;">${c.partyA_phone || 'ពុំមាន'}</div>
-                    </div>
-                    <div style="margin-bottom: 12px;">
-                        <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block;">មេធាវីតំណាង</label>
-                        <div style="font-size: 14px; color: #334155;">${c.partyA_lawyer_name ? `${c.partyA_lawyer_name} (${c.partyA_lawyer_phone || ''})` : 'គ្មានមេធាវីតំណាង'}</div>
-                    </div>
-                    <div>
-                        <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block;">អាសយដ្ឋាន</label>
-                        <div style="font-size: 14px; color: #334155;">${c.partyA_location} ${c.partyA_address ? ' - ' + c.partyA_address : ''}</div>
-                    </div>
-                    ${c.partyA_additional_names ? `
-                    <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed #e2e8f0;">
-                        <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block;">ភាគីបន្ថែម</label>
-                        <div style="font-size: 14px; color: #334155;">${c.partyA_additional_names}</div>
-                        ${c.partyA_additional_addresses ? `<div style="font-size: 13px; color: #64748b; margin-top: 4px;">🏠 ${c.partyA_additional_addresses}</div>` : ''}
-                    </div>` : ''}
-                </div>
-
-                <!-- Party B Card -->
-                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
-                    <h4 style="color: #ef4444; font-weight: 700; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #fef2f2; padding-bottom: 8px;">
-                        <i class="fa-solid fa-user-xmark"></i> ចុងបណ្ដឹង ភាគី "ខ"
-                    </h4>
-                    <div style="margin-bottom: 12px;">
-                        <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block;">ឈ្មោះ</label>
-                        <div style="font-size: 15px; font-weight: 600; color: #334155;">${c.partyB_name} (${c.partyB_gender}, ${c.partyB_age || '?'} ឆ្នាំ)</div>
-                    </div>
-                    <div style="margin-bottom: 12px;">
-                        <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block;">លេខទូរស័ព្ទ</label>
-                        <div style="font-size: 14px; color: #334155;">${c.partyB_phone || 'ពុំមាន'}</div>
-                    </div>
-                    <div style="margin-bottom: 12px;">
-                        <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block;">មេធាវីតំណាង</label>
-                        <div style="font-size: 14px; color: #334155;">${c.partyB_lawyer_name ? `${c.partyB_lawyer_name} (${c.partyB_lawyer_phone || ''})` : 'គ្មានមេធាវីតំណាង'}</div>
-                    </div>
-                    <div>
-                        <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block;">អាសយដ្ឋាន</label>
-                        <div style="font-size: 14px; color: #334155;">${c.partyB_location} ${c.partyB_address ? ' - ' + c.partyB_address : ''}</div>
-                    </div>
-                    ${c.partyB_additional_names ? `
-                    <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed #e2e8f0;">
-                        <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block;">ភាគីបន្ថែម</label>
-                        <div style="font-size: 14px; color: #334155;">${c.partyB_additional_names}</div>
-                        ${c.partyB_additional_addresses ? `<div style="font-size: 13px; color: #64748b; margin-top: 4px;">🏠 ${c.partyB_additional_addresses}</div>` : ''}
-                    </div>` : ''}
-                </div>
-            </div>
-
-            ${c.partyC_name ? `
-            <!-- Party C Card -->
-            <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; margin-bottom: 24px;">
-                <h4 style="color: #475569; font-weight: 700; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px;">
-                    <i class="fa-solid fa-users"></i> អ្នកពាក់ព័ន្ធ / តតិយជន ភាគី "គ"
-                </h4>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                    <div>
-                        <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block;">ឈ្មោះ</label>
-                        <div style="font-size: 15px; font-weight: 600; color: #334155;">${c.partyC_name} (${c.partyC_gender || 'ប្រុស'}, ${c.partyC_age || '?'} ឆ្នាំ)</div>
-                    </div>
-                    <div>
-                        <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block;">លេខទូរស័ព្ទ</label>
-                        <div style="font-size: 14px; color: #334155;">${c.partyC_phone || 'ពុំមាន'}</div>
-                    </div>
-                    <div style="grid-column: span 2;">
-                        <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block;">អាសយដ្ឋាន</label>
-                        <div style="font-size: 14px; color: #334155;">${c.partyC_location || ''} ${c.partyC_address ? ' - ' + c.partyC_address : ''}</div>
-                    </div>
-                </div>
-                ${c.partyC_additional_names ? `
-                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed #e2e8f0;">
-                    <label style="font-size: 12px; color: #64748b; font-weight: 600; display: block;">ភាគីបន្ថែម</label>
-                    <div style="font-size: 14px; color: #334155;">${c.partyC_additional_names}</div>
-                    ${c.partyC_additional_addresses ? `<div style="font-size: 13px; color: #64748b; margin-top: 4px;">🏠 ${c.partyC_additional_addresses}</div>` : ''}
-                </div>` : ''}
-            </div>
-            ` : ''}
-
-            <!-- Dispute Summary -->
-            <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; margin-bottom: 24px;">
-                <h4 style="color: #1e293b; font-weight: 700; margin-top: 0; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
-                    <i class="fa-solid fa-file-lines text-primary"></i> អង្គហេតុសង្ខេប (Dispute Summary)
-                </h4>
-                <p style="font-size: 14.5px; line-height: 1.7; color: #475569; margin: 0; white-space: pre-wrap; background: #f8fafc; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0;">${c.facts || c.summary || 'ពុំមានរៀបរាប់សេចក្តីសង្ខេប'}</p>
-            </div>
-            ${(c.claims || c.claimsRequests) ? `
-            <!-- Claims & Requests -->
-            <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; margin-bottom: 24px;">
-                <h4 style="color: #047857; font-weight: 700; margin-top: 0; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
-                    <i class="fa-solid fa-scale-balanced"></i> ការទាមទារ និងសំណូមពរ (Claims &amp; Requests)
-                </h4>
-                <p style="font-size: 14.5px; line-height: 1.7; color: #334155; margin: 0; white-space: pre-wrap; background: #f0fdf4; padding: 16px; border-radius: 8px; border: 1px solid #bbf7d0;">${c.claims || c.claimsRequests}</p>
-            </div>` : ''}
-
-            <!-- Phase Tracker Injected Here -->
-            ${typeof generatePhaseTrackerHTML === 'function' ? generatePhaseTrackerHTML(c, true) : ''}
-            
-            ${(() => {
-                if (CUSTOM_COLUMNS.length === 0) return '';
-                let customHtml = `
-                <!-- Custom Fields -->
-                <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; margin-bottom: 24px;">
-                    <h4 style="color: #475569; font-weight: 700; margin-top: 0; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
-                        <i class="fa-solid fa-square-plus"></i> ព័ត៌មានបន្ថែម (Custom Fields)
-                    </h4>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; font-size: 13px;">
-                `;
-                CUSTOM_COLUMNS.forEach(col => {
-                    const val = c[col.key] || 'ពុំមានបញ្ចូល';
-                    customHtml += `
-                        <div style="background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
-                            <span style="font-size: 11px; color: #64748b; display: block; margin-bottom: 4px;">${col.labelKh} (${col.labelEn})</span>
-                            <strong style="color: #334155;">${val}</strong>
-                        </div>
-                    `;
-                });
-                customHtml += `</div></div>`;
-                return customHtml;
-            })()}
-
-            <!-- Attached Files -->
-            <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
-                ${renderDossierFilesSection(c)}
-            </div>
-        </div>
-    `;
+    body.innerHTML = renderCaseProfileHTML(c);
 
     // Quick status select binding
     const quickSelect = document.getElementById('quick-status-select');
     if (quickSelect) {
-        quickSelect.value = c.status;
+        const qMap = { active: 'Active (កំពុងសម្រុះសម្រួល)', settle: 'Settle (ព្រមព្រៀង)', pending: 'Pending (តម្កល់)', nosettle: 'No Settle (មិនព្រមព្រៀង)' };
+        quickSelect.value = qMap[dsbStatusKey(c.status)] || c.status;
         quickSelect.onchange = (e) => {
             const newSt = e.target.value;
             let newRem = c.remarks;
-            if (newSt.startsWith('Settle') || newSt.startsWith('Close')) {
+            if (newSt.startsWith('Settle') || newSt.startsWith('Close') || newSt.startsWith('No Settle')) {
                 newRem = 'បានបិទរួចរាល់';
             } else {
                 newRem = 'មិនទាន់បិទ';
             }
             updateCase(c.id, { status: newSt, remarks: newRem });
-            showToast(`បានប្តូរលទ្ធផលទៅជា "${newSt}" រួចរាល់!`, 'success');
+            showToast(`បានប្ដូរលទ្ធផលទៅជា «${displayRole(newSt)}» រួចរាល់`, 'success');
             openViewModal(c.id); // reload modal view
             renderAllViews();
         };
@@ -3454,7 +3375,7 @@ function openViewModal(id) {
     const btnGenDoc = document.getElementById('btn-generate-doc-from-view');
     if (btnGenDoc) {
         btnGenDoc.onclick = () => {
-            if (typeof openLegalDocModal === 'function') openLegalDocModal(c.id);
+            if (typeof ltGoToLetters === 'function') ltGoToLetters(c.id);
         };
     }
     const btnTelegram = document.getElementById('btn-telegram-from-view');
@@ -3560,7 +3481,7 @@ window.shareStatsToTelegram = async function() {
     targetCases = typeof getDashboardCases === 'function'
         ? getDashboardCases()
         : allCases.filter(c => (c.caseType || 'personal') === 'personal');
-    const scopeTitle = { personal: 'សំណុំរឿងផ្ទាល់ខ្លួន (Personal Cases)', assisting: 'សំណុំរឿងអម (Assisting Cases)', all: 'សំណុំរឿងសរុបរួម (All Cases)' }[scope] || 'សំណុំរឿងផ្ទាល់ខ្លួន (Personal Cases)';
+    const scopeTitle = { personal: 'សំណុំរឿងផ្ទាល់ខ្លួន', assisting: 'សំណុំរឿងអម', all: 'សំណុំរឿងសរុបរួម' }[scope] || 'សំណុំរឿងផ្ទាល់ខ្លួន';
     const periodText = typeof dsbPeriodLabel === 'function' ? ` — ${dsbPeriodLabel()}` : '';
     title = `🔹 <b>របាយការណ៍ស្ថិតិ៖ ${scopeTitle}${periodText}</b>\n`;
 
@@ -3611,10 +3532,10 @@ function generateStatsTextForTelegram(casesArray) {
 
     let text = `📑 <b>១. ស្ថិតិសង្ខេប និងលទ្ធផលចំណាត់ការ</b>\n`;
     text += `• សំណុំរឿងសរុប៖ <b>${total}</b> ករណី\n`;
-    text += `• កំពុងចាត់ការ (Active)៖ <b>${active}</b> ករណី\n`;
-    text += `• ព្រមព្រៀង (Settle)៖ <b>${settle}</b> ករណី\n`;
-    text += `• បានបិទបញ្ចប់ (Closed)៖ <b>${close}</b> ករណី\n`;
-    text += `• បានតម្កល់ (Pending)៖ <b>${pending}</b> ករណី\n\n`;
+    text += `• កំពុងចាត់ការ៖ <b>${active}</b> ករណី\n`;
+    text += `• ព្រមព្រៀង៖ <b>${settle}</b> ករណី\n`;
+    text += `• បានបិទបញ្ចប់៖ <b>${close}</b> ករណី\n`;
+    text += `• បានតម្កល់៖ <b>${pending}</b> ករណី\n\n`;
 
     const activeGroupTotal = active + pending;
     const closedGroupTotal = settle + close;
@@ -3729,23 +3650,23 @@ function renderAnalyticsView() {
     const stats = getCaseStatistics();
     const totalCases = stats.total || (typeof casesData !== 'undefined' ? casesData.length : 0);
 
-    // 1. សម្រុះសម្រួលជោគជ័យ (Settle)
+    // 1. សម្រុះសម្រួលជោគជ័យ
     const countSettle = stats.settle;
 
     // 2. មិនជោគជ័យ (បូកសរុបពី៖ ភាគីដកពាក្យ, ភាគីមិនចូលរួម, និង ភាគីមិនព្រមព្រៀង)
     const countUnsettled = stats.close;
 
-    // សរុបចាត់ការរួច (Total Resolved)
+    // សរុបចាត់ការរួច
     const totalResolved = countSettle + countUnsettled;
     const resolvedRate = totalCases > 0 ? ((totalResolved / totalCases) * 100).toFixed(1) : '0.0';
 
-    // 3. កំពុងសម្រុះសម្រួល (Active)
+    // 3. កំពុងសម្រុះសម្រួល
     const countActive = stats.active;
 
-    // 4. តម្កល់ (Pending)
+    // 4. តម្កល់
     const countPending = stats.pending;
 
-    // សរុបកំពុងចាត់ការ (Total Ongoing)
+    // សរុបកំពុងចាត់ការ
     const totalOngoing = countActive + countPending;
     const ongoingRate = totalCases > 0 ? ((totalOngoing / totalCases) * 100).toFixed(1) : '0.0';
 
@@ -3908,7 +3829,7 @@ function renderAnalyticsView() {
                         </div>
                         <div style="background: white; border: 1px solid #fecaca; border-radius: 10px; padding: 12px 16px; display: flex; align-items: flex-start; gap: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
                             <i class="fa-solid fa-angles-right text-danger" style="margin-top: 3px; font-size: 14px;"></i>
-                            <span style="font-size: 13.5px; color: #1f2937; line-height: 1.6; font-weight: 500;">ទំនាក់ទំនងទៅកាន់ភាគីវិវាទជាមុន (Pre-mediation) ដើម្បីផ្តល់ព័ត៌មានពីអត្ថប្រយោជន៍នៃការដោះស្រាយ ជំរុញការចូលរួម និងកាត់បន្ថយករណីភាគីមិនព្រមព្រៀង</span>
+                            <span style="font-size: 13.5px; color: #1f2937; line-height: 1.6; font-weight: 500;">ទំនាក់ទំនងទៅកាន់ភាគីវិវាទជាមុន ដើម្បីផ្តល់ព័ត៌មានពីអត្ថប្រយោជន៍នៃការដោះស្រាយ ជំរុញការចូលរួម និងកាត់បន្ថយករណីភាគីមិនព្រមព្រៀង</span>
                         </div>
                     </div>
                 </div>
@@ -3967,7 +3888,7 @@ function renderAnalyticsTables(stats) {
             pctTfoot.innerHTML = `
                 <tr style="background: #f8fafc; border-top: 2px solid #cbd5e1;">
                     <td colspan="2" style="padding: 12px 16px; text-align: left; font-family: 'Khmer OS Muol Light', 'Khmer OS Muol', 'Moul', sans-serif; font-size: 13px; font-weight: normal; color: #1e3a8a; border-right: 1px solid #cbd5e1;">
-                        <i class="fa-solid fa-calculator" style="margin-right: 6px; color: #2563eb;"></i> សរុបមធ្យម (Total Average)
+                        <i class="fa-solid fa-calculator" style="margin-right: 6px; color: #2563eb;"></i> សរុបមធ្យម
                     </td>
                     <td style="padding: 12px; font-weight: 800; color: #1e293b; background: #e2e8f0; border-right: 1px solid #cbd5e1;">100%</td>
                     <td style="padding: 12px; font-weight: 800; color: #2563eb; border-right: 1px solid #cbd5e1;">${totActPct}%</td>
@@ -4029,7 +3950,7 @@ function renderAnalyticsTables(stats) {
             evalTfoot.innerHTML = `
                 <tr style="background: #f8fafc; border-top: 2px solid #cbd5e1;">
                     <td colspan="2" style="padding: 12px 16px; text-align: left; font-family: 'Khmer OS Muol Light', 'Khmer OS Muol', 'Moul', sans-serif; font-size: 13px; font-weight: normal; color: #0f172a; border-right: 1px solid #cbd5e1;">
-                        <i class="fa-solid fa-calculator" style="margin-right: 6px; color: #2563eb;"></i> សរុប (Overall Assessment)
+                        <i class="fa-solid fa-calculator" style="margin-right: 6px; color: #2563eb;"></i> សរុប
                     </td>
                     <td style="padding: 12px; border-right: 1px solid #cbd5e1;">${getBadge('ល្មម')}</td>
                     <td style="padding: 12px; border-right: 1px solid #cbd5e1;">${getBadge('ល្អ')}</td>
@@ -4322,7 +4243,7 @@ function renderEvaluationMatrixInterpretation(stats) {
             const catText = poorSettleCats.length ? poorSettleCats.join(', ') : 'វិវាទពាណិជ្ជកម្ម, វិវាទមត៌ក';
             items.push({
                 icon: 'fa-handshake',
-                text: `<strong>[ពង្រឹងគុណភាពផ្សះផ្សា និងការបិទសំណុំរឿង]៖</strong> សិក្សាអង្គហេតុឱ្យស៊ីជម្រៅ និងទំនាក់ទំនងពិគ្រោះយោបល់ជាមួយភាគីវិវាទជាមុន (Pre-mediation) មុនពេលដាក់ប្រជុំ ដើម្បីបង្កើនលទ្ធភាពព្រមព្រៀង និងត្រូវធ្វើរបាយការណ៍បិទឱ្យទាន់ពេលវេលាចំពោះសំណុំរឿងដែលអស់លទ្ធភាពផ្សះផ្សា (<strong>${catText}</strong>)។`
+                text: `<strong>[ពង្រឹងគុណភាពផ្សះផ្សា និងការបិទសំណុំរឿង]៖</strong> សិក្សាអង្គហេតុឱ្យស៊ីជម្រៅ និងទំនាក់ទំនងពិគ្រោះយោបល់ជាមួយភាគីវិវាទជាមុន មុនពេលដាក់ប្រជុំ ដើម្បីបង្កើនលទ្ធភាពព្រមព្រៀង និងត្រូវធ្វើរបាយការណ៍បិទឱ្យទាន់ពេលវេលាចំពោះសំណុំរឿងដែលអស់លទ្ធភាពផ្សះផ្សា (<strong>${catText}</strong>)។`
             });
         }
 
@@ -4342,7 +4263,7 @@ function renderEvaluationMatrixInterpretation(stats) {
                     </div>
                     <div>
                         <h4 style="margin: 0; font-size: 16px; font-weight: normal; color: ${themeColor}; font-family: 'Khmer OS Muol Light', 'Khmer OS Muol', 'Moul', sans-serif;">
-                            ការវាយតម្លៃលទ្ធផល និងអនុសាសន៍យុទ្ធសាស្ត្រ (ផ្អែកតាមតារាង Evaluation Matrix)
+                            ការវាយតម្លៃលទ្ធផល និងអនុសាសន៍យុទ្ធសាស្ត្រ (ផ្អែកតាមតារាងវាយតម្លៃ)
                         </h4>
                         <span style="font-size: 12.5px; color: #64748b; font-weight: 600;">លទ្ធផលវាយតម្លៃរួម៖ សរុប [ល្មម] | កំពុងសម្រុះសម្រួល [ល្អ] | ព្រមព្រៀង [ល្អណាស់] | មិនព្រមព្រៀង [ល្អ] | តម្កល់ [មិនល្អ] | រយៈពេល [យឺត]</span>
                     </div>
@@ -4364,7 +4285,7 @@ function renderEvaluationMatrixInterpretation(stats) {
                 <!-- Matrix Summary Banner with Strategic Plan Link -->
                 <div style="margin-top: 16px; padding: 14px 18px; background: white; border-radius: 10px; border: 1px dashed #cbd5e1; font-size: 13.5px; color: #1e3a8a; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
                     <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                        <strong style="font-size: 13.5px;"><i class="fa-solid fa-chart-line text-primary"></i> សន្ទស្សន៍សរុប (Overall Assessment):</strong>
+                        <strong style="font-size: 13.5px;"><i class="fa-solid fa-chart-line text-primary"></i> សន្ទស្សន៍សរុប:</strong>
                         <span class="badge" style="background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; padding: 3px 8px; border-radius: 10px; font-weight: 700;">សរុប [ល្មម]</span>
                         <span class="badge" style="background: #fef9c3; color: #a16207; border: 1px solid #fde047; padding: 3px 8px; border-radius: 10px; font-weight: 700;">កំពុងសម្រុះសម្រួល [ល្អ]</span>
                         <span class="badge" style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; padding: 3px 8px; border-radius: 10px; font-weight: 700;">ព្រមព្រៀង [ល្អណាស់]</span>
@@ -4387,7 +4308,7 @@ function renderEvaluationMatrixInterpretation(stats) {
                     </div>
                     <div>
                         <h4 style="margin: 0; font-size: 16px; font-weight: normal; color: #065f46; font-family: 'Khmer OS Muol Light', 'Khmer OS Muol', 'Moul', sans-serif;">
-                            ការវាយតម្លៃលទ្ធផល និងអនុសាសន៍យុទ្ធសាស្ត្រ (ផ្អែកតាមតារាង Evaluation Matrix)
+                            ការវាយតម្លៃលទ្ធផល និងអនុសាសន៍យុទ្ធសាស្ត្រ (ផ្អែកតាមតារាងវាយតម្លៃ)
                         </h4>
                         <span style="font-size: 12.5px; color: #166534; font-weight: 600;">លទ្ធផលវាយតម្លៃរួម៖ គ្រប់ផ្នែកសម្រេចបានកម្រិតល្អប្រសើរ និងលឿន</span>
                     </div>
@@ -4480,9 +4401,9 @@ function getActionPlans() {
         try { return JSON.parse(stored); } catch (e) { }
     }
     const defaultPlans = [
-        { id: 1, target: 'យុទ្ធសាស្ត្រអត្រាព្រមព្រៀង (Settle Rate)', action: 'ពង្រឹងនីតិវិធីប្រជុំសម្រុះសម្រួលកម្រិតមូលដ្ឋានឱ្យបានយ៉ាងតិច ២ លើក មុននឹងសម្រេចបិទ ឬតម្កល់', date: '២០២៦-០៨-១៥', status: 'កំពុងអនុវត្ត' },
-        { id: 2, target: 'យុទ្ធសាស្ត្រកំពុងសម្រុះសម្រួល (Active Rate)', action: 'ចុះពិនិត្យទីតាំង និងវាស់វែងជាក់ស្តែងលើករណីវិវាទដីធ្លីដែលកកស្ទះលើសពី ២០ ថ្ងៃ', date: '២០២៦-០៨-២០', status: 'កំពុងអនុវត្ត' },
-        { id: 3, target: 'យុទ្ធសាស្ត្រតម្កល់/ផ្អាក (Pending Rate)', action: 'ទំនាក់ទំនងភាគីទាំងពីរឡើងវិញដើម្បីពិនិត្យលទ្ធភាពផ្សះផ្សាលើករណីដែលបានផ្អាកបណ្តោះអាសន្ន', date: '២០២៦-០៨-៣០', status: 'សម្រេចបានរួចរាល់' }
+        { id: 1, target: 'យុទ្ធសាស្ត្រអត្រាព្រមព្រៀង', action: 'ពង្រឹងនីតិវិធីប្រជុំសម្រុះសម្រួលកម្រិតមូលដ្ឋានឱ្យបានយ៉ាងតិច ២ លើក មុននឹងសម្រេចបិទ ឬតម្កល់', date: '២០២៦-០៨-១៥', status: 'កំពុងអនុវត្ត' },
+        { id: 2, target: 'យុទ្ធសាស្ត្រកំពុងសម្រុះសម្រួល', action: 'ចុះពិនិត្យទីតាំង និងវាស់វែងជាក់ស្តែងលើករណីវិវាទដីធ្លីដែលកកស្ទះលើសពី ២០ ថ្ងៃ', date: '២០២៦-០៨-២០', status: 'កំពុងអនុវត្ត' },
+        { id: 3, target: 'យុទ្ធសាស្ត្រតម្កល់/ផ្អាក', action: 'ទំនាក់ទំនងភាគីទាំងពីរឡើងវិញដើម្បីពិនិត្យលទ្ធភាពផ្សះផ្សាលើករណីដែលបានផ្អាកបណ្តោះអាសន្ន', date: '២០២៦-០៨-៣០', status: 'សម្រេចបានរួចរាល់' }
     ];
     localStorage.setItem('nadr_strategic_action_plans', JSON.stringify(defaultPlans));
     return defaultPlans;
@@ -4712,12 +4633,12 @@ window.handleImportAllData = function(event) {
 }
 
 window.confirmFactoryReset = function() {
-    customConfirm('បញ្ជាក់ការលុបទិន្នន័យទាំងអស់ (Factory Reset)', 'ប្រកាសអាសន្ន! តើលោកអ្នកពិតជាចង់លុបទិន្នន័យសំណុំរឿងទាំងអស់ក្នុងប្រព័ន្ធឱ្យក្លាយជាសូន្យ (Empty State) មែនទេ? ទិន្នន័យដែលលុបហើយមិនអាចស្ដារវិញបានឡើយ!', () => {
+    customConfirm('បញ្ជាក់ការលុបទិន្នន័យទាំងអស់', 'ប្រកាសអាសន្ន! តើលោកអ្នកពិតជាចង់លុបទិន្នន័យសំណុំរឿងទាំងអស់ក្នុងប្រព័ន្ធឱ្យក្លាយជាសូន្យ មែនទេ? ទិន្នន័យដែលលុបហើយមិនអាចស្ដារវិញបានឡើយ!', () => {
         casesData = [];
         saveCases();
         renderAllViews();
-        if (typeof logAuditAction === 'function') logAuditAction('Factory Reset', 'បានលុបសម្អាតទិន្នន័យសំណុំរឿងទាំងអស់ (Empty State)');
-        showToast('បានលុបទិន្នន័យសំណុំរឿងទាំងអស់ក្លាយជាសូន្យ (Factory Reset)!', 'success');
+        if (typeof logAuditAction === 'function') logAuditAction('Factory Reset', 'បានលុបសម្អាតទិន្នន័យសំណុំរឿងទាំងអស់');
+        showToast('បានលុបទិន្នន័យសំណុំរឿងទាំងអស់ក្លាយជាសូន្យ!', 'success');
     }, null, 'លុបទាំងអស់');
 };
 
@@ -4729,14 +4650,16 @@ function initThemeToggle() {
     if (!btn) return;
     
     const isDarkInit = document.documentElement.classList.contains('dark-theme');
-    btn.innerHTML = isDarkInit ? '<i class="fa-solid fa-sun" style="color: #f59e0b;"></i>' : '<i class="fa-solid fa-moon"></i>';
+    btn.innerHTML = isDarkInit ? '<i class="fa-solid fa-sun"></i><span>ពណ៌ភ្លឺ</span>' : '<i class="fa-solid fa-moon"></i><span>ពណ៌ងងឹត</span>';
+    if (window.electronAPI && window.electronAPI.setTitleBarTheme) window.electronAPI.setTitleBarTheme(isDarkInit);
     
     btn.addEventListener('click', () => {
         document.documentElement.classList.toggle('dark-theme');
         localStorage.setItem('nadr_app_theme', document.documentElement.classList.contains('dark-theme') ? 'dark' : 'light');
         const isDark = document.documentElement.classList.contains('dark-theme');
-        btn.innerHTML = isDark ? '<i class="fa-solid fa-sun" style="color: #f59e0b;"></i>' : '<i class="fa-solid fa-moon"></i>';
-        showToast(isDark ? 'បានប្តូរទៅ Dark Mode 🌙' : 'បានប្តូរទៅ Light Mode ☀️', 'info');
+        btn.innerHTML = isDark ? '<i class="fa-solid fa-sun"></i><span>ពណ៌ភ្លឺ</span>' : '<i class="fa-solid fa-moon"></i><span>ពណ៌ងងឹត</span>';
+        if (window.electronAPI && window.electronAPI.setTitleBarTheme) window.electronAPI.setTitleBarTheme(isDark);
+        showToast(isDark ? 'បានប្ដូរទៅពណ៌ងងឹត' : 'បានប្ដូរទៅពណ៌ភ្លឺ', 'info');
         
         if (typeof initOrUpdateCharts === 'function') {
             initOrUpdateCharts();
@@ -4772,7 +4695,7 @@ function printSingleDossier(c) {
             <div style="text-align: center; margin-bottom: 24px;">
                 <h3 style="font-size: 16pt; font-weight: 700;">ព្រះរាជាណាចក្រកម្ពុជា</h3>
                 <h4 style="font-size: 13pt; font-weight: 700;">ជាតិ សាសនា ព្រះមហាក្សត្រ</h4>
-                <div style="width: 100px; height: 2px; background: #000; margin: 6px auto;"></div>
+                ${typeof window.nadrOrnamentHTML === 'function' ? window.nadrOrnamentHTML(170) : ''}
                 <h2 style="font-size: 15pt; font-weight: 700; margin-top: 16px;">ប័ណ្ណព័ត៌មានសំណុំរឿង និងចំណាត់ការដោះស្រាយ</h2>
             </div>
             <table style="width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12pt;" border="1">
@@ -4837,6 +4760,8 @@ function initAuth() {
     }
 
     // 2. Toggle password visibility
+    const loginUserEl = document.getElementById('login-username');
+    if (loginUserEl && !loginUserEl.value) loginUserEl.value = localStorage.getItem('nadr_last_username') || '';
     if (togglePwd && pwdInput) {
         togglePwd.addEventListener('click', () => {
             if (pwdInput.type === 'password') {
@@ -4870,7 +4795,7 @@ function initAuth() {
             if (!Array.isArray(adminUsers) || adminUsers.length === 0 || !adminUsers.some(u => u.username === 'admin' && userHasPassword(u))) {
                 // Seed from default if missing, empty, or corrupted (missing admin or password)
                 adminUsers = [
-                    { username: 'admin', password: 'admin123', name: 'គណនីរដ្ឋបាល (Admin)', role: 'Super Admin (អ្នកគ្រប់គ្រងកម្មវិធី)', status: 'Active', phone: '012 345 678', email: 'admin@nadr.gov.kh' },
+                    { username: 'admin', password: 'admin123', name: 'គណនីរដ្ឋបាល', role: 'Super Admin (អ្នកគ្រប់គ្រងកម្មវិធី)', status: 'Active', phone: '012 345 678', email: 'admin@nadr.gov.kh' },
                     { username: 'nadr', password: '123', name: 'មន្ត្រីសម្របសម្រួល', role: 'NADR Officer (មន្ត្រីធម្មតា)', status: 'Active', phone: '012 000 000', email: 'officer@nadr.gov.kh' },
                     { username: 'user', password: 'user', name: 'អ្នកមើលការខុសត្រូវ', role: 'Viewer (ត្រឹមមើល)', status: 'Active', phone: '012 111 111', email: 'viewer@nadr.gov.kh' }
                 ];
@@ -4884,7 +4809,7 @@ function initAuth() {
             // For now, if there is no username input field, just match password against any user
             let foundUser = null;
             const candidates = document.getElementById('login-username')
-                ? adminUsers.filter(u => u.username === usernameInput)
+                ? adminUsers.filter(u => String(u.username).toLowerCase() === usernameInput.toLowerCase())
                 : adminUsers;
             for (const u of candidates) {
                 if (await verifyUserPassword(u, password)) { foundUser = u; break; }
@@ -4901,7 +4826,7 @@ function initAuth() {
 
             if (!foundUser) {
                 if (errorMsg) {
-                    errorMsg.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> <span>ពាក្យសម្ងាត់មិនត្រឹមត្រូវទេ! សូមពិនិត្យម្តងទៀត។</span>';
+                    errorMsg.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> <span>ពាក្យសម្ងាត់មិនត្រឹមត្រូវ។ សូមពិនិត្យម្តងទៀត។</span>';
                     errorMsg.classList.remove('d-none');
                 }
                 if (pwdInput) {
@@ -4911,10 +4836,34 @@ function initAuth() {
                 return;
             }
 
+            // Suspended accounts cannot sign in.
+            if ((foundUser.status || 'Active') === 'Inactive') {
+                if (errorMsg) {
+                    errorMsg.innerHTML = '<i class="fa-solid fa-ban"></i> <span>គណនីនេះត្រូវបានផ្អាក។ សូមទាក់ទងអ្នកគ្រប់គ្រងកម្មវិធី។</span>';
+                    errorMsg.classList.remove('d-none');
+                }
+                if (pwdInput) pwdInput.value = '';
+                return;
+            }
+
+            // Record the real last-login time.
+            foundUser.lastLogin = new Date().toISOString();
+            localStorage.setItem('nadr_admin_users', JSON.stringify(adminUsers));
+            if (typeof ADMIN_USERS !== 'undefined') ADMIN_USERS = adminUsers;
+
             // Save state
             const storage = remember ? localStorage : sessionStorage;
             storage.setItem('nadr_auth_logged_in', 'true');
             storage.setItem('nadr_auth_username', foundUser.username);
+            // When a different account signs in, show that account's own name/role in the sidebar and header.
+            const previousUser = localStorage.getItem('nadr_last_username');
+            if (previousUser && previousUser.toLowerCase() !== String(foundUser.username).toLowerCase()) {
+                localStorage.setItem('nadr_user_profile_name', foundUser.name || foundUser.username);
+                localStorage.setItem('nadr_user_profile_role', foundUser.role || '');
+                if (foundUser.phone) localStorage.setItem('nadr_user_profile_phone', foundUser.phone); else localStorage.removeItem('nadr_user_profile_phone');
+                if (foundUser.avatar && !isRemoteAvatar(foundUser.avatar)) localStorage.setItem('nadr_user_profile_avatar', foundUser.avatar); else localStorage.removeItem('nadr_user_profile_avatar');
+            }
+            localStorage.setItem('nadr_last_username', foundUser.username);
             storage.setItem('nadr_auth_user_name', foundUser.name);
             storage.setItem('nadr_auth_user_role', foundUser.role);
 
@@ -4980,10 +4929,10 @@ window.saveHotfixPassword = async function() {
 
     // 4. Logout click
     const doLogout = () => {
-        customConfirm('បញ្ជាក់ការចាកចេញ', 'តើអ្នកពិតជាចង់ចាកចេញពីប្រព័ន្ធ (Logout) មែនទេ?', () => {
+        customConfirm('បញ្ជាក់ការចាកចេញ', 'តើអ្នកពិតជាចង់ចាកចេញពីប្រព័ន្ធ មែនទេ?', () => {
             localStorage.removeItem('nadr_auth_logged_in');
             sessionStorage.removeItem('nadr_auth_logged_in');
-            if (typeof logAuditAction === 'function') logAuditAction('ចាកចេញពីប្រព័ន្ធ', 'បានចាកចេញពីប្រព័ន្ធ (Logout)');
+            if (typeof logAuditAction === 'function') logAuditAction('ចាកចេញពីប្រព័ន្ធ', 'បានចាកចេញពីប្រព័ន្ធ');
             
             if (overlay) overlay.style.display = 'grid';
             const pwd = document.getElementById('login-password');
@@ -5004,7 +4953,7 @@ function updateSidebarUser(name, role) {
     const roleEl = document.getElementById('logged-user-role');
     const headerNameEl = document.getElementById('header-user-name');
     if (nameEl) nameEl.textContent = name;
-    if (roleEl) roleEl.textContent = role;
+    if (roleEl) roleEl.textContent = displayRole(role);
     if (headerNameEl) headerNameEl.textContent = name;
     if (typeof initUserProfile === 'function') initUserProfile();
     if (typeof applyRBAC === 'function') applyRBAC();
@@ -5016,7 +4965,9 @@ function updateSidebarUser(name, role) {
  */
 function applyRBAC() {
     const role = localStorage.getItem('nadr_auth_user_role') || sessionStorage.getItem('nadr_auth_user_role') || '';
-    const isAdmin = role.toLowerCase().includes('admin') || role.includes('រដ្ឋបាល') || role.includes('អ្នកគ្រប់គ្រង');
+    // One-owner app (see owner-login.js): whoever signs in owns the app and has full access.
+    const isOwnerApp = !!localStorage.getItem('nadr_owner_username');
+    const isAdmin = isOwnerApp || role.toLowerCase().includes('admin') || role.includes('រដ្ឋបាល') || role.includes('អ្នកគ្រប់គ្រង');
     
     // In Settings view, control tab visibility
     const adminTabs = ['tab-org', 'tab-categories', 'tab-columns', 'tab-admins', 'tab-audit'];
@@ -5044,7 +4995,7 @@ function applyRBAC() {
             noticeEl = document.createElement('div');
             noticeEl.id = 'rbac-officer-notice';
             noticeEl.style.cssText = 'background: #fffbeb; border-bottom: 1px solid #fef3c7; padding: 14px 20px; font-size: 13.5px; color: #b45309; display: none; align-items: center; gap: 12px; font-weight: 600;';
-            noticeEl.innerHTML = '<i class="fa-solid fa-lock" style="font-size: 18px; color: #f59e0b; flex-shrink: 0;"></i> <div><span style="display: block; font-weight: 800; font-size: 14px; margin-bottom: 2px;">ការកំណត់សិទ្ធិមន្ត្រី (Officer Access Control)</span><span>គណនីរបស់អ្នកជា "មន្ត្រី"៖ អ្នកមានសិទ្ធិចូលប្រើប្រាស់ និងកែសម្រួលបានតែមុខងារ "លក្ខណៈវិនិច្ឆ័យវាយតម្លៃ" និង "យុទ្ធសាស្ត្រ" ប៉ុណ្ណោះ។ មុខងាររដ្ឋបាលផ្សេងទៀតត្រូវបានកម្រិតសិទ្ធិ។</span></div>';
+            noticeEl.innerHTML = '<i class="fa-solid fa-lock" style="font-size: 18px; color: #f59e0b; flex-shrink: 0;"></i> <div><span style="display: block; font-weight: 800; font-size: 14px; margin-bottom: 2px;">ការកំណត់សិទ្ធិមន្ត្រី</span><span>គណនីរបស់អ្នកជា "មន្ត្រី"៖ អ្នកមានសិទ្ធិចូលប្រើប្រាស់ និងកែសម្រួលបានតែមុខងារ "លក្ខណៈវិនិច្ឆ័យវាយតម្លៃ" និង "យុទ្ធសាស្ត្រ" ប៉ុណ្ណោះ។ មុខងាររដ្ឋបាលផ្សេងទៀតត្រូវបានកម្រិតសិទ្ធិ។</span></div>';
             settingsCard.insertBefore(noticeEl, settingsCard.firstChild);
         }
     }
@@ -5061,7 +5012,7 @@ function initUserProfile() {
     const pRole = localStorage.getItem('nadr_user_profile_role') || 'មន្ត្រីសម្រុះសម្រួលវិវាទ NADR';
     const pPhone = localStorage.getItem('nadr_user_profile_phone') || '012 345 678';
     const pEmail = localStorage.getItem('nadr_user_profile_email') || 'oun.lay@nadr.gov.kh';
-    const pAvatar = localStorage.getItem('nadr_user_profile_avatar') || `https://ui-avatars.com/api/?name=${encodeURIComponent(pName)}&background=0D8ABC&color=fff`;
+    const pAvatar = localStorage.getItem('nadr_user_profile_avatar') || localAvatar(pName);
 
     // Update Header and Sidebar
     const headerNameEl = document.getElementById('header-user-name');
@@ -5074,7 +5025,7 @@ function initUserProfile() {
     if (headerNameEl) headerNameEl.textContent = pName;
     if (headerAvatarEl) headerAvatarEl.src = pAvatar;
     if (sidebarNameEl) sidebarNameEl.textContent = pName;
-    if (sidebarRoleEl) sidebarRoleEl.textContent = pRole;
+    if (sidebarRoleEl) sidebarRoleEl.textContent = displayRole(pRole);
     if (sidebarAvatarEl) {
         sidebarAvatarEl.src = pAvatar;
         sidebarAvatarEl.style.display = 'block';
@@ -5137,7 +5088,7 @@ function getCurrentAuthUser() {
     if (found) {
         if (!found.phone) found.phone = found.username === 'admin' ? '012 345 678' : '098 765 432';
         if (!found.email) found.email = `${found.username}@nadr.gov.kh`;
-        if (!found.avatar) found.avatar = localStorage.getItem(`nadr_avatar_${found.username}`) || `https://ui-avatars.com/api/?name=${encodeURIComponent(found.name)}&background=0D8ABC&color=fff`;
+        if (!found.avatar || isRemoteAvatar(found.avatar)) found.avatar = localStorage.getItem(`nadr_avatar_${found.username}`) || localAvatar(found.name);
     } else {
         found = { username: 'user', name: authName || 'មន្ត្រីសម្របសម្រួល', role: 'Case Officer (មន្ត្រីសម្រុះសម្រួល)', phone: '098 765 432', email: 'officer@nadr.gov.kh', password: 'user', avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(authName || 'មន្ត្រី')}&background=0D8ABC&color=fff` };
         foundIdx = 2;
@@ -5151,7 +5102,7 @@ function renderProfileView() {
     const pRole = currUser.role;
     const pPhone = currUser.phone || '012 345 678';
     const pEmail = currUser.email || `${currUser.username}@nadr.gov.kh`;
-    const pAvatar = currUser.avatar || localStorage.getItem(`nadr_avatar_${currUser.username}`) || `https://ui-avatars.com/api/?name=${encodeURIComponent(pName)}&background=0D8ABC&color=fff`;
+    const pAvatar = currUser.avatar || localStorage.getItem(`nadr_avatar_${currUser.username}`) || localAvatar(pName);
     const pUsername = currUser.username || 'user';
 
     // Title banner
@@ -5163,7 +5114,7 @@ function renderProfileView() {
 
     if (avatarImg) avatarImg.src = pAvatar;
     if (titleName) titleName.textContent = pName;
-    if (titleRole) titleRole.innerHTML = `<i class="fa-solid fa-briefcase"></i> ${pRole}`;
+    if (titleRole) titleRole.innerHTML = `<i class="fa-solid fa-briefcase"></i> ${accEsc(displayRole(pRole))}`;
     if (titleEmail) titleEmail.textContent = pEmail;
     if (titlePhone) titlePhone.textContent = pPhone;
 
@@ -5174,7 +5125,7 @@ function renderProfileView() {
     const inPhone = document.getElementById('profile-view-phone');
     const inEmail = document.getElementById('profile-view-email');
 
-    if (inUsername) inUsername.value = `${pUsername} / NADR-ID`;
+    if (inUsername) inUsername.value = pUsername;
     if (inName) inName.value = pName;
     if (inRole) {
         inRole.value = pRole;
@@ -5189,26 +5140,27 @@ function renderProfileView() {
     // Security & Access Level Box update based on role
     const secBox = document.getElementById('profile-security-box');
     if (secBox) {
-        const isAdmin = pRole.toLowerCase().includes('admin') || pRole.includes('រដ្ឋបាល') || pRole.includes('គ្រប់គ្រង');
-        secBox.innerHTML = isAdmin ? `
-            <li><strong>កម្រិតសិទ្ធិ៖</strong> អគ្គនាយករដ្ឋបាល (Super Administrator)</li>
-            <li><strong>ការអនុញ្ញាត៖</strong> បញ្ចូល កែសម្រួល លុប និងបោះពុម្ពទិន្នន័យទាំងអស់</li>
-            <li><strong>ស្ថានភាពសុវត្ថិភាព៖</strong> ការពារដោយលេខកូដសម្ងាត់ ២ ជាន់ (Active)</li>
-            <li><strong>ការចូលប្រើចុងក្រោយ៖</strong> <span id="profile-view-last-login">ថ្ងៃនេះ, ម៉ោង ០៨:៣០ ព្រឹក</span></li>
-        ` : `
-            <li><strong>កម្រិតសិទ្ធិ៖</strong> មន្ត្រីសម្រុះសម្រួល (Case Officer)</li>
-            <li><strong>ការអនុញ្ញាត៖</strong> បញ្ចូល កែសម្រួល លុប និងបោះពុម្ពទិន្នន័យសំណុំរឿង</li>
-            <li><strong>ដែនកំណត់៖</strong> មិនមានសិទ្ធិចូលប្រើប្រាស់ផ្ទាំងការកំណត់ប្រព័ន្ធ (Settings)</li>
-            <li><strong>ស្ថានភាពសុវត្ថិភាព៖</strong> ការពារដោយលេខកូដសម្ងាត់ (Active)</li>
+        const level = typeof accountRoleInfo === 'function' ? accountRoleInfo(pRole) : { label: pRole, perms: '' };
+        const lastLogin = currUser.lastLogin ? formatAccountDateTime(currUser.lastLogin) : 'មិនទាន់មានកំណត់ត្រា';
+        const pwdState = currUser.passwordHash ? 'បានការពារដោយកូដសម្ងាត់ (Hash)' : 'នឹងត្រូវបានការពារពេលចូលលើកក្រោយ';
+        secBox.innerHTML = `
+            <li><span>កម្រិតសិទ្ធិ</span><strong>${level.label}</strong></li>
+            <li><span>ការអនុញ្ញាត</span><strong>${level.perms}</strong></li>
+            <li><span>ពាក្យសម្ងាត់</span><strong>${pwdState}</strong></li>
+            <li><span>ការចូលប្រើចុងក្រោយ</span><strong id="profile-view-last-login">${lastLogin}</strong></li>
         `;
     }
 
-    // Quick Stats
-    const cases = typeof getCasesData === 'function' ? getCasesData() : [];
+    // Quick stats from real data
+    const cases = Array.isArray(casesData) ? casesData : [];
     const statCases = document.getElementById('profile-stat-cases');
     const statReports = document.getElementById('profile-stat-reports');
-    if (statCases) statCases.textContent = cases.length || '0';
-    if (statReports) statReports.textContent = cases.length > 0 ? '12' : '0';
+    if (statCases) statCases.textContent = cases.length;
+    if (statReports) {
+        statReports.textContent = cases.filter(c => String(c.status || '').startsWith('Settle')).length;
+        const lbl = statReports.parentElement && statReports.parentElement.querySelector('.pf-stat-label');
+        if (lbl) lbl.textContent = 'សំណុំរឿងព្រមព្រៀង';
+    }
 }
 
 async function saveUserProfileView() {
@@ -5402,11 +5354,236 @@ function showForcedPasswordChange() {
     }
 }
 
+/* ==========================================================================
+   ACCOUNTS — local avatars, role labels and the Settings › user accounts pane
+   ========================================================================== */
+function localAvatar(name) {
+    const text = String(name || 'អ').trim();
+    const initials = Array.from(text.replace(/\(.*?\)/g, '').trim()).slice(0, 2).join('') || 'អ';
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b2a6b"/><stop offset="1" stop-color="#12409a"/></linearGradient></defs><rect width="128" height="128" rx="64" fill="url(#g)"/><circle cx="64" cy="64" r="60" fill="none" stroke="#e8c25a" stroke-width="4"/><text x="64" y="80" font-family="Kantumruy Pro, Battambang, sans-serif" font-size="44" font-weight="700" fill="#ffffff" text-anchor="middle">${initials.replace(/[<&>]/g, '')}</text></svg>`;
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+}
+
+/** "Super Admin (អ្នកគ្រប់គ្រងកម្មវិធី)" -> "អ្នកគ្រប់គ្រងកម្មវិធី"; other role text is shown as-is. */
+function displayRole(role) {
+    const r = String(role || "");
+    const m = r.match(/^[A-Za-z][A-Za-z ]*\((.+)\)\s*$/);
+    return m ? m[1] : r;
+}
+
+function isRemoteAvatar(url) {
+    return typeof url === 'string' && url.startsWith('https://ui-avatars.com');
+}
+
+function accountRoleInfo(role) {
+    const r = String(role || '');
+    if (/admin/i.test(r) || r.includes('គ្រប់គ្រងកម្មវិធី') || r.includes('រដ្ឋបាល')) {
+        return { key: 'admin', label: 'អ្នកគ្រប់គ្រងកម្មវិធី', chip: 'kt-chip-gold', perms: 'គ្រប់មុខងារ រួមទាំងការកំណត់ប្រព័ន្ធ និងគណនី' };
+    }
+    if (/viewer/i.test(r) || r.includes('ត្រឹមមើល')) {
+        return { key: 'viewer', label: 'ត្រឹមមើល', chip: 'kt-chip-gray', perms: 'មើលទិន្នន័យ និងរបាយការណ៍ប៉ុណ្ណោះ' };
+    }
+    return { key: 'officer', label: 'មន្ត្រីសម្រុះសម្រួល', chip: 'kt-chip-blue', perms: 'បញ្ចូល កែសម្រួល និងបោះពុម្ពសំណុំរឿង' };
+}
+
+function formatAccountDateTime(iso) {
+    const d = new Date(iso);
+    if (isNaN(d)) return String(iso || '');
+    const pad = n => String(n).padStart(2, '0');
+    return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ម៉ោង ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function accEsc(s) {
+    return String(s ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+}
+
+function loadAccounts() {
+    try {
+        const list = JSON.parse(localStorage.getItem('nadr_admin_users'));
+        if (Array.isArray(list)) return list;
+    } catch (e) { /* fall through */ }
+    return Array.isArray(ADMIN_USERS) ? ADMIN_USERS : [];
+}
+
+function storeAccounts(list) {
+    localStorage.setItem('nadr_admin_users', JSON.stringify(list));
+    ADMIN_USERS = list;
+}
+
+function isCurrentAccount(username) {
+    return String(getLoggedInUsername() || '').toLowerCase() === String(username || '').toLowerCase();
+}
+
+function renderAccountList() {
+    const box = document.getElementById('acc-list');
+    if (!box) return;
+    const list = loadAccounts();
+    const active = list.filter(u => (u.status || 'Active') !== 'Inactive').length;
+    const sum = document.getElementById('acc-summary');
+    if (sum) sum.textContent = `គណនីសរុប ${list.length} · សកម្ម ${active} · ផ្អាក ${list.length - active}`;
+
+    box.innerHTML = list.map(u => {
+        const role = accountRoleInfo(u.role);
+        const inactive = (u.status || 'Active') === 'Inactive';
+        const me = isCurrentAccount(u.username);
+        const avatar = (u.avatar && !isRemoteAvatar(u.avatar)) ? u.avatar : localAvatar(u.name || u.username);
+        const name = accEsc(u.username);
+        const flags = [
+            `<span class="kt-chip ${role.chip}">${role.label}</span>`,
+            inactive ? '<span class="kt-chip kt-chip-red"><i class="kt-dot"></i> ផ្អាក</span>' : '<span class="kt-chip kt-chip-green"><i class="kt-dot"></i> សកម្ម</span>',
+            u.mustChangePassword || (u.password && WEAK_PASSWORDS.includes(u.password)) ? '<span class="kt-chip kt-chip-amber">ត្រូវប្ដូរពាក្យសម្ងាត់</span>' : '',
+            me ? '<span class="kt-chip kt-chip-purple">គណនីរបស់អ្នក</span>' : ''
+        ].join('');
+        return `<div class="acc-row${inactive ? ' is-inactive' : ''}">
+            <img class="acc-avatar" src="${accEsc(avatar)}" alt="">
+            <div class="acc-main">
+                <div class="acc-name">${accEsc(u.name || u.username)} <span class="acc-user">@${name}</span></div>
+                <div class="acc-flags">${flags}</div>
+                <div class="acc-meta">${u.phone ? `<i class="fa-solid fa-phone"></i> ${accEsc(u.phone)} · ` : ''}ចូលចុងក្រោយ៖ ${u.lastLogin ? formatAccountDateTime(u.lastLogin) : 'មិនទាន់មាន'}</div>
+            </div>
+            <div class="acc-actions">
+                <button type="button" class="kt-btn kt-btn-sm" onclick="openAccountForm('${name}')"><i class="fa-solid fa-pen"></i> កែ</button>
+                <button type="button" class="kt-btn kt-btn-sm" onclick="resetAccountPassword('${name}')"><i class="fa-solid fa-key"></i> កំណត់ពាក្យសម្ងាត់ថ្មី</button>
+                ${me ? '' : `<button type="button" class="kt-btn kt-btn-sm" onclick="toggleAccountStatus('${name}')"><i class="fa-solid ${inactive ? 'fa-circle-play' : 'fa-circle-pause'}"></i> ${inactive ? 'បើកវិញ' : 'ផ្អាក'}</button>
+                <button type="button" class="kt-icon-btn danger" title="លុបគណនី" onclick="deleteAccount('${name}')"><i class="fa-regular fa-trash-can"></i></button>`}
+            </div>
+        </div>`;
+    }).join('') || '<div class="kt-empty"><i class="fa-solid fa-users"></i>មិនទាន់មានគណនី</div>';
+}
+
+function openAccountForm(username) {
+    const wrap = document.getElementById('acc-form-wrap');
+    if (!wrap) return;
+    const u = username ? loadAccounts().find(x => x.username === username) : null;
+    document.getElementById('acc-edit-username').value = u ? u.username : '';
+    document.getElementById('acc-username').value = u ? u.username : '';
+    document.getElementById('acc-username').readOnly = !!u;
+    document.getElementById('acc-name').value = u ? (u.name || '') : '';
+    document.getElementById('acc-phone').value = u ? (u.phone || '') : '';
+    document.getElementById('acc-password').value = '';
+    const roleSel = document.getElementById('acc-role');
+    const info = accountRoleInfo(u ? u.role : 'Case Officer');
+    roleSel.value = [...roleSel.options].find(o => accountRoleInfo(o.value).key === info.key)?.value || roleSel.options[1].value;
+    roleSel.disabled = !!(u && isCurrentAccount(u.username));
+    document.getElementById('acc-form-title').innerHTML = u ? '<i class="fa-solid fa-user-pen"></i> កែសម្រួលគណនី' : '<i class="fa-solid fa-user-plus"></i> បង្កើតគណនីថ្មី';
+    document.getElementById('acc-password-label').innerHTML = u ? 'ពាក្យសម្ងាត់' : 'ពាក្យសម្ងាត់បណ្ដោះអាសន្ន <span class="text-danger">*</span>';
+    document.getElementById('acc-password-hint').textContent = u ? 'មិនអាចប្ដូរនៅទីនេះទេ — ប្រើប៊ូតុង «កំណត់ពាក្យសម្ងាត់ថ្មី»' : 'អ្នកប្រើនឹងត្រូវប្ដូរពាក្យសម្ងាត់នេះពេលចូលលើកដំបូង';
+    document.getElementById('acc-password').disabled = !!u;
+    wrap.style.display = 'block';
+    wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function closeAccountForm() {
+    const wrap = document.getElementById('acc-form-wrap');
+    if (wrap) wrap.style.display = 'none';
+}
+
+async function saveAccountForm() {
+    const editing = document.getElementById('acc-edit-username').value;
+    const username = document.getElementById('acc-username').value.trim();
+    const name = document.getElementById('acc-name').value.trim();
+    const role = document.getElementById('acc-role').value;
+    const phone = document.getElementById('acc-phone').value.trim();
+    const password = document.getElementById('acc-password').value.trim();
+    const list = loadAccounts();
+
+    if (!username || !name) { showToast('សូមបំពេញឈ្មោះគណនី និងឈ្មោះពេញ', 'error'); return; }
+    if (!/^[A-Za-z0-9._-]{3,32}$/.test(username)) { showToast('ឈ្មោះគណនីត្រូវមាន ៣–៣២ តួ (អក្សរឡាតាំង លេខ . _ -)', 'error'); return; }
+
+    if (editing) {
+        const u = list.find(x => x.username === editing);
+        if (!u) return;
+        u.name = name;
+        u.phone = phone;
+        if (!isCurrentAccount(u.username)) u.role = role;
+        if (accountRoleInfo(u.role).key !== 'admin' && !list.some(x => x !== u && accountRoleInfo(x.role).key === 'admin' && x.status !== 'Inactive')) {
+            showToast('ត្រូវមានអ្នកគ្រប់គ្រងកម្មវិធីសកម្មយ៉ាងហោចណាស់ម្នាក់', 'error');
+            return;
+        }
+        storeAccounts(list);
+        if (typeof logAuditAction === 'function') logAuditAction('កែសម្រួលគណនី', `បានកែសម្រួលគណនី ${username}`);
+        showToast('បានរក្សាទុកគណនី', 'success');
+    } else {
+        if (list.some(x => x.username.toLowerCase() === username.toLowerCase())) { showToast('ឈ្មោះគណនីនេះមានរួចហើយ', 'error'); return; }
+        if (password.length < 8 || WEAK_PASSWORDS.includes(password)) { showToast('ពាក្យសម្ងាត់ត្រូវមានយ៉ាងតិច ៨ តួ និងមិនងាយទាយ', 'error'); return; }
+        const u = { username, name, role, phone, status: 'Active', createdAt: new Date().toISOString() };
+        await setUserPassword(u, password);
+        u.mustChangePassword = true;
+        list.push(u);
+        storeAccounts(list);
+        if (typeof logAuditAction === 'function') logAuditAction('បង្កើតគណនី', `បានបង្កើតគណនី ${username} (${accountRoleInfo(role).label})`);
+        showToast('បានបង្កើតគណនីថ្មី', 'success');
+    }
+    closeAccountForm();
+    renderAccountList();
+}
+
+async function resetAccountPassword(username) {
+    const list = loadAccounts();
+    const u = list.find(x => x.username === username);
+    if (!u) return;
+    const pwd = prompt(`កំណត់ពាក្យសម្ងាត់បណ្ដោះអាសន្នថ្មីសម្រាប់ «${u.name || u.username}» (យ៉ាងតិច ៨ តួ)៖`);
+    if (pwd === null) return;
+    const p = pwd.trim();
+    if (p.length < 8 || WEAK_PASSWORDS.includes(p)) { showToast('ពាក្យសម្ងាត់ត្រូវមានយ៉ាងតិច ៨ តួ និងមិនងាយទាយ', 'error'); return; }
+    await setUserPassword(u, p);
+    u.mustChangePassword = !isCurrentAccount(u.username);
+    storeAccounts(list);
+    if (typeof logAuditAction === 'function') logAuditAction('កំណត់ពាក្យសម្ងាត់ថ្មី', `បានកំណត់ពាក្យសម្ងាត់ថ្មីសម្រាប់គណនី ${u.username}`);
+    showToast('បានកំណត់ពាក្យសម្ងាត់ថ្មី' + (u.mustChangePassword ? ' — អ្នកប្រើត្រូវប្ដូរវាពេលចូលលើកក្រោយ' : ''), 'success');
+    renderAccountList();
+}
+
+function toggleAccountStatus(username) {
+    const list = loadAccounts();
+    const u = list.find(x => x.username === username);
+    if (!u || isCurrentAccount(username)) return;
+    const willDisable = (u.status || 'Active') !== 'Inactive';
+    if (willDisable && accountRoleInfo(u.role).key === 'admin' && !list.some(x => x !== u && accountRoleInfo(x.role).key === 'admin' && x.status !== 'Inactive')) {
+        showToast('មិនអាចផ្អាកអ្នកគ្រប់គ្រងកម្មវិធីចុងក្រោយបានទេ', 'error');
+        return;
+    }
+    u.status = willDisable ? 'Inactive' : 'Active';
+    storeAccounts(list);
+    if (typeof logAuditAction === 'function') logAuditAction(willDisable ? 'ផ្អាកគណនី' : 'បើកគណនីវិញ', `គណនី ${u.username}`);
+    showToast(willDisable ? 'បានផ្អាកគណនី — មិនអាចចូលប្រព័ន្ធបានទៀតទេ' : 'បានបើកគណនីវិញ', 'success');
+    renderAccountList();
+}
+
+function deleteAccount(username) {
+    const list = loadAccounts();
+    const u = list.find(x => x.username === username);
+    if (!u || isCurrentAccount(username)) return;
+    if (accountRoleInfo(u.role).key === 'admin' && !list.some(x => x !== u && accountRoleInfo(x.role).key === 'admin' && x.status !== 'Inactive')) {
+        showToast('មិនអាចលុបអ្នកគ្រប់គ្រងកម្មវិធីចុងក្រោយបានទេ', 'error');
+        return;
+    }
+    const doDelete = () => {
+        storeAccounts(list.filter(x => x !== u));
+        if (typeof logAuditAction === 'function') logAuditAction('លុបគណនី', `បានលុបគណនី ${u.username}`);
+        showToast('បានលុបគណនី', 'success');
+        renderAccountList();
+    };
+    if (typeof customConfirm === 'function') {
+        customConfirm('លុបគណនី', `តើពិតជាចង់លុបគណនី «${u.name || u.username}» មែនទេ? សកម្មភាពនេះមិនអាចត្រឡប់វិញបានទេ។`, doDelete);
+    } else if (confirm(`លុបគណនី ${u.username}?`)) {
+        doDelete();
+    }
+}
+
+window.renderAccountList = renderAccountList;
+window.openAccountForm = openAccountForm;
+window.closeAccountForm = closeAccountForm;
+window.saveAccountForm = saveAccountForm;
+window.resetAccountPassword = resetAccountPassword;
+window.toggleAccountStatus = toggleAccountStatus;
+window.deleteAccount = deleteAccount;
+
 /**
  * Dynamic Admin User accounts loaded from localStorage
  */
 let ADMIN_USERS = JSON.parse(localStorage.getItem('nadr_admin_users')) || [
-    { username: 'admin', password: 'admin123', name: 'គណនីរដ្ឋបាល (Admin)', role: 'Super Admin (អ្នកគ្រប់គ្រងកម្មវិធី)', status: 'Active', phone: '012 345 678', email: 'admin@nadr.gov.kh' },
+    { username: 'admin', password: 'admin123', name: 'គណនីរដ្ឋបាល', role: 'Super Admin (អ្នកគ្រប់គ្រងកម្មវិធី)', status: 'Active', phone: '012 345 678', email: 'admin@nadr.gov.kh' },
     { username: 'nadr', password: 'nadr', name: 'មន្ត្រីជាន់ខ្ពស់ NADR', role: 'Super Admin (អ្នកគ្រប់គ្រងកម្មវិធី)', status: 'Active', phone: '011 222 333', email: 'nadr@nadr.gov.kh' },
     { username: 'user', password: 'user', name: 'មន្ត្រីសម្របសម្រួល', role: 'Case Officer (មន្ត្រីសម្រុះសម្រួល)', status: 'Active', phone: '098 765 432', email: 'officer@nadr.gov.kh' }
 ];
@@ -5486,20 +5663,12 @@ function initSettingsEvents() {
             const adminTabs = ['tab-org', 'tab-categories', 'tab-columns', 'tab-admins', 'tab-audit'];
             
             if (!isAdmin && adminTabs.includes(paneId)) {
-                showToast('ការពារសិទ្ធិ៖ មុខងារនេះសម្រាប់តែអ្នកគ្រប់គ្រងកម្មវិធី (Admin) ប៉ុណ្ណោះ!', 'warning');
+                showToast('ការពារសិទ្ធិ៖ មុខងារនេះសម្រាប់តែអ្នកគ្រប់គ្រងកម្មវិធី ប៉ុណ្ណោះ!', 'warning');
                 return;
             }
 
-            tabs.forEach(t => {
-                t.classList.remove('active');
-                t.style.borderBottomColor = 'transparent';
-                t.style.color = 'var(--text-muted)';
-                t.style.fontWeight = '600';
-            });
+            tabs.forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
-            tab.style.borderBottomColor = 'var(--primary-color)';
-            tab.style.color = 'var(--primary-color)';
-            tab.style.fontWeight = '700';
 
             const panes = document.querySelectorAll('#settings-view .settings-tab-pane');
             panes.forEach(pane => {
@@ -5514,7 +5683,6 @@ function initSettingsEvents() {
             if (descEl && tab.getAttribute('data-desc')) descEl.textContent = tab.getAttribute('data-desc');
             if (iconEl && tab.getAttribute('data-icon')) {
                 iconEl.innerHTML = `<i class="fa-solid ${tab.getAttribute('data-icon')}"></i>`;
-                if (tab.getAttribute('data-color')) iconEl.style.color = tab.getAttribute('data-color');
             }
 
             // Automatically exit fit screen when switching tabs if needed
@@ -5536,6 +5704,8 @@ function initSettingsEvents() {
                 if (typeof renderAuditLogs === 'function') renderAuditLogs();
             } else if (paneId === 'tab-org') {
                 if (typeof initOrgSettings === 'function') initOrgSettings();
+            } else if (paneId === 'tab-admins') {
+                if (typeof renderAccountList === 'function') renderAccountList();
             }
         });
     });
@@ -5552,7 +5722,7 @@ function initSettingsEvents() {
                 card.classList.toggle('fit-screen');
                 const isFit = card.classList.contains('fit-screen');
                 if (icon) icon.className = isFit ? 'fa-solid fa-minimize' : 'fa-solid fa-maximize';
-                if (txt) txt.textContent = isFit ? 'បង្រួមវិញ (Normal View)' : 'ពង្រីកពេញអេក្រង់ (Fit Screen)';
+                if (txt) txt.textContent = isFit ? 'បង្រួមវិញ' : 'ពង្រីកពេញអេក្រង់';
             }
         });
     }
@@ -5854,11 +6024,11 @@ function saveEvalThresholds() {
 // Request 2: Resolution Strategies Management across 5 Categories
 function loadResolutionStrategies() {
     const def = {
-        totalGuidance: '[លក្ខណៈវិនិច្ឆ័យ៖ ល្អណាស់ >=៥០ ករណី/ខែ | មធ្យម ១០-២៥ ករណី | មិនល្អ <១០ ករណី]\n១. ពង្រឹងយន្តការទទួលពាក្យបណ្ដឹងនៅគ្រប់មូលដ្ឋាន និងធ្វើទំនើបកម្មប្រព័ន្ធបែងចែកសំណុំរឿងរហ័ស (AI Dispatch) ដល់មន្ត្រីជំនាញ。\n២. បង្កើនការផ្សព្វផ្សាយជាសាធារណៈអំពីអត្ថប្រយោជន៍នៃការដោះស្រាយវិវាទក្រៅប្រព័ន្ធតុលាការ ដើម្បីលើកកម្ពស់ទំនុកចិត្តប្រជាពលរដ្ឋ。\n៣. រៀបចំកិច្ចសហការស្អិតរមួតជាមួយអាជ្ញាធរដែនដី និងរដ្ឋបាលឃុំ-សង្កាត់ ក្នុងការសម្របសម្រួល និងទទួលសំណុំរឿងពីមូលដ្ឋានផ្ទាល់។',
+        totalGuidance: '[លក្ខណៈវិនិច្ឆ័យ៖ ល្អណាស់ >=៥០ ករណី/ខែ | មធ្យម ១០-២៥ ករណី | មិនល្អ <១០ ករណី]\n១. ពង្រឹងយន្តការទទួលពាក្យបណ្ដឹងនៅគ្រប់មូលដ្ឋាន និងធ្វើទំនើបកម្មប្រព័ន្ធបែងចែកសំណុំរឿងរហ័ស ដល់មន្ត្រីជំនាញ。\n២. បង្កើនការផ្សព្វផ្សាយជាសាធារណៈអំពីអត្ថប្រយោជន៍នៃការដោះស្រាយវិវាទក្រៅប្រព័ន្ធតុលាការ ដើម្បីលើកកម្ពស់ទំនុកចិត្តប្រជាពលរដ្ឋ。\n៣. រៀបចំកិច្ចសហការស្អិតរមួតជាមួយអាជ្ញាធរដែនដី និងរដ្ឋបាលឃុំ-សង្កាត់ ក្នុងការសម្របសម្រួល និងទទួលសំណុំរឿងពីមូលដ្ឋានផ្ទាល់។',
         settleLow: '[លក្ខណៈវិនិច្ឆ័យ៖ ល្អណាស់ >=៥០% | ល្អ ៣០-៥០% | មធ្យម ២០-៣០% | មិនល្អ <២០%]\n១. លើកកម្ពស់បច្ចេកទេសចរចា និងចិត្តសាស្ត្រវិវាទដល់មន្ត្រីសម្រុះសម្រួល តាមរយៈវគ្គបណ្តុះបណ្តាលជាក់ស្តែង និងការចែករំលែកបទពិសោធន៍。\n២. រៀបចំកិច្ចប្រជុំត្រួតពិនិត្យ និងវិភាគចំណុចខ្វែងគំនិតគ្នាមុនពេលបើកសម័យប្រជុំផ្សះផ្សា ដើម្បីកំណត់ចំណុចរួមឱ្យបានច្បាស់លាស់。\n៣. ចុះសិក្សាស្រាវជ្រាវដល់ទីតាំងវិវាទផ្ទាល់ និងជួបប្រាស្រ័យជាមួយគូភាគីដាច់ដោយឡែក ដើម្បីស្វែងយល់ពីជំហរ និងមូលហេតុពិតប្រាកដ។',
-        activeHigh: '[លក្ខណៈវិនិច្ឆ័យ៖ ល្អណាស់ <=២០% | ល្អ ២០-៣៥% | មធ្យម ៣៥-៥០% | មិនល្អ >៥០%]\n១. រៀបចំកាលវិភាគប្រជុំសម្រុះសម្រួលឱ្យបានជាប់លាប់ និងកំណត់កាលបរិច្ឆេទគោលដៅដោះស្រាយបញ្ចប់សម្រាប់សំណុំរឿងនីមួយៗ。\n២. ចាត់ចែងបន្ថែមមន្ត្រីជំនួយការ ឬអ្នកច្បាប់ជំនាញក្នុងសំណុំរឿងដែលមានភាពស្មុគស្មាញខ្ពស់ (ដូចជាវិវាទដីធ្លី និងកិច្ចសន្យាពាណិជ្ជកម្ម)។\n៣. ដាក់ចេញប្រព័ន្ធតាមដាន (Red Flag Alert) លើសំណុំរឿងដែលដំណើរការលើសពី ៣០ ថ្ងៃ ដើម្បីជួយអន្តរាគមន៍ដោះស្រាយទាន់ពេលវេលា។',
+        activeHigh: '[លក្ខណៈវិនិច្ឆ័យ៖ ល្អណាស់ <=២០% | ល្អ ២០-៣៥% | មធ្យម ៣៥-៥០% | មិនល្អ >៥០%]\n១. រៀបចំកាលវិភាគប្រជុំសម្រុះសម្រួលឱ្យបានជាប់លាប់ និងកំណត់កាលបរិច្ឆេទគោលដៅដោះស្រាយបញ្ចប់សម្រាប់សំណុំរឿងនីមួយៗ。\n២. ចាត់ចែងបន្ថែមមន្ត្រីជំនួយការ ឬអ្នកច្បាប់ជំនាញក្នុងសំណុំរឿងដែលមានភាពស្មុគស្មាញខ្ពស់ (ដូចជាវិវាទដីធ្លី និងកិច្ចសន្យាពាណិជ្ជកម្ម)។\n៣. ដាក់ចេញប្រព័ន្ធតាមដាន លើសំណុំរឿងដែលដំណើរការលើសពី ៣០ ថ្ងៃ ដើម្បីជួយអន្តរាគមន៍ដោះស្រាយទាន់ពេលវេលា។',
         closeHigh: '[លក្ខណៈវិនិច្ឆ័យ៖ ល្អណាស់ <=១៥% | ល្អ ១៥-២៥% | មធ្យម ២៥-៤០% | មិនល្អ >៤០%]\n១. ធ្វើការវិភាគស៊ីជម្រៅលើមូលហេតុដែលនាំឱ្យបរាជ័យក្នុងការផ្សះផ្សា (មិនព្រមព្រៀង) ដើម្បីចងក្រងជាករណីសិក្សា និងកែលម្អយុទ្ធសាស្ត្រ。\n២. ផ្តល់ការពន្យល់ណែនាំអំពីនីតិវិធីផ្លូវច្បាប់បន្ត និងផលវិបាកនៃការបន្តវិវាទដល់គូភាគី ដើម្បីបញ្ចៀសអំពើហិង្សា និងរក្សាភាពស្ងប់ស្ងាត់。\n៣. បង្កើនយន្តការសហការជាមួយស្ថាប័នពាក់ព័ន្ធ និងអាជ្ញាធរមានសមត្ថកិច្ច ក្នុងការបន្តគ្រប់គ្រងសភាពការណ៍ និងរក្សាសន្តិសុខសង្គម។',
-        pendingHigh: '[លក្ខណៈវិនិច្ឆ័យ៖ ល្អណាស់ <=១០% | ល្អ ១០-២០% | មធ្យម ២០-៣០% | មិនល្អ >៣០%]\n១. ធ្វើសវនកម្ម និងពិនិត្យឡើងវិញជាប្រចាំនូវសំណុំរឿងដែលតម្កល់លើសពី ១៥ ថ្ងៃ និងធ្វើការទំនាក់ទំនងទៅភាគីដើម្បីសួរនាំជំហរថ្មី。\n២. កំណត់នីតិវិធីរដ្ឋបាលច្បាស់លាស់៖ ប្រសិនបើភាគីមិនទាក់ទងមកវិញ ឬបោះបង់ការតវ៉ាក្នុងរយៈពេលកំណត់ ត្រូវអនុវត្តនីតិវិធីបិទបញ្ជីសំណុំរឿង。\n៣. បង្កើតក្រុមការងារពិសេស (Task Force) ដើរពិនិត្យ និងជំរុញការដោះស្រាយសំណុំរឿងចាស់ៗដែលកកស្ទះ ដើម្បីសម្អាតបញ្ជីទិន្នន័យ។'
+        pendingHigh: '[លក្ខណៈវិនិច្ឆ័យ៖ ល្អណាស់ <=១០% | ល្អ ១០-២០% | មធ្យម ២០-៣០% | មិនល្អ >៣០%]\n១. ធ្វើសវនកម្ម និងពិនិត្យឡើងវិញជាប្រចាំនូវសំណុំរឿងដែលតម្កល់លើសពី ១៥ ថ្ងៃ និងធ្វើការទំនាក់ទំនងទៅភាគីដើម្បីសួរនាំជំហរថ្មី。\n២. កំណត់នីតិវិធីរដ្ឋបាលច្បាស់លាស់៖ ប្រសិនបើភាគីមិនទាក់ទងមកវិញ ឬបោះបង់ការតវ៉ាក្នុងរយៈពេលកំណត់ ត្រូវអនុវត្តនីតិវិធីបិទបញ្ជីសំណុំរឿង。\n៣. បង្កើតក្រុមការងារពិសេស ដើរពិនិត្យ និងជំរុញការដោះស្រាយសំណុំរឿងចាស់ៗដែលកកស្ទះ ដើម្បីសម្អាតបញ្ជីទិន្នន័យ។'
     };
     let strats = JSON.parse(localStorage.getItem('nadr_resolution_strategies')) || def;
     if (!strats.totalGuidance || !strats.totalGuidance.includes('លក្ខណៈវិនិច្ឆ័យ')) {
@@ -6007,7 +6177,7 @@ function renderMasterTableHeader() {
         <th class="freeze-col-5" style="width: 110px;" data-i18n="table.date">កាលបរិច្ឆេទ</th>
         <th style="width: 90px;" class="text-center" data-i18n="table.status">លទ្ធផលសំណុំរឿង</th>
         <th style="width: 170px;" class="text-center">ចំណាត់ការសំណុំរឿង</th>
-        <th style="width: 100px;">កម្មវិធី (Event)</th>
+        <th style="width: 100px;">កម្មវិធី</th>
         <th style="width: 120px;">កាលបរិច្ឆេទកម្មវិធី</th>
         <th style="min-width: 180px;">ភាគី (ក) ភាគីស្នើសុំ</th>
         <th style="min-width: 180px;">ភាគី (ខ) ភាគីម្ខាងទៀត</th>
@@ -6299,7 +6469,7 @@ function showWordFallbackText(fileObj) {
                 <div style="border-bottom: 2px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                     <div>
                         <h4 style="margin: 0; color: #1e293b; font-size: 18px; font-weight: 700;"><i class="fa-solid fa-file-lines text-info"></i> ${fileObj.name}</h4>
-                        <span style="font-size: 12px; color: #64748b;">ខ្លឹមសារអត្ថបទ (Text Document)</span>
+                        <span style="font-size: 12px; color: #64748b;">ខ្លឹមសារអត្ថបទ</span>
                     </div>
                     <a href="${fileObj.base64}" download="${fileObj.name}" class="btn btn-sm btn-primary" style="background: #0284c7; color: white; text-decoration: none; font-weight: 600; padding: 6px 14px; border-radius: 6px;"><i class="fa-solid fa-download"></i> ទាញយក</a>
                 </div>
@@ -6316,10 +6486,10 @@ function showWordFallbackText(fileObj) {
             </div>
             <h4 style="font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 12px;">ឯកសារ Microsoft Word (${fileObj.name})</h4>
             <p style="font-size: 15px; color: #64748b; max-width: 550px; margin: 0 auto 28px; line-height: 1.8;">
-                ឯកសារនេះជាទម្រង់ Microsoft Word ដើម។ សូមចុចប៊ូតុងខាងក្រោមដើម្បីទាញយក (Download) ទៅបើកអាន និងកែសម្រួលក្នុងកម្មវិធី Microsoft Word ឬ WPS Office លើកុំព្យូទ័រ/ទូរស័ព្ទរបស់លោកអ្នកបានយ៉ាងរលូន និងរក្សាទម្រង់ដើម ១០០%។
+                ឯកសារនេះជាទម្រង់ Microsoft Word ដើម។ សូមចុចប៊ូតុងខាងក្រោមដើម្បីទាញយក ទៅបើកអាន និងកែសម្រួលក្នុងកម្មវិធី Microsoft Word ឬ WPS Office លើកុំព្យូទ័រ/ទូរស័ព្ទរបស់លោកអ្នកបានយ៉ាងរលូន និងរក្សាទម្រង់ដើម ១០០%។
             </p>
             <a href="${fileObj.base64}" download="${fileObj.name}" class="btn btn-primary" style="background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; padding: 14px 32px; border-radius: 8px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; font-size: 15px; box-shadow: 0 4px 15px rgba(37,99,235,0.3);">
-                <i class="fa-solid fa-download"></i> ទាញយកឯកសារដើម (Open in MS Word)
+                <i class="fa-solid fa-download"></i> ទាញយកឯកសារដើម
             </a>
         </div>
     `;
@@ -6441,7 +6611,7 @@ function displayUniversalDocument(fileObj) {
         if (newTabBtn) {
             newTabBtn.href = fileObj.base64;
             newTabBtn.download = fileObj.name;
-            newTabBtn.innerHTML = '<i class="fa-solid fa-download"></i> ទាញយក (Open in Excel)';
+            newTabBtn.innerHTML = '<i class="fa-solid fa-download"></i> ទាញយក';
         }
 
         if (typeof XLSX !== 'undefined') {
@@ -6502,7 +6672,7 @@ function displayUniversalDocument(fileObj) {
             if (newTabBtn) {
                 newTabBtn.href = blobUrl;
                 newTabBtn.target = '_blank';
-                newTabBtn.innerHTML = '<i class="fa-solid fa-up-right-from-square"></i> បើកពេញផ្ទាំង (New Tab)';
+                newTabBtn.innerHTML = '<i class="fa-solid fa-up-right-from-square"></i> បើកពេញផ្ទាំង';
             }
         }
     }
@@ -6524,7 +6694,7 @@ function openPdfViewerModal(caseId) {
         name: c.pdfName || `${c.caseNumber}_document.pdf`,
         base64: c.attachedPdf,
         type: 'application/pdf',
-        category: 'ឯកសារដើម (Main Case File)',
+        category: 'ឯកសារដើម',
         caseId: caseId,
         infoText: `ដើមបណ្តឹង៖ <strong>${c.partyA_name}</strong> | ចុងបណ្តឹង៖ <strong>${c.partyB_name}</strong>`,
         canReplace: true,
@@ -7691,7 +7861,7 @@ window.addEventListener('load', () => {
             
             const maxBtn = document.createElement('button');
             maxBtn.className = 'btn btn-outline';
-            maxBtn.innerHTML = '<i class="fa-solid fa-expand"></i> ពង្រីក (Maximize)';
+            maxBtn.innerHTML = '<i class="fa-solid fa-expand"></i> ពង្រីក';
             maxBtn.style.marginLeft = '10px';
             
             maxBtn.onclick = function() {
@@ -7723,7 +7893,7 @@ window.restoreMaximizedSection = function(section, btnEl) {
     }
     const targetBtn = btnEl || section.__maxBtn;
     if (targetBtn) {
-        targetBtn.innerHTML = '<i class="fa-solid fa-expand"></i> <span>ពង្រីក (Maximize)</span>';
+        targetBtn.innerHTML = '<i class="fa-solid fa-expand"></i> <span>ពង្រីក</span>';
     }
     if (typeof applyZoom === 'function') applyZoom();
     requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
@@ -7745,8 +7915,9 @@ window.toggleSectionMaximize = function(sectionId, btnEl) {
         section.classList.add('fullscreen-overlay');
         document.body.appendChild(section);
         section.style.zoom = (typeof currentZoom !== 'undefined' ? String(currentZoom) : '0.8');
+        section.style.setProperty('--kt-zoom', section.style.zoom);
         if (section.__maxBtn) {
-            section.__maxBtn.innerHTML = '<i class="fa-solid fa-compress"></i> <span>បង្រួម (Minimize)</span>';
+            section.__maxBtn.innerHTML = '<i class="fa-solid fa-compress"></i> <span>បង្រួម</span>';
         }
         requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
     }
@@ -7770,9 +7941,11 @@ function applyZoom() {
     const scrollArea = document.getElementById('main-scroll-area');
     if (scrollArea) {
         scrollArea.style.zoom = currentZoom;
+        scrollArea.style.setProperty('--kt-zoom', currentZoom);
     }
     document.querySelectorAll('.view-section.fullscreen-overlay').forEach(sec => {
         sec.style.zoom = currentZoom;
+        sec.style.setProperty('--kt-zoom', currentZoom);
     });
 }
 
@@ -7809,6 +7982,7 @@ function updateBreadcrumb(viewId) {
     const targetNav = document.querySelector('.sidebar-nav .nav-item[data-view="' + viewId + '"]');
     let title = 'ទំព័រដើម';
     if (targetNav) title = targetNav.innerText.trim();
+    else if (viewId === 'profile-view') title = 'គណនីរបស់ខ្ញុំ';
     const isEn = (localStorage.getItem('nadr_app_lang') === 'en');
     const homeText = isEn ? 'Home' : 'ទំព័រដើម';
     breadcrumbPath.innerText = homeText + ' > ' + title;
@@ -8470,7 +8644,7 @@ function generatePhaseTrackerHTML(c, isModal = false) {
     <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
         <div>
             <input type="checkbox" id="ph_sync_status_${caseId}" checked> 
-            <label for="ph_sync_status_${caseId}" style="font-size: 12px; color: #64748b; cursor: pointer;">ធ្វើបច្ចុប្បន្នភាព លទ្ធផលសំណុំរឿង ស្វ័យប្រវត្តិ (Active/Completed)</label>
+            <label for="ph_sync_status_${caseId}" style="font-size: 12px; color: #64748b; cursor: pointer;">ធ្វើបច្ចុប្បន្នភាព លទ្ធផលសំណុំរឿង ស្វ័យប្រវត្តិ</label>
         </div>
         <button type="button" class="btn btn-primary btn-sm" onclick="savePhaseData('${caseId}', ${isModal})"><i class="fa-solid fa-save"></i> រក្សាទុកចំណាត់ការ</button>
     </div>
@@ -8479,7 +8653,7 @@ function generatePhaseTrackerHTML(c, isModal = false) {
     return `
         <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; margin-bottom: 24px;" id="phase-tracker-container-${caseId}">
             <h4 style="color: #1e293b; font-weight: 700; margin-top: 0; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
-                <span><i class="fa-solid fa-tasks text-primary"></i> វគ្គចំណាត់ការសំណុំរឿង (Case Action Phases)</span>
+                <span><i class="fa-solid fa-tasks text-primary"></i> វគ្គចំណាត់ការសំណុំរឿង</span>
                 <select id="ph_current_${caseId}" onchange="switchPhaseTab('${caseId}', this.value)" style="padding: 4px 8px; border-radius: 4px; border: 1px solid #cbd5e1; font-size: 13px;">
                     <option value="1" ${p===1 ? 'selected':''}>ស្ថិតក្នុងវគ្គទី ១ (ត្រៀមរៀបចំ)</option>
                     <option value="2" ${p===2 ? 'selected':''}>ស្ថិតក្នុងវគ្គទី ២ (សម្រុះសម្រួល)</option>
@@ -8491,3 +8665,327 @@ function generatePhaseTrackerHTML(c, isModal = false) {
         </div>
     `;
 }
+
+/* ==========================================================================
+   ANALYTICS EXTRAS — KPIs vs targets, data-driven findings, yearly comparison
+   ========================================================================== */
+window.analyticsScope = 'all';
+
+function anThresholds() {
+    const def = {
+        settle: { poor: 20, med: 30, good: 50 },
+        total: { poor: 10, med: 25, good: 50 },
+        active: { poor: 50, good: 35, exc: 20 },
+        close: { poor: 40, good: 25, exc: 15 },
+        pending: { poor: 30, good: 20, exc: 10 }
+    };
+    try {
+        const saved = JSON.parse(localStorage.getItem('nadr_eval_thresholds_all'));
+        if (saved && typeof saved === 'object') Object.keys(def).forEach(k => { def[k] = { ...def[k], ...(saved[k] || {}) }; });
+    } catch (e) { /* keep defaults */ }
+    return def;
+}
+
+const AN_LEVELS = [
+    { label: 'មិនល្អ', chip: 'kt-chip-red' },
+    { label: 'មធ្យម', chip: 'kt-chip-amber' },
+    { label: 'ល្អ', chip: 'kt-chip-blue' },
+    { label: 'ល្អណាស់', chip: 'kt-chip-green' }
+];
+
+/** Higher is better (poor < med < good). */
+function anLevelUp(v, t) { return v < t.poor ? 0 : v < t.med ? 1 : v < t.good ? 2 : 3; }
+/** Lower is better (poor > good > exc). */
+function anLevelDown(v, t) { return v > t.poor ? 0 : v > t.good ? 1 : v > t.exc ? 2 : 3; }
+
+function anScopeCases() {
+    return typeof getDashboardScopeCases === 'function' ? getDashboardScopeCases(window.analyticsScope) : (casesData || []);
+}
+
+function anMonthlyIntake(list) {
+    const today = new Date();
+    const from = new Date(today.getFullYear(), today.getMonth() - 11, 1);
+    const n = list.filter(c => { const d = dsbCaseDate(c); return d && d >= from && d <= today; }).length;
+    return +(n / 12).toFixed(1);
+}
+
+function renderAnalyticsKpis(list) {
+    const box = document.getElementById('an-kpis');
+    if (!box) return;
+    const t = anThresholds();
+    const r = dsbCount(list);
+    const pct = v => dsbPct(v, r.total);
+    const decided = r.settle + r.nosettle;
+    const kpis = [
+        { title: 'អត្រាព្រមព្រៀង', value: pct(r.settle), unit: '%', level: anLevelUp(pct(r.settle), t.settle), target: `គោលដៅល្អណាស់ ≥ ${t.settle.good}%`, sub: `${r.settle} នៃ ${r.total} សំណុំរឿង` },
+        { title: 'សំណុំរឿងចូលជាមធ្យមក្នុងមួយខែ', value: anMonthlyIntake(list), unit: '', level: anLevelUp(anMonthlyIntake(list), t.total), target: `គោលដៅល្អណាស់ ≥ ${t.total.good}`, sub: 'គិតលើ ១២ ខែចុងក្រោយ' },
+        { title: 'អត្រាកំពុងសម្រុះសម្រួល', value: pct(r.active), unit: '%', level: anLevelDown(pct(r.active), t.active), target: `គោលដៅល្អណាស់ ≤ ${t.active.exc}%`, sub: `${r.active} សំណុំរឿង` },
+        { title: 'អត្រាមិនព្រមព្រៀង', value: pct(r.nosettle), unit: '%', level: anLevelDown(pct(r.nosettle), t.close), target: `គោលដៅល្អណាស់ ≤ ${t.close.exc}%`, sub: `${r.nosettle} សំណុំរឿង` },
+        { title: 'អត្រាតម្កល់', value: pct(r.pending), unit: '%', level: anLevelDown(pct(r.pending), t.pending), target: `គោលដៅល្អណាស់ ≤ ${t.pending.exc}%`, sub: `${r.pending} សំណុំរឿង` }
+    ];
+    box.innerHTML = kpis.map(k => {
+        const lv = AN_LEVELS[k.level];
+        return `<div class="an-kpi lv-${k.level}">
+            <div class="an-kpi-title">${k.title}</div>
+            <div class="an-kpi-value">${k.value}<small>${k.unit}</small></div>
+            <span class="kt-chip ${lv.chip}">${lv.label}</span>
+            <div class="an-kpi-meter">${[0, 1, 2, 3].map(i => `<i class="${i <= k.level ? 'on' : ''}"></i>`).join('')}</div>
+            <div class="an-kpi-sub">${k.sub}</div>
+            <div class="an-kpi-target">${k.target}</div>
+        </div>`;
+    }).join('') + `<div class="an-kpi an-kpi-success">
+            <div class="an-kpi-title">អត្រាជោគជ័យ (ក្នុងចំណោមសំណុំរឿងចាត់ការរួច)</div>
+            <div class="an-kpi-value">${decided ? dsbPct(r.settle, decided) : 0}<small>%</small></div>
+            <div class="an-kpi-sub">ព្រមព្រៀង ${r.settle} · មិនព្រមព្រៀង ${r.nosettle}</div>
+        </div>` + (() => {
+        const st = anStats(list.filter(c => c.closedAt).map(caseResolutionDays).filter(d => d !== null));
+        return `<div class="an-kpi an-kpi-time"><div class="an-kpi-title">រយៈពេលដោះស្រាយជាមធ្យម</div>` +
+            (st ? `<div class="an-kpi-value">${st.avg}<small>ថ្ងៃ</small></div><div class="an-kpi-sub">មេដ្យាន ${st.median} ថ្ងៃ · ${st.n} សំណុំរឿងបិទ</div>` : `<div class="an-kpi-value">—</div><div class="an-kpi-sub">មិនទាន់មានសំណុំរឿងបិទ</div>`) + `</div>`;
+    })();
+}
+
+function anInsight(tone, icon, html, action) {
+    return { tone, icon, html, action };
+}
+
+function buildAnalyticsInsights(list) {
+    const out = [];
+    const t = anThresholds();
+    const r = dsbCount(list);
+    if (!r.total) return [anInsight('info', 'fa-circle-info', 'មិនទាន់មានទិន្នន័យសំណុំរឿងសម្រាប់វិភាគ')];
+
+    // 1. Overall settle rate vs target
+    const settleRate = dsbPct(r.settle, r.total);
+    const lvl = anLevelUp(settleRate, t.settle);
+    out.push(lvl >= 2
+        ? anInsight('good', 'fa-medal', `អត្រាព្រមព្រៀងបច្ចុប្បន្ន <b>${settleRate}%</b> ស្ថិតក្នុងកម្រិត <b>${AN_LEVELS[lvl].label}</b>។ ក្នុងចំណោមសំណុំរឿងដែលចាត់ការរួច <b>${dsbPct(r.settle, r.settle + r.nosettle)}%</b> បញ្ចប់ដោយការព្រមព្រៀង។`)
+        : anInsight('bad', 'fa-triangle-exclamation', `អត្រាព្រមព្រៀង <b>${settleRate}%</b> នៅទាបជាងគោលដៅ (${t.settle.med}%)។ គួរផ្ដោតលើសំណុំរឿងដែលកំពុងសម្រុះសម្រួលយូរ និងរៀបចំកិច្ចប្រជុំឱ្យបានញឹកញាប់។`));
+
+    // 2-4. Work queue findings (same rules as the dashboard)
+    const groups = getAttentionGroups(list);
+    const g = key => groups.find(x => x.key === key).items.length;
+    if (g('noevent')) out.push(anInsight('bad', 'fa-calendar-xmark', `មាន <b>${g('noevent')}</b> សំណុំរឿងកំពុងសម្រុះសម្រួល ប៉ុន្តែមិនទាន់មានកម្មវិធី (${dsbPct(g('noevent'), r.active)}% នៃសំណុំរឿងកំពុងសម្រុះសម្រួល)។ ការដាក់កាលវិភាគប្រជុំគឺជាជំហានចាំបាច់ដើម្បីបង្កើនអត្រាព្រមព្រៀង។`, 'noevent'));
+    if (g('past')) out.push(anInsight('warn', 'fa-hourglass-end', `មាន <b>${g('past')}</b> សំណុំរឿងដែលកម្មវិធីបានកន្លងផុត តែស្ថានភាពនៅតែ «កំពុងសម្រុះសម្រួល»។ សូមកត់ត្រាលទ្ធផលកិច្ចប្រជុំ ឬដាក់កម្មវិធីបន្ទាប់។`, 'past'));
+    if (g('pending')) out.push(anInsight('warn', 'fa-box-archive', `មាន <b>${g('pending')}</b> សំណុំរឿងតម្កល់យូរជាង ៩០ ថ្ងៃ។ គួរពិនិត្យថាអាចបន្តដំណើរការ ឬត្រូវបិទសំណុំរឿង។`, 'pending'));
+
+    // 5. Categories: best / weakest / most pending (only categories with at least 5 cases)
+    const byCat = {};
+    list.forEach(c => { const k = c.category || 'ផ្សេងៗ'; (byCat[k] = byCat[k] || dsbEmptyCounts()).total++; byCat[k][dsbStatusKey(c.status)]++; });
+    const cats = Object.entries(byCat).filter(([, v]) => v.total >= 5).map(([k, v]) => ({ k, v, settle: dsbPct(v.settle, v.total), pending: dsbPct(v.pending, v.total) }));
+    if (cats.length >= 2) {
+        const best = [...cats].sort((a, b) => b.settle - a.settle)[0];
+        const worst = [...cats].sort((a, b) => a.settle - b.settle)[0];
+        out.push(anInsight('good', 'fa-arrow-trend-up', `<b>${dsbEsc(best.k)}</b> មានអត្រាព្រមព្រៀងខ្ពស់ជាងគេ <b>${best.settle}%</b> (${best.v.settle}/${best.v.total})។`));
+        if (worst.k !== best.k) out.push(anInsight('warn', 'fa-arrow-trend-down', `<b>${dsbEsc(worst.k)}</b> មានអត្រាព្រមព្រៀងទាបជាងគេ <b>${worst.settle}%</b> (${worst.v.settle}/${worst.v.total})។ គួរពិនិត្យមូលហេតុ និងវិធីសម្រុះសម្រួលសម្រាប់ប្រភេទវិវាទនេះ។`));
+        const mostPending = [...cats].sort((a, b) => b.pending - a.pending)[0];
+        if (mostPending.pending >= t.pending.poor) out.push(anInsight('warn', 'fa-pause', `<b>${dsbEsc(mostPending.k)}</b> មានសំណុំរឿងតម្កល់ច្រើន <b>${mostPending.pending}%</b> (${mostPending.v.pending} សំណុំរឿង) លើសកម្រិត ${t.pending.poor}%។`));
+    }
+
+    // 6. Intake trend: last 3 months vs the 3 before
+    const today = new Date();
+    const monthsAgo = n => new Date(today.getFullYear(), today.getMonth() - n, 1);
+    const inRange = (a, b) => list.filter(c => { const d = dsbCaseDate(c); return d && d >= a && d < b; }).length;
+    const recent = inRange(monthsAgo(2), new Date(today.getFullYear(), today.getMonth() + 1, 1));
+    const before = inRange(monthsAgo(5), monthsAgo(2));
+    if (recent || before) {
+        const change = before ? Math.round(((recent - before) / before) * 100) : 100;
+        out.push(anInsight(change >= 0 ? 'info' : 'warn', change >= 0 ? 'fa-chart-line' : 'fa-arrow-trend-down', `សំណុំរឿងចូលក្នុង ៣ ខែចុងក្រោយមាន <b>${recent}</b> ធៀបនឹង <b>${before}</b> ក្នុង ៣ ខែមុននោះ (${change >= 0 ? '+' : ''}${change}%)។`));
+    }
+
+    // 7. Province concentration
+    const byProv = {};
+    list.forEach(c => { const p = c.disputeLocation || 'មិនបញ្ជាក់'; byProv[p] = (byProv[p] || 0) + 1; });
+    const topProv = Object.entries(byProv).sort((a, b) => b[1] - a[1])[0];
+    if (topProv) out.push(anInsight('info', 'fa-map-location-dot', `<b>${dsbEsc(topProv[0])}</b> មានសំណុំរឿងច្រើនជាងគេ <b>${topProv[1]}</b> (${dsbPct(topProv[1], r.total)}% នៃសរុប)។`));
+
+    // 8. Data quality
+    const assisting = list.filter(c => c.caseType === 'assisting');
+    const noLead = assisting.filter(c => !String(c.leadOfficer || '').trim()).length;
+    if (noLead) out.push(anInsight('info', 'fa-user-tie', `<b>${noLead}</b> សំណុំរឿងអម មិនទាន់បញ្ជាក់មន្ត្រីនាំមុខ។ សូមបំពេញនៅពេលកែសម្រួលសំណុំរឿង។`));
+
+    // 9. Resolution time: slowest category vs overall
+    const closedList = list.filter(c => c.closedAt && caseResolutionDays(c) !== null);
+    if (closedList.length >= 5) {
+        const overall = anStats(closedList.map(caseResolutionDays));
+        const perCat = {};
+        closedList.forEach(c => { (perCat[c.category || 'ផ្សេងៗ'] = perCat[c.category || 'ផ្សេងៗ'] || []).push(caseResolutionDays(c)); });
+        const slow = Object.entries(perCat).filter(([, v]) => v.length >= 3).map(([k, v]) => ({ k, st: anStats(v) })).sort((a, b) => b.st.avg - a.st.avg)[0];
+        out.push(anInsight('info', 'fa-stopwatch', `សំណុំរឿងបិទរួចប្រើរយៈពេលជាមធ្យម <b>${overall.avg}</b> ថ្ងៃ (មេដ្យាន ${overall.median} ថ្ងៃ)។` + (slow && slow.st.avg > overall.avg ? ` <b>${dsbEsc(slow.k)}</b> ប្រើពេលយូរជាងគេ <b>${slow.st.avg}</b> ថ្ងៃ។` : '')));
+    }
+    return out;
+}
+
+function renderAnalyticsInsights(list) {
+    const box = document.getElementById('an-insights');
+    if (!box) return;
+    box.innerHTML = buildAnalyticsInsights(list).map(i => `
+        <div class="an-insight tone-${i.tone}">
+            <span class="an-insight-icon"><i class="fa-solid ${i.icon}"></i></span>
+            <div class="an-insight-text">${i.html}</div>
+            ${i.action ? `<button type="button" class="kt-btn kt-btn-sm" onclick="switchView('dashboard-view'); setTimeout(() => document.getElementById('aq-grid')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 200);">មើលបញ្ជី</button>` : ''}
+        </div>`).join('');
+}
+
+function renderAnalyticsYearly(list) {
+    const tbody = document.getElementById('an-yearly-tbody');
+    if (!tbody) return;
+    const byYear = {};
+    list.forEach(c => {
+        const d = dsbCaseDate(c);
+        const y = d ? String(d.getFullYear()) : 'មិនមានកាលបរិច្ឆេទ';
+        (byYear[y] = byYear[y] || dsbEmptyCounts()).total++;
+        byYear[y][dsbStatusKey(c.status)]++;
+    });
+    const years = Object.keys(byYear).sort((a, b) => b.localeCompare(a));
+    tbody.innerHTML = years.map(y => {
+        const r = byYear[y];
+        const seg = (k, col) => r[k] ? `<div style="width:${dsbPct(r[k], r.total)}%;background:${col}"></div>` : '';
+        return `<tr>
+            <td><strong>${/^\d{4}$/.test(y) ? 'ឆ្នាំ ' + y : y}</strong></td>
+            <td class="tc"><span class="dsb-pill">${r.total}</span></td>
+            <td class="tc">${r.active}</td><td class="tc">${r.pending}</td><td class="tc">${r.settle}</td><td class="tc">${r.nosettle}</td>
+            <td class="tc"><strong>${dsbPct(r.settle, r.total)}%</strong></td>
+            <td class="tc"><span class="dsb-rate">${dsbSuccessRate(r)}</span></td>
+            <td><div class="dsb-stack">${seg('settle', '#10b981')}${seg('active', '#2563eb')}${seg('pending', '#f59e0b')}${seg('nosettle', '#ef4444')}</div></td>
+        </tr>`;
+    }).join('') || '<tr><td colspan="9" class="tc">គ្មានទិន្នន័យ</td></tr>';
+}
+
+
+/* Resolution time and assisting-officer analytics (uses closedAt from data.js). */
+function anStats(nums) {
+    if (!nums.length) return null;
+    const s = [...nums].sort((a, b) => a - b);
+    const mid = Math.floor(s.length / 2);
+    return {
+        n: s.length,
+        avg: Math.round(s.reduce((a, b) => a + b, 0) / s.length),
+        median: s.length % 2 ? s[mid] : Math.round((s[mid - 1] + s[mid]) / 2),
+        min: s[0],
+        max: s[s.length - 1]
+    };
+}
+
+function anOpenDays(c) {
+    const r = toIsoDay(c.dateReceived);
+    return r ? Math.max(0, Math.round((new Date(getTodayDateString()) - new Date(r)) / 86400000)) : null;
+}
+
+function renderAnalyticsDurations(list) {
+    const tbody = document.getElementById('an-dur-tbody');
+    if (!tbody) return null;
+    const closed = list.filter(c => c.closedAt && caseResolutionDays(c) !== null);
+    const overall = anStats(closed.map(caseResolutionDays));
+    const estimated = closed.filter(c => c.closedAtEstimated).length;
+    const note = document.getElementById('an-dur-note');
+    const unknown = list.filter(c => c.closedAtUnknown).length;
+    if (note) note.innerHTML = `គិតពីថ្ងៃទទួលពាក្យ ដល់ថ្ងៃបិទសំណុំរឿង · គណនាលើ ${closed.length} សំណុំរឿង${estimated ? ` (${estimated} ប៉ាន់ស្មានពីប្រវត្តិកម្មវិធី)` : ''}${unknown ? ` · <b>${unknown}</b> សំណុំរឿងបិទចាស់ៗមិនដឹងថ្ងៃបិទ (មិនរាប់បញ្ចូល)` : ''}`;
+
+    const byCat = {};
+    list.forEach(c => {
+        const k = c.category || 'ផ្សេងៗ';
+        byCat[k] = byCat[k] || { closed: [], open: [] };
+        const d = caseResolutionDays(c);
+        if (c.closedAt && d !== null) byCat[k].closed.push(d);
+        else if (!isClosedStatus(c.status)) { const o = anOpenDays(c); if (o !== null) byCat[k].open.push(o); }
+    });
+    const rows = Object.entries(byCat).map(([k, v]) => ({ k, st: anStats(v.closed), open: anStats(v.open) }))
+        .sort((a, b) => (b.st ? b.st.n : 0) - (a.st ? a.st.n : 0));
+    const maxAvg = Math.max(1, ...rows.map(r => r.st ? r.st.avg : 0));
+    tbody.innerHTML = rows.map(r => {
+        const st = r.st;
+        const diff = st && overall ? st.avg - overall.avg : 0;
+        const barColor = !st ? '#d6d3d1' : diff > overall.avg * 0.25 ? '#dc2626' : diff < -overall.avg * 0.25 ? '#059669' : '#2563eb';
+        return `<tr>
+            <td><strong>${dsbEsc(r.k)}</strong></td>
+            <td class="tc">${st ? st.n : 0}</td>
+            <td class="tc"><strong>${st ? st.avg : '—'}</strong></td>
+            <td class="tc">${st ? st.median : '—'}</td>
+            <td class="tc">${st ? st.min : '—'}</td>
+            <td class="tc">${st ? st.max : '—'}</td>
+            <td class="tc">${r.open ? `${r.open.avg} <span class="cl-muted">(${r.open.n})</span>` : '—'}</td>
+            <td>${st ? `<div class="dsb-stack" title="${st.avg} ថ្ងៃ"><div style="width:${dsbPct(st.avg, maxAvg)}%;background:${barColor}"></div></div>` : '<span class="cl-muted">មិនទាន់មានទិន្នន័យថ្ងៃបិទ</span>'}</td>
+        </tr>`;
+    }).join('') + (overall ? `<tr style="font-weight:800"><td>សរុបរួម</td><td class="tc">${overall.n}</td><td class="tc">${overall.avg}</td><td class="tc">${overall.median}</td><td class="tc">${overall.min}</td><td class="tc">${overall.max}</td><td></td><td></td></tr>` : '');
+    return overall;
+}
+
+function renderAnalyticsOfficers(list) {
+    const block = document.getElementById('an-officer-block');
+    const tbody = document.getElementById('an-officer-tbody');
+    if (!block || !tbody) return;
+    const assisting = list.filter(c => c.caseType === 'assisting');
+    block.style.display = assisting.length ? '' : 'none';
+    if (!assisting.length) return;
+    const by = {};
+    assisting.forEach(c => {
+        const k = (c.leadOfficer || '').trim() || 'មិនទាន់បញ្ជាក់';
+        (by[k] = by[k] || dsbEmptyCounts()).total++;
+        by[k][dsbStatusKey(c.status)]++;
+    });
+    tbody.innerHTML = Object.entries(by).sort((a, b) => b[1].total - a[1].total).map(([k, r]) => `<tr>
+        <td><strong>${dsbEsc(k)}</strong></td><td class="tc">${r.total}</td><td class="tc">${r.active}</td><td class="tc">${r.pending}</td>
+        <td class="tc">${r.settle}</td><td class="tc">${r.nosettle}</td><td class="tc"><span class="dsb-rate">${dsbSuccessRate(r)}</span></td></tr>`).join('');
+}
+
+function renderAnalyticsExtras() {
+    const list = anScopeCases();
+    renderAnalyticsKpis(list);
+    renderAnalyticsInsights(list);
+    renderAnalyticsYearly(list);
+    renderAnalyticsDurations(list);
+    renderAnalyticsOfficers(list);
+    const seg = document.getElementById('an-scope');
+    if (seg && !seg.dataset.bound) {
+        seg.dataset.bound = '1';
+        seg.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+            window.analyticsScope = b.dataset.scope;
+            seg.querySelectorAll('button').forEach(x => x.classList.toggle('active', x === b));
+            renderAnalyticsExtras();
+        }));
+    }
+}
+
+// Run the extras every time the existing analytics view renders.
+(function hookAnalytics() {
+    if (typeof renderAnalyticsView !== 'function' || renderAnalyticsView.__withExtras) return;
+    const original = renderAnalyticsView;
+    renderAnalyticsView = function () {
+        const result = original.apply(this, arguments);
+        try { renderAnalyticsExtras(); } catch (e) { console.error('Analytics extras failed:', e); }
+        return result;
+    };
+    renderAnalyticsView.__withExtras = true;
+})();
+
+/** Fill the lead-officer suggestions from user accounts and names already used in cases. */
+function refreshLeadOfficerOptions() {
+    const dl = document.getElementById('lead-officer-options');
+    if (!dl) return;
+    const names = new Set();
+    try { (JSON.parse(localStorage.getItem('nadr_admin_users')) || []).forEach(u => { if (u && u.name && u.status !== 'Inactive') names.add(String(u.name).trim()); }); } catch (e) { /* ignore */ }
+    (Array.isArray(casesData) ? casesData : []).forEach(c => { if (c.leadOfficer && String(c.leadOfficer).trim()) names.add(String(c.leadOfficer).trim()); });
+    dl.innerHTML = [...names].sort((a, b) => a.localeCompare(b)).map(n => `<option value="${n.replace(/"/g, '&quot;')}"></option>`).join('');
+}
+document.addEventListener('focusin', e => { if (e.target && e.target.id === 'intake-lead-officer') refreshLeadOfficerOptions(); });
+
+
+/** Let the user set or correct a case's closing date from the profile (YYYY-MM-DD). */
+function setCaseClosedDate(id) {
+    const c = getCaseById(id);
+    if (!c) return;
+    const v = prompt('បញ្ចូលថ្ងៃបិទសំណុំរឿង (ឆ្នាំ-ខែ-ថ្ងៃ ឧ. 2025-06-30)៖', c.closedAt || getTodayDateString());
+    if (v === null) return;
+    const iso = toIsoDay(v);
+    if (!iso) { showToast('ទម្រង់កាលបរិច្ឆេទមិនត្រឹមត្រូវ', 'error'); return; }
+    const received = toIsoDay(c.dateReceived);
+    if (received && iso < received) { showToast('ថ្ងៃបិទមិនអាចមុនថ្ងៃទទួលពាក្យបានទេ', 'error'); return; }
+    if (iso > getTodayDateString()) { showToast('ថ្ងៃបិទមិនអាចនៅថ្ងៃអនាគតបានទេ', 'error'); return; }
+    c.closedAt = iso;
+    delete c.closedAtEstimated;
+    delete c.closedAtUnknown;
+    saveCases();
+    showToast('បានរក្សាទុកថ្ងៃបិទសំណុំរឿង', 'success');
+    openViewModal(id);
+}
+window.setCaseClosedDate = setCaseClosedDate;

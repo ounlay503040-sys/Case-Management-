@@ -36,18 +36,18 @@ function initReportEvents() {
             try {
                 // Ensure proper PDF styling wrapper
                 printArea.innerHTML = `
-                    <div style="font-family: 'Kantumruy Pro', 'Battambang', sans-serif; background: #ffffff; padding: 20px;">
+                    <div class="${typeof window.cwPrintClass === 'function' ? window.cwPrintClass() : ''}" style="font-family: 'Kantumruy Pro', 'Battambang', sans-serif; background: #ffffff; padding: 20px;">
                         ${paper.innerHTML}
                     </div>
                 `;
 
                 // Strip dark mode before capture
-                const wasDark = document.body.classList.contains('dark-theme');
-                if (wasDark) document.body.classList.remove('dark-theme');
+                const wasDark = document.body.classList.contains('dark-theme') || document.documentElement.classList.contains('dark-theme'); const darkOnHtml = document.documentElement.classList.contains('dark-theme');
+                if (wasDark) { document.body.classList.remove('dark-theme'); document.documentElement.classList.remove('dark-theme'); }
 
                 let pdfBuffer;
                 if (window.electronAPI && window.electronAPI.generatePDF) {
-                    pdfBuffer = await window.electronAPI.generatePDF({ scale: 0.65 });
+                    pdfBuffer = await window.electronAPI.generatePDF(typeof window.cwPdfOptions === 'function' ? window.cwPdfOptions() : { scale: 0.65 });
                 } else {
                     // Fallback for Web mode
                     window.print();
@@ -57,7 +57,7 @@ function initReportEvents() {
                 }
                 
                 // Restore dark mode
-                if (wasDark) document.body.classList.add('dark-theme');
+                if (wasDark) { if (darkOnHtml) document.documentElement.classList.add('dark-theme'); else document.body.classList.add('dark-theme'); }
                 printArea.innerHTML = '';
 
                 if (pdfBuffer) {
@@ -77,7 +77,7 @@ function initReportEvents() {
                             type: 'application/pdf',
                             canReplace: false,
                             canDelete: false,
-                            infoText: '💡 គន្លឹះ៖ លោកអ្នកអាចទាញយក (Download) ឬ បោះពុម្ព (Print) ដោយផ្ទាល់ពីទីនេះបាន។'
+                            infoText: '💡 គន្លឹះ៖ លោកអ្នកអាចទាញយក ឬ បោះពុម្ព ដោយផ្ទាល់ពីទីនេះបាន។'
                         });
                         const modal = document.getElementById('pdf-viewer-modal');
                         if (modal) {
@@ -156,7 +156,7 @@ window.shareMasterTableToTelegramBot = async function() {
             </style>
         </head>
         <body>
-            <h2 style="font-family: 'Khmer OS Muol Light', serif;">តារាងបញ្ជីសំណុំរឿង (Master Case Directory)</h2>
+            <h2 style="font-family: 'Khmer OS Muol Light', serif;">តារាងបញ្ជីសំណុំរឿង</h2>
             ${styledHTML}
         </body>
         </html>
@@ -200,19 +200,19 @@ window.shareMasterTableToTelegramBot = async function() {
             if (printArea) {
                 printArea.innerHTML = `
                     <div style="font-family: 'Kantumruy Pro', 'Battambang', sans-serif; background: #ffffff; padding: 20px;">
-                        <h2 style="font-family: 'Khmer OS Muol Light', Moul, serif; text-align: center; color: #1e3a8a; margin-bottom: 20px; ">តារាងបញ្ជីសំណុំរឿង (Master Case Directory)</h2>
+                        <h2 style="font-family: 'Khmer OS Muol Light', Moul, serif; text-align: center; color: #1e3a8a; margin-bottom: 20px; ">តារាងបញ្ជីសំណុំរឿង</h2>
                         ${pdfStyledHTML}
                     </div>
                 `;
             }
 
-            const wasDark = document.body.classList.contains('dark-theme');
-            if (wasDark) document.body.classList.remove('dark-theme');
+            const wasDark = document.body.classList.contains('dark-theme') || document.documentElement.classList.contains('dark-theme'); const darkOnHtml = document.documentElement.classList.contains('dark-theme');
+            if (wasDark) { document.body.classList.remove('dark-theme'); document.documentElement.classList.remove('dark-theme'); }
 
             // Call generatePDF which will print the current window
             const pdfBuffer = await window.electronAPI.generatePDF({ scale: 0.65 });
             
-            if (wasDark) document.body.classList.add('dark-theme');
+            if (wasDark) { if (darkOnHtml) document.documentElement.classList.add('dark-theme'); else document.body.classList.add('dark-theme'); }
             // Clear print-area
             if (printArea) printArea.innerHTML = '';
 
@@ -236,7 +236,7 @@ window.shareMasterTableToTelegramBot = async function() {
         const tempContainer = document.createElement('div');
         tempContainer.innerHTML = `
             <div style="font-family: 'Kantumruy Pro', 'Battambang', sans-serif; padding: 10px; width: 1040px;">
-                <h2 style="font-family: 'Khmer OS Muol Light', Moul, serif; text-align: center; color: #1e3a8a; margin-bottom: 10px; ">តារាងបញ្ជីសំណុំរឿង (Master Case Directory)</h2>
+                <h2 style="font-family: 'Khmer OS Muol Light', Moul, serif; text-align: center; color: #1e3a8a; margin-bottom: 10px; ">តារាងបញ្ជីសំណុំរឿង</h2>
                 ${pdfStyledHTML}
             </div>
         `;
@@ -253,7 +253,7 @@ window.shareMasterTableToTelegramBot = async function() {
             const pdfBlob = await html2pdf().set(pdfOpt).from(tempContainer).outputPdf('blob');
             const successPdf = await sendTelegramDocument(pdfBlob, pdfFilename, captionPdf);
             if (successPdf) {
-                if (typeof showToast === 'function') showToast('បានផ្ញើឯកសារ Excel និង PDF ទៅ Telegram ជោគជ័យ (Web Mode)!', 'success');
+                if (typeof showToast === 'function') showToast('បានផ្ញើឯកសារ Excel និង PDF ទៅ Telegram ជោគជ័យ!', 'success');
             } else {
                 if (typeof showToast === 'function') showToast('ការបញ្ជូនឯកសារ PDF បរាជ័យ!', 'error');
             }
@@ -277,7 +277,7 @@ async function shareFilteredCasesToTelegram() {
     }
 
     const pdfClone = paper.cloneNode(true);
-    const hiddens = pdfClone.querySelectorAll('[style*="display: none"], .official-report-footer');
+    const hiddens = pdfClone.querySelectorAll('[style*="display: none"], .official-report-footer, .hide-on-export');
     hiddens.forEach(el => el.remove());
 
     const styleEl = document.createElement('style');
@@ -322,18 +322,18 @@ async function shareFilteredCasesToTelegram() {
             const printArea = document.getElementById('print-area');
             if (printArea) {
                 printArea.innerHTML = `
-                    <div style="font-family: 'Kantumruy Pro', 'Battambang', sans-serif; background: #ffffff;">
+                    <div class="${typeof window.cwPrintClass === 'function' ? window.cwPrintClass() : ''}" style="font-family: 'Kantumruy Pro', 'Battambang', sans-serif; background: #ffffff;">
                         ${pdfClone.innerHTML}
                     </div>
                 `;
             }
 
-            const wasDark = document.body.classList.contains('dark-theme');
-            if (wasDark) document.body.classList.remove('dark-theme');
+            const wasDark = document.body.classList.contains('dark-theme') || document.documentElement.classList.contains('dark-theme'); const darkOnHtml = document.documentElement.classList.contains('dark-theme');
+            if (wasDark) { document.body.classList.remove('dark-theme'); document.documentElement.classList.remove('dark-theme'); }
 
-            const pdfBuffer = await window.electronAPI.generatePDF({ scale: 0.65 });
+            const pdfBuffer = await window.electronAPI.generatePDF(typeof window.cwPdfOptions === 'function' ? window.cwPdfOptions() : { scale: 0.65 });
             
-            if (wasDark) document.body.classList.add('dark-theme');
+            if (wasDark) { if (darkOnHtml) document.documentElement.classList.add('dark-theme'); else document.body.classList.add('dark-theme'); }
             
             if (printArea) printArea.innerHTML = '';
 
@@ -406,11 +406,26 @@ function generateReport(silent = false) {
 
     currentReportType = type;
 
+    // Progress/statistics reports are cumulative (every case received up to the end of the
+    // chosen month), like the workbook. The weekly report scans all cases itself.
+    const CUMULATIVE = ['monthly-progress', 'evaluation', 'by-province', 'activities'];
+    const isCumulative = CUMULATIVE.includes(type);
+    const reportYear = monthYearVal ? monthYearVal.slice(0, 4) : new Date().toISOString().slice(0, 4);
+    const weekVal = document.getElementById('report-week')?.value || '';
+
     // Filter data
     let filtered = casesData.filter(c => {
-        if (startDate && c.dateReceived < startDate) return false;
+        if (c.isDraft) return false;
+        if (type === 'weekly' || type === 'monthly-flow' || type === 'period-cases') return true;
+        if (!isCumulative && startDate && c.dateReceived < startDate) return false;
         if (endDate && c.dateReceived > endDate) return false;
-        if (statusFilter !== 'ALL' && c.status !== statusFilter && !c.status.startsWith(statusFilter)) return false;
+        if (statusFilter !== 'ALL') {
+            const asOf = isCumulative && endDate ? endDate : '';
+            const k = typeof window.cwStatusAsOf === 'function' ? window.cwStatusAsOf(c, asOf) : '';
+            const want = { 'Active': 'active', 'Pending': 'pending', 'Settle': 'settle', 'No Settle': 'close' }[statusFilter.split(' (')[0]];
+            if (want && k) { if (k !== want) return false; }
+            else if (c.status !== statusFilter && !String(c.status).startsWith(statusFilter)) return false;
+        }
         return true;
     });
 
@@ -450,26 +465,39 @@ function generateReport(silent = false) {
     const genDateEl = document.getElementById('report-generated-date');
     const sigDateEl = document.getElementById('sig-current-date');
 
-    const todayStr = new Date().toLocaleDateString('km-KH', { year: 'numeric', month: 'long', day: 'numeric' });
+    const todayStr = typeof window.cwKhDate === 'function' ? window.cwKhDate() : new Date().toLocaleDateString('km-KH', { year: 'numeric', month: 'long', day: 'numeric' });
     if (genDateEl) genDateEl.innerText = `កាលបរិច្ឆេទបង្កើត៖ ${todayStr}`;
     if (sigDateEl) sigDateEl.innerText = `រាជធានីភ្នំពេញ, ${todayStr}`;
 
     let titleText = 'របាយការណ៍បញ្ជីសំណុំរឿង';
     if (type === 'monthly-progress') titleText = 'របាយការណ៍វឌ្ឍនភាពចំណាត់ការសំណុំរឿងប្រចាំខែ (Monthly Progress Report - ទម្រង់គំរូ PDF)';
-    else if (type === 'official-tracking') titleText = 'របាយការណ៍បញ្ជីតាមដានលទ្ធផលដោះស្រាយវិវាទ (Official Tracking)';
+    else if (type === 'official-tracking') titleText = 'របាយការណ៍បញ្ជីតាមដានលទ្ធផលដោះស្រាយវិវាទ';
     else if (type === 'summary') titleText = 'របាយការណ៍សង្ខេបស្ថិតិទូទៅ';
     else if (type === 'by-status') titleText = 'របាយការណ៍បែងចែកតាមលទ្ធផល';
     else if (type === 'by-category') titleText = 'របាយការណ៍បែងចែកតាមប្រភេទវិវាទ';
+    else if (type === 'period-cases' && typeof window.cwPeriodTitle === 'function') titleText = window.cwPeriodTitle();
+    else if (typeof window.cwReportTitle === 'function' && window.cwReportTitle(type)) titleText = window.cwReportTitle(type);
 
     if (titleEl) titleEl.innerText = titleText;
     if (subEl) {
-        if (monthYearVal) {
+        if (type === 'period-cases') {
+            const scope = document.getElementById('report-period-scope')?.value || 'personal';
+            subEl.innerText = (scope === 'personal' ? 'សំណុំរឿងផ្ទាល់ខ្លួន' : scope === 'assisting' ? 'សំណុំរឿងអម' : 'សំណុំរឿងផ្ទាល់ខ្លួន និងសំណុំរឿងអម') + ` · គិតត្រឹម${todayStr}`;
+        } else if (type === 'weekly' && typeof window.cwWeekRange === 'function') {
+            const r = window.cwWeekRange(weekVal);
+            subEl.innerText = typeof window.cwKhDate === 'function' ? `ចាប់ពី${window.cwKhDate(r.start)} ដល់${window.cwKhDate(r.end)}` : `${r.start} - ${r.end}`;
+        } else if (type === 'monthly-flow') {
+            subEl.innerText = (typeof window.cwKhYearMonth === 'function' ? `ប្រចាំឆ្នាំ${window.cwKhYearMonth(reportYear)}` : `ប្រចាំឆ្នាំ ${reportYear}`);
+        } else if (monthYearVal && isCumulative) {
             const [y, m] = monthYearVal.split('-');
-            subEl.innerText = `ប្រចាំខែទី ${m} ឆ្នាំ ${y}`;
+            subEl.innerText = (typeof window.cwKhDate === 'function' ? `គិតត្រឹម${window.cwKhDate(endDate < new Date().toISOString().slice(0, 10) ? endDate : undefined)}` : `គិតត្រឹមចុងខែទី ${m} ឆ្នាំ ${y}`);
+        } else if (monthYearVal) {
+            const [y, m] = monthYearVal.split('-');
+            subEl.innerText = (typeof window.cwKhYearMonth === 'function' ? `ប្រចាំ${window.cwKhYearMonth(y, m)}` : `ប្រចាំខែទី ${m} ឆ្នាំ ${y}`);
         } else if (startDate && endDate) {
             subEl.innerText = `ចាប់ពីថ្ងៃទី ${startDate} ដល់ ${endDate}`;
         } else {
-            subEl.innerText = `គិតត្រឹមថ្ងៃទី ${todayStr}`;
+            subEl.innerText = `គិតត្រឹម${todayStr}`;
         }
     }
 
@@ -482,7 +510,11 @@ function generateReport(silent = false) {
         return;
     }
 
-    if (type === 'monthly-progress') {
+    if (paper) paper.dataset.orient = typeof window.cwReportLayout === 'function' ? window.cwReportLayout(type) : 'landscape';
+    const cwHtml = type !== 'monthly-progress' && typeof window.cwRenderReport === 'function' ? window.cwRenderReport(type, filtered, { endDate, year: reportYear, week: weekVal }) : '';
+    if (cwHtml) {
+        bodyEl.innerHTML = cwHtml;
+    } else if (type === 'monthly-progress') {
         bodyEl.innerHTML = renderMonthlyProgressReportHTML(filtered);
     } else if (type === 'master-list') {
         bodyEl.innerHTML = renderMasterTableHTML(filtered);
@@ -494,6 +526,8 @@ function generateReport(silent = false) {
         bodyEl.innerHTML = renderByStatusHTML(filtered);
     } else if (type === 'by-category') {
         bodyEl.innerHTML = renderByCategoryHTML(filtered);
+    } else if (typeof window.cwRenderReport === 'function') {
+        bodyEl.innerHTML = window.cwRenderReport(type, filtered, { endDate, year: reportYear, week: weekVal });
     }
 
     if (!silent) {
@@ -508,9 +542,17 @@ function renderMonthlyProgressReportHTML(dataArray) {
     const officerName = localStorage.getItem('nadr_user_profile_name') || document.getElementById('header-user-name')?.innerText || 'ឡាយ អូន';
     const monthYearVal = document.getElementById('report-month-year')?.value || '';
     const now = monthYearVal ? new Date(monthYearVal + '-01') : new Date();
-    const monthsKm = ['មករា', 'កុមភៈ', 'មីនា', 'មេសា', 'ឧសភា', 'មិថុនា', 'កក្កដា', 'សីហា', 'កញ្ញា', 'តុលា', 'វិច្ឆិកា', 'ធ្នូ'];
+    // "As of" day: end of the chosen month, or today if that is earlier.
+    const todayIsoStr = new Date().toISOString().slice(0, 10);
+    let asOfIso = todayIsoStr;
+    if (monthYearVal) {
+        const endIso = new Date(Date.UTC(now.getFullYear(), now.getMonth() + 1, 0)).toISOString().slice(0, 10);
+        if (endIso < todayIsoStr) asOfIso = endIso;
+    }
+    const stOf = c => (typeof window.cwStatusAsOf === 'function' ? window.cwStatusAsOf(c, asOfIso) : null);
+    const monthsKm = ['មករា', 'កុម្ភៈ', 'មីនា', 'មេសា', 'ឧសភា', 'មិថុនា', 'កក្កដា', 'សីហា', 'កញ្ញា', 'តុលា', 'វិច្ឆិកា', 'ធ្នូ'];
     const monthStr = `${monthsKm[now.getMonth()]} (${now.toLocaleDateString('en-US', { month: 'long' })})`;
-    const todayStr = `${now.getDate().toString().padStart(2, '0')}-${(now.getMonth()+1).toString().padStart(2, '0')}-${now.getFullYear().toString().slice(2)}`;
+    const todayStr = `${asOfIso.slice(8, 10)}-${asOfIso.slice(5, 7)}-${asOfIso.slice(2, 4)}`;
 
     // Split cases
     const personalCases = dataArray.filter(c => (c.caseType || 'personal') === 'personal');
@@ -523,6 +565,8 @@ function renderMonthlyProgressReportHTML(dataArray) {
     let invCount = 0;
 
     personalCases.forEach(c => {
+        const k = stOf(c);
+        if (k) { if (k === 'settle') settleCount++; else if (k === 'close') invCount++; else activeCount++; return; }
         if (c.status.startsWith('Settle') || (c.status.includes('ព្រមព្រៀង') && !c.status.includes('មិនព្រមព្រៀង'))) {
             settleCount++;
         } else if (c.status.startsWith('Close') || c.status.includes('បិទ') || c.status.includes('មិនព្រមព្រៀង')) {
@@ -537,20 +581,7 @@ function renderMonthlyProgressReportHTML(dataArray) {
             <div class="hide-on-export" style="text-align: center; margin-bottom: 15px;">
                 <h3 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif;  font-weight: normal; color: #1e3a8a; margin: 0 0 4px 0;">ព្រះរាជាណាចក្រកម្ពុជា</h3>
                 <h4 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif;  font-weight: normal; color: #1e3a8a; margin: 0 0 15px 0;">ជាតិ សាសនា ព្រះមហាក្សត្រ</h4>
-                <div style="margin-bottom: 15px; display: flex; justify-content: center; align-items: center;">
-                    <svg width="250" height="20" viewBox="0 0 250 20" xmlns="http://www.w3.org/2000/svg" style="fill: #1e3a8a;">
-                        <line x1="0" y1="10" x2="80" y2="10" stroke="#1e3a8a" stroke-width="1.5"/>
-                        <line x1="170" y1="10" x2="250" y2="10" stroke="#1e3a8a" stroke-width="1.5"/>
-                        <polygon points="85,10 88,7 91,10 88,13" />
-                        <polygon points="95,10 98,6 101,10 98,14" />
-                        <polygon points="165,10 162,7 159,10 162,13" />
-                        <polygon points="155,10 152,6 149,10 152,14" />
-                        <path d="M105,10 C110,3 118,3 120,10 C118,17 110,17 105,10" />
-                        <path d="M145,10 C140,3 132,3 130,10 C132,17 140,17 145,10" />
-                        <circle cx="125" cy="10" r="3.5" fill="none" stroke="#1e3a8a" stroke-width="1.5"/>
-                        <circle cx="125" cy="10" r="1.5" />
-                    </svg>
-                </div>
+                ${typeof window.nadrOrnamentHTML === 'function' ? window.nadrOrnamentHTML(200, 'margin: 0 auto 15px auto;') : ''}
             </div>
             <div style="text-align: center; margin-bottom: 15px;">
                 <h2 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif;  font-weight: normal; color: #0f172a; margin: 0 0 8px 0; line-height: 1.6;">របាយការណ៍វឌ្ឍនភាពចំណាត់ការសំណុំរឿងរបស់ ម.ស.វ. ឈ្មោះ <span contenteditable="true" style="color: #dc2626; font-weight: normal; border-bottom: 1px dashed #dc2626; padding: 0 4px;">${officerName}</span></h2>
@@ -610,10 +641,21 @@ function renderMonthlyProgressReportHTML(dataArray) {
                 </tr>
     `;
 
+    const esc = v => String(v == null ? '' : v).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+    const officerCell = c => {
+        if (c.caseType === 'assisting') return c.leadOfficer || 'គ្មាន';
+        const list = typeof window.cwOfficersOf === 'function' ? window.cwOfficersOf(c) : [];
+        return list.length ? list.join(', ') : 'គ្មាន';
+    };
     const generateRow = (c, idx) => {
         let statusText = c.status;
         let rowBg = '#ffffff';
-        if (c.status.startsWith('Settle') || (c.status.includes('ព្រមព្រៀង') && !c.status.includes('មិនព្រមព្រៀង'))) {
+        const k = stOf(c);
+        if (k === 'settle') { statusText = 'ព្រមព្រៀងបញ្ចប់វិវាទ'; rowBg = '#dcfce7'; }
+        else if (k === 'close') { statusText = 'បិទសំណុំរឿង'; rowBg = '#ffedd5'; }
+        else if (k === 'pending') { statusText = 'កំពុងសម្រុះសម្រួល'; rowBg = '#f1f5f9'; }
+        else if (k) { statusText = 'កំពុងសម្រុះសម្រួល'; rowBg = '#93c5fd'; }
+        else if (c.status.startsWith('Settle') || (c.status.includes('ព្រមព្រៀង') && !c.status.includes('មិនព្រមព្រៀង'))) {
             statusText = 'ព្រមព្រៀងបញ្ចប់វិវាទ';
             rowBg = '#dcfce7'; // Pastel Green
         } else if (c.status.startsWith('Close') || c.status.includes('បិទ') || c.status.includes('មិនព្រមព្រៀង')) {
@@ -643,11 +685,11 @@ function renderMonthlyProgressReportHTML(dataArray) {
                     <strong style="color: #1e3a8a;">${c.category}</strong><br>
                     <span style="color: #475569;">${c.disputeLocation || '-'}</span>
                 </td>
-                <td style="padding: 6px; border: 1px solid #cbd5e1;">${c.meetingPartyA || 'បានប្រមូលព័ត៌មានភាគីសន្និដ្ឋានរួចរាល់'}</td>
-                <td style="padding: 6px; border: 1px solid #cbd5e1;">${c.meetingPartyB || 'បានប្រមូលព័ត៌មានភាគីម្ខាងទៀតរួចរាល់'}</td>
-                <td style="padding: 6px; font-weight: 600; color: #1d4ed8; border: 1px solid #cbd5e1;">${c.mediationMeeting || 'បានប្រជុំសម្រុះសម្រួលរួចរាល់'}</td>
-                <td style="padding: 6px; text-align: center; border: 1px solid #cbd5e1;">${c.assistingOfficer || 'គ្មាន'}</td>
-                <td style="padding: 6px; text-align: center; border: 1px solid #cbd5e1;">${c.remarks || 'គ្មាន'}</td>
+                <td style="padding: 6px; border: 1px solid #cbd5e1;">${esc(typeof window.cwNormMeeting === 'function' ? window.cwNormMeeting('a', c.meetingPartyA) : (c.meetingPartyA || 'មិនទាន់ប្រជុំ'))}</td>
+                <td style="padding: 6px; border: 1px solid #cbd5e1;">${esc(typeof window.cwNormMeeting === 'function' ? window.cwNormMeeting('b', c.meetingPartyB) : (c.meetingPartyB || 'មិនទាន់ប្រជុំ'))}</td>
+                <td style="padding: 6px; font-weight: 600; color: #1d4ed8; border: 1px solid #cbd5e1;">${esc(typeof window.cwNormMeeting === 'function' ? window.cwNormMeeting('m', c.mediationMeeting) : (c.mediationMeeting || 'មិនទាន់ប្រជុំ'))}</td>
+                <td style="padding: 6px; text-align: center; border: 1px solid #cbd5e1;">${esc(officerCell(c))}</td>
+                <td style="padding: 6px; text-align: center; border: 1px solid #cbd5e1;">${esc(c.challengesNote || 'គ្មាន')}</td>
             </tr>
         `;
     };
@@ -705,21 +747,8 @@ function renderOfficialTrackingReportHTML(dataArray) {
         <div style="text-align: center; margin-bottom: 20px; font-family: inherit;">
             <h3 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif;  font-weight: normal; color: #1e3a8a; margin: 0 0 4px 0;">ព្រះរាជាណាចក្រកម្ពុជា</h3>
             <h4 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif;  font-weight: normal; color: #1e3a8a; margin: 0 0 10px 0;">ជាតិ សាសនា ព្រះមហាក្សត្រ</h4>
-            <div style="margin-bottom: 15px; display: flex; justify-content: center; align-items: center;">
-                <svg width="250" height="20" viewBox="0 0 250 20" xmlns="http://www.w3.org/2000/svg" style="fill: #1e3a8a;">
-                    <line x1="0" y1="10" x2="80" y2="10" stroke="#1e3a8a" stroke-width="1.5"/>
-                    <line x1="170" y1="10" x2="250" y2="10" stroke="#1e3a8a" stroke-width="1.5"/>
-                    <polygon points="85,10 88,7 91,10 88,13" />
-                    <polygon points="95,10 98,6 101,10 98,14" />
-                    <polygon points="165,10 162,7 159,10 162,13" />
-                    <polygon points="155,10 152,6 149,10 152,14" />
-                    <path d="M105,10 C110,3 118,3 120,10 C118,17 110,17 105,10" />
-                    <path d="M145,10 C140,3 132,3 130,10 C132,17 140,17 145,10" />
-                    <circle cx="125" cy="10" r="3.5" fill="none" stroke="#1e3a8a" stroke-width="1.5"/>
-                    <circle cx="125" cy="10" r="1.5" />
-                </svg>
-            </div>
-            <h2 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif;  font-weight: normal; color: #0f172a; margin: 0 0 6px 0;">តារាងតាមដានលទ្ធផលនៃការដោះស្រាយវិវាទ (Official Case Tracking & Outcome Report)</h2>
+            ${typeof window.nadrOrnamentHTML === 'function' ? window.nadrOrnamentHTML(200, 'margin: 0 auto 15px auto;') : ''}
+            <h2 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif;  font-weight: normal; color: #0f172a; margin: 0 0 6px 0;">តារាងតាមដានលទ្ធផលនៃការដោះស្រាយវិវាទ</h2>
             <p style=" color: #475569; margin: 0;">អាជ្ញាធរជាតិដោះស្រាយវិវាទ - អគ្គលេខាធិការដ្ឋាន</p>
         </div>
         <table style="width: 100%; border-collapse: collapse;  margin-top: 15px; font-family: inherit;" border="1">
@@ -731,8 +760,8 @@ function renderOfficialTrackingReportHTML(dataArray) {
                     <th rowspan="2" style="padding: 8px 6px; border: 1px solid #ca8a04; vertical-align: middle;">ចុងបណ្ដឹង (ភាគី ខ)</th>
                     <th rowspan="2" style="padding: 8px 6px; width: 110px; border: 1px solid #ca8a04; vertical-align: middle;">ប្រភេទវិវាទ</th>
                     <th rowspan="2" style="padding: 8px 6px; width: 80px; border: 1px solid #ca8a04; vertical-align: middle;">ទីតាំងវិវាទ</th>
-                    <th colspan="3" style="padding: 6px 0; border: 1px solid #ca8a04; background: #facc15;">ដំណើរការនីតិវិធីសម្រុះសម្រួល (Procedure & Action)</th>
-                    <th rowspan="2" style="padding: 8px 6px; width: 100px; border: 1px solid #ca8a04; vertical-align: middle;">លទ្ធផល (Status)</th>
+                    <th colspan="3" style="padding: 6px 0; border: 1px solid #ca8a04; background: #facc15;">ដំណើរការនីតិវិធីសម្រុះសម្រួល</th>
+                    <th rowspan="2" style="padding: 8px 6px; width: 100px; border: 1px solid #ca8a04; vertical-align: middle;">លទ្ធផល</th>
                     <th rowspan="2" style="padding: 8px 6px; width: 90px; border: 1px solid #ca8a04; vertical-align: middle;">កំណត់សម្គាល់</th>
                 </tr>
                 <tr style="background: #fef08a; color: #1e293b; text-align: center; font-weight: 700; border: 1px solid #ca8a04;">
@@ -808,7 +837,7 @@ function renderOfficialTrackingReportHTML(dataArray) {
             </tbody>
             <tfoot style="background: #f8fafc; font-weight: 800; border: 2px solid #0f172a; color: #0f172a;">
                 <tr>
-                    <td colspan="9" style="padding: 10px 15px; text-align: right; border: 1px solid #cbd5e1;">សរុបលទ្ធផលរួម (Total Summary)៖</td>
+                    <td colspan="9" style="padding: 10px 15px; text-align: right; border: 1px solid #cbd5e1;">សរុបលទ្ធផលរួម៖</td>
                     <td colspan="2" style="padding: 10px; text-align: left; border: 1px solid #cbd5e1; ">
                         <span style="color: #2563eb;">កំពុងដោះស្រាយ៖ ${totActive}</span> | 
                         <span style="color: #16a34a;">ព្រមព្រៀង៖ ${totSettle}</span> | 
@@ -902,7 +931,7 @@ function renderSummaryReportHTML(dataArray) {
                     </ul>
                 </div>
                 <div style="border: 1px solid #ddd; padding: 15px; border-radius: 6px; background: #f8fafc;">
-                    <h4 style="margin-bottom: 10px; color: #2563eb;">ស្ថិតិតាមទីតាំងវិវាទ (Top Provinces)</h4>
+                    <h4 style="margin-bottom: 10px; color: #2563eb;">ស្ថិតិតាមទីតាំងវិវាទ</h4>
                     <ul style="list-style: none; padding: 0; line-height: 1.8;">
     `;
 
@@ -990,7 +1019,7 @@ function renderByCategoryHTML(dataArray) {
 /**
  * EXCEL EXPORT - Renders content to Excel (.xls) compatible HTML
  */
-function exportReportToExcel() {
+function exportReportToExcel(opts) {
     const paper = document.getElementById('report-content');
     if (!paper || paper.style.display === 'none') {
         showToast('សូមបង្កើតរបាយការណ៍ជាមុនសិន មុននឹងទាញយកជា Excel!', 'warning');
@@ -1000,7 +1029,7 @@ function exportReportToExcel() {
     const clone = paper.cloneNode(true);
     
     // Remove elements that were dynamically hidden
-    const hiddens = clone.querySelectorAll('[style*="display: none"], .official-report-footer');
+    const hiddens = clone.querySelectorAll('[style*="display: none"], .official-report-footer, .hide-on-export');
     hiddens.forEach(el => el.remove());
     
     // Format tables for Excel rendering
@@ -1043,6 +1072,7 @@ function exportReportToExcel() {
                 table { border-collapse: collapse; }
                 td, th { vertical-align: middle; white-space: normal; }
                 h1, h2, h3, h4, th { font-family: 'Khmer OS Muol Light', serif; }
+                ${typeof window.cwExportCss === 'function' ? window.cwExportCss() : ''}
             </style>
         </head>
         <body>
@@ -1051,11 +1081,14 @@ function exportReportToExcel() {
         </html>
     `;
 
-    const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), excelHTML], { type: 'application/vnd.ms-excel;charset=utf-8' });
+    // with the ornament picture the file is saved as a single-file web page (Excel opens it as a workbook)
+    const blob = typeof window.nadrOfficeBlob === 'function' ? window.nadrOfficeBlob(excelHTML, 'excel') : new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), excelHTML], { type: 'application/vnd.ms-excel;charset=utf-8' });
+    const xlsName = `${fileNameText}_${new Date().toISOString().slice(0, 10)}.xls`;
+    if (opts && opts.returnBlob) return { blob, name: xlsName };
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${fileNameText}_${new Date().toISOString().slice(0, 10)}.xls`;
+    a.download = xlsName;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -1104,7 +1137,7 @@ function exportReportToCSV() {
 /**
  * Export current report to Word (.doc) with Khmer font support and proper table formatting
  */
-function exportReportToWord() {
+function exportReportToWord(opts) {
     const paper = document.getElementById('report-content');
     if (!paper || paper.style.display === 'none') {
         showToast('សូមបង្កើតរបាយការណ៍ជាមុនសិន មុននឹងទាញយកជាឯកសារ Word!', 'warning');
@@ -1114,7 +1147,7 @@ function exportReportToWord() {
     const clone = paper.cloneNode(true);
     
     // Remove elements that were dynamically hidden or marked to hide
-    const hiddens = clone.querySelectorAll('[style*="display: none"], .official-report-footer');
+    const hiddens = clone.querySelectorAll('[style*="display: none"], .official-report-footer, .hide-on-export');
     hiddens.forEach(el => el.remove());
     
     // Format tables for Word rendering
@@ -1180,6 +1213,7 @@ function exportReportToWord() {
     const titleEl = document.getElementById('report-header-title');
     const fileNameText = titleEl ? titleEl.innerText.replace(/[^a-zA-Z0-9ក-ឤ០-៩]/g, '_') : 'NADR_Report';
     
+    const wordPortrait = typeof window.cwReportLayout === 'function' && window.cwReportLayout(currentReportType) === 'portrait';
     const wordDocHTML = `
         <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
         <head>
@@ -1187,8 +1221,8 @@ function exportReportToWord() {
             <title>${titleEl ? titleEl.innerText : 'របាយការណ៍'}</title>
             <style>
                 @page WordSection1 {
-                    size: 841.9pt 595.3pt; /* A4 Landscape */
-                    mso-page-orientation: landscape;
+                    size: ${wordPortrait ? '595.3pt 841.9pt' : '841.9pt 595.3pt'};
+                    mso-page-orientation: ${wordPortrait ? 'portrait' : 'landscape'};
                     margin: 0.5in 0.5in 0.5in 0.5in;
                     mso-header-margin: 0.5in;
                     mso-footer-margin: 0.5in;
@@ -1265,6 +1299,7 @@ function exportReportToWord() {
                 .signature-space {
                     height: 80px;
                 }
+                ${typeof window.cwExportCss === 'function' ? window.cwExportCss() : ''}
             </style>
         </head>
         <body>
@@ -1275,14 +1310,54 @@ function exportReportToWord() {
         </html>
     `;
     
-    const blob = new Blob(['\ufeff', wordDocHTML], { type: 'application/msword' });
+    const blob = typeof window.nadrOfficeBlob === 'function' ? window.nadrOfficeBlob(wordDocHTML, 'word') : new Blob([String.fromCharCode(0xFEFF), wordDocHTML], { type: 'application/msword' });
+    const docName = `${fileNameText}_${new Date().toISOString().slice(0, 10)}.doc`;
+    if (opts && opts.returnBlob) return { blob, name: docName };
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${fileNameText}_${new Date().toISOString().slice(0, 10)}.doc`;
+    link.download = docName;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
     showToast('បានទាញយករបាយការណ៍ជាឯកសារ Word ដោយជោគជ័យ!', 'success');
 }
+
+/**
+ * The report on screen as a PDF file ({blob, name}) — same page setup as the PDF button.
+ * Used by the Telegram send dialog.
+ */
+window.nadrReportPdfBlob = async function () {
+    const paper = document.getElementById('report-content');
+    const printArea = document.getElementById('print-area');
+    if (!paper || paper.style.display === 'none' || !printArea) throw new Error('សូមបង្កើតរបាយការណ៍ជាមុនសិន');
+    const titleEl = document.getElementById('report-header-title');
+    let base = titleEl ? titleEl.innerText.replace(/[^a-zA-Z0-9]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '') : '';
+    if (!base) base = 'NADR_Report';
+    const name = `${base}_${new Date().toISOString().slice(0, 10)}.pdf`;
+    const clone = paper.cloneNode(true);
+    clone.querySelectorAll('[style*="display: none"]').forEach(el => el.remove());
+    const html = document.documentElement;
+    const wasDark = html.classList.contains('dark-theme') || document.body.classList.contains('dark-theme');
+    const darkOnHtml = html.classList.contains('dark-theme');
+    if (wasDark) { html.classList.remove('dark-theme'); document.body.classList.remove('dark-theme'); }
+    printArea.innerHTML = `<div class="${typeof window.cwPrintClass === 'function' ? window.cwPrintClass() : ''}" style="font-family: 'Kantumruy Pro', 'Battambang', sans-serif; background: #ffffff;">${clone.innerHTML}</div>`;
+    try {
+        if (window.electronAPI && window.electronAPI.generatePDF) {
+            const buf = await window.electronAPI.generatePDF(typeof window.cwPdfOptions === 'function' ? window.cwPdfOptions() : { scale: 0.65 });
+            return { blob: new Blob([buf], { type: 'application/pdf' }), name };
+        }
+        if (typeof html2pdf !== 'undefined') {
+            const box = document.createElement('div');
+            box.style.width = '1040px';
+            box.innerHTML = clone.innerHTML;
+            const blob = await html2pdf().set({ margin: 10, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' } }).from(box).outputPdf('blob');
+            return { blob, name };
+        }
+        throw new Error('PDF មិនអាចបង្កើតបានលើកុំព្យូទ័រនេះទេ');
+    } finally {
+        printArea.innerHTML = '';
+        if (wasDark) { if (darkOnHtml) html.classList.add('dark-theme'); else document.body.classList.add('dark-theme'); }
+    }
+};
