@@ -3016,7 +3016,7 @@ function previewDoc(type) {
     <div class="text-center font-bold space-y-1 mb-4" style="line-height:1.6;">
       <div style="font-size:14px; font-weight:800;">ព្រះរាជាណាចក្រកម្ពុជា</div>
       <div style="font-size:12px; font-weight:700;">ជាតិ សាសនា ព្រះមហាក្សត្រ</div>
-      <div style="font-size:16px;">***</div>
+      ${typeof window.nadrOrnamentHTML === 'function' ? window.nadrOrnamentHTML(170) : ''}
     </div>
     <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; font-size:12px;">
       <div><strong>អាជ្ញាធរជាតិដោះស្រាយវិវាទក្រៅប្រព័ន្ធតុលាការ (អ.ដ.ក.)</strong><br>សំណុំរឿងលេខ៖ <strong>${code}</strong></div>
@@ -4695,7 +4695,7 @@ function printSingleDossier(c) {
             <div style="text-align: center; margin-bottom: 24px;">
                 <h3 style="font-size: 16pt; font-weight: 700;">ព្រះរាជាណាចក្រកម្ពុជា</h3>
                 <h4 style="font-size: 13pt; font-weight: 700;">ជាតិ សាសនា ព្រះមហាក្សត្រ</h4>
-                <div style="width: 100px; height: 2px; background: #000; margin: 6px auto;"></div>
+                ${typeof window.nadrOrnamentHTML === 'function' ? window.nadrOrnamentHTML(170) : ''}
                 <h2 style="font-size: 15pt; font-weight: 700; margin-top: 16px;">ប័ណ្ណព័ត៌មានសំណុំរឿង និងចំណាត់ការដោះស្រាយ</h2>
             </div>
             <table style="width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12pt;" border="1">

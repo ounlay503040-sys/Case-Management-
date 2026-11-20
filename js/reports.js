@@ -581,20 +581,7 @@ function renderMonthlyProgressReportHTML(dataArray) {
             <div class="hide-on-export" style="text-align: center; margin-bottom: 15px;">
                 <h3 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif;  font-weight: normal; color: #1e3a8a; margin: 0 0 4px 0;">ព្រះរាជាណាចក្រកម្ពុជា</h3>
                 <h4 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif;  font-weight: normal; color: #1e3a8a; margin: 0 0 15px 0;">ជាតិ សាសនា ព្រះមហាក្សត្រ</h4>
-                <div style="margin-bottom: 15px; display: flex; justify-content: center; align-items: center;">
-                    <svg width="250" height="20" viewBox="0 0 250 20" xmlns="http://www.w3.org/2000/svg" style="fill: #1e3a8a;">
-                        <line x1="0" y1="10" x2="80" y2="10" stroke="#1e3a8a" stroke-width="1.5"/>
-                        <line x1="170" y1="10" x2="250" y2="10" stroke="#1e3a8a" stroke-width="1.5"/>
-                        <polygon points="85,10 88,7 91,10 88,13" />
-                        <polygon points="95,10 98,6 101,10 98,14" />
-                        <polygon points="165,10 162,7 159,10 162,13" />
-                        <polygon points="155,10 152,6 149,10 152,14" />
-                        <path d="M105,10 C110,3 118,3 120,10 C118,17 110,17 105,10" />
-                        <path d="M145,10 C140,3 132,3 130,10 C132,17 140,17 145,10" />
-                        <circle cx="125" cy="10" r="3.5" fill="none" stroke="#1e3a8a" stroke-width="1.5"/>
-                        <circle cx="125" cy="10" r="1.5" />
-                    </svg>
-                </div>
+                ${typeof window.nadrOrnamentHTML === 'function' ? window.nadrOrnamentHTML(200, 'margin: 0 auto 15px auto;') : ''}
             </div>
             <div style="text-align: center; margin-bottom: 15px;">
                 <h2 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif;  font-weight: normal; color: #0f172a; margin: 0 0 8px 0; line-height: 1.6;">របាយការណ៍វឌ្ឍនភាពចំណាត់ការសំណុំរឿងរបស់ ម.ស.វ. ឈ្មោះ <span contenteditable="true" style="color: #dc2626; font-weight: normal; border-bottom: 1px dashed #dc2626; padding: 0 4px;">${officerName}</span></h2>
@@ -760,20 +747,7 @@ function renderOfficialTrackingReportHTML(dataArray) {
         <div style="text-align: center; margin-bottom: 20px; font-family: inherit;">
             <h3 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif;  font-weight: normal; color: #1e3a8a; margin: 0 0 4px 0;">ព្រះរាជាណាចក្រកម្ពុជា</h3>
             <h4 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif;  font-weight: normal; color: #1e3a8a; margin: 0 0 10px 0;">ជាតិ សាសនា ព្រះមហាក្សត្រ</h4>
-            <div style="margin-bottom: 15px; display: flex; justify-content: center; align-items: center;">
-                <svg width="250" height="20" viewBox="0 0 250 20" xmlns="http://www.w3.org/2000/svg" style="fill: #1e3a8a;">
-                    <line x1="0" y1="10" x2="80" y2="10" stroke="#1e3a8a" stroke-width="1.5"/>
-                    <line x1="170" y1="10" x2="250" y2="10" stroke="#1e3a8a" stroke-width="1.5"/>
-                    <polygon points="85,10 88,7 91,10 88,13" />
-                    <polygon points="95,10 98,6 101,10 98,14" />
-                    <polygon points="165,10 162,7 159,10 162,13" />
-                    <polygon points="155,10 152,6 149,10 152,14" />
-                    <path d="M105,10 C110,3 118,3 120,10 C118,17 110,17 105,10" />
-                    <path d="M145,10 C140,3 132,3 130,10 C132,17 140,17 145,10" />
-                    <circle cx="125" cy="10" r="3.5" fill="none" stroke="#1e3a8a" stroke-width="1.5"/>
-                    <circle cx="125" cy="10" r="1.5" />
-                </svg>
-            </div>
+            ${typeof window.nadrOrnamentHTML === 'function' ? window.nadrOrnamentHTML(200, 'margin: 0 auto 15px auto;') : ''}
             <h2 style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif;  font-weight: normal; color: #0f172a; margin: 0 0 6px 0;">តារាងតាមដានលទ្ធផលនៃការដោះស្រាយវិវាទ</h2>
             <p style=" color: #475569; margin: 0;">អាជ្ញាធរជាតិដោះស្រាយវិវាទ - អគ្គលេខាធិការដ្ឋាន</p>
         </div>
@@ -1045,7 +1019,7 @@ function renderByCategoryHTML(dataArray) {
 /**
  * EXCEL EXPORT - Renders content to Excel (.xls) compatible HTML
  */
-function exportReportToExcel() {
+function exportReportToExcel(opts) {
     const paper = document.getElementById('report-content');
     if (!paper || paper.style.display === 'none') {
         showToast('សូមបង្កើតរបាយការណ៍ជាមុនសិន មុននឹងទាញយកជា Excel!', 'warning');
@@ -1107,11 +1081,14 @@ function exportReportToExcel() {
         </html>
     `;
 
-    const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), excelHTML], { type: 'application/vnd.ms-excel;charset=utf-8' });
+    // with the ornament picture the file is saved as a single-file web page (Excel opens it as a workbook)
+    const blob = typeof window.nadrOfficeBlob === 'function' ? window.nadrOfficeBlob(excelHTML, 'excel') : new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), excelHTML], { type: 'application/vnd.ms-excel;charset=utf-8' });
+    const xlsName = `${fileNameText}_${new Date().toISOString().slice(0, 10)}.xls`;
+    if (opts && opts.returnBlob) return { blob, name: xlsName };
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${fileNameText}_${new Date().toISOString().slice(0, 10)}.xls`;
+    a.download = xlsName;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -1160,7 +1137,7 @@ function exportReportToCSV() {
 /**
  * Export current report to Word (.doc) with Khmer font support and proper table formatting
  */
-function exportReportToWord() {
+function exportReportToWord(opts) {
     const paper = document.getElementById('report-content');
     if (!paper || paper.style.display === 'none') {
         showToast('សូមបង្កើតរបាយការណ៍ជាមុនសិន មុននឹងទាញយកជាឯកសារ Word!', 'warning');
@@ -1333,14 +1310,54 @@ function exportReportToWord() {
         </html>
     `;
     
-    const blob = new Blob(['\ufeff', wordDocHTML], { type: 'application/msword' });
+    const blob = typeof window.nadrOfficeBlob === 'function' ? window.nadrOfficeBlob(wordDocHTML, 'word') : new Blob([String.fromCharCode(0xFEFF), wordDocHTML], { type: 'application/msword' });
+    const docName = `${fileNameText}_${new Date().toISOString().slice(0, 10)}.doc`;
+    if (opts && opts.returnBlob) return { blob, name: docName };
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${fileNameText}_${new Date().toISOString().slice(0, 10)}.doc`;
+    link.download = docName;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
     showToast('បានទាញយករបាយការណ៍ជាឯកសារ Word ដោយជោគជ័យ!', 'success');
 }
+
+/**
+ * The report on screen as a PDF file ({blob, name}) — same page setup as the PDF button.
+ * Used by the Telegram send dialog.
+ */
+window.nadrReportPdfBlob = async function () {
+    const paper = document.getElementById('report-content');
+    const printArea = document.getElementById('print-area');
+    if (!paper || paper.style.display === 'none' || !printArea) throw new Error('សូមបង្កើតរបាយការណ៍ជាមុនសិន');
+    const titleEl = document.getElementById('report-header-title');
+    let base = titleEl ? titleEl.innerText.replace(/[^a-zA-Z0-9]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '') : '';
+    if (!base) base = 'NADR_Report';
+    const name = `${base}_${new Date().toISOString().slice(0, 10)}.pdf`;
+    const clone = paper.cloneNode(true);
+    clone.querySelectorAll('[style*="display: none"]').forEach(el => el.remove());
+    const html = document.documentElement;
+    const wasDark = html.classList.contains('dark-theme') || document.body.classList.contains('dark-theme');
+    const darkOnHtml = html.classList.contains('dark-theme');
+    if (wasDark) { html.classList.remove('dark-theme'); document.body.classList.remove('dark-theme'); }
+    printArea.innerHTML = `<div class="${typeof window.cwPrintClass === 'function' ? window.cwPrintClass() : ''}" style="font-family: 'Kantumruy Pro', 'Battambang', sans-serif; background: #ffffff;">${clone.innerHTML}</div>`;
+    try {
+        if (window.electronAPI && window.electronAPI.generatePDF) {
+            const buf = await window.electronAPI.generatePDF(typeof window.cwPdfOptions === 'function' ? window.cwPdfOptions() : { scale: 0.65 });
+            return { blob: new Blob([buf], { type: 'application/pdf' }), name };
+        }
+        if (typeof html2pdf !== 'undefined') {
+            const box = document.createElement('div');
+            box.style.width = '1040px';
+            box.innerHTML = clone.innerHTML;
+            const blob = await html2pdf().set({ margin: 10, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' } }).from(box).outputPdf('blob');
+            return { blob, name };
+        }
+        throw new Error('PDF មិនអាចបង្កើតបានលើកុំព្យូទ័រនេះទេ');
+    } finally {
+        printArea.innerHTML = '';
+        if (wasDark) { if (darkOnHtml) html.classList.add('dark-theme'); else document.body.classList.add('dark-theme'); }
+    }
+};

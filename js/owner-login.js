@@ -47,7 +47,7 @@
         setupMode = !owner;
         let box = $('owner-setup');
         const pwdLabel = form.querySelector('label[for="login-password"]');
-        const sub = document.querySelector('.kh-login-card .kh-card-title');
+        const sub = document.querySelector('#login-overlay .kh-card-title');
         const btn = form.querySelector('.kh-submit');
         if (setupMode) {
             if (!box) {

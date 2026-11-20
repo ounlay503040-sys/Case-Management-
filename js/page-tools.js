@@ -40,10 +40,12 @@
         const box = document.createElement('div');
         box.id = 'mac-controls';
         box.className = 'mac-controls';
+        // The buttons sit at the right end of the title bar, so they follow the Windows order:
+        // minimise, maximise, close (close is the last one, at the far right edge).
         box.innerHTML =
-            '<button type="button" class="mac-btn mac-close" data-tip="បិទកម្មវិធី" aria-label="បិទកម្មវិធី"><svg viewBox="0 0 10 10"><path d="M2.5 2.5l5 5M7.5 2.5l-5 5"/></svg></button>' +
             '<button type="button" class="mac-btn mac-min" data-tip="បង្រួមចុះ" aria-label="បង្រួមចុះ"><svg viewBox="0 0 10 10"><path d="M2 5h6"/></svg></button>' +
-            '<button type="button" class="mac-btn mac-max" data-tip="ពង្រីកពេញអេក្រង់" aria-label="ពង្រីកពេញអេក្រង់"><svg viewBox="0 0 10 10"><path class="i-max" d="M3 7V3h4M7 3v4H3"/><path class="i-restore" d="M3.5 2.5h4v4M2.5 3.5v4h4"/></svg></button>';
+            '<button type="button" class="mac-btn mac-max" data-tip="ពង្រីកពេញអេក្រង់" aria-label="ពង្រីកពេញអេក្រង់"><svg viewBox="0 0 10 10"><path class="i-max" d="M3 7V3h4M7 3v4H3"/><path class="i-restore" d="M3.5 2.5h4v4M2.5 3.5v4h4"/></svg></button>' +
+            '<button type="button" class="mac-btn mac-close" data-tip="បិទកម្មវិធី" aria-label="បិទកម្មវិធី"><svg viewBox="0 0 10 10"><path d="M2.5 2.5l5 5M7.5 2.5l-5 5"/></svg></button>';
         document.body.appendChild(box);
         box.querySelector('.mac-close').onclick = () => api().winClose();
         box.querySelector('.mac-min').onclick = () => api().winMinimize();

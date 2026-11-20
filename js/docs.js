@@ -106,7 +106,7 @@ function renderDocumentPreview() {
         <div class="official-doc-header" style="text-align: center; margin-bottom: 24px; font-family: 'Khmer OS Muol Light', 'Moul', cursive; color: #000;">
             <h3 style="font-size: 15pt; margin-bottom: 4px; font-weight: normal;">ព្រះរាជាណាចក្រកម្ពុជា</h3>
             <h4 style="font-size: 13pt; margin-bottom: 6px; font-weight: normal;">ជាតិ សាសនា ព្រះមហាក្សត្រ</h4>
-            <div style="width: 100px; border-bottom: 2px solid #000; margin: 0 auto 16px auto;"></div>
+            ${typeof window.nadrOrnamentHTML === 'function' ? window.nadrOrnamentHTML(170) : ''}
             
             <div style="display: flex; justify-content: space-between; align-items: flex-end; text-align: left; font-family: 'Inter', 'Khmer OS Battambang', sans-serif; font-size: 10.5pt; line-height: 1.6;">
                 <div>

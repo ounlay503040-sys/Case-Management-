@@ -92,8 +92,10 @@ async function sendTelegramDocument(fileBlob, filename, caption = '') {
             body: formData
         });
         const data = await response.json();
-        return data.ok;
+        if (!data.ok) window.lastTelegramError = data.description || `HTTP ${response.status}`;
+        return !!data.ok;
     } catch (e) {
+        window.lastTelegramError = e && e.message ? e.message : 'NETWORK_ERROR';
         console.error('Telegram API Error:', e);
         return false;
     }
@@ -108,7 +110,7 @@ async function testTelegramNotification() {
     
     if (typeof showToast === 'function') showToast('កំពុងផ្ញើសារសាកល្បង...', 'info');
     
-    const msg = `🔔 <b>សារសាកល្បងពីប្រព័ន្ធគ្រប់គ្រងសំណុំរឿង</b>\nការតភ្ជាប់ Telegram របស់អ្នកជោគជ័យ!`;
+    const msg = `🔔 <b>សារសាកល្បង</b>\n━━━━━━━━━━━━━━━━\n✅ កម្មវិធីគ្រប់គ្រងសំណុំរឿង បានភ្ជាប់ជាមួយ Telegram ដោយជោគជ័យ!\n━━━━━━━━━━━━━━━━\n<i>✉️ NADR CMS Pro</i>`;
     const success = await sendTelegramMessage(msg);
     
     if (success) {
@@ -118,179 +120,81 @@ async function testTelegramNotification() {
     }
 }
 
+/* ---------- Message cards (one layout for every automatic message) ---------- */
+const TG_LINE = '━━━━━━━━━━━━━━━━';
+function tgEscape(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function tgLocalIso(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+function tgEventOf(c) {
+    const e = typeof getCaseEventDetails === 'function' ? getCaseEventDetails(c) : { date: c.caseEventDate, time: c.caseEventTime, desc: c.caseEvent };
+    return { date: String(e.date || c.caseEventDate || '').slice(0, 10), time: e.time || c.caseEventTime || '', desc: e.desc || (typeof c.caseEvent === 'string' ? c.caseEvent : '') || 'ប្រជុំសម្រុះសម្រួល' };
+}
+function tgDate(iso) { const U = window.nadrUtil; return U ? U.khLongDate(iso) : iso; }
+function tgTime(t) { const U = window.nadrUtil; return U ? U.khTime(t) : t; }
+/** heading line, then the case, the program and the parties */
+function tgCaseCard(heading, c, opts = {}) {
+    const e = tgEventOf(c);
+    let m = `${heading}\n${TG_LINE}\n📁 <b>សំណុំរឿងលេខ ${tgEscape(c.caseNumber)}</b>\n`;
+    if (c.category) m += `⚖️ ${tgEscape(c.category)}\n`;
+    if (opts.event !== false && e.date) {
+        m += `🗓 <b>${tgEscape(e.desc)}</b>\n`;
+        m += `📅 ${tgEscape(tgDate(e.date))}${e.time ? ` · 🕘 ម៉ោង ${tgEscape(tgTime(e.time))}` : ''}\n`;
+    }
+    if (c.disputeLocation) m += `📍 ${tgEscape(c.disputeLocation)}\n`;
+    if (opts.status) m += `📊 ស្ថានភាព៖ ${tgEscape(opts.status)}\n`;
+    m += `\n🅰️ ${tgEscape(c.partyA_name || '—')}${c.partyA_phone ? ' · 📞 ' + tgEscape(c.partyA_phone) : ''}\n`;
+    m += `🅱️ ${tgEscape(c.partyB_name || '—')}${c.partyB_phone ? ' · 📞 ' + tgEscape(c.partyB_phone) : ''}`;
+    return m + `\n${TG_LINE}\n<i>✉️ NADR CMS Pro</i>`;
+}
+
 function checkAndSendTelegramNotifications() {
     const { token, chatid } = getTelegramSettings();
     if (!token || !chatid) return; // Not configured
-
+    if (typeof casesData === 'undefined') return;
     const now = new Date();
-    
-    // Get tomorrow's date string YYYY-MM-DD for the 1-day notification
-    const tomorrow = new Date(now);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = tomorrow.toISOString().split('T')[0];
+    const tomorrow = new Date(now); tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tgLocalIso(tomorrow);   // local day (the old toISOString() gave the UTC day)
+    const save = () => { if (typeof saveCases === 'function') saveCases(); };
 
-    let hasChanges = false;
-
-    if (typeof casesData !== 'undefined') {
-        casesData.forEach(c => {
-            if (!c.caseEvent || !c.caseEventDate) return;
-
-            // 1. Check for 1-DAY before notification
-            if (c.caseEventDate === tomorrowStr && c.notifiedEventDate !== tomorrowStr) {
-                let timeStr = c.caseEventTime ? ` (ម៉ោង ${c.caseEventTime})` : '';
-                const msg = `🔔 <b>ការរំលឹកកម្មវិធីសំណុំរឿង (ថ្ងៃស្អែក)</b>\n\n📁 <b>សំណុំរឿង៖</b> ${c.caseNumber}\n⚖️ <b>ប្រភេទវិវាទ៖</b> ${c.category}\n🗓 <b>កម្មវិធី៖</b> ${c.caseEvent} ${timeStr}\n📍 <b>ទីតាំង៖</b> ${c.disputeLocation}\n\n🧑 <b>ភាគីក៖</b> ${c.partyA_name} (${c.partyA_phone || 'គ្មានលេខ'})\n🧑 <b>ភាគីខ៖</b> ${c.partyB_name} (${c.partyB_phone || 'គ្មានលេខ'})`;
-
-                sendTelegramMessage(msg).then(success => {
-                    if (success) {
-                        c.notifiedEventDate = tomorrowStr;
-                        hasChanges = true;
-                        if (typeof saveCases === 'function') saveCases();
-                    }
-                });
-            }
-
-            // 2. Check for 1-HOUR before notification
-            if (c.caseEventTime && !c.notifiedOneHour) {
-                const eventDateTime = new Date(`${c.caseEventDate}T${c.caseEventTime}:00`);
-                const diffMs = eventDateTime - now;
-                const diffHours = diffMs / (1000 * 60 * 60);
-
-                // If event is in the future but less than 1 hour away
-                if (diffHours > 0 && diffHours <= 1) {
-                    const msg = `⏳ <b>ការរំលឹកបន្ទាន់ (១ ម៉ោងទៀត)</b>\n\nសំណុំរឿង៖ <b>${c.caseNumber}</b>\n⚖️ <b>ប្រភេទវិវាទ៖</b> ${c.category}\n🗓 <b>កម្មវិធី៖</b> ${c.caseEvent} (ម៉ោង ${c.caseEventTime})\n📍 <b>ទីតាំង៖</b> ${c.disputeLocation}\n\n🧑 <b>ភាគីក៖</b> ${c.partyA_name} (${c.partyA_phone || 'គ្មានលេខ'})\n🧑 <b>ភាគីខ៖</b> ${c.partyB_name} (${c.partyB_phone || 'គ្មានលេខ'})`;
-                    
-                    sendTelegramMessage(msg).then(success => {
-                        if (success) {
-                            c.notifiedOneHour = true;
-                            hasChanges = true;
-                            if (typeof saveCases === 'function') saveCases();
-                        }
-                    });
-                }
-            }
-
-            // 3. Check for NOW notification
-            if (c.caseEventTime && !c.notifiedNow) {
-                const eventDateTime = new Date(`${c.caseEventDate}T${c.caseEventTime}:00`);
-                const diffMs = eventDateTime - now;
-                const diffMinutes = diffMs / (1000 * 60);
-
-                // If event is exactly now or passed within the last 5 minutes
-                if (diffMinutes <= 0 && diffMinutes > -5) {
-                    const msg = `⏳ <b>ការរំលឹកបន្ទាន់ កម្មវិធីរបស់សំណុំរឿង ${c.caseNumber} ដល់ពេលវេលាហើយ!</b>\n⚖️ <b>ប្រភេទវិវាទ៖</b> ${c.category}\n🗓 <b>កម្មវិធី៖</b> ${c.caseEvent}\n📍 <b>ទីតាំង៖</b> ${c.disputeLocation}\n\n🧑 <b>ភាគីក៖</b> ${c.partyA_name} (${c.partyA_phone || 'គ្មានលេខ'})\n🧑 <b>ភាគីខ៖</b> ${c.partyB_name} (${c.partyB_phone || 'គ្មានលេខ'})`;
-                    
-                    sendTelegramMessage(msg).then(success => {
-                        if (success) {
-                            c.notifiedNow = true;
-                            hasChanges = true;
-                            if (typeof saveCases === 'function') saveCases();
-                        }
-                    });
-                }
-            }
-        });
-    }
+    casesData.forEach(c => {
+        if (typeof checkCaseHasEvent === 'function' ? !checkCaseHasEvent(c) : !(c.caseEvent && c.caseEventDate)) return;
+        const e = tgEventOf(c);
+        if (!e.date) return;
+        // 1. one day before
+        if (e.date === tomorrowStr && c.notifiedEventDate !== tomorrowStr) {
+            c.notifiedEventDate = tomorrowStr;   // mark first so the next minute does not send it again
+            sendTelegramMessage(tgCaseCard('🔔 <b>រំលឹកកម្មវិធីថ្ងៃស្អែក</b>', c)).then(ok => { if (!ok) c.notifiedEventDate = null; save(); });
+        }
+        if (!e.time) return;
+        const at = new Date(`${e.date}T${String(e.time).slice(0, 5)}:00`);
+        const mins = (at - now) / 60000;
+        // 2. one hour before
+        if (!c.notifiedOneHour && mins > 0 && mins <= 60) {
+            c.notifiedOneHour = true;
+            sendTelegramMessage(tgCaseCard('⏳ <b>រំលឹក៖ កម្មវិធីចាប់ផ្តើមក្នុងរយៈពេល ១ ម៉ោងទៀត</b>', c)).then(ok => { if (!ok) c.notifiedOneHour = false; save(); });
+        }
+        // 3. at the time (within 5 minutes)
+        if (!c.notifiedNow && mins <= 0 && mins > -5) {
+            c.notifiedNow = true;
+            sendTelegramMessage(tgCaseCard('🚨 <b>ដល់ម៉ោងកម្មវិធីហើយ</b>', c)).then(ok => { if (!ok) c.notifiedNow = false; save(); });
+        }
+    });
 }
 
 async function notifyTelegramAction(c, actionType) {
     if (!c) return;
     let msg = '';
-    
-    if (actionType === 'NEW_CASE') {
-        msg = `🆕 <b>សំណុំរឿងថ្មីត្រូវបានបញ្ចូល</b>\n\n📁 <b>លេខសំណុំរឿង៖</b> ${c.caseNumber}\n⚖️ <b>កម្មវត្ថុវិវាទ៖</b> ${c.category}\n🧑 <b>ភាគីក៖</b> ${c.partyA_name}\n🧑 <b>ភាគីខ៖</b> ${c.partyB_name}\n📍 <b>ទីតាំងវិវាទ៖</b> ${c.disputeLocation}\n📅 <b>ថ្ងៃទទួល៖</b> ${c.dateReceived}`;
-        if (c.caseEvent && c.caseEventDate) {
-            let timeStr = c.caseEventTime ? ` (ម៉ោង ${c.caseEventTime})` : '';
-            msg += `\n\n🗓 <b>កម្មវិធីកំណត់៖</b> ${c.caseEvent} ${timeStr} នៅថ្ងៃទី ${c.caseEventDate}`;
-        }
-    } 
-    else if (actionType === 'UPDATE_CASE') {
-        msg = `🔄 <b>សំណុំរឿងត្រូវបានកែប្រែ / ធ្វើបច្ចុប្បន្នភាព</b>\n\n📁 <b>លេខសំណុំរឿង៖</b> ${c.caseNumber}\n⚖️ <b>កម្មវត្ថុវិវាទ៖</b> ${c.category}\n🧑 <b>ភាគីក៖</b> ${c.partyA_name}\n🧑 <b>ភាគីខ៖</b> ${c.partyB_name}\n📊 <b>ចំណាត់ការបច្ចុប្បន្ន៖</b> ${c.status}`;
-        if (c.caseEvent && c.caseEventDate) {
-            let timeStr = c.caseEventTime ? ` (ម៉ោង ${c.caseEventTime})` : '';
-            msg += `\n\n🗓 <b>កម្មវិធីបន្ត៖</b> ${c.caseEvent} ${timeStr} នៅថ្ងៃទី ${c.caseEventDate}`;
-        }
-    }
-    else if (actionType === 'SCHEDULE_EVENT') {
-        if (!c.caseEvent || !c.caseEventDate) return;
-        let timeStr = c.caseEventTime ? ` (ម៉ោង ${c.caseEventTime})` : '';
-        msg = `🗓 <b>កម្មវិធីសំណុំរឿងត្រូវបានកំណត់/កែប្រែលើប្រតិទិន</b>\n\n📁 <b>លេខសំណុំរឿង៖</b> ${c.caseNumber}\n⚖️ <b>កម្មវត្ថុវិវាទ៖</b> ${c.category}\n🗓 <b>កម្មវិធី៖</b> ${c.caseEvent} ${timeStr}\n📅 <b>ថ្ងៃទី៖</b> ${c.caseEventDate}\n📍 <b>ទីតាំង៖</b> ${c.disputeLocation}\n🧑 <b>ភាគីក៖</b> ${c.partyA_name}\n🧑 <b>ភាគីខ៖</b> ${c.partyB_name}`;
-    }
-    
-    if (msg !== '') {
-        await sendTelegramMessage(msg);
-    }
+    if (actionType === 'NEW_CASE') msg = tgCaseCard('🆕 <b>សំណុំរឿងថ្មីត្រូវបានបញ្ចូល</b>', c, { event: !!tgEventOf(c).date, status: c.dateReceived ? `ទទួលពាក្យ ${tgDate(String(c.dateReceived).slice(0, 10))}` : '' });
+    else if (actionType === 'UPDATE_CASE') msg = tgCaseCard('🔄 <b>សំណុំរឿងត្រូវបានធ្វើបច្ចុប្បន្នភាព</b>', c, { event: !!tgEventOf(c).date, status: window.nadrUtil ? window.nadrUtil.STATUS[window.nadrUtil.statusOf(c)].label : c.status });
+    else if (actionType === 'SCHEDULE_EVENT') { if (!tgEventOf(c).date) return; msg = tgCaseCard('🗓 <b>កម្មវិធីត្រូវបានកំណត់ / កែប្រែលើប្រតិទិន</b>', c); }
+    if (msg) await sendTelegramMessage(msg);
 }
 
-/**
- * Send a summary report to Telegram
- */
+/** Daily program summary (kept for older buttons): opens the send dialog on the calendar. */
 async function sendTelegramReport() {
-    const { token, chatid } = getTelegramSettings();
-    if (!token || !chatid) {
-        if (typeof showToast === 'function') showToast('សូមភ្ជាប់ Telegram ជាមុនសិន (ចូលទៅការកំណត់)!', 'error');
-        return;
-    }
-    
-    if (typeof casesData === 'undefined' || !casesData || casesData.length === 0) {
-        if (typeof showToast === 'function') showToast('មិនមានទិន្នន័យសំណុំរឿងទេ!', 'warning');
-        return;
-    }
-
-    if (typeof showToast === 'function') showToast('កំពុងរៀបចំ និងផ្ញើរបាយការណ៍ទៅ Telegram...', 'info');
-
-    const now = new Date();
-    const todayStr = now.toISOString().split('T')[0];
-    
-    const tomorrow = new Date(now);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = tomorrow.toISOString().split('T')[0];
-
-    let todayEvents = [];
-    let tomorrowEvents = [];
-    let pastEvents = [];
-
-    casesData.forEach(c => {
-        if (!c.caseEvent || !c.caseEventDate) return;
-        
-        const eventStr = `${c.caseNumber} - ${c.caseEvent}`;
-        if (c.caseEventDate === todayStr) {
-            todayEvents.push(eventStr);
-        } else if (c.caseEventDate === tomorrowStr) {
-            tomorrowEvents.push(eventStr);
-        } else if (c.caseEventDate < todayStr) {
-            pastEvents.push(eventStr);
-        }
-    });
-
-    let msg = `📊 <b>របាយការណ៍កម្មវិធីសំណុំរឿងប្រចាំថ្ងៃ</b>\n📅 <b>កាលបរិច្ឆេទ៖</b> ${todayStr}\n\n`;
-    
-    msg += `📍 <b>កម្មវិធីថ្ងៃនេះ (${todayEvents.length})៖</b>\n`;
-    if (todayEvents.length > 0) {
-        todayEvents.forEach(e => msg += `• ${e}\n`);
-    } else {
-        msg += `• គ្មានកម្មវិធីទេ\n`;
-    }
-    msg += `\n`;
-
-    msg += `⏭ <b>កម្មវិធីថ្ងៃស្អែក (${tomorrowEvents.length})៖</b>\n`;
-    if (tomorrowEvents.length > 0) {
-        tomorrowEvents.forEach(e => msg += `• ${e}\n`);
-    } else {
-        msg += `• គ្មានកម្មវិធីទេ\n`;
-    }
-    msg += `\n`;
-
-    msg += `✅ <b>កម្មវិធីអនុវត្តរួចរាល់សរុប៖</b> ${pastEvents.length} កម្មវិធី`;
-
-    const success = await sendTelegramMessage(msg);
-    if (success) {
-        if (typeof showToast === 'function') showToast('បានផ្ញើរបាយការណ៍សរុបទៅ Telegram ជោគជ័យ!', 'success');
-    } else {
-        if (typeof showToast === 'function') showToast('មានបញ្ហាក្នុងការផ្ញើរបាយការណ៍!', 'error');
-    }
+    if (typeof window.tgShare === 'function') { window.tgShare('calendar'); return; }
 }
 
 async function notifyTelegramEventCancelled(caseNumber, eventName) {
-    const msg = `❌ <b>ការលុបចោលកម្មវិធីសំណុំរឿង</b>\n\n📁 <b>សំណុំរឿង៖</b> ${caseNumber}\nកម្មវិធី "<b>${eventName || 'មិនស្គាល់'}</b>" ត្រូវបានលុបចេញពីប្រតិទិន។`;
+    const msg = `❌ <b>កម្មវិធីត្រូវបានលុបចោល</b>\n${TG_LINE}\n📁 <b>សំណុំរឿងលេខ ${tgEscape(caseNumber)}</b>\n🗓 ${tgEscape(eventName || 'មិនស្គាល់')}\n${TG_LINE}\n<i>✉️ NADR CMS Pro</i>`;
     await sendTelegramMessage(msg);
 }

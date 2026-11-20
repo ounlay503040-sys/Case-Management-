@@ -35,6 +35,7 @@
     <link rel="stylesheet" href="css/style.css?v=18.0">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/skin-sky.css?v=1.14">
+    <link rel="stylesheet" href="css/skin-refresh.css?v=1.0">
 
     <style id="case-type-themes">
         /* Personal Case Theme (Default) */
@@ -150,74 +151,93 @@
 </head>
 
 <body class="light-theme">
-    <!-- AUTHENTICATION OVERLAY (Khmer-style login) -->
-    <div id="login-overlay" class="login-overlay kh-login">
-        <!-- Left: institution panel with building photo -->
-        <section class="kh-login-hero" aria-hidden="true">
-            <div class="kh-hero-top">
-                <p class="kh-moul kh-kingdom">ព្រះរាជាណាចក្រកម្ពុជា</p>
-                <p class="kh-moul kh-motto">ជាតិ សាសនា ព្រះមហាក្សត្រ</p>
-                <div class="kh-ornament kh-ornament-light"></div>
+    <!-- AUTHENTICATION OVERLAY (royal blue & gold, after the NADR contact poster) -->
+    <div id="login-overlay" class="login-overlay nl-login">
+        <div class="nl-frame" aria-hidden="true"></div>
+
+        <!-- Left: institution, motto, contacts -->
+        <section class="nl-hero">
+            <header class="nl-kingdom">
+                <p class="nl-moul nl-k1">ព្រះរាជាណាចក្រកម្ពុជា</p>
+                <p class="nl-moul nl-k2">ជាតិ សាសនា ព្រះមហាក្សត្រ</p>
+                <i class="nl-orn" aria-hidden="true"></i>
+            </header>
+
+            <div class="nl-org">
+                <p class="nl-moul nl-org-kh">អាជ្ញាធរជាតិដោះស្រាយវិវាទក្រៅប្រព័ន្ធតុលាការ</p>
+                <p class="nl-org-en">NATIONAL AUTHORITY FOR ALTERNATIVE DISPUTE RESOLUTION</p>
             </div>
-            <div class="kh-hero-center">
-                <div class="kh-banner-plate">
-                    <img src="images/nadr-logo-banner.png" alt="អាជ្ញាធរជាតិដោះស្រាយវិវាទក្រៅប្រព័ន្ធតុលាការ">
+
+            <!-- the proverb, with H.E. Keut Ridh beside it -->
+            <div class="nl-motto">
+                <div class="nl-motto-card">
+                    <span class="nl-spark nl-spark-1" aria-hidden="true"></span>
+                    <span class="nl-spark nl-spark-2" aria-hidden="true"></span>
+                    <p class="nl-moul nl-motto-kicker">– ពាក្យស្លោកបុរាណខ្មែរ –</p>
+                    <p class="nl-motto-text">
+                        <span class="nl-mw">ធ្ងន់នឹង<b class="nl-gold">ថ្ម</b></span>
+                        <span class="nl-mw">ក្រនឹង<b class="nl-gold">ក្តី</b></span>
+                    </p>
                 </div>
-                <h1 class="kh-moul kh-hero-title">កម្មវិធីគ្រប់គ្រងសំណុំរឿង</h1>
-                <p class="kh-hero-sub">ប្រព័ន្ធគ្រប់គ្រង តាមដាន និងវិភាគសំណុំរឿងដោះស្រាយវិវាទក្រៅប្រព័ន្ធតុលាការ</p>
+                <figure class="nl-leader">
+                    <img src="images/kerth-ridh.png" alt="ឯកឧត្តម កើត រិទ្ធ">
+                    <figcaption class="nl-moul">ឯកឧត្តម កើត រិទ្ធ</figcaption>
+                </figure>
             </div>
-            <div class="kh-hero-bottom">
-                <span><i class="fa-solid fa-shield-halved"></i> ទិន្នន័យរក្សាទុកក្នុងកុំព្យូទ័រ</span>
-                <span><i class="fa-solid fa-lock"></i> ពាក្យសម្ងាត់ត្រូវបានការពារ</span>
-            </div>
+
+            <!-- contacts (from the NADR contact poster) -->
+            <footer class="nl-contact">
+                <div class="nl-qrs">
+                    <figure class="nl-qr"><img src="images/qr-facebook.png" alt="QR ហ្វេសប៊ុក អ.ដ.ក."><figcaption><i class="fab fa-facebook"></i> ហ្វេសប៊ុក</figcaption></figure>
+                    <figure class="nl-qr"><img src="images/qr-telegram.png" alt="QR តេឡេក្រាម អ.ដ.ក."><figcaption><i class="fab fa-telegram"></i> តេឡេក្រាម</figcaption></figure>
+                    <figure class="nl-qr"><img src="images/qr-map.png" alt="QR ទីតាំងផែនទី អ.ដ.ក."><figcaption><i class="fa-solid fa-location-dot"></i> ទីតាំង</figcaption></figure>
+                </div>
+                <ul class="nl-lines">
+                    <li><i class="fa-solid fa-phone"></i> <span dir="ltr">(+855) 93 98 33 58 / 099 98 33 58</span></li>
+                    <li><i class="fa-solid fa-envelope"></i> <span dir="ltr">info@nadr.gov.kh</span></li>
+                    <li><i class="fa-solid fa-location-dot"></i> <span>មហាវិថីឈ្នះឈ្នះ ភូមិព្រែកតាតាន់ សង្កាត់ព្រែកតាសេក ខណ្ឌជ្រោយចង្វារ រាជធានីភ្នំពេញ</span></li>
+                </ul>
+            </footer>
         </section>
 
-        <!-- Right: login card -->
-        <section class="kh-login-side">
-            <div class="kh-login-card">
-                <div class="kh-kbach-band"></div>
-                <div class="kh-card-body">
-                    <div class="kh-logo-wrap">
-                        <img src="images/nadr-logo-round.webp" alt="ស្លាកសញ្ញា អ.ដ.ក." class="kh-logo">
+        <!-- Right: sign in -->
+        <section class="nl-side">
+            <div class="nl-card">
+                <div class="nl-logo"><img src="images/nadr-logo-round.webp" alt="ស្លាកសញ្ញា អ.ដ.ក."></div>
+                <p class="nl-moul nl-abbr">អ.ដ.ក.</p>
+                <h1 class="nl-moul nl-app">កម្មវិធីគ្រប់គ្រងសំណុំរឿង</h1>
+                <p class="nl-app-en">NADR CMS PRO</p>
+                <i class="nl-orn nl-orn-card" aria-hidden="true"></i>
+                <h2 class="kh-card-title nl-welcome">សូមស្វាគមន៍</h2>
+
+                <form id="login-form" class="login-form kh-form nl-form">
+                    <label for="login-username" class="kh-label"><i class="fa-solid fa-user"></i> ឈ្មោះគណនី</label>
+                    <div class="kh-input-wrap" style="margin-bottom: 14px;">
+                        <i class="fa-solid fa-user kh-input-icon"></i>
+                        <input type="text" id="login-username" class="kh-input" placeholder="ឧ. admin" required autocomplete="username" autocapitalize="off" spellcheck="false">
                     </div>
-                    <p class="kh-moul kh-abbr">អ.ដ.ក.</p>
-                    <h2 class="kh-card-title">សូមស្វាគមន៍មកកាន់ប្រព័ន្ធគ្រប់គ្រងសំណុំរឿង</h2>
-                    <p class="kh-card-sub">Master Case Management System · CMS Pro</p>
-                    <div class="kh-ornament"></div>
-
-                    <form id="login-form" class="login-form kh-form">
-                        <label for="login-username" class="kh-label"><i class="fa-solid fa-user"></i> ឈ្មោះគណនី</label>
-                        <div class="kh-input-wrap" style="margin-bottom: 14px;">
-                            <i class="fa-solid fa-user kh-input-icon"></i>
-                            <input type="text" id="login-username" class="kh-input" placeholder="ឧ. admin" required autocomplete="username" autocapitalize="off" spellcheck="false">
-                        </div>
-                        <label for="login-password" class="kh-label"><i class="fa-solid fa-key"></i> ពាក្យសម្ងាត់</label>
-                        <div class="kh-input-wrap">
-                            <i class="fa-solid fa-lock kh-input-icon"></i>
-                            <input type="password" id="login-password" class="kh-input" placeholder="វាយពាក្យសម្ងាត់របស់អ្នក..." required autocomplete="current-password">
-                            <button type="button" id="toggle-login-pwd" class="kh-eye" title="បង្ហាញ/លាក់ពាក្យសម្ងាត់"><i class="fa-regular fa-eye"></i></button>
-                        </div>
-
-                        <label class="kh-remember">
-                            <input type="checkbox" id="login-remember" checked>
-                            <span>ចងចាំការចូលប្រើលើកក្រោយ</span>
-                        </label>
-
-                        <div id="login-error-msg" class="alert alert-danger d-none kh-error">
-                            <i class="fa-solid fa-triangle-exclamation"></i> <span>ពាក្យសម្ងាត់មិនត្រឹមត្រូវ។ សូមពិនិត្យម្តងទៀត។</span>
-                        </div>
-
-                        <button type="submit" class="kh-submit login-btn-submit">
-                            <i class="fa-solid fa-right-to-bracket"></i> ចូលប្រព័ន្ធ
-                        </button>
-                    </form>
-
-                    <div class="kh-card-footer">
-                        <p><i class="fa-solid fa-code"></i> អភិវឌ្ឍន៍កម្មវិធីដោយ លោក ឡាយ អូន</p>
-                        <p class="kh-copy"><i class="fa-regular fa-copyright"></i> រក្សាសិទ្ធិគ្រប់យ៉ាង ២០២៦</p>
+                    <label for="login-password" class="kh-label"><i class="fa-solid fa-key"></i> ពាក្យសម្ងាត់</label>
+                    <div class="kh-input-wrap">
+                        <i class="fa-solid fa-lock kh-input-icon"></i>
+                        <input type="password" id="login-password" class="kh-input" placeholder="វាយពាក្យសម្ងាត់របស់អ្នក..." required autocomplete="current-password">
+                        <button type="button" id="toggle-login-pwd" class="kh-eye" title="បង្ហាញ/លាក់ពាក្យសម្ងាត់"><i class="fa-regular fa-eye"></i></button>
                     </div>
-                </div>
-                <div class="kh-kbach-band kh-kbach-bottom"></div>
+
+                    <label class="kh-remember">
+                        <input type="checkbox" id="login-remember" checked>
+                        <span>ចងចាំការចូលប្រើលើកក្រោយ</span>
+                    </label>
+
+                    <div id="login-error-msg" class="alert alert-danger d-none kh-error">
+                        <i class="fa-solid fa-triangle-exclamation"></i> <span>ពាក្យសម្ងាត់មិនត្រឹមត្រូវ។ សូមពិនិត្យម្តងទៀត។</span>
+                    </div>
+
+                    <button type="submit" class="kh-submit login-btn-submit">
+                        <i class="fa-solid fa-right-to-bracket"></i> ចូលប្រព័ន្ធ
+                    </button>
+                </form>
+
+                <p class="nl-credit">© ២០២៦ អ.ដ.ក. · អភិវឌ្ឍន៍ដោយ ឡាយ អូន</p>
             </div>
         </section>
     </div>
@@ -686,118 +706,102 @@
                 </div>
             </section>
 
-            <!-- VIEW: CALENDAR / SCHEDULE -->
+            <!-- VIEW: CALENDAR / SCHEDULE (two parts: the month calendar and the program list) -->
             <section class="view-section" id="calendar-view">
-                <style>
-                    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
-                    .calendar-header-day { text-align: center; font-weight: 700; padding: 12px; border-radius: 8px 8px 0 0; font-size: 14px; }
-                    .calendar-day { min-height: 110px; border: 1px solid var(--border-color); border-radius: 10px; padding: 8px; background: var(--bg-surface); display: flex; flex-direction: column; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; }
-                    .calendar-day:hover { border-color: #3b82f6; box-shadow: 0 4px 15px rgba(59,130,246,0.15); transform: translateY(-2px); z-index: 10; }
-                    .calendar-day .day-num { font-weight: 700; font-size: 14px; margin-bottom: 8px; color: var(--text-muted); text-align: right; transition: 0.2s; }
-                    
-                    /* Today's style */
-                    .calendar-day.today { background: linear-gradient(135deg, #eff6ff 0%, #bfdbfe 100%); border-color: #3b82f6; box-shadow: inset 0 0 0 2px #3b82f6; }
-                    .calendar-day.today .day-num { color: #ffffff; background: #2563eb; padding: 2px 8px; border-radius: 12px; display: inline-block; float: right; }
-                    
-                    /* Has Events style */
-                    .calendar-day.has-events { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce3 100%); border-color: #22c55e; box-shadow: inset 0 0 0 1px #86efac; }
-                    .calendar-day.has-events .day-num { color: #ffffff; background: #16a34a; padding: 2px 8px; border-radius: 12px; display: inline-block; float: right; }
-                    
-                    /* Both Today and Has Events */
-                    .calendar-day.today.has-events { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-color: #f59e0b; box-shadow: inset 0 0 0 2px #f59e0b; }
-                    .calendar-day.today.has-events .day-num { color: #ffffff; background: #ea580c; }
-                    
-                    .calendar-day.other-month { opacity: 0.35; pointer-events: none; background: var(--bg-body); }
-                    
-                    .calendar-event-item { font-size: 11.5px; padding: 6px 8px; border-radius: 6px; margin-bottom: 6px; background: var(--bg-surface); color: #1e40af; border-left: 4px solid #3b82f6; box-shadow: 0 2px 4px rgba(0,0,0,0.05); word-break: break-word; line-height: 1.4; display: block; text-decoration: none; transition: 0.2s; font-weight: 500; }
-                    .calendar-event-item.evt-location { background: var(--bg-surface); color: #92400e; border-left-color: #f59e0b; }
-                    .calendar-event-item.evt-mediation { background: var(--bg-surface); color: #166534; border-left-color: #22c55e; }
-                    .calendar-event-item:hover { filter: brightness(0.95); transform: translateX(2px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-                </style>
-                <div class="section-title-box" style="margin-bottom: 12px;">
+                <div class="section-title-box">
                     <div>
                         <h1><i class="fa-regular fa-calendar-days"></i> កាលវិភាគប្រជុំ</h1>
+                        <p id="cv-head-sub">ប្រតិទិនកម្មវិធីប្រជុំ និងបញ្ជីកម្មវិធីរបស់សំណុំរឿង</p>
                     </div>
-                </div>
-                
-                <div class="card-panel mt-2" style="padding: 14px 16px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-                        <button class="btn btn-outline" id="btn-prev-month"><i class="fa-solid fa-chevron-left"></i> ខែមុន</button>
-                        <h3 id="calendar-month-year" style="margin: 0; font-weight: 700; color: #1e3a8a;"></h3>
-                        <button class="btn btn-outline" id="btn-next-month">ខែបន្ទាប់ <i class="fa-solid fa-chevron-right"></i></button>
-                    </div>
-                    
-                    <div class="calendar-grid" id="calendar-grid">
-                        <div class="calendar-header-day">អាទិត្យ</div>
-                        <div class="calendar-header-day">ច័ន្ទ</div>
-                        <div class="calendar-header-day">អង្គារ</div>
-                        <div class="calendar-header-day">ពុធ</div>
-                        <div class="calendar-header-day">ព្រហស្បតិ៍</div>
-                        <div class="calendar-header-day">សុក្រ</div>
-                        <div class="calendar-header-day">សៅរ៍</div>
-                        <!-- Days generated by JS -->
+                    <div class="section-actions">
+                        <button type="button" class="kt-btn-primary" onclick="openCalendarEventModal(getTodayDateString())"><i class="fa-solid fa-plus"></i> បន្ថែមកម្មវិធី</button>
+                        <button type="button" class="kt-btn" onclick="tgShare('calendar')"><i class="fab fa-telegram-plane"></i> ផ្ញើកាលវិភាគទៅ Telegram</button>
                     </div>
                 </div>
 
-                <!-- UPCOMING EVENTS TABLE (9-COLUMN FIT LAYOUT) -->
-                <div class="card-panel mt-3" style="padding: 14px 16px; border-top: 4px solid var(--primary-hover); border-radius: var(--radius-md); box-shadow: var(--shadow-md);">
-                    <!-- Header Bar & Quick Actions -->
-                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(37, 99, 235, 0.1); color: var(--primary-color); display: flex; align-items: center; justify-content: center; font-size: 18px;">
-                                <i class="fa-solid fa-calendar-check"></i>
+                <!-- switch between the two parts -->
+                <div class="cv-switch" role="tablist" aria-label="ផ្នែកកាលវិភាគ">
+                    <button type="button" class="cv-tab active" data-cv="cal" role="tab"><i class="fa-regular fa-calendar"></i> <span>ប្រតិទិនប្រចាំខែ</span></button>
+                    <button type="button" class="cv-tab" data-cv="list" role="tab"><i class="fa-solid fa-list-check"></i> <span>បញ្ជីកម្មវិធីសំណុំរឿង</span> <b class="cv-tab-count" id="cv-list-count">0</b></button>
+                </div>
+
+                <!-- PART 1: month calendar + agenda -->
+                <div class="cv-part cv-part-cal" id="cv-part-cal">
+                    <div class="cv-cal-card">
+                        <div class="cv-cal-top">
+                            <div class="cv-month">
+                                <span class="cv-kicker">ប្រតិទិនកម្មវិធី</span>
+                                <h3 id="calendar-month-year"></h3>
+                                <span class="cv-month-stat" id="cv-month-stat"></span>
                             </div>
+                            <div class="cv-nav">
+                                <button type="button" class="cv-navbtn" id="btn-prev-month" data-tip="ខែមុន" aria-label="ខែមុន"><i class="fa-solid fa-chevron-left"></i></button>
+                                <button type="button" class="cv-todaybtn" id="btn-today-month">ខែនេះ</button>
+                                <button type="button" class="cv-navbtn" id="btn-next-month" data-tip="ខែបន្ទាប់" aria-label="ខែបន្ទាប់"><i class="fa-solid fa-chevron-right"></i></button>
+                            </div>
+                        </div>
+                        <div class="cv-weekdays">
+                            <span class="cv-sun">អាទិត្យ</span><span>ច័ន្ទ</span><span>អង្គារ</span><span>ពុធ</span><span>ព្រហស្បតិ៍</span><span>សុក្រ</span><span class="cv-sat">សៅរ៍</span>
+                        </div>
+                        <div class="calendar-grid cv-grid" id="calendar-grid"></div>
+                        <div class="cv-legend">
+                            <span><i class="cv-lg cv-lg-today"></i> ថ្ងៃនេះ</span>
+                            <span><i class="cv-lg cv-lg-med"></i> ប្រជុំសម្រុះសម្រួល</span>
+                            <span><i class="cv-lg cv-lg-info"></i> ប្រមូលព័ត៌មាន / ផ្សេងៗ</span>
+                            <span><i class="cv-lg cv-lg-loc"></i> ចុះទីតាំង</span>
+                            <span><i class="cv-lg cv-lg-past"></i> កន្លងផុត</span>
+                            <span class="cv-legend-tip"><i class="fa-regular fa-hand-pointer"></i> ចុចលើថ្ងៃ ដើម្បីបន្ថែមកម្មវិធី</span>
+                        </div>
+                    </div>
+                    <aside class="cv-agenda">
+                        <div class="cv-agenda-head">
+                            <span class="cv-agenda-ic"><i class="fa-regular fa-bell"></i></span>
                             <div>
-                                <h3 style="color: var(--primary-color); font-weight: 700; font-size: 16.5px; margin: 0;">
-                                    បញ្ជីកម្មវិធីសំណុំរឿង
-                                </h3>
+                                <h4>កម្មវិធីខាងមុខ</h4>
+                                <p id="cv-agenda-sub">ថ្ងៃនេះ និង ៧ ថ្ងៃខាងមុខ</p>
                             </div>
                         </div>
+                        <div class="cv-agenda-body" id="cv-agenda-body"></div>
+                    </aside>
+                </div>
 
-                        <!-- Status Filter Pills & Add Event Button -->
-                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                            <div id="upcoming-events-summary" style="display: flex; gap: 8px; flex-wrap: wrap; font-size: 12px; font-weight: 600;">
-                                <!-- Interactive Filter Pills Populated by JS -->
+                <!-- PART 2: the program list -->
+                <div class="cv-part cv-part-list hidden" id="cv-part-list">
+                    <div class="cv-list-card">
+                        <div class="cv-list-head">
+                            <div class="cv-list-title">
+                                <span class="cv-list-ic"><i class="fa-solid fa-list-check"></i></span>
+                                <div>
+                                    <h3>បញ្ជីកម្មវិធីសំណុំរឿង</h3>
+                                    <p id="upcoming-events-showing-text">បង្ហាញកម្មវិធីចំនួន <strong>0</strong> នៃ <strong>0</strong> សរុប</p>
+                                </div>
                             </div>
-                            <button type="button" onclick="openCalendarEventModal(new Date().toISOString().split('T')[0])" class="btn btn-primary btn-sm" style="padding: 6px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);">
-                                <i class="fa-solid fa-plus"></i> <span>បន្ថែមកម្មវិធី</span>
-                            </button>
+                            <div class="cv-search">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" id="upcoming-event-search" oninput="searchUpcomingEvents(this.value)" placeholder="ស្វែងរកលេខសំណុំរឿង ឈ្មោះភាគី ឬទីតាំង...">
+                            </div>
                         </div>
-                    </div>
-
-                    <!-- Search Bar and Showing Status Row -->
-                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; padding: 10px 14px; background: var(--bg-surface-secondary, #f8fafc); border-radius: 8px; border: 1px solid var(--border-color, #e2e8f0);">
-                        <div style="position: relative; width: 340px; max-width: 100%;">
-                            <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 12px; top: 9px; color: #94a3b8; font-size: 13px;"></i>
-                            <input type="text" id="upcoming-event-search" oninput="searchUpcomingEvents(this.value)" placeholder="ស្វែងរកតាមលេខសំណុំរឿង ឈ្មោះភាគី ឬទីតាំង..." style="width: 100%; padding: 6px 12px 6px 34px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 12px; box-sizing: border-box; outline: none; background: #fff; font-family: inherit;">
+                        <div class="cv-filters" id="upcoming-events-summary"></div>
+                        <div class="cv-table-wrap">
+                            <table class="cv-table upcoming-events-table">
+                                <thead>
+                                    <tr>
+                                        <th class="tc" style="width:64px">ល.រ</th>
+                                        <th style="width:150px">ថ្ងៃ និងម៉ោង</th>
+                                        <th style="width:120px">លេខសំណុំរឿង</th>
+                                        <th style="width:170px">កម្មវិធី</th>
+                                        <th style="min-width:220px">ភាគី</th>
+                                        <th style="width:130px">ទីតាំង</th>
+                                        <th class="tc" style="width:120px">ស្ថានភាព</th>
+                                        <th class="tc" style="width:140px">លទ្ធផល</th>
+                                        <th class="tc" style="width:96px">សកម្មភាព</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="upcoming-events-tbody">
+                                    <tr><td colspan="9" class="cv-empty">កំពុងទាញយកទិន្នន័យ...</td></tr>
+                                </tbody>
+                            </table>
                         </div>
-                        <div style="font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 10px;">
-                            <span id="upcoming-events-showing-text">បង្ហាញកម្មវិធីចំនួន <strong>0</strong> នៃ <strong>0</strong> សរុប</span>
-                        </div>
-                    </div>
-
-                    <!-- Table 9 Columns Fit Responsive Wrapper -->
-                    <div class="table-container" style="overflow-x: auto;">
-                        <table class="data-table upcoming-events-table" style="width: 100%; min-width: 1020px;">
-                            <thead>
-                                <tr>
-                                    <th style="width: 58px; text-align: center; white-space: nowrap;">ល.រ ក្នុងបញ្ជី</th>
-                                    <th style="width: 138px; white-space: nowrap;">កាលបរិច្ឆេទ &amp; ម៉ោង កម្មវិធី</th>
-                                    <th style="width: 86px; text-align: center; white-space: nowrap;">លេខសំណុំរឿង</th>
-                                    <th style="width: 130px;">បរិយាយកម្មវិធី</th>
-                                    <th style="min-width: 200px; width: auto;">ឈ្មោះភាគី</th>
-                                    <th style="width: 96px; white-space: nowrap;">ទីតាំង</th>
-                                    <th style="width: 104px; text-align: center; white-space: nowrap;">ស្ថានភាពកម្មវិធី</th>
-                                    <th style="width: 122px; text-align: center; white-space: nowrap;">លទ្ធផលកម្មវិធី</th>
-                                    <th style="width: 90px; text-align: center; white-space: nowrap; background: #eff6ff; color: #1e40af; border-left: 1px solid #bfdbfe;">កែប្រែកម្មវិធី</th>
-                                </tr>
-                            </thead>
-                            <tbody id="upcoming-events-tbody">
-                                <tr>
-                                    <td colspan="9" class="text-center text-muted" style="padding: 24px;">កំពុងទាញយកទិន្នន័យ...</td>
-                                </tr>
-                            </tbody>
-                        </table>
                     </div>
                 </div>
             </section>
@@ -1099,7 +1103,7 @@
                             <div class="kingdom-title">
                                 <h3>ព្រះរាជាណាចក្រកម្ពុជា</h3>
                                 <h4>ជាតិ សាសនា ព្រះមហាក្សត្រ</h4>
-                                <div class="title-underline"></div>
+                                <div class="nadr-orn" style="text-align:center;line-height:0;margin:2px auto 12px"><img class="nadr-orn-img" alt="" width="200" height="12" style="width:200px;height:12px;display:inline-block;border:0"></div>
                             </div>
                             <div class="report-main-title">
                                 <h2 id="report-header-title" style="font-family: 'Khmer OS Muol Light', 'Muol Light', serif; color: var(--text-main); font-weight: normal; margin-bottom: 6px; font-size: 22px;">របាយការណ៍បញ្ជីសំណុំរឿង</h2>
@@ -1548,6 +1552,20 @@
                                     <div class="st-inline">
                                         <button class="kt-btn-primary" type="button" onclick="saveTelegramSettings()"><i class="fa-solid fa-floppy-disk"></i> រក្សាទុក</button>
                                         <button class="kt-btn" type="button" onclick="testTelegramNotification()"><i class="fa-solid fa-paper-plane"></i> សាកល្បងផ្ញើសារ</button>
+                                    </div>
+                                    <div class="tg-guide">
+                                        <table>
+                                            <thead><tr><th>មីនុយ</th><th>ព័ត៌មានដែលផ្ញើ</th><th>ទម្រង់</th></tr></thead>
+                                            <tbody>
+                                                <tr><td>ផ្ទាំងដើម</td><td>ស្ថិតិសំណុំរឿងតាមជម្រើស (ផ្ទាល់ខ្លួន / អម / សរុប)</td><td><span class="tg-f tg-f-text">សារ</span></td></tr>
+                                                <tr><td>បញ្ជីសំណុំរឿង</td><td>ចំនួនតាមស្ថានភាព និងកម្មវិធីខាងមុខ · បញ្ជីពេញតាមតម្រង</td><td><span class="tg-f tg-f-text">សារ</span><span class="tg-f tg-f-pdf">PDF</span><span class="tg-f tg-f-word">Word</span><span class="tg-f tg-f-excel">Excel</span></td></tr>
+                                                <tr><td>កាលវិភាគប្រជុំ</td><td>កម្មវិធី ៧ ថ្ងៃខាងមុខ · ខែដែលកំពុងមើល · ខាងមុខទាំងអស់</td><td><span class="tg-f tg-f-text">សារ</span><span class="tg-f tg-f-pdf">PDF</span><span class="tg-f tg-f-word">Word</span><span class="tg-f tg-f-excel">Excel</span></td></tr>
+                                                <tr><td>របាយការណ៍</td><td>របាយការណ៍ដែលកំពុងបង្ហាញ (ទម្រង់ផ្លូវការ មានបាវចនា)</td><td><span class="tg-f tg-f-text">សារ</span><span class="tg-f tg-f-pdf">PDF</span><span class="tg-f tg-f-word">Word</span><span class="tg-f tg-f-excel">Excel</span></td></tr>
+                                                <tr><td>សំណុំរឿងមួយ</td><td>ព័ត៌មានលម្អិត ភាគី និងកម្មវិធីបន្ទាប់</td><td><span class="tg-f tg-f-text">សារ</span><span class="tg-f tg-f-pdf">PDF</span><span class="tg-f tg-f-word">Word</span></td></tr>
+                                                <tr><td>ស្វ័យប្រវត្តិ</td><td>រំលឹកកម្មវិធី ១ ថ្ងៃមុន · ១ ម៉ោងមុន · ដល់ម៉ោង</td><td><span class="tg-f tg-f-text">សារ</span></td></tr>
+                                            </tbody>
+                                        </table>
+                                        <div class="tg-guide-note"><i class="fa-solid fa-lightbulb" style="color:#d97706"></i> ចុចប៊ូតុង <i class="fab fa-telegram-plane" style="color:#0ea5e9"></i> នៅលើផ្ទាំងនីមួយៗ ដើម្បីជ្រើសទម្រង់។ សារអក្សរ សម្រាប់អានលឿនលើទូរស័ព្ទ · PDF សម្រាប់ឯកសារផ្លូវការ · Word សម្រាប់កែបន្ត · Excel សម្រាប់ទិន្នន័យ។</div>
                                     </div>
                                 </div>
 
@@ -2858,6 +2876,7 @@
     </script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://apis.google.com/js/api.js" async defer></script>
+    <script src="js/nadr-ornament.js?v=1.0"></script>
     <script src="js/utils.js?v=18.0"></script>
     <script src="js/data.js?v=18.1"></script>
     <script src="js/telegram.js?v=18.0"></script>
@@ -2873,5 +2892,7 @@
     <script src="js/page-tools.js?v=1.2"></script>
     <script src="js/owner-login.js?v=1.0"></script>
     <script src="js/about.js?v=1.0"></script>
+    <script src="js/ui-refresh.js?v=1.0"></script>
+    <script src="js/tg-center.js?v=1.0"></script>
 </body>
 </html>
