@@ -179,18 +179,32 @@ if (!gotTheLock) {
       const p = engine().listTemplates()[templateId];
       if (!p) return { ok: false, error: 'រកគម្រូមិនឃើញ៖ ' + templateId };
       if (!dir || !fileName) return { ok: false, error: 'មិនទាន់មានទីតាំងរក្សាទុក' };
+      const ZW = /[​-‍⁠﻿]/g;
+      const cleanDir = path.normalize(String(dir).replace(ZW, ''));
+      let base = String(fileName).replace(ZW, '').replace(/[\\/:*?"<>|]/g, '-').replace(/\.docx$/i, '').trim();
+      // Keep the full path ≤ 240 characters, leaving room for " (99).docx".
+      const MAX = 240, room = MAX - (cleanDir.length + 1) - ' (99).docx'.length;
+      if (room < 12) return { ok: false, error: `ផ្លូវ Folder វែងពេក (${cleanDir.length} តួអក្សរ)។ សូមជ្រើស Folder សំណុំរឿងដែលខ្លីជាងនេះ។` };
+      let shortened = false;
+      if (base.length > room) {
+        base = base.slice(0, room).replace(/[\p{M}្]+$/u, '');
+        // Don't leave a half "(…" at the end.
+        const open = base.lastIndexOf('(');
+        if (open > 8 && open > base.lastIndexOf(')')) base = base.slice(0, open);
+        base = base.replace(/[\s\-–,(]+$/, '').trim();
+        shortened = true;
+      }
       const r = engine().renderTemplate(p, data || {});
-      fs.mkdirSync(dir, { recursive: true });
+      fs.mkdirSync(cleanDir, { recursive: true });
       // Never overwrite: "name.docx" → "name (2).docx" → "name (3).docx" …
-      const base = fileName.replace(/\.docx$/i, '');
-      let out = path.join(dir, base + '.docx');
-      for (let i = 2; fs.existsSync(out); i++) out = path.join(dir, `${base} (${i}).docx`);
+      let out = path.join(cleanDir, base + '.docx');
+      for (let i = 2; fs.existsSync(out); i++) out = path.join(cleanDir, `${base} (${i}).docx`);
       fs.writeFileSync(out, r.buffer, { flag: 'wx' });
       if (open !== false) {
         const err = await shell.openPath(out);
-        if (err) return { ok: true, path: out, openError: err };
+        if (err) return { ok: true, path: out, shortened, openError: err };
       }
-      return { ok: true, path: out };
+      return { ok: true, path: out, shortened };
     } catch (e) { return { ok: false, error: e.message, details: e.details || [] }; }
   });
 

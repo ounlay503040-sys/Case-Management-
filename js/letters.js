@@ -404,7 +404,7 @@
         });
     }
 
-    /* ---------- Making the file (saved into the case folder; refined in phase D) ---------- */
+    /* ---------- Making the file (saved into the stage sub-folder of the case folder) ---------- */
     async function ensureCaseFolder(c) {
         const api = window.electronAPI;
         let folder = c.caseFolderPath || [c.driveLink, c.folderLink].find(isLocalPath) || '';
@@ -430,19 +430,39 @@
         if (it.role === 'B' && job.target && job.target.tag && job.target.tag !== 'ខ') name += ` (ភាគី ${job.target.tag})`;
         return (tag ? `${no} ${tag}-${name}` : `${no}-${name}`).replace(/[\\/:*?"<>|]/g, '-').replace(/[​-‍﻿]/g, '');
     }
+    // Stage 2 once a mediation meeting is held/scheduled or a mediation letter was already made.
+    function currentStage(c) {
+        const m = String(c.mediationMeeting || '').trim();
+        const li = c.letterInputs || {};
+        const medMade = Object.keys(li).some(k => /^(INV-MED-|RPT-MED|MIN-)/.test(k));
+        return (m && m !== 'មិនទាន់ប្រជុំ') || c.mediationMeetingDate || medMade ? '2-ប្រជុំដោះស្រាយ' : '1-ត្រៀម';
+    }
+    function subFolderFor(c, tplId) {
+        const id = String(tplId);
+        if (/^INV-INFO-/.test(id)) return ['1-ត្រៀម', '1-លិខិតអញ្ជើញ'];
+        if (/^RPT-INFO-/.test(id)) return ['1-ត្រៀម', '3-របាយការណ៍ប្រជុំ'];
+        if (/^INV-MED-/.test(id)) return ['2-ប្រជុំដោះស្រាយ', '1-លិខិតអញ្ជើញ'];
+        if (/^RPT-MED/.test(id)) return ['2-ប្រជុំដោះស្រាយ', '3-របាយការណ៍ប្រជុំ'];
+        if (/^MIN-(SETTLE|COPY)/.test(id)) return ['2-ប្រជុំដោះស្រាយ', '4-កំណត់ហេតុបញ្ចប់វិវាទ'];
+        if (/^(RPT-RESULT|REQ-CLOSE)/.test(id)) return ['3-ក្រោយការប្រជុំ', '1-របាយការណ៍'];
+        return [currentStage(c), 'លិខិតរដ្ឋបាលផ្សេងៗ'];
+    }
     async function makeLetters(c, it, v, jobs) {
         const api = window.electronAPI;
-        const dir = await ensureCaseFolder(c);
-        if (!dir) { toast('មិនបានបង្កើតលិខិត៖ មិនទាន់ជ្រើស Folder សំណុំរឿង', 'warning'); return; }
+        const root = await ensureCaseFolder(c);
+        if (!root) { toast('មិនបានបង្កើតលិខិត៖ មិនទាន់ជ្រើស Folder សំណុំរឿង', 'warning'); return; }
+        const sep = root.includes('/') && !root.includes('\\') ? '/' : '\\';
         const made = [];
         for (const j of jobs) {
+            const dir = [root.replace(/[\\/]+$/, '')].concat(subFolderFor(c, j.tplId)).join(sep);
             const r = await api.generateLetter({ templateId: j.tplId, data: j.data, dir, fileName: fileNameFor(c, it, j, v), open: !window.__ltNoOpen });
             if (!r.ok) { toast('បង្កើតលិខិតមិនបាន៖ ' + r.error + (r.details && r.details.length ? ' — ' + r.details.join('; ') : ''), 'error'); return; }
             made.push(r.path);
+            if (r.shortened) toast(`ផ្លូវ File វែងជាង ២៤០ តួអក្សរ ដូច្នេះបានកាត់ឈ្មោះ File ឱ្យខ្លី៖ ${r.path.split(/[\\/]/).pop()}`, 'warning');
             if (r.openError) toast('បានរក្សាទុក ប៉ុន្តែបើក Word មិនបាន៖ ' + r.openError, 'warning');
         }
         window.__ltLastMade = made;
-        toast(`បានបង្កើត ${made.length} លិខិត៖ ${made.map(p => p.split(/[\\/]/).pop()).join(', ')}`, 'success');
+        toast(`បានបង្កើត ${LC().khNum(made.length)} លិខិត៖ ${made.map(p => p.split(/[\\/]/).slice(-3).join('\\')).join(', ')}`, 'success');
         if ($('view-modal')?.classList.contains('open') && typeof openViewModal === 'function') openViewModal(c.id);
     }
 
